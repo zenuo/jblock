@@ -4,6 +4,16 @@ Single-page Java thread dump analyzer. Rust parser compiled to WebAssembly,
 consumed by a React + Vite frontend. See `README.md` for the full command list
 and architecture.
 
+## Skills
+
+- `harness-creator` (`.cursor/skills/harness-creator/SKILL.md`): build, audit, and
+  improve coding-agent harnesses (AGENTS.md, feature/state tracking, verification
+  gates, session handoff). Use it when a coding agent is unreliable across
+  sessions or when creating/assessing `AGENTS.md`, `feature_list.json`, `init.sh`,
+  `progress.md`, or session-handoff files. Bundled scripts (run with `node`):
+  `scripts/create-harness.mjs`, `scripts/validate-harness.mjs`,
+  `scripts/render-assessment-html.mjs`, `scripts/run-benchmark.mjs`.
+
 ## Cursor Cloud specific instructions
 
 ### Layout & services
