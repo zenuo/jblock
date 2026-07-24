@@ -17,7 +17,12 @@ export type FindingKind =
   | "busy-wait-spin-hotspot"
   | "condition-park-starvation"
   | "lock-order-inconsistency"
-  | "finalizer-pressure";
+  | "finalizer-pressure"
+  | "sleep-as-scheduler"
+  | "framework-pool-saturation"
+  | "dns-resolution-stall"
+  | "thread-leak"
+  | "livelock";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -310,6 +315,81 @@ export function buildFindings(
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: "finalize",
+        },
+      });
+    } else if (p.kind === "sleep-as-scheduler") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "sleep-as-scheduler",
+        title: t("findings.sleepAsSchedulerTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.sleepAsSchedulerDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "framework-pool-saturation") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "framework-pool-saturation",
+        title: t("findings.frameworkPoolTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.frameworkPoolDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "dns-resolution-stall") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "dns-resolution-stall",
+        title: t("findings.dnsStallTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.dnsStallDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "thread-leak") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "thread-leak",
+        title: t("findings.threadLeakTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.threadLeakDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "livelock") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "livelock",
+        title: t("findings.livelockTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.livelockDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
         },
       });
     }

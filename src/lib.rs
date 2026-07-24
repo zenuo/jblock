@@ -16,8 +16,8 @@ mod parser;
 #[cfg(not(target_arch = "wasm32"))]
 pub use codegen::{generate as generate_java_source, parse_scenario, Scenario};
 pub use parser::{
-    analyze, Analysis, BlockedEdge, Deadlock, DumpFormat, PatternHit, PatternKind, StateCount,
-    ThreadInfo,
+    analyze, analyze_series, Analysis, BlockedEdge, Deadlock, DumpFormat, MultiDumpAnalysis,
+    PatternHit, PatternKind, StateCount, ThreadInfo,
 };
 
 use wasm_bindgen::prelude::*;
@@ -37,4 +37,19 @@ pub fn start() {
 pub fn analyze_dump(input: &str) -> Result<JsValue, JsValue> {
     let analysis = parser::analyze(input);
     serde_wasm_bindgen::to_value(&analysis).map_err(|e| JsValue::from_str(&e.to_string()))
+}
+
+/// Analyze an ordered series of dumps for cross-dump patterns (feat-041).
+///
+/// `inputs` must be a JS array of strings. Returns `{ dumps, cross_patterns }`.
+#[wasm_bindgen(js_name = analyzeDumps)]
+pub fn analyze_dumps(inputs: JsValue) -> Result<JsValue, JsValue> {
+    let texts: Vec<String> = serde_wasm_bindgen::from_value(inputs)
+        .map_err(|e| JsValue::from_str(&format!("analyzeDumps expects string[]: {e}")))?;
+    if texts.is_empty() {
+        return Err(JsValue::from_str("analyzeDumps requires at least one dump"));
+    }
+    let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
+    let result = parser::analyze_series(&refs);
+    serde_wasm_bindgen::to_value(&result).map_err(|e| JsValue::from_str(&e.to_string()))
 }

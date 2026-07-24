@@ -64,7 +64,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                             ? "legend.lockOrderTitle"
                             : kind === "finalizer-pressure"
                               ? "legend.finalizerPressureTitle"
-                              : "legend.cleanTitle";
+                              : kind === "sleep-as-scheduler"
+                                ? "legend.sleepAsSchedulerTitle"
+                                : kind === "framework-pool-saturation"
+                                  ? "legend.frameworkPoolTitle"
+                                  : kind === "dns-resolution-stall"
+                                    ? "legend.dnsStallTitle"
+                                    : kind === "thread-leak"
+                                      ? "legend.threadLeakTitle"
+                                      : kind === "livelock"
+                                        ? "legend.livelockTitle"
+                                        : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -92,7 +102,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                             ? "legend.lockOrderBody"
                             : kind === "finalizer-pressure"
                               ? "legend.finalizerPressureBody"
-                              : "legend.cleanBody";
+                              : kind === "sleep-as-scheduler"
+                                ? "legend.sleepAsSchedulerBody"
+                                : kind === "framework-pool-saturation"
+                                  ? "legend.frameworkPoolBody"
+                                  : kind === "dns-resolution-stall"
+                                    ? "legend.dnsStallBody"
+                                    : kind === "thread-leak"
+                                      ? "legend.threadLeakBody"
+                                      : kind === "livelock"
+                                        ? "legend.livelockBody"
+                                        : "legend.cleanBody";
 
   return (
     <div
@@ -151,6 +171,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             <DeadlockDemo actors={actors} />
           )}
           {kind === "finalizer-pressure" && <HotLockDemo actors={actors} />}
+          {kind === "sleep-as-scheduler" && (
+            <ConditionStarvationDemo actors={actors} />
+          )}
+          {kind === "framework-pool-saturation" && (
+            <PoolExhaustionDemo actors={actors} />
+          )}
+          {kind === "dns-resolution-stall" && (
+            <SyncIoHotspotDemo actors={actors} />
+          )}
+          {kind === "thread-leak" && <PoolExhaustionDemo actors={actors} />}
+          {kind === "livelock" && <BusyWaitSpinDemo actors={actors} />}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -180,10 +211,54 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               </li>
             </>
           )}
+          {kind === "framework-pool-saturation" && (
+            <>
+              <li>
+                <span className="swatch swatch-thread" />{" "}
+                {t("legend.keyFrameworkWorker")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
           {kind === "sync-io-hotspot" && (
             <>
               <li>
                 <span className="swatch swatch-waiter" /> {t("legend.keyIoThread")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "dns-resolution-stall" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keyDnsResolver")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "thread-leak" && (
+            <>
+              <li>
+                <span className="swatch swatch-thread" />{" "}
+                {t("legend.keyLeakThread")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "livelock" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keyLivelockThread")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}
@@ -208,6 +283,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               </li>
               <li>
                 <span className="swatch swatch-lock" /> {t("legend.keyCondition")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "sleep-as-scheduler" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keySleepScheduler")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}

@@ -527,6 +527,53 @@ th {
   font-size: 0.8rem;
 }
 
+.dump-series {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border, #d4d4d8);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel, #fff) 92%, var(--accent, #2563eb) 8%);
+}
+
+.dump-series-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dump-series-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dump-chip {
+  border: 1px solid var(--border, #d4d4d8);
+  background: var(--panel, #fff);
+  color: var(--text, #18181b);
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.dump-chip:hover {
+  border-color: var(--accent, #2563eb);
+}
+
+.dump-chip.active {
+  border-color: var(--accent, #2563eb);
+  background: color-mix(in srgb, var(--accent, #2563eb) 14%, transparent);
+  font-weight: 600;
+}
+
 .findings-list {
   list-style: none;
   margin: 0;

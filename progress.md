@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 14:30
-**Active Feature:** feat-037 (done)
+**Last Updated:** 2026-07-24 15:20
+**Active Feature:** feat-041 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-036
-- [x] feat-037 Detect Finalizer / Reference Handler pressure
+- [x] feat-001 … feat-040
+- [x] feat-041 Cross-dump patterns: thread leak and livelock
 
 ### What's In Progress
 
@@ -18,18 +18,17 @@
 
 ### What's Next
 
-1. feat-038 Thread.sleep-as-scheduler anti-pattern
-2. … see feature_list.json
+1. feature_list.json is complete through feat-041
 
 ## Decisions Made
 
-- Ref-mgmt threads: Finalizer, Reference Handler, Common-Cleaner / Cleaner-*.
-- Idle = ReferenceQueue.remove (etc.) without finalize/clean work frames.
-- Pressure requires BLOCKED ref thread and/or app lock impact and/or explicit finalize work.
-- Reproducer: app holds LOCK; HeavyFinalizer.finalize() contends LOCK after System.gc().
+- New `MultiDumpAnalysis` + `analyze_series` / WASM `analyzeDumps(string[])`.
+- Thread leak: non-JVM-noise counts non-decreasing with overall growth ≥ 3.
+- Livelock: ≥2 non-noise threads present in every dump with changing top-4 stack signatures.
+- UI: multi-file picker/drop; dump chips switch selected dump; cross patterns merged into findings.
 
 ## Evidence of Completion
 
-- `./init.sh` green — 66 cargo lib tests; web lint/typecheck/build OK
-- Fixture: `tests/fixtures/patterns/finalizer_pressure_jstack.txt`
-- Live capture: `live_capture_finalizer_pressure_detects_pattern`
+- `./init.sh` green — 87 cargo lib tests; web lint/typecheck/build OK
+- Fixtures: `tests/fixtures/patterns/cross_dump/`
+- Unit tests: `detects_thread_leak_across_dumps`, `detects_livelock_across_dumps`, stable/single negatives

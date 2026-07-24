@@ -388,8 +388,8 @@
         "feat-027",
         "feat-018"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::SleepAsScheduler; Scenario SleepAsScheduler (scheduleNextTick sleep loop); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/sleep_as_scheduler_jstack.txt; ./init.sh green (71 cargo tests)"
     },
     {
       "id": "feat-039",
@@ -399,8 +399,8 @@
         "feat-027",
         "feat-028"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::FrameworkPoolSaturation; Scenario FrameworkPoolSaturation (http-nio-8080-exec-*); Jetty/Netty name coverage; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/framework_pool_saturation_jstack.txt; ./init.sh green (77 cargo tests)"
     },
     {
       "id": "feat-040",
@@ -410,8 +410,8 @@
         "feat-027",
         "feat-029"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::DnsResolutionStall; Scenario DnsResolutionStall (UDP sink + JNDI DNS); InetAddress + DnsClient coverage; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/dns_resolution_stall_jstack.txt; ./init.sh green (83 cargo tests)"
     },
     {
       "id": "feat-041",
@@ -421,8 +421,8 @@
         "feat-027",
         "feat-004"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "analyze_series + WASM analyzeDumps; PatternKind::ThreadLeak/Livelock; multi-file UI dump chips; fixtures tests/fixtures/patterns/cross_dump/*; findings/legend/i18n; ./init.sh green (87 cargo tests)"
     }
   ]
 }

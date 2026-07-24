@@ -1,0 +1,17 @@
+2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"worker-0" #1 prio=5 os_prio=0 tid=0x1 nid=0x1 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-1" #2 prio=5 os_prio=0 tid=0x2 nid=0x2 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-2" #3 prio=5 os_prio=0 tid=0x3 nid=0x3 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)

@@ -93,6 +93,16 @@ pub enum PatternKind {
     LockOrderInconsistency,
     /// Finalizer / Reference Handler busy or blocked under pressure (feat-037).
     FinalizerPressure,
+    /// Business threads dominated by TIMED_WAITING Thread.sleep (feat-038).
+    SleepAsScheduler,
+    /// Tomcat/Jetty/Netty worker threads saturated on the same blocking work (feat-039).
+    FrameworkPoolSaturation,
+    /// Clusters stuck in InetAddress / DNS Resolver frames (feat-040).
+    DnsResolutionStall,
+    /// App thread count grows across dumps (feat-041).
+    ThreadLeak,
+    /// Same threads keep changing stacks across dumps without settling (feat-041).
+    Livelock,
 }
 
 /// One detected high-level pattern hit.
@@ -120,6 +130,15 @@ pub struct Analysis {
     pub deadlocks: Vec<Deadlock>,
     /// Higher-level patterns (pool exhaustion, I/O hotspots, …).
     pub patterns: Vec<PatternHit>,
+}
+
+/// Result of analyzing an ordered series of dumps (feat-041).
+#[derive(Debug, Clone, Serialize)]
+pub struct MultiDumpAnalysis {
+    /// Per-dump analysis in the same order as the inputs.
+    pub dumps: Vec<Analysis>,
+    /// Cross-dump-only patterns (thread leak, livelock).
+    pub cross_patterns: Vec<PatternHit>,
 }
 
 fn detect_format(input: &str) -> DumpFormat {
@@ -400,6 +419,22 @@ pub fn analyze(input: &str) -> Analysis {
     }
 }
 
+/// Analyze an ordered series of dumps and detect cross-dump patterns (feat-041).
+pub fn analyze_series(inputs: &[&str]) -> MultiDumpAnalysis {
+    let dumps: Vec<Analysis> = inputs.iter().map(|s| analyze(s)).collect();
+    let mut cross_patterns = Vec::new();
+    if let Some(hit) = detect_thread_leak(&dumps) {
+        cross_patterns.push(hit);
+    }
+    if let Some(hit) = detect_livelock(&dumps) {
+        cross_patterns.push(hit);
+    }
+    MultiDumpAnalysis {
+        dumps,
+        cross_patterns,
+    }
+}
+
 /// Detect higher-level patterns from parsed threads (feat-027+).
 fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
     let mut out = Vec::new();
@@ -431,6 +466,15 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_finalizer_pressure(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_sleep_as_scheduler(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_framework_pool_saturation(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_dns_resolution_stall(threads) {
         out.push(hit);
     }
     out
@@ -1331,6 +1375,426 @@ fn detect_finalizer_pressure(threads: &[ThreadInfo]) -> Option<PatternHit> {
     })
 }
 
+/// Mirror of `web/src/analysisUi.ts` `isJvmNoise` — skip GC/compiler/Finalizer/…
+fn is_jvm_noise_thread(name: &str) -> bool {
+    let n = name.to_ascii_lowercase();
+    const EXACT: &[&str] = &[
+        "reference handler",
+        "finalizer",
+        "signal dispatcher",
+        "attach listener",
+        "service thread",
+        "common-cleaner",
+        "notification thread",
+        "monitor deflation thread",
+        "vm thread",
+        "vm periodic task thread",
+        "destroyjavavm",
+        "process reaper",
+        "sweeper thread",
+    ];
+    if EXACT.iter().any(|e| n == *e) {
+        return true;
+    }
+    n.starts_with("c1 compiler")
+        || n.starts_with("c2 compiler")
+        || n.starts_with("gc ")
+        || n.contains("gc thread")
+        || n.starts_with("g1 ")
+        || n.starts_with("gang worker")
+        || n.contains("parallelgc")
+        || n.starts_with("jvmci")
+        || n.contains("cleaner-")
+}
+
+fn is_sleep_frame(frame: &str) -> bool {
+    frame.contains("Thread.sleep") || frame.contains("Thread.sleep0")
+}
+
+/// Thread.sleep-as-scheduler: ≥3 non-JVM-noise TIMED_WAITING business threads
+/// share a stack dominated by Thread.sleep (feat-038).
+fn detect_sleep_as_scheduler(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            !is_jvm_noise_thread(&t.name)
+                && t.state == "TIMED_WAITING"
+                && t.stack.iter().any(|f| is_sleep_frame(f))
+                // Avoid Condition TIMED_WAITING park stacks (feat-035).
+                && !t.stack.iter().any(|f| is_condition_await_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 3);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let sample = members[0]
+        .stack
+        .iter()
+        .find(|f| is_sleep_frame(f))
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::SleepAsScheduler,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} TIMED_WAITING business threads use Thread.sleep as a scheduler near {}",
+            names.len(),
+            sample
+        ),
+        thread_names: names,
+    })
+}
+
+/// Tomcat `http-nio-*-exec-*`, Jetty `qtp*`, Netty `*nioEventLoop*` worker names.
+fn framework_worker_family(name: &str) -> Option<&'static str> {
+    let tomcat = Regex::new(r"(?i)^http-nio-\d+-exec-\d+$").unwrap();
+    if tomcat.is_match(name) {
+        return Some("tomcat");
+    }
+    // Broader Tomcat connector exec naming.
+    if name.contains("http-nio-") && name.contains("-exec-") {
+        return Some("tomcat");
+    }
+    let jetty = Regex::new(r"^qtp\d+-\d+$").unwrap();
+    if jetty.is_match(name) || (name.starts_with("qtp") && name.contains('-')) {
+        return Some("jetty");
+    }
+    let lower = name.to_ascii_lowercase();
+    if lower.contains("nioeventloop") {
+        return Some("netty");
+    }
+    None
+}
+
+/// Healthy idle stacks for framework workers (waiting for the next request/event).
+fn is_framework_idle_stack(stack: &[String]) -> bool {
+    stack.iter().any(|f| {
+        f.contains("ThreadPoolExecutor.getTask")
+            || f.contains("TaskQueue.take")
+            || f.contains("QueuedThreadPool.idleJob")
+            || f.contains("NioEventLoop.select")
+            || f.contains("Selector.select")
+            || f.contains("SelectorImpl.select")
+            || f.contains("epollWait")
+            || f.contains("KQueue.kevent")
+    })
+}
+
+/// Framework worker-pool saturation: ≥3 Tomcat/Jetty/Netty workers share the
+/// same non-idle blocking work stack (feat-039).
+fn detect_framework_pool_saturation(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let mut by_family: BTreeMap<&'static str, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in threads {
+        if let Some(fam) = framework_worker_family(&t.name) {
+            if !is_framework_idle_stack(&t.stack) {
+                by_family.entry(fam).or_default().push(t);
+            }
+        }
+    }
+
+    let mut best: Option<(&'static str, String, Vec<&ThreadInfo>)> = None;
+    for (fam, members) in by_family {
+        if members.len() < 3 {
+            continue;
+        }
+        let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+        for t in &members {
+            let sig = stack_signature(&t.stack, 4);
+            if sig.is_empty() {
+                continue;
+            }
+            groups.entry(sig).or_default().push(*t);
+        }
+        for (sig, cluster) in groups {
+            if cluster.len() < 3 {
+                continue;
+            }
+            let better = best
+                .as_ref()
+                .map(|(_, _, m)| cluster.len() > m.len())
+                .unwrap_or(true);
+            if better {
+                best = Some((fam, sig, cluster));
+            }
+        }
+    }
+    let (fam, sig, members) = best?;
+    let blocked = members.iter().filter(|t| t.state == "BLOCKED").count();
+    let sample = members[0]
+        .stack
+        .first()
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if blocked >= 2 || names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::FrameworkPoolSaturation,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} {} framework workers saturated on shared work near {} ({} BLOCKED)",
+            names.len(),
+            fam,
+            sample,
+            blocked
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames that indicate DNS / name-resolution work (InetAddress or JNDI DNS).
+fn is_dns_resolution_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "InetAddress.getByName",
+        "InetAddress.getAllByName",
+        "InetAddress$NameServiceAddresses",
+        "InetAddress$PlatformNameService",
+        "InetAddressResolver",
+        "lookupAllHostAddr",
+        "Inet4AddressImpl",
+        "Inet6AddressImpl",
+        "com.sun.jndi.dns",
+        "DnsClient",
+        "DnsContext",
+        "DnsResolutionStall",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// DNS / name-resolution stall: ≥3 threads share stacks stuck in InetAddress
+/// or DNS Resolver frames (feat-040).
+fn detect_dns_resolution_stall(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "RUNNABLE" | "WAITING" | "TIMED_WAITING" | "BLOCKED"
+            ) && t.stack.iter().any(|f| is_dns_resolution_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let sample = members[0]
+        .stack
+        .iter()
+        .find(|f| is_dns_resolution_frame(f))
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::DnsResolutionStall,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads stalled in DNS/name-resolution near {}",
+            names.len(),
+            sample
+        ),
+        thread_names: names,
+    })
+}
+
+fn app_thread_count(a: &Analysis) -> usize {
+    a.threads
+        .iter()
+        .filter(|t| !is_jvm_noise_thread(&t.name))
+        .count()
+}
+
+/// Thread leak: non-JVM-noise thread count grows across an ordered dump series.
+fn detect_thread_leak(dumps: &[Analysis]) -> Option<PatternHit> {
+    if dumps.len() < 2 {
+        return None;
+    }
+    let counts: Vec<usize> = dumps.iter().map(app_thread_count).collect();
+    for w in counts.windows(2) {
+        if w[1] < w[0] {
+            return None;
+        }
+    }
+    let first = *counts.first()?;
+    let last = *counts.last()?;
+    let growth = last.saturating_sub(first);
+    if growth < 3 {
+        return None;
+    }
+
+    let first_names: BTreeSet<&str> = dumps[0].threads.iter().map(|t| t.name.as_str()).collect();
+    let mut new_names: Vec<String> = dumps
+        .last()?
+        .threads
+        .iter()
+        .filter(|t| !is_jvm_noise_thread(&t.name) && !first_names.contains(t.name.as_str()))
+        .map(|t| t.name.clone())
+        .collect();
+    new_names.sort();
+    new_names.dedup();
+    if new_names.is_empty() {
+        new_names = dumps
+            .last()?
+            .threads
+            .iter()
+            .filter(|t| !is_jvm_noise_thread(&t.name))
+            .map(|t| t.name.clone())
+            .take(8)
+            .collect();
+    } else {
+        new_names.truncate(8);
+    }
+
+    let count_path = counts
+        .iter()
+        .map(|c| c.to_string())
+        .collect::<Vec<_>>()
+        .join(" → ");
+    let severity = if growth >= 10 { "critical" } else { "warning" };
+    Some(PatternHit {
+        kind: PatternKind::ThreadLeak,
+        severity: severity.to_string(),
+        detail: format!(
+            "app thread count {} across {} dumps (+{})",
+            count_path,
+            dumps.len(),
+            growth
+        ),
+        thread_names: new_names,
+    })
+}
+
+/// Livelock: ≥2 non-noise threads present in every dump keep changing stacks.
+fn detect_livelock(dumps: &[Analysis]) -> Option<PatternHit> {
+    if dumps.len() < 2 {
+        return None;
+    }
+
+    let mut by_name: BTreeMap<String, Vec<Option<String>>> = BTreeMap::new();
+    for (i, dump) in dumps.iter().enumerate() {
+        for t in &dump.threads {
+            if is_jvm_noise_thread(&t.name) || t.state == "TERMINATED" {
+                continue;
+            }
+            let entry = by_name
+                .entry(t.name.clone())
+                .or_insert_with(|| vec![None; dumps.len()]);
+            if !t.stack.is_empty() {
+                entry[i] = Some(stack_signature(&t.stack, 4));
+            }
+        }
+    }
+
+    let mut oscillating: Vec<String> = Vec::new();
+    for (name, sigs) in &by_name {
+        if sigs.iter().any(|s| s.is_none()) {
+            continue;
+        }
+        let present: Vec<&String> = sigs.iter().filter_map(|s| s.as_ref()).collect();
+        if present.len() < dumps.len() {
+            continue;
+        }
+        let mut changed = false;
+        for w in present.windows(2) {
+            if w[0] != w[1] {
+                changed = true;
+                break;
+            }
+        }
+        if !changed {
+            continue;
+        }
+        let mut uniq: BTreeSet<&str> = BTreeSet::new();
+        for s in &present {
+            uniq.insert(s.as_str());
+        }
+        if uniq.len() < 2 {
+            continue;
+        }
+        oscillating.push(name.clone());
+    }
+
+    if oscillating.len() < 2 {
+        return None;
+    }
+    oscillating.sort();
+    let severity = if oscillating.len() >= 4 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::Livelock,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads changing stacks across {} dumps without settling (livelock)",
+            oscillating.len(),
+            dumps.len()
+        ),
+        thread_names: oscillating,
+    })
+}
+
 /// Detect deadlock cycles from the wait-for graph.
 ///
 /// Each thread waits on at most one lock, so the wait-for relation is a
@@ -1990,6 +2454,45 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .any(|p| p.kind == PatternKind::FinalizerPressure),
             "live fixture should detect Finalizer/Reference Handler pressure"
+        );
+    }
+
+    #[test]
+    fn detects_sleep_as_scheduler_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/sleep_as_scheduler_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::SleepAsScheduler),
+            "live fixture should detect Thread.sleep-as-scheduler"
+        );
+    }
+
+    #[test]
+    fn detects_framework_pool_saturation_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/framework_pool_saturation_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FrameworkPoolSaturation),
+            "live fixture should detect framework worker-pool saturation"
+        );
+    }
+
+    #[test]
+    fn detects_dns_resolution_stall_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/dns_resolution_stall_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DnsResolutionStall),
+            "live fixture should detect DNS/name-resolution stall"
         );
     }
 
@@ -2661,5 +3164,406 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .all(|p| p.kind != PatternKind::FinalizerPressure)
         );
+    }
+
+    const SLEEP_AS_SCHEDULER_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"sleep-scheduler-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"sleep-scheduler-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"sleep-scheduler-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"sleep-scheduler-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x5 nid=0x35 in Object.wait() [0x5]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:151)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:165)
+"#;
+
+    #[test]
+    fn detects_sleep_as_scheduler_pattern() {
+        let a = analyze(SLEEP_AS_SCHEDULER_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::SleepAsScheduler)
+            .expect("sleep-as-scheduler");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("sleep") || hit.detail.contains("scheduler"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("sleep-scheduler-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert!(!hit.thread_names.iter().any(|n| n == "Finalizer"));
+    }
+
+    #[test]
+    fn few_sleepers_or_jvm_noise_not_scheduler_pattern() {
+        const FEW: &str = r#""sleep-scheduler-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+
+"sleep-scheduler-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:165)
+"#;
+        let a = analyze(FEW);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::SleepAsScheduler)
+        );
+    }
+
+    const FRAMEWORK_POOL_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"http-nio-8080-exec-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:12)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"http-nio-8080-exec-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"http-nio-8080-exec-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"http-nio-8080-exec-4" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"qtp1234567890-45" #25 prio=5 os_prio=0 tid=0x5 nid=0x35 waiting on condition [0x5]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at org.eclipse.jetty.util.thread.QueuedThreadPool.idleJob(QueuedThreadPool.java:900)
+"#;
+
+    #[test]
+    fn detects_framework_pool_saturation_pattern() {
+        let a = analyze(FRAMEWORK_POOL_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FrameworkPoolSaturation)
+            .expect("framework-pool-saturation");
+        assert!(hit.thread_names.len() >= 3);
+        assert!(hit.detail.contains("tomcat") || hit.detail.contains("framework"));
+        assert!(
+            hit.thread_names
+                .iter()
+                .all(|n| n.starts_with("http-nio-8080-exec-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        // Idle Jetty worker must not be pulled into the Tomcat cluster.
+        assert!(!hit.thread_names.iter().any(|n| n.starts_with("qtp")));
+    }
+
+    #[test]
+    fn detects_jetty_and_netty_framework_names() {
+        const MIXED: &str = r#""qtp111-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.handle(App.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+
+"qtp111-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.handle(App.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+
+"qtp111-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.handle(App.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+
+"nioEventLoopGroup-2-1" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:100)
+        at io.netty.channel.nio.NioEventLoop.select(NioEventLoop.java:800)
+"#;
+        let a = analyze(MIXED);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FrameworkPoolSaturation)
+            .expect("jetty framework-pool-saturation");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("jetty"));
+        assert!(hit.thread_names.iter().all(|n| n.starts_with("qtp")));
+        // Idle Netty selector must not form a saturated cluster alone.
+        assert!(!hit.thread_names.iter().any(|n| n.contains("nioEventLoop")));
+    }
+
+    #[test]
+    fn idle_framework_workers_not_saturated() {
+        const IDLE: &str = r#""http-nio-8080-exec-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:100)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+
+"http-nio-8080-exec-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:100)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+
+"http-nio-8080-exec-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:100)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+"#;
+        let a = analyze(IDLE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::FrameworkPoolSaturation)
+        );
+    }
+
+    const DNS_STALL_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"dns-resolver-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"dns-resolver-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"dns-resolver-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"dns-resolver-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_dns_resolution_stall_pattern() {
+        let a = analyze(DNS_STALL_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DnsResolutionStall)
+            .expect("dns-resolution-stall");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("DNS") || hit.detail.contains("name-resolution"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("dns-resolver-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn detects_inetaddress_name_service_stall() {
+        const INET: &str = r#""lookup-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+        at java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929)
+        at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1515)
+        at java.net.InetAddress$NameServiceAddresses.get(InetAddress.java:848)
+        at java.net.InetAddress.getAllByName0(InetAddress.java:1505)
+        at java.net.InetAddress.getAllByName(InetAddress.java:1364)
+        at java.net.InetAddress.getByName(InetAddress.java:1315)
+        at com.example.App.connect(App.java:10)
+
+"lookup-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+        at java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929)
+        at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1515)
+        at java.net.InetAddress$NameServiceAddresses.get(InetAddress.java:848)
+        at java.net.InetAddress.getAllByName0(InetAddress.java:1505)
+        at java.net.InetAddress.getAllByName(InetAddress.java:1364)
+        at java.net.InetAddress.getByName(InetAddress.java:1315)
+        at com.example.App.connect(App.java:10)
+
+"lookup-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+        at java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929)
+        at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1515)
+        at java.net.InetAddress$NameServiceAddresses.get(InetAddress.java:848)
+        at java.net.InetAddress.getAllByName0(InetAddress.java:1505)
+        at java.net.InetAddress.getAllByName(InetAddress.java:1364)
+        at java.net.InetAddress.getByName(InetAddress.java:1315)
+        at com.example.App.connect(App.java:10)
+"#;
+        let a = analyze(INET);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DnsResolutionStall)
+            .expect("inetaddress dns-resolution-stall");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("InetAddress") || hit.detail.contains("DNS") || hit.detail.contains("lookup"));
+    }
+
+    #[test]
+    fn few_dns_threads_not_a_stall_cluster() {
+        const FEW: &str = r#""dns-resolver-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+
+"dns-resolver-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+"#;
+        let a = analyze(FEW);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::DnsResolutionStall)
+        );
+    }
+
+    #[test]
+    fn detects_thread_leak_across_dumps() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t0.txt");
+        let t1 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t1.txt");
+        let t2 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t2.txt");
+        let series = analyze_series(&[t0, t1, t2]);
+        let hit = series
+            .cross_patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ThreadLeak)
+            .expect("thread-leak");
+        assert!(hit.detail.contains("+5") || hit.detail.contains("3 → 5 → 8"));
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("worker-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert_eq!(series.dumps.len(), 3);
+    }
+
+    #[test]
+    fn detects_livelock_across_dumps() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/livelock_t0.txt");
+        let t1 = include_str!("../tests/fixtures/patterns/cross_dump/livelock_t1.txt");
+        let t2 = include_str!("../tests/fixtures/patterns/cross_dump/livelock_t2.txt");
+        let series = analyze_series(&[t0, t1, t2]);
+        let hit = series
+            .cross_patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::Livelock)
+            .expect("livelock");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("livelock") || hit.detail.contains("changing stacks"));
+        assert!(hit.thread_names.iter().all(|n| n.starts_with("spin-")));
+    }
+
+    #[test]
+    fn stable_series_has_no_cross_patterns() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/stable_t0.txt");
+        let t1 = include_str!("../tests/fixtures/patterns/cross_dump/stable_t1.txt");
+        let series = analyze_series(&[t0, t1]);
+        assert!(
+            series.cross_patterns.is_empty(),
+            "unexpected {:?}",
+            series.cross_patterns
+        );
+    }
+
+    #[test]
+    fn single_dump_series_has_no_cross_patterns() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t2.txt");
+        let series = analyze_series(&[t0]);
+        assert!(series.cross_patterns.is_empty());
+        assert_eq!(series.dumps.len(), 1);
+        assert_eq!(series.dumps[0].total_threads, analyze(t0).total_threads);
     }
 }

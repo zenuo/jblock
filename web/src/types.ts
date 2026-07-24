@@ -40,7 +40,12 @@ export type PatternKind =
   | "busy-wait-spin-hotspot"
   | "condition-park-starvation"
   | "lock-order-inconsistency"
-  | "finalizer-pressure";
+  | "finalizer-pressure"
+  | "sleep-as-scheduler"
+  | "framework-pool-saturation"
+  | "dns-resolution-stall"
+  | "thread-leak"
+  | "livelock";
 
 export interface PatternHit {
   kind: PatternKind;
@@ -57,4 +62,10 @@ export interface Analysis {
   blocked_edges: BlockedEdge[];
   deadlocks: Deadlock[];
   patterns: PatternHit[];
+}
+
+/** Ordered multi-dump analysis with cross-dump patterns (feat-041). */
+export interface MultiDumpAnalysis {
+  dumps: Analysis[];
+  cross_patterns: PatternHit[];
 }
