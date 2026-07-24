@@ -388,8 +388,8 @@
         "feat-027",
         "feat-018"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::SleepAsScheduler; Scenario SleepAsScheduler (scheduleNextTick sleep loop); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/sleep_as_scheduler_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-039",
