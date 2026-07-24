@@ -30,6 +30,15 @@ export interface Deadlock {
   edges: BlockedEdge[];
 }
 
+export type PatternKind = "thread-pool-exhaustion" | "sync-io-hotspot";
+
+export interface PatternHit {
+  kind: PatternKind;
+  severity: string;
+  thread_names: string[];
+  detail: string;
+}
+
 export interface Analysis {
   format: DumpFormat;
   total_threads: number;
@@ -37,4 +46,5 @@ export interface Analysis {
   threads: ThreadInfo[];
   blocked_edges: BlockedEdge[];
   deadlocks: Deadlock[];
+  patterns: PatternHit[];
 }

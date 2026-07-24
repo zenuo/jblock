@@ -3,7 +3,13 @@ import type { TranslateFn } from "./i18n";
 
 export type FindingSeverity = "critical" | "warning" | "info";
 
-export type FindingKind = "deadlock" | "hot-lock" | "blocked" | "clean";
+export type FindingKind =
+  | "deadlock"
+  | "hot-lock"
+  | "blocked"
+  | "clean"
+  | "thread-pool-exhaustion"
+  | "sync-io-hotspot";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -127,6 +133,40 @@ export function buildFindings(
     }
   }
 
+  for (const p of analysis.patterns ?? []) {
+    if (p.kind === "thread-pool-exhaustion") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "critical",
+        kind: "thread-pool-exhaustion",
+        title: t("findings.poolExhaustionTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.poolExhaustionDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "sync-io-hotspot") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "sync-io-hotspot",
+        title: t("findings.syncIoHotspotTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.syncIoHotspotDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    }
+  }
+
   const groups = aggregateContention(analysis.blocked_edges);
   if (groups.length > 0) {
     const hot = groups[0];
@@ -167,7 +207,11 @@ export function buildFindings(
         lock: firstLock,
       },
     });
-  } else if (analysis.deadlocks.length === 0 && groups.length === 0) {
+  } else if (
+    analysis.deadlocks.length === 0 &&
+    groups.length === 0 &&
+    (analysis.patterns?.length ?? 0) === 0
+  ) {
     const sample = analysis.threads
       .filter((th) => !isJvmNoise(th.name))
       .slice(0, 3)

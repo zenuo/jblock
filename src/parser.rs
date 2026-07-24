@@ -69,6 +69,28 @@ pub struct Deadlock {
     pub edges: Vec<BlockedEdge>,
 }
 
+/// Higher-level problem patterns beyond raw edges/cycles (feat-027+).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum PatternKind {
+    /// Executor pool workers all busy/blocked; none idle in getTask.
+    ThreadPoolExhaustion,
+    /// Many threads share the same sync socket/HTTP/JDBC stack (feat-029).
+    SyncIoHotspot,
+}
+
+/// One detected high-level pattern hit.
+#[derive(Debug, Clone, Serialize)]
+pub struct PatternHit {
+    pub kind: PatternKind,
+    /// `critical` | `warning` | `info`
+    pub severity: String,
+    /// Threads involved in the pattern (sample / all pool workers).
+    pub thread_names: Vec<String>,
+    /// Machine-readable evidence for tests and exports.
+    pub detail: String,
+}
+
 /// The full analysis result returned to the frontend.
 #[derive(Debug, Clone, Serialize)]
 pub struct Analysis {
@@ -80,6 +102,8 @@ pub struct Analysis {
     pub blocked_edges: Vec<BlockedEdge>,
     /// Detected deadlock cycles (circular wait-for among threads).
     pub deadlocks: Vec<Deadlock>,
+    /// Higher-level patterns (pool exhaustion, I/O hotspots, …).
+    pub patterns: Vec<PatternHit>,
 }
 
 fn detect_format(input: &str) -> DumpFormat {
@@ -347,6 +371,7 @@ pub fn analyze(input: &str) -> Analysis {
     }
 
     let deadlocks = detect_deadlocks(&threads, &lock_owner);
+    let patterns = detect_patterns(&threads);
 
     Analysis {
         format,
@@ -355,7 +380,177 @@ pub fn analyze(input: &str) -> Analysis {
         threads,
         blocked_edges,
         deadlocks,
+        patterns,
     }
+}
+
+/// Detect higher-level patterns from parsed threads (feat-027+).
+fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
+    let mut out = Vec::new();
+    if let Some(hit) = detect_thread_pool_exhaustion(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_sync_io_hotspot(threads) {
+        out.push(hit);
+    }
+    out
+}
+
+fn is_executor_pool_thread(name: &str) -> bool {
+    // Default Executors.newFixedThreadPool naming: pool-1-thread-1
+    let re = Regex::new(r"^pool-\d+-thread-\d+$").unwrap();
+    re.is_match(name)
+}
+
+fn stack_has_idle_get_task(stack: &[String]) -> bool {
+    stack
+        .iter()
+        .any(|f| f.contains("ThreadPoolExecutor.getTask"))
+}
+
+/// Pool exhaustion: ≥3 `pool-N-thread-M` workers, none idle in getTask,
+/// and at least one is BLOCKED or holding work (not purely idle).
+fn detect_thread_pool_exhaustion(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let pool: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| is_executor_pool_thread(&t.name))
+        .collect();
+    if pool.len() < 3 {
+        return None;
+    }
+    if pool.iter().any(|t| stack_has_idle_get_task(&t.stack)) {
+        return None;
+    }
+    let busy = pool
+        .iter()
+        .filter(|t| {
+            t.state == "BLOCKED"
+                || t.state == "RUNNABLE"
+                || t.state == "TIMED_WAITING"
+                || t.state == "WAITING"
+        })
+        .count();
+    if busy < 3 {
+        return None;
+    }
+    // Prefer signal when some are BLOCKED (classic stuck-on-shared-lock exhaustion).
+    let blocked = pool.iter().filter(|t| t.state == "BLOCKED").count();
+    let severity = if blocked >= 2 {
+        "critical"
+    } else {
+        "warning"
+    };
+    let names: Vec<String> = pool.iter().map(|t| t.name.clone()).collect();
+    Some(PatternHit {
+        kind: PatternKind::ThreadPoolExhaustion,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} pool workers busy with 0 idle getTask ({} BLOCKED)",
+            names.len(),
+            blocked
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames that indicate synchronous network / JDBC / RPC blocking.
+fn is_sync_io_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "SocketInputStream",
+        "SocketOutputStream",
+        "SocketDispatcher",
+        "PlainSocketImpl",
+        "NioSocketImpl",
+        "SocketChannel.read",
+        "SocketChannel.write",
+        "ServerSocket.accept",
+        "Socket.accept",
+        "HttpURLConnection",
+        "HttpClient",
+        "okhttp3",
+        "OkHttpClient",
+        "org.apache.http",
+        "io.grpc",
+        "java.sql.",
+        "javax.sql.",
+        "jdbc",
+        "DriverManager.getConnection",
+        "Net.connect",
+        "Socket.connect",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+fn stack_signature(frames: &[String], depth: usize) -> String {
+    frames
+        .iter()
+        .take(depth)
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(" | ")
+}
+
+/// Sync I/O / RPC hotspot: ≥3 threads share the same top frames and at least
+/// one frame is a synchronous socket/HTTP/JDBC call.
+fn detect_sync_io_hotspot(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "RUNNABLE" | "WAITING" | "TIMED_WAITING" | "BLOCKED"
+            ) && t.stack.iter().any(|f| is_sync_io_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let io_frame = members[0]
+        .stack
+        .iter()
+        .find(|f| is_sync_io_frame(f))
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::SyncIoHotspot,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads share sync I/O stack near {}",
+            names.len(),
+            io_frame
+        ),
+        thread_names: names,
+    })
 }
 
 /// Detect deadlock cycles from the wait-for graph.
@@ -828,5 +1023,175 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         for expected in ["BLOCKED", "RUNNABLE", "WAITING", "TIMED_WAITING"] {
             assert!(states.contains(expected), "missing state {expected}");
         }
+    }
+
+    // feat-028: synthetic jstack shaped like Executors.newFixedThreadPool exhaustion.
+    const POOL_EXHAUSTION_SAMPLE: &str = r#"2026-07-24 12:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab20000> (a java.lang.Object)
+        at ThreadPoolExhaustion.lambda$main$0(ThreadPoolExhaustion.java:20)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"pool-1-thread-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at ThreadPoolExhaustion.lambda$main$0(ThreadPoolExhaustion.java:18)
+        - waiting to lock <0x000000076ab20000> (a java.lang.Object)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"pool-1-thread-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at ThreadPoolExhaustion.lambda$main$0(ThreadPoolExhaustion.java:18)
+        - waiting to lock <0x000000076ab20000> (a java.lang.Object)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"pool-1-thread-4" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at ThreadPoolExhaustion.lambda$main$0(ThreadPoolExhaustion.java:18)
+        - waiting to lock <0x000000076ab20000> (a java.lang.Object)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_thread_pool_exhaustion_pattern() {
+        let a = analyze(POOL_EXHAUSTION_SAMPLE);
+        assert_eq!(a.patterns.len(), 1);
+        let hit = &a.patterns[0];
+        assert_eq!(hit.kind, PatternKind::ThreadPoolExhaustion);
+        assert_eq!(hit.severity, "critical");
+        assert_eq!(hit.thread_names.len(), 4);
+    }
+
+    #[test]
+    fn detects_thread_pool_exhaustion_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/thread_pool_exhaustion_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ThreadPoolExhaustion),
+            "live fixture should detect pool exhaustion"
+        );
+    }
+
+    #[test]
+    fn detects_sync_io_hotspot_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/sync_io_hotspot_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::SyncIoHotspot),
+            "live fixture should detect sync-io hotspot"
+        );
+    }
+
+    #[test]
+    fn idle_pool_is_not_exhaustion() {
+        const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"pool-1-thread-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"pool-1-thread-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+        let a = analyze(IDLE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::ThreadPoolExhaustion)
+        );
+    }
+
+    const SYNC_IO_SAMPLE: &str = r#"2026-07-24 13:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"rpc-client-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"rpc-client-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"rpc-client-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"rpc-client-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_sync_io_hotspot_pattern() {
+        let a = analyze(SYNC_IO_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::SyncIoHotspot)
+            .expect("sync-io-hotspot");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("Socket") || hit.detail.contains("NioSocket"));
     }
 }

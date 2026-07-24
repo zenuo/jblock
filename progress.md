@@ -2,36 +2,37 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 12:45
-**Active Feature:** feat-026 (in progress)
+**Last Updated:** 2026-07-24 13:12
+**Active Feature:** feat-027 / feat-028 / feat-029 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-025 (on main)
-- [ ] feat-026 Language icon menu + more locales
+- [x] feat-001 … feat-026
+- [x] feat-027 Pattern reproducer + dump capture harness
+- [x] feat-028 Detect thread-pool exhaustion
+- [x] feat-029 Detect sync I/O / RPC hotspot clusters
 
 ### What's In Progress
 
-- [x] Locale catalogs: pt / es / nl / fr / ja / ko (+ existing en / zh)
-- [x] Globe icon language menu component
-- [ ] Verification (`./init.sh` + UI check)
+- [ ] None on this branch
 
-### What's Next
+### What's Next (by benefit)
 
-1. Finish feat-026 verification and open PR.
+1. feat-030 dangerous hot-lock owner
+2. feat-031 connection-pool borrow blocking
+3. … see feature_list.json
 
 ## Decisions Made
 
-- Language control is an icon button (globe SVG) opening a dropdown listbox; no text select.
-- Locales live under `web/src/i18n/locales/*.ts`; catalogs assembled in `messages.ts`.
-- Browser detect extended for pt/es/nl/fr/ja/ko prefixes; `htmlLangFor` shared by app + HTML export.
+- Sync I/O detection clusters ≥3 threads sharing top frames that include socket/HTTP/gRPC/JDBC needles.
+- Reproducer: local ServerSocket + N clients blocked in `SocketInputStream.read`.
 
 ## Evidence of Completion
 
-- [ ] `./init.sh` green
+- [x] `./init.sh` green (`cargo test` 27/27)
 
 ## Notes for Next Session
 
-Run `./init.sh` first. After `src/*.rs` edits, re-run `pnpm -C web run wasm`.
+Start feat-030 next. Reuse capture harness + PatternHit pipeline.

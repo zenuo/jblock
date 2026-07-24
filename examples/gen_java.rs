@@ -1,6 +1,8 @@
 //! Emit a Java reproducer to stdout.
 //!
-//! Usage: cargo run --example gen_java -- <lock-contention|deadlock> [count]
+//! Usage: cargo run --example gen_java -- <scenario> [count]
+//!
+//! Scenarios: lock-contention | deadlock | thread-pool-exhaustion
 //!
 //! Example:
 //!   cargo run --example gen_java -- deadlock 3 > DeadlockCycle.java
@@ -18,7 +20,7 @@ fn main() {
         Some(scenario) => print!("{}", jblock::generate_java_source(scenario, count)),
         None => {
             eprintln!(
-                "unknown scenario: {scenario:?}\nusage: gen_java <lock-contention|deadlock> [count]"
+                "unknown scenario: {scenario:?}\nusage: gen_java <lock-contention|deadlock|thread-pool-exhaustion|sync-io-hotspot> [count]"
             );
             exit(2);
         }
