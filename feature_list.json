@@ -35,9 +35,9 @@
     {
       "id": "feat-005",
       "name": "Export HTML / PDF",
-      "description": "Export a self-contained HTML report and a PDF (via browser print dialog)",
+      "description": "Export a self-contained HTML report(same css/js as web app) and a PDF (via pdf-lib, in one page)",
       "dependencies": ["feat-004"],
-      "status": "done",
+      "status": "not-started",
       "evidence": "web/src/export.ts (buildReportHtml, exportHtml, exportPdf)"
     },
     {
@@ -45,6 +45,38 @@
       "name": "Format & UX hardening",
       "description": "Drag-and-drop upload, deadlock cycle detection, larger real-world dump coverage, and a dedicated PDF renderer instead of print",
       "dependencies": ["feat-005"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-007",
+      "name": "java code generation",
+      "description": "generate java code, form lock contention/waiting threads, and deadlock cycle",
+      "dependencies": ["feat-003"],
+      "status": "not-started",
+      "evidence": "src/tests/java_code_generation.rs"
+    },
+    {
+      "id": "feat-008",
+      "name": "java version support",
+      "description": "调研不同版本java的jstack/ThreadMXBean输出格式差异，通过jenv安装8/11/17/21，分别运行样例代码，用jstack/ThreadMXBean#dumpAllThreads，解析结果并对比",
+      "dependencies": ["feat-007"],
+      "status": "not-started",
+      "evidence": "src/parser.rs; tests detects_java_version_support"
+    },
+    {
+      "id": "feat-009",
+      "name": "ThreadMXBean format lock contentions bug fix",
+      "description": "Fix the bug in the ThreadMXBean format lock contentions detection",
+      "dependencies": ["feat-007"],
+      "status": "not-started",
+      "evidence": "src/parser.rs; tests detects_mxbean_format_lock_contentions"
+    },
+    {
+      "id": "feat-010",
+      "name": "Deadlock cycle detection",
+      "description": "Detect and visualize deadlock cycles in the thread state graph",
+      "dependencies": ["feat-007"],
       "status": "not-started",
       "evidence": ""
     }
