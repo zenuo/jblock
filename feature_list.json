@@ -250,6 +250,16 @@
         "feat-018",
         "feat-013"
       ],
+      "status": "done",
+      "evidence": "web/src/sample.tdump (17 threads: 3-way deadlock, 4-waiter hot lock, JVM noise, mixed states); App imports via sampleDump.ts ?raw; parser parses_web_sample_dump; i18n hint updated; ./init.sh green"
+    },
+    {
+      "id": "feat-026",
+      "name": "Language icon menu + more locales",
+      "description": "Replace the header language <select> with a globe icon button + dropdown; add Portuguese, Spanish, Dutch, French, Japanese, and Korean UI catalogs (keep en/zh)",
+      "dependencies": [
+        "feat-022"
+      ],
       "status": "in_progress",
       "evidence": ""
     }

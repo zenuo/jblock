@@ -2,33 +2,35 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 12:30
-**Active Feature:** feat-025 (in progress → verifying)
+**Last Updated:** 2026-07-24 12:45
+**Active Feature:** feat-026 (in progress)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-024 (on main)
-- [x] feat-025 Richer Load sample dump (implementation)
+- [x] feat-001 … feat-025 (on main)
+- [ ] feat-026 Language icon menu + more locales
 
 ### What's In Progress
 
-- [ ] feat-025 verification (`./init.sh`)
+- [x] Locale catalogs: pt / es / nl / fr / ja / ko (+ existing en / zh)
+- [x] Globe icon language menu component
+- [ ] Verification (`./init.sh` + UI check)
 
 ### What's Next
 
-1. Merge feat-025 after CI green.
+1. Finish feat-026 verification and open PR.
 
 ## Decisions Made
 
-- Shared source of truth: `web/src/sample.tdump` (Vite `?raw` import + Rust `include_str!` test).
-- Sample intentionally demos: 3-thread deadlock, 4-waiter hot lock, stack clusters, JVM noise, mixed states.
+- Language control is an icon button (globe SVG) opening a dropdown listbox; no text select.
+- Locales live under `web/src/i18n/locales/*.ts`; catalogs assembled in `messages.ts`.
+- Browser detect extended for pt/es/nl/fr/ja/ko prefixes; `htmlLangFor` shared by app + HTML export.
 
 ## Evidence of Completion
 
 - [ ] `./init.sh` green
-- [x] `cargo test parses_web_sample_dump` pass
 
 ## Notes for Next Session
 

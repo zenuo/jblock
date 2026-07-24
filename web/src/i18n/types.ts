@@ -1,10 +1,38 @@
-export type Locale = "en" | "zh";
+export type Locale = "en" | "zh" | "pt" | "es" | "nl" | "fr" | "ja" | "ko";
 
-export const LOCALES: readonly Locale[] = ["en", "zh"] as const;
+export const LOCALES: readonly Locale[] = [
+  "en",
+  "zh",
+  "pt",
+  "es",
+  "nl",
+  "fr",
+  "ja",
+  "ko",
+] as const;
 
+/** Native-script labels shown in the language menu. */
 export const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
   zh: "中文",
+  pt: "Português",
+  es: "Español",
+  nl: "Nederlands",
+  fr: "Français",
+  ja: "日本語",
+  ko: "한국어",
+};
+
+/** BCP 47 tags for <html lang> / report documents. */
+export const LOCALE_HTML_LANG: Record<Locale, string> = {
+  en: "en",
+  zh: "zh-CN",
+  pt: "pt",
+  es: "es",
+  nl: "nl",
+  fr: "fr",
+  ja: "ja",
+  ko: "ko",
 };
 
 export type MessageKey =

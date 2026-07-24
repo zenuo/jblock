@@ -11,16 +11,29 @@ import {
 import { catalogs } from "./messages";
 import {
   LOCALES,
+  LOCALE_HTML_LANG,
   LOCALE_LABELS,
   type Locale,
   type MessageKey,
   type TranslateFn,
 } from "./types";
 
-export { LOCALES, LOCALE_LABELS };
+export { LOCALES, LOCALE_HTML_LANG, LOCALE_LABELS };
 export type { Locale, MessageKey, TranslateFn };
 
 const STORAGE_KEY = "jblock.locale";
+
+/** Prefix match order: longer / more specific tags first when needed. */
+const BROWSER_LOCALE_PREFIXES: ReadonlyArray<readonly [string, Locale]> = [
+  ["zh", "zh"],
+  ["pt", "pt"],
+  ["es", "es"],
+  ["nl", "nl"],
+  ["fr", "fr"],
+  ["ja", "ja"],
+  ["ko", "ko"],
+  ["en", "en"],
+];
 
 /** Map browser language tags to a supported locale (default: en). */
 export function detectBrowserLocale(
@@ -32,8 +45,9 @@ export function detectBrowserLocale(
 ): Locale {
   for (const raw of languages) {
     const tag = (raw || "").toLowerCase();
-    if (tag.startsWith("zh")) return "zh";
-    if (tag.startsWith("en")) return "en";
+    for (const [prefix, locale] of BROWSER_LOCALE_PREFIXES) {
+      if (tag === prefix || tag.startsWith(`${prefix}-`)) return locale;
+    }
   }
   return "en";
 }
@@ -63,6 +77,10 @@ export function storeLocale(locale: Locale): void {
 /** Initial locale: stored preference, else browser detect. */
 export function resolveInitialLocale(): Locale {
   return readStoredLocale() ?? detectBrowserLocale();
+}
+
+export function htmlLangFor(locale: Locale): string {
+  return LOCALE_HTML_LANG[locale];
 }
 
 export function createTranslator(locale: Locale): TranslateFn {
@@ -96,7 +114,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
+    document.documentElement.lang = htmlLangFor(locale);
   }, [locale]);
 
   const t = useMemo(() => createTranslator(locale), [locale]);

@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { aggregateContention, buildFindings } from "./analysisUi";
-import { createTranslator, type Locale, type TranslateFn } from "./i18n";
+import { createTranslator, htmlLangFor, type Locale, type TranslateFn } from "./i18n";
 import appCss from "./index.css?inline";
 import type { Analysis } from "./types";
 
@@ -34,7 +34,7 @@ export function buildReportHtml(
   const maxState = Math.max(1, ...analysis.state_counts.map((s) => s.count));
   const findings = buildFindings(analysis, t);
   const groups = aggregateContention(analysis.blocked_edges);
-  const htmlLang = locale === "zh" ? "zh-CN" : "en";
+  const htmlLang = htmlLangFor(locale);
 
   const findingsHtml = `
     <section class="panel findings">

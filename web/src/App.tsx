@@ -8,7 +8,8 @@ import {
   type JavaScenario,
 } from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
-import { LOCALES, LOCALE_LABELS, useI18n, type Locale } from "./i18n";
+import { useI18n } from "./i18n";
+import LanguageMenu from "./LanguageMenu";
 import Results from "./Results";
 import { SAMPLE_DUMP } from "./sampleDump";
 import type { Analysis } from "./types";
@@ -16,7 +17,7 @@ import type { Analysis } from "./types";
 type BusyPhase = "wasm" | "analyzing";
 
 export default function App() {
-  const { t, locale, setLocale } = useI18n();
+  const { t, locale } = useI18n();
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [sourceName, setSourceName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -182,20 +183,7 @@ export default function App() {
             <span className="logo">jblock</span> {t("app.title")}
           </h1>
           <div className="header-actions">
-            <label className="lang-switch" data-testid="lang-switch">
-              <span className="visually-hidden">{t("app.language")}</span>
-              <select
-                value={locale}
-                aria-label={t("app.language")}
-                onChange={(e) => setLocale(e.target.value as Locale)}
-              >
-                {LOCALES.map((code) => (
-                  <option key={code} value={code}>
-                    {LOCALE_LABELS[code]}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <LanguageMenu />
             <button
               type="button"
               className="btn"
