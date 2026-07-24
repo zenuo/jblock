@@ -4,6 +4,69 @@ Single-page Java thread dump analyzer. Rust parser compiled to WebAssembly,
 consumed by a React + Vite frontend. See `README.md` for the full command list
 and architecture.
 
+## Startup Workflow
+
+Before writing code:
+
+1. **Confirm working directory** with `pwd` (repo root).
+2. **Read this file** completely.
+3. **Read project docs**: `README.md` (architecture + commands).
+4. **Run `./init.sh`** to verify the environment is healthy.
+5. **Read `feature_list.json`** to see current feature state.
+6. **Review recent commits** with `git log --oneline -5`.
+
+If baseline verification is failing, repair that first before adding new scope.
+
+## Working Rules
+
+- **One feature at a time**: pick exactly one unfinished feature from `feature_list.json`.
+- **Verification required**: don't claim done without running the verification commands below.
+- **Update artifacts**: before ending a session, update `progress.md` and `feature_list.json`.
+- **Stay in scope**: don't modify files unrelated to the current feature.
+- **Leave clean state**: the next session must be able to run `./init.sh` immediately.
+
+## Required Artifacts
+
+- `feature_list.json` — feature state tracker (source of truth).
+- `progress.md` — session continuity log.
+- `init.sh` — standard startup and verification path.
+- `session-handoff.md` — optional, for larger multi-session work.
+
+## Definition of Done
+
+A feature is done only when ALL of the following are true:
+
+- [ ] Target behavior is implemented.
+- [ ] Required verification actually ran (tests / lint / type-check / build).
+- [ ] Evidence recorded in `feature_list.json` or `progress.md`.
+- [ ] Repository remains restartable from the standard startup path (`./init.sh`).
+
+## End of Session
+
+Before ending a session:
+
+1. Update `progress.md` with current state.
+2. Update `feature_list.json` with new feature status.
+3. Record any unresolved risks or blockers.
+4. Commit with a descriptive message once work is in a safe state.
+5. Leave the repo clean enough for the next session to run `./init.sh` immediately.
+
+## Verification Commands
+
+```bash
+# Full verification (recommended)
+./init.sh
+```
+
+Required checks:
+- `cargo test`
+- `pnpm -C web install`
+- `pnpm -C web run lint`
+- `pnpm -C web run typecheck`
+- `pnpm -C web run build`
+
+Record command + output as Verification Evidence in `progress.md` / `session-handoff.md`.
+
 ## Skills
 
 - `harness-creator` (`.cursor/skills/harness-creator/SKILL.md`): build, audit, and

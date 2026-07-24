@@ -1,0 +1,52 @@
+{
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Project scaffold & verification",
+      "description": "Rust WASM crate + React/Vite frontend build from a clean checkout; `./init.sh` runs cargo test and the web lint/typecheck/build gates",
+      "dependencies": [],
+      "status": "done",
+      "evidence": "cargo test 5/5 pass; pnpm -C web run lint/typecheck/build pass; wasm asset bundled"
+    },
+    {
+      "id": "feat-002",
+      "name": "Thread dump parsing (multi-format)",
+      "description": "Parse jstack output and ThreadMXBean#dumpAllThreads (ThreadInfo#toString) format: detect format, split threads, extract name/id/state/held-locks/waiting-lock",
+      "dependencies": ["feat-001"],
+      "status": "done",
+      "evidence": "src/parser.rs; tests detects_jstack_format, detects_mxbean_format, counts_stack_depth"
+    },
+    {
+      "id": "feat-003",
+      "name": "Problem-pattern analysis",
+      "description": "Thread-state grouping counts and lock-blocking detection (blocked thread -> lock -> owning thread edges)",
+      "dependencies": ["feat-002"],
+      "status": "done",
+      "evidence": "src/parser.rs; tests groups_states, detects_lock_contention"
+    },
+    {
+      "id": "feat-004",
+      "name": "In-browser result rendering",
+      "description": "Local file selection, call WASM analyzeDump, render summary, state bar chart, lock-contention table and thread table",
+      "dependencies": ["feat-003"],
+      "status": "done",
+      "evidence": "web/src/App.tsx + analyzer.ts; manual test: Load sample renders 3 threads, main BLOCKED on lock held by worker"
+    },
+    {
+      "id": "feat-005",
+      "name": "Export HTML / PDF",
+      "description": "Export a self-contained HTML report and a PDF (via browser print dialog)",
+      "dependencies": ["feat-004"],
+      "status": "done",
+      "evidence": "web/src/export.ts (buildReportHtml, exportHtml, exportPdf)"
+    },
+    {
+      "id": "feat-006",
+      "name": "Format & UX hardening",
+      "description": "Drag-and-drop upload, deadlock cycle detection, larger real-world dump coverage, and a dedicated PDF renderer instead of print",
+      "dependencies": ["feat-005"],
+      "status": "not-started",
+      "evidence": ""
+    }
+  ]
+}
