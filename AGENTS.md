@@ -17,12 +17,25 @@ Before writing code:
 
 If baseline verification is failing, repair that first before adding new scope.
 
+## Branching Model (Trunk-Based)
+
+Use **trunk-based development**. Do not open a long-lived branch per feature by default.
+
+- **`main` is the only long-lived branch.** Keep it green (`./init.sh` / CI).
+- **Short-lived branches only**: create a branch for a coherent chunk of work, merge via PR quickly, then delete the branch. Prefer hours–a day of work, not multi-week feature branches.
+- **Batch related work**: one PR may cover several related `feature_list.json` items when they share the same theme and verification (e.g. a results-UX batch). Avoid one PR per tiny checklist row.
+- **Direct small fixes**: trivial docs/typo/config fixes may land as a single short-lived PR with minimal scope; do not invent a parallel `develop` / release-branch flow.
+- **No Git Flow**: do not introduce long-lived `develop`, release, or per-environment branches unless the human explicitly asks.
+- **CI/CD**: GitHub Actions on PRs/pushes; Pages deploy from `main` only. After merge, stay on / pull latest `main` before the next task.
+
+Cloud / Cursor agents still use the required short-lived branch name template for PRs; treat that as ephemeral integration, not a standing feature branch.
+
 ## Working Rules
 
-- **One feature at a time**: pick exactly one unfinished feature from `feature_list.json`.
+- **Coherent scope**: pick one unfinished feature, or one tightly related batch, from `feature_list.json`.
 - **Verification required**: don't claim done without running the verification commands below.
 - **Update artifacts**: before ending a session, update `progress.md` and `feature_list.json`.
-- **Stay in scope**: don't modify files unrelated to the current feature.
+- **Stay in scope**: don't modify files unrelated to the current feature / batch.
 - **Leave clean state**: the next session must be able to run `./init.sh` immediately.
 
 ## Required Artifacts
