@@ -141,14 +141,31 @@ fn extract_name(header: &str) -> Option<String> {
     Some(rest[..end].to_string())
 }
 
-fn parse_block(block: &[&str], lock_re: &Regex, id_re: &Regex, state_re: &Regex) -> ThreadInfo {
+/// Thread id from an MXBean `Id=N` header, or the jstack `#N` ordinal.
+fn extract_id(header: &str, mxbean_id_re: &Regex, jstack_id_re: &Regex) -> Option<String> {
+    mxbean_id_re
+        .captures(header)
+        .and_then(|c| c.get(1))
+        .map(|m| m.as_str().to_string())
+        .or_else(|| {
+            jstack_id_re
+                .captures(header)
+                .and_then(|c| c.get(1))
+                .map(|m| m.as_str().to_string())
+        })
+}
+
+fn parse_block(
+    block: &[&str],
+    lock_re: &Regex,
+    mxbean_id_re: &Regex,
+    jstack_id_re: &Regex,
+    state_re: &Regex,
+) -> ThreadInfo {
     let header = block[0];
     let name = extract_name(header).unwrap_or_else(|| "<unknown>".to_string());
 
-    let id = id_re
-        .captures(header)
-        .and_then(|c| c.get(1))
-        .map(|m| m.as_str().to_string());
+    let id = extract_id(header, mxbean_id_re, jstack_id_re);
 
     // State: prefer the explicit jstack line, fall back to a token in the header.
     let mut state = String::new();
@@ -205,7 +222,10 @@ fn parse_block(block: &[&str], lock_re: &Regex, id_re: &Regex, state_re: &Regex)
 pub fn analyze(input: &str) -> Analysis {
     let format = detect_format(input);
     let lock_re = Regex::new(r"<(0x[0-9a-fA-F]+)>").unwrap();
-    let id_re = Regex::new(r"Id=(\d+)").unwrap();
+    // MXBean headers: `"name" Id=13 …` (Java 8) or `"name" prio=5 Id=13 …` (11+).
+    let mxbean_id_re = Regex::new(r"\bId=(\d+)").unwrap();
+    // jstack headers: `"name" #19 …` (Java 21 may insert `[os_tid]` after `#N`).
+    let jstack_id_re = Regex::new(r#"^"[^"]*"\s+#(\d+)"#).unwrap();
     let state_re = Regex::new(
         r"\b(NEW|RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|TERMINATED)\b",
     )
@@ -213,7 +233,7 @@ pub fn analyze(input: &str) -> Analysis {
 
     let threads: Vec<ThreadInfo> = split_thread_blocks(input)
         .iter()
-        .map(|b| parse_block(b, &lock_re, &id_re, &state_re))
+        .map(|b| parse_block(b, &lock_re, &mxbean_id_re, &jstack_id_re, &state_re))
         .collect();
 
     // State grouping counts.
@@ -464,6 +484,112 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
             a.deadlocks[0].threads.iter().map(|s| s.as_str()).collect();
         for name in ["deadlock-0", "deadlock-1", "deadlock-2"] {
             assert!(members.contains(name), "missing {name} in cycle");
+        }
+    }
+
+    // feat-008: real dumps captured with Temurin 8/11/17/21 via jenv
+    // (see tests/fixtures/java-versions/FORMAT_DIFFS.md).
+    const JV_JSTACK_CONTENTION: [&str; 4] = [
+        include_str!("../tests/fixtures/java-versions/java8-jstack-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java11-jstack-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java17-jstack-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java21-jstack-contention.txt"),
+    ];
+    const JV_JSTACK_DEADLOCK: [&str; 4] = [
+        include_str!("../tests/fixtures/java-versions/java8-jstack-deadlock.txt"),
+        include_str!("../tests/fixtures/java-versions/java11-jstack-deadlock.txt"),
+        include_str!("../tests/fixtures/java-versions/java17-jstack-deadlock.txt"),
+        include_str!("../tests/fixtures/java-versions/java21-jstack-deadlock.txt"),
+    ];
+    const JV_MXBEAN_CONTENTION: [&str; 4] = [
+        include_str!("../tests/fixtures/java-versions/java8-mxbean-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java11-mxbean-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java17-mxbean-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java21-mxbean-contention.txt"),
+    ];
+    const JV_LABELS: [&str; 4] = ["8", "11", "17", "21"];
+
+    #[test]
+    fn detects_java_version_support() {
+        for (i, label) in JV_LABELS.iter().enumerate() {
+            // --- jstack lock contention ---
+            let a = analyze(JV_JSTACK_CONTENTION[i]);
+            assert_eq!(a.format, DumpFormat::Jstack, "java{label} jstack format");
+            let holder = a
+                .threads
+                .iter()
+                .find(|t| t.name == "holder")
+                .unwrap_or_else(|| panic!("java{label}: missing holder"));
+            assert_eq!(holder.state, "TIMED_WAITING");
+            assert_eq!(holder.held_locks.len(), 1, "java{label}: holder lock");
+            assert!(holder.id.is_some(), "java{label}: jstack #N id");
+
+            let waiters: Vec<_> = a
+                .threads
+                .iter()
+                .filter(|t| t.name.starts_with("waiter-"))
+                .collect();
+            assert_eq!(waiters.len(), 2, "java{label}: waiter count");
+            for w in &waiters {
+                assert_eq!(w.state, "BLOCKED");
+                assert_eq!(w.waiting_on.as_ref(), Some(&holder.held_locks[0]));
+            }
+            assert!(
+                a.blocked_edges.len() >= 2,
+                "java{label}: expected contention edges, got {}",
+                a.blocked_edges.len()
+            );
+            for edge in a
+                .blocked_edges
+                .iter()
+                .filter(|e| e.blocked_thread.starts_with("waiter-"))
+            {
+                assert_eq!(edge.owner_thread.as_deref(), Some("holder"));
+            }
+
+            // --- jstack deadlock ---
+            let d = analyze(JV_JSTACK_DEADLOCK[i]);
+            assert_eq!(d.format, DumpFormat::Jstack, "java{label} deadlock format");
+            let phantom = d
+                .threads
+                .iter()
+                .filter(|t| t.name.starts_with("deadlock-") && t.state == "UNKNOWN")
+                .count();
+            assert_eq!(phantom, 0, "java{label}: deadlock summary leaked as threads");
+            assert_eq!(d.deadlocks.len(), 1, "java{label}: deadlock cycle count");
+            assert_eq!(d.deadlocks[0].threads.len(), 3, "java{label}: cycle size");
+            let members: BTreeSet<&str> =
+                d.deadlocks[0].threads.iter().map(|s| s.as_str()).collect();
+            for name in ["deadlock-0", "deadlock-1", "deadlock-2"] {
+                assert!(
+                    members.contains(name),
+                    "java{label}: missing {name} in cycle"
+                );
+            }
+
+            // --- ThreadMXBean: format + thread split + states (locks = feat-009) ---
+            let m = analyze(JV_MXBEAN_CONTENTION[i]);
+            assert_eq!(
+                m.format,
+                DumpFormat::ThreadMxBean,
+                "java{label} mxbean format"
+            );
+            let holder = m
+                .threads
+                .iter()
+                .find(|t| t.name == "holder")
+                .unwrap_or_else(|| panic!("java{label} mxbean: missing holder"));
+            assert_eq!(holder.state, "TIMED_WAITING");
+            assert!(holder.id.is_some(), "java{label} mxbean: Id=N");
+            let waiters: Vec<_> = m
+                .threads
+                .iter()
+                .filter(|t| t.name.starts_with("waiter-"))
+                .collect();
+            assert_eq!(waiters.len(), 2, "java{label} mxbean: waiter count");
+            for w in waiters {
+                assert_eq!(w.state, "BLOCKED", "java{label} mxbean: waiter state");
+            }
         }
     }
 }

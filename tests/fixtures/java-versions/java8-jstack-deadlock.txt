@@ -1,0 +1,118 @@
+2026-07-24 08:48:25
+Full thread dump OpenJDK 64-Bit Server VM (25.492-b09 mixed mode):
+
+"Attach Listener" #12 daemon prio=9 os_prio=0 tid=0x00007f79f8001000 nid=0x1780 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"deadlock-2" #11 prio=5 os_prio=0 tid=0x00007f7a3819a800 nid=0x1770 waiting for monitor entry [0x00007f7a23ffe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at DeadlockCycle.lambda$main$0(DeadlockCycle.java:15)
+	- waiting to lock <0x000000076c9dc8e0> (a java.lang.Object)
+	- locked <0x000000076c9dc900> (a java.lang.Object)
+	at DeadlockCycle$$Lambda$1/834600351.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+"deadlock-1" #10 prio=5 os_prio=0 tid=0x00007f7a38198800 nid=0x176f waiting for monitor entry [0x00007f7a280fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at DeadlockCycle.lambda$main$0(DeadlockCycle.java:15)
+	- waiting to lock <0x000000076c9dc900> (a java.lang.Object)
+	- locked <0x000000076c9dc8f0> (a java.lang.Object)
+	at DeadlockCycle$$Lambda$1/834600351.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+"deadlock-0" #9 prio=5 os_prio=0 tid=0x00007f7a38197000 nid=0x176e waiting for monitor entry [0x00007f7a281fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at DeadlockCycle.lambda$main$0(DeadlockCycle.java:15)
+	- waiting to lock <0x000000076c9dc8f0> (a java.lang.Object)
+	- locked <0x000000076c9dc8e0> (a java.lang.Object)
+	at DeadlockCycle$$Lambda$1/834600351.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+"Service Thread" #8 daemon prio=9 os_prio=0 tid=0x00007f7a380ce800 nid=0x176c runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C1 CompilerThread2" #7 daemon prio=9 os_prio=0 tid=0x00007f7a380c1800 nid=0x176b waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread1" #6 daemon prio=9 os_prio=0 tid=0x00007f7a380bf800 nid=0x176a waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #5 daemon prio=9 os_prio=0 tid=0x00007f7a380bc800 nid=0x1769 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 tid=0x00007f7a380ba000 nid=0x1768 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x00007f7a38087000 nid=0x1767 in Object.wait() [0x00007f7a28efe000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000076c988f00> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)
+	- locked <0x000000076c988f00> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:188)
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x00007f7a38082800 nid=0x1766 in Object.wait() [0x00007f7a28ffe000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000076c986b98> (a java.lang.ref.Reference$Lock)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	- locked <0x000000076c986b98> (a java.lang.ref.Reference$Lock)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+"main" #1 prio=5 os_prio=0 tid=0x00007f7a3800a800 nid=0x1760 waiting on condition [0x00007f7a411ec000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at DeadlockCycle.main(DeadlockCycle.java:21)
+
+"VM Thread" os_prio=0 tid=0x00007f7a38078800 nid=0x1765 runnable 
+
+"GC task thread#0 (ParallelGC)" os_prio=0 tid=0x00007f7a38020000 nid=0x1761 runnable 
+
+"GC task thread#1 (ParallelGC)" os_prio=0 tid=0x00007f7a38022000 nid=0x1762 runnable 
+
+"GC task thread#2 (ParallelGC)" os_prio=0 tid=0x00007f7a38023800 nid=0x1763 runnable 
+
+"GC task thread#3 (ParallelGC)" os_prio=0 tid=0x00007f7a38025800 nid=0x1764 runnable 
+
+"VM Periodic Task Thread" os_prio=0 tid=0x00007f7a380d1000 nid=0x176d waiting on condition 
+
+JNI global references: 312
+
+
+Found one Java-level deadlock:
+=============================
+"deadlock-2":
+  waiting to lock monitor 0x00007f79d4003b98 (object 0x000000076c9dc8e0, a java.lang.Object),
+  which is held by "deadlock-0"
+"deadlock-0":
+  waiting to lock monitor 0x00007f7a000066e8 (object 0x000000076c9dc8f0, a java.lang.Object),
+  which is held by "deadlock-1"
+"deadlock-1":
+  waiting to lock monitor 0x00007f79d4002598 (object 0x000000076c9dc900, a java.lang.Object),
+  which is held by "deadlock-2"
+
+Java stack information for the threads listed above:
+===================================================
+"deadlock-2":
+	at DeadlockCycle.lambda$main$0(DeadlockCycle.java:15)
+	- waiting to lock <0x000000076c9dc8e0> (a java.lang.Object)
+	- locked <0x000000076c9dc900> (a java.lang.Object)
+	at DeadlockCycle$$Lambda$1/834600351.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+"deadlock-0":
+	at DeadlockCycle.lambda$main$0(DeadlockCycle.java:15)
+	- waiting to lock <0x000000076c9dc8f0> (a java.lang.Object)
+	- locked <0x000000076c9dc8e0> (a java.lang.Object)
+	at DeadlockCycle$$Lambda$1/834600351.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+"deadlock-1":
+	at DeadlockCycle.lambda$main$0(DeadlockCycle.java:15)
+	- waiting to lock <0x000000076c9dc900> (a java.lang.Object)
+	- locked <0x000000076c9dc8f0> (a java.lang.Object)
+	at DeadlockCycle$$Lambda$1/834600351.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+Found 1 deadlock.
+

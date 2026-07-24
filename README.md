@@ -12,6 +12,7 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
 - **多格式适配**：
   - `jstack` 工具输出（状态位于独立的 `java.lang.Thread.State:` 行）。
   - `ThreadMXBean#dumpAllThreads` / `ThreadInfo#toString()` 输出（状态在线程头行）。
+  - 已用 Temurin **Java 8 / 11 / 17 / 21** 实机 dump 回归（见 `tests/fixtures/java-versions/`）。
 - **Rust/WASM 解析**：核心解析器用 Rust 编写，编译为 WebAssembly，兼顾性能与安全。
 - **分析结果**：
   - 线程状态分组计数（RUNNABLE / BLOCKED / WAITING / TIMED_WAITING / …）。

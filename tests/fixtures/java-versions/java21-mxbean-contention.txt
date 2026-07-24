@@ -1,0 +1,69 @@
+"main" prio=5 Id=1 RUNNABLE
+	at java.management@21.0.11/sun.management.ThreadImpl.dumpThreads0(Native Method)
+	at java.management@21.0.11/sun.management.ThreadImpl.dumpAllThreads(ThreadImpl.java:518)
+	at java.management@21.0.11/sun.management.ThreadImpl.dumpAllThreads(ThreadImpl.java:506)
+	at app//MxBeanDump.main(MxBeanDump.java:31)
+
+
+"Reference Handler" daemon prio=10 Id=9 RUNNABLE
+	at java.base@21.0.11/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+	at java.base@21.0.11/java.lang.ref.Reference.processPendingReferences(Reference.java:246)
+	at java.base@21.0.11/java.lang.ref.Reference$ReferenceHandler.run(Reference.java:208)
+
+
+"Finalizer" daemon prio=8 Id=10 WAITING on java.lang.ref.NativeReferenceQueue$Lock@119d7047
+	at java.base@21.0.11/java.lang.Object.wait0(Native Method)
+	-  waiting on java.lang.ref.NativeReferenceQueue$Lock@119d7047
+	at java.base@21.0.11/java.lang.Object.wait(Object.java:366)
+	at java.base@21.0.11/java.lang.Object.wait(Object.java:339)
+	at java.base@21.0.11/java.lang.ref.NativeReferenceQueue.await(NativeReferenceQueue.java:48)
+	at java.base@21.0.11/java.lang.ref.ReferenceQueue.remove0(ReferenceQueue.java:158)
+	at java.base@21.0.11/java.lang.ref.NativeReferenceQueue.remove(NativeReferenceQueue.java:89)
+	at java.base@21.0.11/java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:173)
+
+
+"Signal Dispatcher" daemon prio=9 Id=11 RUNNABLE
+
+
+"Notification Thread" daemon prio=9 Id=17 RUNNABLE
+
+
+"Common-Cleaner" daemon prio=8 Id=18 TIMED_WAITING on java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject@4dd8dc3
+	at java.base@21.0.11/jdk.internal.misc.Unsafe.park(Native Method)
+	-  waiting on java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject@4dd8dc3
+	at java.base@21.0.11/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:269)
+	at java.base@21.0.11/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1886)
+	at java.base@21.0.11/java.lang.ref.ReferenceQueue.await(ReferenceQueue.java:71)
+	at java.base@21.0.11/java.lang.ref.ReferenceQueue.remove0(ReferenceQueue.java:143)
+	at java.base@21.0.11/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:218)
+	at java.base@21.0.11/jdk.internal.ref.CleanerImpl.run(CleanerImpl.java:140)
+	at java.base@21.0.11/java.lang.Thread.runWith(Thread.java:1596)
+	...
+
+
+"holder" prio=5 Id=19 TIMED_WAITING
+	at java.base@21.0.11/java.lang.Thread.sleep0(Native Method)
+	at java.base@21.0.11/java.lang.Thread.sleep(Thread.java:509)
+	at app//MxBeanDump.lambda$main$0(MxBeanDump.java:11)
+	-  locked java.lang.Object@6d03e736
+	at app//MxBeanDump$$Lambda/0x00007f4990000a08.run(Unknown Source)
+	at java.base@21.0.11/java.lang.Thread.runWith(Thread.java:1596)
+	at java.base@21.0.11/java.lang.Thread.run(Thread.java:1583)
+
+
+"waiter-0" prio=5 Id=20 BLOCKED on java.lang.Object@6d03e736 owned by "holder" Id=19
+	at app//MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@6d03e736
+	at app//MxBeanDump$$Lambda/0x00007f4990000c28.run(Unknown Source)
+	at java.base@21.0.11/java.lang.Thread.runWith(Thread.java:1596)
+	at java.base@21.0.11/java.lang.Thread.run(Thread.java:1583)
+
+
+"waiter-1" prio=5 Id=21 BLOCKED on java.lang.Object@6d03e736 owned by "holder" Id=19
+	at app//MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@6d03e736
+	at app//MxBeanDump$$Lambda/0x00007f4990000c28.run(Unknown Source)
+	at java.base@21.0.11/java.lang.Thread.runWith(Thread.java:1596)
+	at java.base@21.0.11/java.lang.Thread.run(Thread.java:1583)
+
+

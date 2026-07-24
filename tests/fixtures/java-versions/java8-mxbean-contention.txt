@@ -1,0 +1,48 @@
+"waiter-1" Id=11 BLOCKED on java.lang.Object@53d8d10a owned by "holder" Id=9
+	at MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@53d8d10a
+	at MxBeanDump$$Lambda$2/135721597.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+
+"waiter-0" Id=10 BLOCKED on java.lang.Object@53d8d10a owned by "holder" Id=9
+	at MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@53d8d10a
+	at MxBeanDump$$Lambda$2/135721597.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+
+"holder" Id=9 TIMED_WAITING
+	at java.lang.Thread.sleep(Native Method)
+	at MxBeanDump.lambda$main$0(MxBeanDump.java:11)
+	-  locked java.lang.Object@53d8d10a
+	at MxBeanDump$$Lambda$1/471910020.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+
+"Signal Dispatcher" Id=4 RUNNABLE
+
+
+"Finalizer" Id=3 WAITING on java.lang.ref.ReferenceQueue$Lock@e9e54c2
+	at java.lang.Object.wait(Native Method)
+	-  waiting on java.lang.ref.ReferenceQueue$Lock@e9e54c2
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:188)
+
+
+"Reference Handler" Id=2 WAITING on java.lang.ref.Reference$Lock@65ab7765
+	at java.lang.Object.wait(Native Method)
+	-  waiting on java.lang.ref.Reference$Lock@65ab7765
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+
+"main" Id=1 RUNNABLE
+	at sun.management.ThreadImpl.dumpThreads0(Native Method)
+	at sun.management.ThreadImpl.dumpAllThreads(ThreadImpl.java:503)
+	at sun.management.ThreadImpl.dumpAllThreads(ThreadImpl.java:491)
+	at MxBeanDump.main(MxBeanDump.java:31)
+
+
