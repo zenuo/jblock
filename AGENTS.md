@@ -61,6 +61,7 @@ Before ending a session:
 Required checks:
 - `cargo test`
 - `pnpm -C web install`
+- `pnpm -C web run wasm` (regenerates `web/src/wasm/`; must run before typecheck/lint)
 - `pnpm -C web run lint`
 - `pnpm -C web run typecheck`
 - `pnpm -C web run build`

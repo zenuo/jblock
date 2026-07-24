@@ -9,6 +9,9 @@ cargo test
 echo "=== pnpm -C web install ==="
 pnpm -C web install
 
+echo "=== pnpm -C web run wasm (generates web/src/wasm before typecheck/lint) ==="
+pnpm -C web run wasm
+
 echo "=== pnpm -C web run lint ==="
 pnpm -C web run lint
 

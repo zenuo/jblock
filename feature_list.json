@@ -53,8 +53,8 @@
       "name": "java code generation",
       "description": "generate java code, form lock contention/waiting threads, and deadlock cycle",
       "dependencies": ["feat-003"],
-      "status": "not-started",
-      "evidence": "src/tests/java_code_generation.rs"
+      "status": "done",
+      "evidence": "src/codegen.rs + src/tests/java_code_generation.rs (5 tests); wasm binding generateJava; examples/gen_java.rs; validated with javac 21: generated DeadlockCycle.java compiled and ran, JVM reported 'Found one Java-level deadlock' (deadlock-0->1->2); web UI 'Generate Java reproducer' panel"
     },
     {
       "id": "feat-008",

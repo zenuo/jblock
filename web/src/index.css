@@ -214,3 +214,42 @@ th {
 .empty {
   color: var(--muted);
 }
+
+.codegen-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.codegen-controls label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.codegen-controls select,
+.codegen-controls input {
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-left: 0.25rem;
+}
+
+.codegen-controls input[type="number"] {
+  width: 80px;
+}
+
+.code-block {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  max-height: 420px;
+}

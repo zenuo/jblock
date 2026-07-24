@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { analyze } from "./analyzer";
+import { analyze, generateJava, type JavaScenario } from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
 import type { Analysis } from "./types";
 
@@ -34,6 +34,34 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [javaScenario, setJavaScenario] = useState<JavaScenario>("deadlock");
+  const [javaCount, setJavaCount] = useState(3);
+  const [javaCode, setJavaCode] = useState<string>("");
+
+  const onGenerateJava = useCallback(async () => {
+    setError(null);
+    try {
+      const code = await generateJava(javaScenario, javaCount);
+      setJavaCode(code);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }, [javaScenario, javaCount]);
+
+  const downloadJava = useCallback(() => {
+    const className =
+      javaScenario === "deadlock" ? "DeadlockCycle" : "LockContention";
+    const blob = new Blob([javaCode], { type: "text/x-java-source" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${className}.java`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [javaCode, javaScenario]);
 
   const runAnalysis = useCallback(async (text: string, name: string) => {
     setBusy(true);
@@ -103,6 +131,50 @@ export default function App() {
               Export PDF
             </button>
           </>
+        )}
+      </section>
+
+      <section className="panel codegen" data-testid="codegen">
+        <h2>Generate Java reproducer</h2>
+        <p className="empty">
+          Emit a runnable Java program that reproduces a thread problem, then
+          capture its dump with <span className="mono">jstack</span> and analyze
+          it above.
+        </p>
+        <div className="codegen-controls">
+          <label>
+            Scenario{" "}
+            <select
+              value={javaScenario}
+              onChange={(e) => setJavaScenario(e.target.value as JavaScenario)}
+            >
+              <option value="deadlock">Deadlock cycle</option>
+              <option value="lock-contention">Lock contention</option>
+            </select>
+          </label>
+          <label>
+            Threads{" "}
+            <input
+              type="number"
+              min={2}
+              max={64}
+              value={javaCount}
+              onChange={(e) => setJavaCount(Number(e.target.value))}
+            />
+          </label>
+          <button className="btn primary" onClick={() => void onGenerateJava()}>
+            Generate
+          </button>
+          {javaCode && (
+            <button className="btn" onClick={downloadJava}>
+              Download .java
+            </button>
+          )}
+        </div>
+        {javaCode && (
+          <pre className="code-block" data-testid="java-code">
+            <code>{javaCode}</code>
+          </pre>
         )}
       </section>
 

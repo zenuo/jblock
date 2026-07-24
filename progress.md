@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 07:11
-**Active Feature:** feat-006 - Format & UX hardening (next)
+**Last Updated:** 2026-07-24 08:05
+**Active Feature:** feat-007 - java code generation (done)
 
 ## Status
 
@@ -13,15 +13,17 @@
 - [x] feat-002 Thread dump parsing (jstack + ThreadMXBean)
 - [x] feat-003 Problem-pattern analysis (state grouping + lock contention)
 - [x] feat-004 In-browser result rendering
-- [x] feat-005 Export HTML / PDF
+- [x] feat-007 Java code generation (lock-contention + deadlock reproducers)
 
 ### What's In Progress
 
-- [ ] None — scaffold complete, feat-006 not started.
+- [ ] None — feat-007 complete.
 
 ### What's Next
 
-1. feat-006: drag-and-drop upload, deadlock cycle detection, real-world dump coverage, dedicated PDF renderer.
+1. feat-005 Export HTML/PDF (re-scoped: same css/js as app, PDF via pdf-lib one-page).
+2. feat-009 ThreadMXBean lock-contention bug fix.
+3. feat-010 Deadlock cycle detection (analyzer side).
 
 ## Blockers / Risks
 
@@ -30,19 +32,21 @@
 ## Decisions Made
 
 - **Pure-Rust parser split**: parsing lives in `src/parser.rs` (no wasm deps) so it is host-testable with `cargo test`; `src/lib.rs` only holds bindings.
-- **PDF via print dialog**: keeps the harness dependency-free; swap in a PDF lib under feat-006 if needed.
+- **feat-007 codegen**: `src/codegen.rs` emits two scenarios (lock-contention holder + BLOCKED waiters; deadlock via circular `synchronized` acquisition). Count clamped 2..=64. Exposed as `generateJava(scenario, count)` and a CLI `examples/gen_java.rs`.
+- **init.sh ordering fix**: `pnpm -C web run wasm` now runs before typecheck/lint (typecheck needs the generated `web/src/wasm/*.d.ts`, which now includes `generateJava`).
 
 ## Files Modified This Session
 
-- `feature_list.json`, `progress.md`, `session-handoff.md`, `init.sh` - harness created via harness-creator skill
-- `AGENTS.md` - added harness routing (startup, rules, definition of done, verification)
+- `src/codegen.rs` (new), `src/tests/java_code_generation.rs` (new), `src/lib.rs` (binding), `examples/gen_java.rs` (new)
+- `web/src/analyzer.ts`, `web/src/App.tsx`, `web/src/index.css` (Generate Java panel)
+- `feature_list.json`, `progress.md`, `init.sh`, `AGENTS.md`
 
 ## Evidence of Completion
 
-- [x] Tests pass: `cargo test` -> 5 passed
-- [x] Lint clean: `pnpm -C web run lint`
-- [x] Type check clean: `pnpm -C web run typecheck`
-- [x] Build clean: `pnpm -C web run build`
+- [x] Tests pass: `cargo test` -> 10 passed (5 codegen + 5 parser)
+- [x] Lint/type/build clean: `./init.sh` green
+- [x] javac 21: generated `DeadlockCycle.java` compiled + ran; SIGQUIT dump -> "Found one Java-level deadlock" (deadlock-0->1->2)
+- [x] Browser: "Generate Java reproducer" panel renders code (see PR demo)
 
 ## Notes for Next Session
 
