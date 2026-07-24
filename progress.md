@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 10:15
-**Active Feature:** feat-021 (done)
+**Last Updated:** 2026-07-24 12:05
+**Active Feature:** feat-022 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-020 (on main)
-- [x] feat-021 WASM preload + analyze loading UI
+- [x] feat-001 … feat-021 (on main)
+- [x] feat-022 Multi-language UI with browser auto-detect
 
 ### What's In Progress
 
@@ -18,19 +18,18 @@
 
 ### What's Next
 
-1. Enable GitHub Pages source = GitHub Actions in repo settings if not already.
+1. Optional: more locales beyond en/zh.
 
 ## Decisions Made
 
-- Preload WASM via `preloadWasm()` on App mount (same singleton as `ensureReady`).
-- Busy UI uses a fixed overlay with two phases: `wasm` ("Loading analyzer…") and `analyzing` ("Analyzing dump…").
-- Yield with `setTimeout(0)` before `analyzeDump` so the analyzing overlay can paint (WASM parse is sync on the main thread).
+- Lightweight custom i18n (no i18next): `en` + `zh` catalogs under `web/src/i18n/`.
+- First visit: `detectBrowserLocale(navigator.languages)`; override stored in `localStorage` (`jblock.locale`).
+- HTML export localized; PDF labels stay English (pdf-lib Helvetica cannot embed CJK).
 
 ## Evidence of Completion
 
-- [x] `preloadWasm` / `isWasmReady` in `web/src/analyzer.ts`
-- [x] Overlay in `App.tsx` (`data-testid="loading-overlay"`)
 - [x] `./init.sh` green
+- [x] `detectBrowserLocale(['zh-CN']) === 'zh'`, `(['en-US']) === 'en'`
 
 ## Notes for Next Session
 

@@ -1,0 +1,80 @@
+export type Locale = "en" | "zh";
+
+export const LOCALES: readonly Locale[] = ["en", "zh"] as const;
+
+export const LOCALE_LABELS: Record<Locale, string> = {
+  en: "English",
+  zh: "中文",
+};
+
+export type MessageKey =
+  | "app.title"
+  | "app.tagline"
+  | "app.generateJava"
+  | "app.chooseDump"
+  | "app.loadSample"
+  | "app.exportHtml"
+  | "app.exportPdf"
+  | "app.hint"
+  | "app.dropOverlay"
+  | "app.loadingWasm"
+  | "app.analyzing"
+  | "app.errorPrefix"
+  | "app.wasmLoadFailed"
+  | "app.language"
+  | "codegen.title"
+  | "codegen.close"
+  | "codegen.blurb"
+  | "codegen.scenario"
+  | "codegen.deadlock"
+  | "codegen.lockContention"
+  | "codegen.threads"
+  | "codegen.generate"
+  | "codegen.download"
+  | "findings.title"
+  | "findings.meta"
+  | "findings.deadlockTitle"
+  | "findings.hotLockTitle"
+  | "findings.hotLockDetail"
+  | "findings.blockedTitle"
+  | "findings.blockedDetail"
+  | "findings.cleanTitle"
+  | "findings.cleanDetail"
+  | "deadlocks.title"
+  | "deadlocks.waitsOn"
+  | "deadlocks.heldBy"
+  | "deadlocks.unknown"
+  | "contention.title"
+  | "contention.empty"
+  | "contention.heldBy"
+  | "contention.unknownOwner"
+  | "states.title"
+  | "states.all"
+  | "clusters.title"
+  | "clusters.blurb"
+  | "threads.title"
+  | "threads.hideNoise"
+  | "threads.state"
+  | "threads.empty"
+  | "threads.colName"
+  | "threads.colId"
+  | "threads.colState"
+  | "threads.colWaitingOn"
+  | "threads.colStack"
+  | "threads.colHeldLocks"
+  | "threads.moreFrames"
+  | "report.title"
+  | "report.source"
+  | "report.deadlocks"
+  | "report.contention"
+  | "report.lock"
+  | "report.heldBy"
+  | "report.waiters"
+  | "report.none";
+
+export type Messages = Record<MessageKey, string>;
+
+export type TranslateFn = (
+  key: MessageKey,
+  params?: Record<string, string | number>,
+) => string;

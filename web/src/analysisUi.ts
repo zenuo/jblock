@@ -1,4 +1,5 @@
 import type { Analysis, BlockedEdge, ThreadInfo } from "./types";
+import type { TranslateFn } from "./i18n";
 
 export type FindingSeverity = "critical" | "warning" | "info";
 
@@ -23,7 +24,10 @@ export interface StackCluster {
 }
 
 /** feat-013: actionable findings for the top of the results page. */
-export function buildFindings(analysis: Analysis): Finding[] {
+export function buildFindings(
+  analysis: Analysis,
+  t: TranslateFn,
+): Finding[] {
   const findings: Finding[] = [];
   const blocked =
     analysis.state_counts.find((s) => s.state === "BLOCKED")?.count ?? 0;
@@ -36,7 +40,7 @@ export function buildFindings(analysis: Analysis): Finding[] {
     for (const d of analysis.deadlocks) {
       findings.push({
         severity: "critical",
-        title: `Deadlock cycle (${d.threads.length} threads)`,
+        title: t("findings.deadlockTitle", { count: d.threads.length }),
         detail: `${d.threads.join(" → ")} → ${d.threads[0] ?? ""}`,
       });
     }
@@ -47,22 +51,30 @@ export function buildFindings(analysis: Analysis): Finding[] {
     const hot = groups[0];
     findings.push({
       severity: analysis.deadlocks.length > 0 ? "warning" : "critical",
-      title: `Hottest lock: ${hot.waiters.length} waiter(s)`,
-      detail: `${hot.lock} held by ${hot.owner_thread ?? "unknown"}`,
+      title: t("findings.hotLockTitle", { count: hot.waiters.length }),
+      detail: t("findings.hotLockDetail", {
+        lock: hot.lock,
+        owner: hot.owner_thread ?? t("deadlocks.unknown"),
+      }),
     });
   }
 
   if (blocked > 0) {
     findings.push({
       severity: blockedPct >= 20 ? "warning" : "info",
-      title: `${blocked} BLOCKED thread(s) (${blockedPct}%)`,
-      detail: `${analysis.blocked_edges.length} lock-contention edge(s) detected`,
+      title: t("findings.blockedTitle", { count: blocked, pct: blockedPct }),
+      detail: t("findings.blockedDetail", {
+        count: analysis.blocked_edges.length,
+      }),
     });
   } else if (analysis.deadlocks.length === 0 && groups.length === 0) {
     findings.push({
       severity: "info",
-      title: "No lock contention or deadlock detected",
-      detail: `${analysis.total_threads} threads parsed (${analysis.format})`,
+      title: t("findings.cleanTitle"),
+      detail: t("findings.cleanDetail", {
+        count: analysis.total_threads,
+        format: analysis.format,
+      }),
     });
   }
 

@@ -8,6 +8,7 @@ import {
   threadDomId,
   type ThreadSortKey,
 } from "./analysisUi";
+import { useI18n, type TranslateFn } from "./i18n";
 import type { Analysis, ThreadInfo } from "./types";
 
 const STATE_COLORS: Record<string, string> = {
@@ -26,7 +27,8 @@ interface Props {
 }
 
 export default function Results({ analysis }: Props) {
-  const findings = useMemo(() => buildFindings(analysis), [analysis]);
+  const { t } = useI18n();
+  const findings = useMemo(() => buildFindings(analysis, t), [analysis, t]);
   const contentionGroups = useMemo(
     () => aggregateContention(analysis.blocked_edges),
     [analysis.blocked_edges],
@@ -52,35 +54,34 @@ export default function Results({ analysis }: Props) {
   }, [analysis, hasBlocked]);
 
   const filteredThreads = useMemo(() => {
-    let list = analysis.threads.map((t, index) => ({ t, index }));
-    if (hideNoise) list = list.filter(({ t }) => !isJvmNoise(t.name));
+    let list = analysis.threads.map((th, index) => ({ t: th, index }));
+    if (hideNoise) list = list.filter(({ t: th }) => !isJvmNoise(th.name));
     if (stateFilter !== "ALL") {
-      list = list.filter(({ t }) => t.state === stateFilter);
+      list = list.filter(({ t: th }) => th.state === stateFilter);
     }
     const sorted = sortThreads(
-      list.map(({ t }) => t),
+      list.map(({ t: th }) => th),
       sortKey,
       sortDir,
     );
-    // Re-attach original indices after sort (match by object identity).
-    return sorted.map((t) => {
-      const index = analysis.threads.indexOf(t);
-      return { t, index };
+    return sorted.map((th) => {
+      const index = analysis.threads.indexOf(th);
+      return { t: th, index };
     });
   }, [analysis.threads, hideNoise, stateFilter, sortKey, sortDir]);
 
   const clusters = useMemo(() => {
     const base = hideNoise
-      ? analysis.threads.filter((t) => !isJvmNoise(t.name))
+      ? analysis.threads.filter((th) => !isJvmNoise(th.name))
       : analysis.threads;
     const scoped =
-      stateFilter === "ALL" ? base : base.filter((t) => t.state === stateFilter);
+      stateFilter === "ALL" ? base : base.filter((th) => th.state === stateFilter);
     return clusterByStack(scoped, 2).slice(0, 12);
   }, [analysis.threads, hideNoise, stateFilter]);
 
   const maxState = Math.max(1, ...analysis.state_counts.map((s) => s.count));
   const noiseHidden = hideNoise
-    ? analysis.threads.filter((t) => isJvmNoise(t.name)).length
+    ? analysis.threads.filter((th) => isJvmNoise(th.name)).length
     : 0;
 
   useEffect(() => {
@@ -90,11 +91,11 @@ export default function Results({ analysis }: Props) {
   }, [focusIndex, filteredThreads]);
 
   const focusThreadByName = (name: string) => {
-    const idx = analysis.threads.findIndex((t) => t.name === name);
+    const idx = analysis.threads.findIndex((th) => th.name === name);
     if (idx < 0) return;
-    const t = analysis.threads[idx];
+    const th = analysis.threads[idx];
     if (hideNoise && isJvmNoise(name)) setHideNoise(false);
-    if (stateFilter !== "ALL" && t.state !== stateFilter) setStateFilter("ALL");
+    if (stateFilter !== "ALL" && th.state !== stateFilter) setStateFilter("ALL");
     setFocusIndex(idx);
   };
 
@@ -124,13 +125,21 @@ export default function Results({ analysis }: Props) {
     }
   };
 
+  const shownLabel =
+    filteredThreads.length !== analysis.threads.length
+      ? `${filteredThreads.length} / ${analysis.threads.length}`
+      : String(filteredThreads.length);
+
   return (
     <main className="results" data-testid="results">
       <section className="panel findings" data-testid="findings">
         <div className="findings-header">
-          <h2>Findings</h2>
+          <h2>{t("findings.title")}</h2>
           <span className="meta mono">
-            {analysis.total_threads} threads · {analysis.format}
+            {t("findings.meta", {
+              count: analysis.total_threads,
+              format: analysis.format,
+            })}
           </span>
         </div>
         <ul className="findings-list">
@@ -145,7 +154,7 @@ export default function Results({ analysis }: Props) {
 
       {analysis.deadlocks.length > 0 && (
         <section className="panel deadlock-panel" data-testid="deadlocks">
-          <h2>Deadlocks detected ({analysis.deadlocks.length})</h2>
+          <h2>{t("deadlocks.title", { count: analysis.deadlocks.length })}</h2>
           {analysis.deadlocks.map((d, i) => (
             <div key={i} className="deadlock-cycle">
               <span className="mono">
@@ -180,7 +189,7 @@ export default function Results({ analysis }: Props) {
                     >
                       {e.blocked_thread}
                     </button>{" "}
-                    waits on {e.lock} (held by{" "}
+                    {t("deadlocks.waitsOn")} {e.lock} ({t("deadlocks.heldBy")}{" "}
                     {e.owner_thread ? (
                       <button
                         type="button"
@@ -190,7 +199,7 @@ export default function Results({ analysis }: Props) {
                         {e.owner_thread}
                       </button>
                     ) : (
-                      "unknown"
+                      t("deadlocks.unknown")
                     )}
                     )
                   </li>
@@ -202,9 +211,11 @@ export default function Results({ analysis }: Props) {
       )}
 
       <section className="panel" data-testid="contention">
-        <h2>Lock contention ({contentionGroups.length} lock(s))</h2>
+        <h2>
+          {t("contention.title", { count: contentionGroups.length })}
+        </h2>
         {contentionGroups.length === 0 ? (
-          <p className="empty">No blocked threads detected.</p>
+          <p className="empty">{t("contention.empty")}</p>
         ) : (
           <ul className="contention-groups">
             {contentionGroups.map((g) => {
@@ -223,7 +234,7 @@ export default function Results({ analysis }: Props) {
                       <span className="chevron">{open ? "▾" : "▸"}</span>
                     </button>
                     <span className="contention-owner">
-                      held by{" "}
+                      {t("contention.heldBy")}{" "}
                       {g.owner_thread ? (
                         <button
                           type="button"
@@ -233,7 +244,7 @@ export default function Results({ analysis }: Props) {
                           {g.owner_thread}
                         </button>
                       ) : (
-                        "(unknown)"
+                        t("contention.unknownOwner")
                       )}
                     </span>
                   </div>
@@ -260,7 +271,7 @@ export default function Results({ analysis }: Props) {
       </section>
 
       <section className="panel">
-        <h2>Thread states</h2>
+        <h2>{t("states.title")}</h2>
         <ul className="states">
           <li>
             <button
@@ -268,7 +279,7 @@ export default function Results({ analysis }: Props) {
               className={`state-filter${stateFilter === "ALL" ? " active" : ""}`}
               onClick={() => setStateFilter("ALL")}
             >
-              <span className="state-name">ALL</span>
+              <span className="state-name">{t("states.all")}</span>
               <span className="bar-track">
                 <span
                   className="bar-fill"
@@ -304,10 +315,8 @@ export default function Results({ analysis }: Props) {
 
       {clusters.length > 0 && (
         <section className="panel" data-testid="clusters">
-          <h2>Stack clusters ({clusters.length})</h2>
-          <p className="empty">
-            Threads sharing the same top frames (duplicates collapsed).
-          </p>
+          <h2>{t("clusters.title", { count: clusters.length })}</h2>
+          <p className="empty">{t("clusters.blurb")}</p>
           <ul className="cluster-list">
             {clusters.map((c) => (
               <li key={c.signature} className="cluster-item">
@@ -339,29 +348,23 @@ export default function Results({ analysis }: Props) {
 
       <section className="panel" data-testid="threads">
         <div className="threads-toolbar">
-          <h2>
-            Threads ({filteredThreads.length}
-            {filteredThreads.length !== analysis.threads.length
-              ? ` / ${analysis.threads.length}`
-              : ""}
-            )
-          </h2>
+          <h2>{t("threads.title", { shown: shownLabel })}</h2>
           <label className="toolbar-check">
             <input
               type="checkbox"
               checked={hideNoise}
               onChange={(e) => setHideNoise(e.target.checked)}
             />
-            Hide JVM noise
+            {t("threads.hideNoise")}
             {noiseHidden > 0 ? ` (${noiseHidden})` : ""}
           </label>
           <label>
-            State{" "}
+            {t("threads.state")}{" "}
             <select
               value={stateFilter}
               onChange={(e) => setStateFilter(e.target.value as StateFilter)}
             >
-              <option value="ALL">ALL</option>
+              <option value="ALL">{t("states.all")}</option>
               {analysis.state_counts.map((s) => (
                 <option key={s.state} value={s.state}>
                   {s.state}
@@ -371,44 +374,61 @@ export default function Results({ analysis }: Props) {
           </label>
         </div>
         {filteredThreads.length === 0 ? (
-          <p className="empty">No threads match the current filters.</p>
+          <p className="empty">{t("threads.empty")}</p>
         ) : (
           <table>
             <thead>
               <tr>
                 <th>
-                  <button type="button" className="th-btn" onClick={() => onSort("name")}>
-                    Name
+                  <button
+                    type="button"
+                    className="th-btn"
+                    onClick={() => onSort("name")}
+                  >
+                    {t("threads.colName")}
                   </button>
                 </th>
-                <th>Id</th>
+                <th>{t("threads.colId")}</th>
                 <th>
-                  <button type="button" className="th-btn" onClick={() => onSort("state")}>
-                    State
+                  <button
+                    type="button"
+                    className="th-btn"
+                    onClick={() => onSort("state")}
+                  >
+                    {t("threads.colState")}
                   </button>
                 </th>
-                <th>Waiting on</th>
+                <th>{t("threads.colWaitingOn")}</th>
                 <th>
-                  <button type="button" className="th-btn" onClick={() => onSort("stack")}>
-                    Stack
+                  <button
+                    type="button"
+                    className="th-btn"
+                    onClick={() => onSort("stack")}
+                  >
+                    {t("threads.colStack")}
                   </button>
                 </th>
                 <th>
-                  <button type="button" className="th-btn" onClick={() => onSort("locks")}>
-                    Held locks
+                  <button
+                    type="button"
+                    className="th-btn"
+                    onClick={() => onSort("locks")}
+                  >
+                    {t("threads.colHeldLocks")}
                   </button>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {filteredThreads.map(({ t, index }) => (
+              {filteredThreads.map(({ t: th, index }) => (
                 <ThreadRow
                   key={threadDomId(index)}
-                  thread={t}
+                  thread={th}
                   index={index}
                   focused={focusIndex === index}
                   expanded={expandedStacks.has(index)}
                   onToggleStack={() => toggleStack(index)}
+                  translate={t}
                 />
               ))}
             </tbody>
@@ -420,17 +440,19 @@ export default function Results({ analysis }: Props) {
 }
 
 function ThreadRow({
-  thread: t,
+  thread: th,
   index,
   focused,
   expanded,
   onToggleStack,
+  translate: tr,
 }: {
   thread: ThreadInfo;
   index: number;
   focused: boolean;
   expanded: boolean;
   onToggleStack: () => void;
+  translate: TranslateFn;
 }) {
   return (
     <>
@@ -438,41 +460,43 @@ function ThreadRow({
         id={threadDomId(index)}
         className={focused ? "thread-row focus" : "thread-row"}
       >
-        <td>{t.name}</td>
-        <td>{t.id ?? ""}</td>
+        <td>{th.name}</td>
+        <td>{th.id ?? ""}</td>
         <td>
           <span
             className="state-pill"
-            style={{ background: STATE_COLORS[t.state] ?? "#64748b" }}
+            style={{ background: STATE_COLORS[th.state] ?? "#64748b" }}
           >
-            {t.state}
+            {th.state}
           </span>
         </td>
-        <td className="mono">{t.waiting_on ?? ""}</td>
+        <td className="mono">{th.waiting_on ?? ""}</td>
         <td>
-          {t.stack_depth > 0 ? (
+          {th.stack_depth > 0 ? (
             <button type="button" className="linkish" onClick={onToggleStack}>
-              {t.stack_depth}
+              {th.stack_depth}
               {expanded ? " ▾" : " ▸"}
             </button>
           ) : (
             0
           )}
         </td>
-        <td className="mono">{t.held_locks.join(", ")}</td>
+        <td className="mono">{th.held_locks.join(", ")}</td>
       </tr>
-      {expanded && t.stack.length > 0 && (
+      {expanded && th.stack.length > 0 && (
         <tr className="stack-row">
           <td colSpan={6}>
             <ol className="stack-preview">
-              {t.stack.map((f, i) => (
+              {th.stack.map((f, i) => (
                 <li key={i} className="mono">
                   {f}
                 </li>
               ))}
-              {t.stack_depth > t.stack.length && (
+              {th.stack_depth > th.stack.length && (
                 <li className="empty">
-                  … {t.stack_depth - t.stack.length} more frame(s)
+                  {tr("threads.moreFrames", {
+                    count: th.stack_depth - th.stack.length,
+                  })}
                 </li>
               )}
             </ol>
