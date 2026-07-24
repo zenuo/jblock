@@ -2,19 +2,19 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:20
-**Active Feature:** feat-030 (verifying)
+**Last Updated:** 2026-07-24 13:22
+**Active Feature:** feat-030 (done)
 
 ## Status
 
 ### What's Done
 
 - [x] feat-001 … feat-029
-- [x] feat-030 Detect dangerous hot-lock owner (implementation)
+- [x] feat-030 Detect dangerous hot-lock owner
 
 ### What's In Progress
 
-- [ ] feat-030 verification (`./init.sh`)
+- [ ] None on this branch
 
 ### What's Next (by benefit)
 
@@ -25,11 +25,11 @@
 
 - Detect hottest lock where owner stack has sleep/park/wait/sync-I/O while BLOCKED waiters exist.
 - Reproducer `DangerousHotLock`: named `lock-owner` sleeps holding LOCK; `waiter-*` block.
+- Pool-exhaustion dumps may also surface this pattern (owner sleeping on shared lock) — intentional overlap.
 
 ## Evidence of Completion
 
-- [ ] `./init.sh` green
-- [x] live_capture_dangerous_hot_lock_detects_pattern pass
+- [x] `./init.sh` green (`cargo test` 32/32)
 
 ## Notes for Next Session
 
