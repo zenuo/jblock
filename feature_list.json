@@ -399,8 +399,8 @@
         "feat-027",
         "feat-028"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::FrameworkPoolSaturation; Scenario FrameworkPoolSaturation (http-nio-8080-exec-*); Jetty/Netty name coverage; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/framework_pool_saturation_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-040",
