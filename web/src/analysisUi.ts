@@ -13,7 +13,8 @@ export type FindingKind =
   | "dangerous-hot-lock-owner"
   | "connection-pool-borrow"
   | "future-latch-wait-tree"
-  | "logging-appender-contention";
+  | "logging-appender-contention"
+  | "busy-wait-spin-hotspot";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -234,6 +235,21 @@ export function buildFindings(
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: "Appender",
+        },
+      });
+    } else if (p.kind === "busy-wait-spin-hotspot") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "busy-wait-spin-hotspot",
+        title: t("findings.busyWaitTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.busyWaitDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
         },
       });
     }

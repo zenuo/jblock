@@ -44,6 +44,8 @@ fn parses_scenario_aliases() {
         parse_scenario("logback-contention"),
         Some(Scenario::LoggingAppenderContention)
     );
+    assert_eq!(parse_scenario("busy-wait-spin"), Some(Scenario::BusyWaitSpin));
+    assert_eq!(parse_scenario("cpu-spin"), Some(Scenario::BusyWaitSpin));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -140,6 +142,17 @@ fn logging_appender_contention_holds_appender_lock() {
 }
 
 #[test]
+fn busy_wait_spin_uses_tight_loop() {
+    let code = generate(Scenario::BusyWaitSpin, 4);
+    assert!(code.contains("public class BusyWaitSpin"));
+    assert!(code.contains("spinUntilReady"));
+    assert!(code.contains("spin-worker-"));
+    assert!(code.contains("final int workers = 4;"));
+    assert!(code.contains("while (!ready)"));
+    assert!(code.contains("sink++"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -171,5 +184,6 @@ fn class_name_matches_source() {
         Scenario::LoggingAppenderContention.class_name(),
         "LoggingAppenderContention"
     );
+    assert_eq!(Scenario::BusyWaitSpin.class_name(), "BusyWaitSpin");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

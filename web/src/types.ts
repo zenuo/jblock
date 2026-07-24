@@ -36,7 +36,8 @@ export type PatternKind =
   | "dangerous-hot-lock-owner"
   | "connection-pool-borrow"
   | "future-latch-wait-tree"
-  | "logging-appender-contention";
+  | "logging-appender-contention"
+  | "busy-wait-spin-hotspot";
 
 export interface PatternHit {
   kind: PatternKind;

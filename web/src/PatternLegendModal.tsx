@@ -56,7 +56,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                     ? "legend.futureLatchTitle"
                     : kind === "logging-appender-contention"
                       ? "legend.loggingAppenderTitle"
-                      : "legend.cleanTitle";
+                      : kind === "busy-wait-spin-hotspot"
+                        ? "legend.busyWaitTitle"
+                        : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -76,7 +78,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                     ? "legend.futureLatchBody"
                     : kind === "logging-appender-contention"
                       ? "legend.loggingAppenderBody"
-                      : "legend.cleanBody";
+                      : kind === "busy-wait-spin-hotspot"
+                        ? "legend.busyWaitBody"
+                        : "legend.cleanBody";
 
   return (
     <div
@@ -125,6 +129,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "logging-appender-contention" && (
             <HotLockDemo actors={actors} />
           )}
+          {kind === "busy-wait-spin-hotspot" && (
+            <BusyWaitSpinDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -156,6 +163,16 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             <>
               <li>
                 <span className="swatch swatch-waiter" /> {t("legend.keyIoThread")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "busy-wait-spin-hotspot" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" /> {t("legend.keySpinThread")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}
@@ -582,6 +599,83 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
                   strokeWidth="2"
                 />
                 <ActorLabel actor={a} fallback={`B${i}`} threadMax={10} />
+              </g>
+            </g>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
+  const nodes =
+    actors.nodes.length > 0
+      ? actors.nodes.slice(0, 4)
+      : [
+          { thread: "spin-worker-0", className: "BusyWaitSpin" },
+          { thread: "spin-worker-1", className: "BusyWaitSpin" },
+          { thread: "spin-worker-2", className: "BusyWaitSpin" },
+          { thread: "spin-worker-3", className: "BusyWaitSpin" },
+        ];
+  const positions = [
+    [60, 70],
+    [160, 50],
+    [260, 70],
+    [160, 140],
+  ] as const;
+
+  return (
+    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+      <circle
+        cx="160"
+        cy="170"
+        r="22"
+        fill="#ffedd5"
+        stroke="#f59e0b"
+        strokeWidth="2"
+        className="legend-lock-pulse"
+      />
+      <text
+        x="160"
+        y="174"
+        textAnchor="middle"
+        fontSize="9"
+        fontWeight="700"
+        fill="#b45309"
+      >
+        CPU spin
+      </text>
+      {nodes.map((a, i) => {
+        const [x, y] = positions[i] ?? [160, 90];
+        return (
+          <g key={`${a.thread}-${i}`}>
+            <line
+              x1={x}
+              y1={y + 22}
+              x2="160"
+              y2="150"
+              className="legend-edge-wait"
+              stroke="#f59e0b"
+              strokeWidth="2"
+              strokeDasharray="4 3"
+            />
+            <g transform={`translate(${x} ${y})`}>
+              <g
+                className="legend-pulse"
+                style={{ animationDelay: `${i * 0.12}s` }}
+              >
+                <rect
+                  x="-48"
+                  y="-22"
+                  width="96"
+                  height="44"
+                  rx="8"
+                  fill="#ffedd5"
+                  stroke="#f59e0b"
+                  strokeWidth="2"
+                />
+                <ActorLabel actor={a} fallback={`S${i}`} threadMax={11} />
               </g>
             </g>
           </g>

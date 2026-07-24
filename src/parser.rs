@@ -85,6 +85,8 @@ pub enum PatternKind {
     FutureLatchWaitTree,
     /// Contended Log4j/Logback-style appender lock (feat-033).
     LoggingAppenderContention,
+    /// Many RUNNABLE threads share a tight spin/busy-wait stack (feat-034).
+    BusyWaitSpinHotspot,
 }
 
 /// One detected high-level pattern hit.
@@ -411,6 +413,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_logging_appender_contention(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_busy_wait_spin_hotspot(threads) {
         out.push(hit);
     }
     out
@@ -913,6 +918,79 @@ fn detect_logging_appender_contention(threads: &[ThreadInfo]) -> Option<PatternH
             names.len(),
             sample,
             blocked
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames that mean the thread is blocked / yielding, not CPU-spinning.
+fn is_yielding_or_blocking_frame(frame: &str) -> bool {
+    // Reuse owner-blocking + sync-I/O needles (sleep/park/wait/socket/…).
+    is_blocking_owner_frame(frame)
+}
+
+/// Busy-wait / CPU spin hotspot: ≥3 RUNNABLE threads share a tight top-stack
+/// signature with no park/wait/sleep/I/O frames (feat-034).
+fn detect_busy_wait_spin_hotspot(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            t.state == "RUNNABLE"
+                && t.stack.len() >= 2
+                && !t
+                    .stack
+                    .first()
+                    .map(|f| f.contains("java.lang.Thread.run"))
+                    .unwrap_or(true)
+                && !t.stack.iter().any(|f| is_yielding_or_blocking_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        // Tight signature: top 3 frames capture the spin loop body.
+        let sig = stack_signature(&t.stack, 3);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let top = members[0]
+        .stack
+        .first()
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::BusyWaitSpinHotspot,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} RUNNABLE threads share busy-wait/spin stack near {}",
+            names.len(),
+            top
         ),
         thread_names: names,
     })
@@ -1529,6 +1607,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_busy_wait_spin_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/busy_wait_spin_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::BusyWaitSpinHotspot),
+            "live fixture should detect busy-wait/spin hotspot"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -1904,6 +1995,79 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::LoggingAppenderContention)
+        );
+    }
+
+    const BUSY_WAIT_SAMPLE: &str = r#"2026-07-24 16:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"spin-worker-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"spin-worker-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"spin-worker-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"spin-worker-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_busy_wait_spin_hotspot_pattern() {
+        let a = analyze(BUSY_WAIT_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::BusyWaitSpinHotspot)
+            .expect("busy-wait-spin-hotspot");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("spin") || hit.detail.contains("RUNNABLE"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("spin-worker-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn runnable_with_park_is_not_busy_wait() {
+        const PARKED: &str = r#""w0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at com.example.App.run(App.java:10)
+
+"w1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at com.example.App.run(App.java:10)
+
+"w2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at com.example.App.run(App.java:10)
+"#;
+        let a = analyze(PARKED);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::BusyWaitSpinHotspot)
         );
     }
 }

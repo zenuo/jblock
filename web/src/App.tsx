@@ -307,6 +307,9 @@ export default function App() {
                   <option value="logging-appender-contention">
                     {t("codegen.loggingAppenderContention")}
                   </option>
+                  <option value="busy-wait-spin">
+                    {t("codegen.busyWaitSpin")}
+                  </option>
                 </select>
               </label>
               <label>
