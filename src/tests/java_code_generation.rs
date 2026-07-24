@@ -31,6 +31,11 @@ fn parses_scenario_aliases() {
         Some(Scenario::ConnectionPoolStarve)
     );
     assert_eq!(parse_scenario("hikari-starve"), Some(Scenario::ConnectionPoolStarve));
+    assert_eq!(
+        parse_scenario("future-latch-deadlock"),
+        Some(Scenario::FutureLatchDeadlock)
+    );
+    assert_eq!(parse_scenario("future-get"), Some(Scenario::FutureLatchDeadlock));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -102,6 +107,19 @@ fn connection_pool_starve_blocks_on_borrow() {
 }
 
 #[test]
+fn future_latch_deadlock_forms_wait_tree() {
+    let code = generate(Scenario::FutureLatchDeadlock, 3);
+    assert!(code.contains("public class FutureLatchDeadlock"));
+    assert!(code.contains("CompletableFuture"));
+    assert!(code.contains("CountDownLatch"));
+    assert!(code.contains("future-waiter-"));
+    assert!(code.contains("latch-waiter-"));
+    assert!(code.contains("final int futureWaiters = 3;"));
+    assert!(code.contains(".get()"));
+    assert!(code.contains(".await()"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -124,6 +142,10 @@ fn class_name_matches_source() {
     assert_eq!(
         Scenario::ConnectionPoolStarve.class_name(),
         "ConnectionPoolStarve"
+    );
+    assert_eq!(
+        Scenario::FutureLatchDeadlock.class_name(),
+        "FutureLatchDeadlock"
     );
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

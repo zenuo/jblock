@@ -323,8 +323,8 @@
       "dependencies": [
         "feat-027"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::FutureLatchWaitTree; Scenario FutureLatchDeadlock (CompletableFuture ring + CountDownLatch cross-await); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/future_latch_deadlock_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-033",

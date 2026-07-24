@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:32
-**Active Feature:** feat-031 (done)
+**Last Updated:** 2026-07-24 14:00
+**Active Feature:** feat-032 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-030
-- [x] feat-031 Detect connection-pool borrow blocking
+- [x] feat-001 … feat-031
+- [x] feat-032 Detect Future/Latch wait trees
 
 ### What's In Progress
 
@@ -18,18 +18,18 @@
 
 ### What's Next
 
-1. feat-032 Future/Latch wait trees
+1. feat-033 Logging-appender contention
 2. … see feature_list.json
 
 ## Decisions Made
 
-- Lightweight mock `HikariDataSource` inside `ConnectionPoolStarve` (no external deps).
-- Detect ≥3 threads in WAITING/TIMED_WAITING/BLOCKED with Hikari/DBCP/Druid/getConnection/borrowObject frames.
+- Reproducer: circular `CompletableFuture.get()` ring + CountDownLatch cross-await pair.
+- Detect ≥2 threads in WAITING/TIMED_WAITING with Future.get / CountDownLatch.await / CyclicBarrier.await frames; critical when ≥3 waiters or mixed primitive kinds.
 
 ## Evidence of Completion
 
-- [x] `./init.sh` green (`cargo test` 36/36)
+- [ ] `./init.sh` (pending this turn)
 
 ## Notes for Next Session
 
-Start feat-032 next.
+Start feat-033 next.

@@ -301,6 +301,9 @@ export default function App() {
                   <option value="connection-pool-starve">
                     {t("codegen.connectionPoolStarve")}
                   </option>
+                  <option value="future-latch-deadlock">
+                    {t("codegen.futureLatchDeadlock")}
+                  </option>
                 </select>
               </label>
               <label>

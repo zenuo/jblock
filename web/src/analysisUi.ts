@@ -11,7 +11,8 @@ export type FindingKind =
   | "thread-pool-exhaustion"
   | "sync-io-hotspot"
   | "dangerous-hot-lock-owner"
-  | "connection-pool-borrow";
+  | "connection-pool-borrow"
+  | "future-latch-wait-tree";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -194,6 +195,21 @@ export function buildFindings(
         detail: t("findings.connectionPoolDetail", { detail: p.detail }),
         actors: {
           nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "future-latch-wait-tree") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "critical",
+        kind: "future-latch-wait-tree",
+        title: t("findings.futureLatchTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.futureLatchDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 8),
           owner: null,
           waiters: [],
           lock: null,

@@ -81,6 +81,8 @@ pub enum PatternKind {
     DangerousHotLockOwner,
     /// Many threads blocked borrowing from a connection pool (feat-031).
     ConnectionPoolBorrow,
+    /// Wait tree on Future.get / CountDownLatch / CyclicBarrier (feat-032).
+    FutureLatchWaitTree,
 }
 
 /// One detected high-level pattern hit.
@@ -401,6 +403,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_connection_pool_borrow(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_future_latch_wait_tree(threads) {
         out.push(hit);
     }
     out
@@ -747,6 +752,89 @@ fn detect_connection_pool_borrow(threads: &[ThreadInfo]) -> Option<PatternHit> {
             "{} threads blocked borrowing near {}",
             names.len(),
             pool_frame
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames for Future.get / CountDownLatch.await / CyclicBarrier.await wait trees.
+fn is_future_latch_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "CompletableFuture.get",
+        "CompletableFuture.waitingGet",
+        "CompletableFuture.getNow",
+        "FutureTask.get",
+        "FutureTask.awaitDone",
+        "Future.get",
+        "CountDownLatch.await",
+        "CyclicBarrier.await",
+        "CyclicBarrier.dowait",
+        "FutureLatchDeadlock",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+fn future_latch_kind_label(frame: &str) -> &'static str {
+    if frame.contains("CyclicBarrier") {
+        "CyclicBarrier.await"
+    } else if frame.contains("CountDownLatch") {
+        "CountDownLatch.await"
+    } else if frame.contains("CompletableFuture")
+        || frame.contains("FutureTask")
+        || frame.contains("Future.get")
+    {
+        "Future.get"
+    } else {
+        "Future/Latch await"
+    }
+}
+
+/// Future/Latch wait tree: ≥2 threads WAITING/TIMED_WAITING in Future.get /
+/// CountDownLatch.await / CyclicBarrier.await (logical-deadlock style waits).
+fn detect_future_latch_wait_tree(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(t.state.as_str(), "WAITING" | "TIMED_WAITING")
+                && t.stack.iter().any(|f| is_future_latch_frame(f))
+        })
+        .collect();
+    if candidates.len() < 2 {
+        return None;
+    }
+
+    let mut kinds: BTreeSet<&'static str> = BTreeSet::new();
+    for t in &candidates {
+        if let Some(frame) = t.stack.iter().find(|f| is_future_latch_frame(f)) {
+            kinds.insert(future_latch_kind_label(frame));
+        }
+    }
+
+    let sample = candidates[0]
+        .stack
+        .iter()
+        .find(|f| is_future_latch_frame(f))
+        .cloned()
+        .unwrap_or_else(|| "Future/Latch await".to_string());
+    let names: Vec<String> = candidates.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 3 || kinds.len() >= 2 {
+        "critical"
+    } else {
+        "warning"
+    };
+    let kind_list = kinds.into_iter().collect::<Vec<_>>().join("+");
+    Some(PatternHit {
+        kind: PatternKind::FutureLatchWaitTree,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads in Future/Latch wait tree near {} ({})",
+            names.len(),
+            sample,
+            if kind_list.is_empty() {
+                "await"
+            } else {
+                &kind_list
+            }
         ),
         thread_names: names,
     })
@@ -1337,6 +1425,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_future_latch_wait_tree_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/future_latch_deadlock_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FutureLatchWaitTree),
+            "live fixture should detect Future/Latch wait tree"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -1548,5 +1649,92 @@ Full thread dump OpenJDK 64-Bit Server VM:
             .expect("connection-pool-borrow");
         assert_eq!(hit.thread_names.len(), 3);
         assert!(hit.detail.contains("borrow") || hit.detail.contains("getConnection") || hit.detail.contains("Hikari"));
+    }
+
+    const FUTURE_LATCH_SAMPLE: &str = r#"2026-07-24 14:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"future-waiter-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076aaa0001> (a java.util.concurrent.CompletableFuture$Signaller)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.CompletableFuture$Signaller.block(CompletableFuture.java:1864)
+        at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+        at java.util.concurrent.CompletableFuture.waitingGet(CompletableFuture.java:1898)
+        at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2072)
+        at FutureLatchDeadlock.lambda$main$0(FutureLatchDeadlock.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"future-waiter-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076aaa0002> (a java.util.concurrent.CompletableFuture$Signaller)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.CompletableFuture$Signaller.block(CompletableFuture.java:1864)
+        at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+        at java.util.concurrent.CompletableFuture.waitingGet(CompletableFuture.java:1898)
+        at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2072)
+        at FutureLatchDeadlock.lambda$main$0(FutureLatchDeadlock.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"latch-waiter-0" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076bbb0001> (a java.util.concurrent.CountDownLatch$Sync)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:754)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1099)
+        at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:230)
+        at FutureLatchDeadlock.lambda$main$1(FutureLatchDeadlock.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"latch-waiter-1" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076bbb0002> (a java.util.concurrent.CountDownLatch$Sync)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:754)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1099)
+        at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:230)
+        at FutureLatchDeadlock.lambda$main$2(FutureLatchDeadlock.java:50)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_future_latch_wait_tree_pattern() {
+        let a = analyze(FUTURE_LATCH_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FutureLatchWaitTree)
+            .expect("future-latch-wait-tree");
+        assert!(hit.thread_names.len() >= 4, "names={:?}", hit.thread_names);
+        assert_eq!(hit.severity, "critical");
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("future-waiter-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("latch-waiter-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn single_future_get_is_not_wait_tree() {
+        const ONE: &str = r#""worker" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2072)
+        at com.example.App.run(App.java:10)
+"#;
+        let a = analyze(ONE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::FutureLatchWaitTree)
+        );
     }
 }

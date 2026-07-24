@@ -52,7 +52,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                 ? "legend.dangerousHotLockTitle"
                 : kind === "connection-pool-borrow"
                   ? "legend.connectionPoolTitle"
-                  : "legend.cleanTitle";
+                  : kind === "future-latch-wait-tree"
+                    ? "legend.futureLatchTitle"
+                    : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -68,7 +70,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                 ? "legend.dangerousHotLockBody"
                 : kind === "connection-pool-borrow"
                   ? "legend.connectionPoolBody"
-                  : "legend.cleanBody";
+                  : kind === "future-latch-wait-tree"
+                    ? "legend.futureLatchBody"
+                    : "legend.cleanBody";
 
   return (
     <div
@@ -111,10 +115,13 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "connection-pool-borrow" && (
             <ConnectionPoolDemo actors={actors} />
           )}
+          {kind === "future-latch-wait-tree" && (
+            <DeadlockDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
-          {kind === "deadlock" && (
+          {(kind === "deadlock" || kind === "future-latch-wait-tree") && (
             <>
               <li>
                 <span className="swatch swatch-thread" /> {t("legend.keyThread")}

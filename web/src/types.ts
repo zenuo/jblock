@@ -34,7 +34,8 @@ export type PatternKind =
   | "thread-pool-exhaustion"
   | "sync-io-hotspot"
   | "dangerous-hot-lock-owner"
-  | "connection-pool-borrow";
+  | "connection-pool-borrow"
+  | "future-latch-wait-tree";
 
 export interface PatternHit {
   kind: PatternKind;
