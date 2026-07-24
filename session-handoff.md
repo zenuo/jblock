@@ -2,25 +2,26 @@
 
 ## Current Objective
 
-- Goal: feat-012 codegen entry as top-right modal
+- Goal: feat-013..019 results-page analysis UX improvements
 - Current status: done
-- Branch: `cursor/feat-012-codegen-modal-6bfd`
+- Branch: `cursor/feat-013-019-results-ux-6bfd`
 
 ## Completed This Session
 
-- [x] Pulled latest `main` (feat-011 merged)
-- [x] Added feat-012 and moved Generate Java UI into header modal
-- [x] Main page is dump-analysis only
+- [x] Added feat-013..019 to `feature_list.json` and implemented them in order
+- [x] Parser stack frames + richer Results UI (findings, contention groups, filters, jump, noise, clusters)
+- [x] HTML/PDF export updated for findings / aggregated contention / waiting_on
 
 ## Verification Evidence
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
+| Unit tests | `cargo test` | pass | 17 tests |
 | Full gate | `./init.sh` | pass | |
 
 ## Files Changed
 
-- `web/src/App.tsx`, `web/src/index.css`
+- `src/parser.rs`, `web/src/{App,Results,analysisUi,types,export,index.css}.tsx/ts/css`
 - `feature_list.json`, `progress.md`, `session-handoff.md`, `README.md`
 
 ## Next Session Startup

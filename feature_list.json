@@ -12,7 +12,9 @@
       "id": "feat-002",
       "name": "Thread dump parsing (multi-format)",
       "description": "Parse jstack output and ThreadMXBean#dumpAllThreads (ThreadInfo#toString) format: detect format, split threads, extract name/id/state/held-locks/waiting-lock",
-      "dependencies": ["feat-001"],
+      "dependencies": [
+        "feat-001"
+      ],
       "status": "done",
       "evidence": "src/parser.rs; tests detects_jstack_format, detects_mxbean_format, counts_stack_depth"
     },
@@ -20,7 +22,9 @@
       "id": "feat-003",
       "name": "Problem-pattern analysis",
       "description": "Thread-state grouping counts and lock-blocking detection (blocked thread -> lock -> owning thread edges)",
-      "dependencies": ["feat-002"],
+      "dependencies": [
+        "feat-002"
+      ],
       "status": "done",
       "evidence": "src/parser.rs; tests groups_states, detects_lock_contention"
     },
@@ -28,7 +32,9 @@
       "id": "feat-004",
       "name": "In-browser result rendering",
       "description": "Local file selection, call WASM analyzeDump, render summary, state bar chart, lock-contention table and thread table",
-      "dependencies": ["feat-003"],
+      "dependencies": [
+        "feat-003"
+      ],
       "status": "done",
       "evidence": "web/src/App.tsx + analyzer.ts; manual test: Load sample renders 3 threads, main BLOCKED on lock held by worker"
     },
@@ -36,7 +42,9 @@
       "id": "feat-005",
       "name": "Format & UX hardening",
       "description": "Drag-and-drop upload, deadlock cycle detection, larger real-world dump coverage",
-      "dependencies": ["feat-004"],
+      "dependencies": [
+        "feat-004"
+      ],
       "status": "done",
       "evidence": "web/src/App.tsx drag-and-drop (onDrop/onDragOver) + deadlock panel; src/parser.rs detect_deadlocks (functional wait-for graph) + is_thread_header robustness; tests detects_two_thread_deadlock, no_false_deadlock_on_simple_contention, parses_real_world_deadlock_dump (tests/fixtures/deadlock_real_jstack.txt from javac 21)"
     },
@@ -44,7 +52,9 @@
       "id": "feat-006",
       "name": "Export HTML / PDF",
       "description": "Export a self-contained HTML report(same css/js as web app) and a PDF (via pdf-lib, in one page)",
-      "dependencies": ["feat-004"],
+      "dependencies": [
+        "feat-004"
+      ],
       "status": "done",
       "evidence": "web/src/export.ts: HTML report embeds the app's own index.css via ?inline and reuses result markup/classes (incl. deadlocks); PDF rendered with pdf-lib on a single A4 page (proportional state bars, deadlocks, contention, threads)"
     },
@@ -52,15 +62,19 @@
       "id": "feat-007",
       "name": "java code generation",
       "description": "generate java code, form lock contention/waiting threads, and deadlock cycle",
-      "dependencies": ["feat-003"],
+      "dependencies": [
+        "feat-003"
+      ],
       "status": "done",
       "evidence": "src/codegen.rs + src/tests/java_code_generation.rs (5 tests); wasm binding generateJava; examples/gen_java.rs; validated with javac 21: generated DeadlockCycle.java compiled and ran, JVM reported 'Found one Java-level deadlock' (deadlock-0->1->2); web UI 'Generate Java reproducer' panel"
     },
     {
       "id": "feat-008",
       "name": "java version support",
-      "description": "调研不同版本java的jstack/ThreadMXBean输出格式差异，通过jenv安装8/11/17/21，分别运行样例代码，用jstack/ThreadMXBean#dumpAllThreads，解析结果并对比",
-      "dependencies": ["feat-007"],
+      "description": "\u8c03\u7814\u4e0d\u540c\u7248\u672cjava\u7684jstack/ThreadMXBean\u8f93\u51fa\u683c\u5f0f\u5dee\u5f02\uff0c\u901a\u8fc7jenv\u5b89\u88c58/11/17/21\uff0c\u5206\u522b\u8fd0\u884c\u6837\u4f8b\u4ee3\u7801\uff0c\u7528jstack/ThreadMXBean#dumpAllThreads\uff0c\u89e3\u6790\u7ed3\u679c\u5e76\u5bf9\u6bd4",
+      "dependencies": [
+        "feat-007"
+      ],
       "status": "done",
       "evidence": "jenv+Temurin 8/11/17/21 dumps in tests/fixtures/java-versions/ (FORMAT_DIFFS.md + capture script); parser extracts jstack #N ids (incl. Java 21 [os_tid]/nid decimal); tests detects_java_version_support covers jstack contention/deadlock + MXBean format/split for all 4 versions (MXBean lock ids deferred to feat-009)"
     },
@@ -68,7 +82,9 @@
       "id": "feat-009",
       "name": "ThreadMXBean format lock contentions bug fix",
       "description": "Fix the bug in the ThreadMXBean format lock contentions detection",
-      "dependencies": ["feat-007"],
+      "dependencies": [
+        "feat-007"
+      ],
       "status": "done",
       "evidence": "src/parser.rs parses MXBean `-  blocked on Class@hash` / `-  locked Class@hash` (+ header BLOCKED on / owned by fallback); tests detects_mxbean_format_lock_contentions + real Flink/Kafka fixture mxbean_real_contention.txt; full tdump_15c7: 3962 threads, 68/68 BLOCKED edges with owners"
     },
@@ -76,7 +92,9 @@
       "id": "feat-010",
       "name": "Deadlock cycle detection",
       "description": "Detect and visualize deadlock cycles in the thread state graph",
-      "dependencies": ["feat-007"],
+      "dependencies": [
+        "feat-007"
+      ],
       "status": "done",
       "evidence": "Implemented with feat-005: src/parser.rs detect_deadlocks + Analysis.deadlocks; visualized in web/src/App.tsx deadlock panel and included in HTML/PDF exports"
     },
@@ -84,17 +102,93 @@
       "id": "feat-011",
       "name": "Move Java codegen to frontend (shrink WASM)",
       "description": "Page Java reproducer generation moves to front-end TypeScript; Rust codegen remains for tests/CLI only (not exported via wasm-bindgen), reducing WASM binary size",
-      "dependencies": ["feat-007"],
+      "dependencies": [
+        "feat-007"
+      ],
       "status": "done",
-      "evidence": "web/src/codegen.ts + App sync generate; analyzer no longer imports wasm generateJava; src/codegen.rs gated cfg(not(target_arch=\"wasm32\")) for cargo test + examples/gen_java; jblock_bg.wasm 1049881→1044453 (−5428 bytes); ./init.sh green"
+      "evidence": "web/src/codegen.ts + App sync generate; analyzer no longer imports wasm generateJava; src/codegen.rs gated cfg(not(target_arch=\"wasm32\")) for cargo test + examples/gen_java; jblock_bg.wasm 1049881\u21921044453 (\u22125428 bytes); ./init.sh green"
     },
     {
       "id": "feat-012",
       "name": "Codegen entry as top-right modal",
       "description": "Move the Generate Java reproducer UI off the main analysis page into a top-right header button that opens a modal, keeping the main page focused on analyzing uploaded dumps",
-      "dependencies": ["feat-011"],
+      "dependencies": [
+        "feat-011"
+      ],
       "status": "done",
-      "evidence": "web/src/App.tsx: header Generate Java… opens modal (Escape/backdrop/close); inline codegen panel removed from main page; index.css modal styles; ./init.sh green"
+      "evidence": "web/src/App.tsx: header Generate Java\u2026 opens modal (Escape/backdrop/close); inline codegen panel removed from main page; index.css modal styles; ./init.sh green"
+    },
+    {
+      "id": "feat-013",
+      "name": "Problem-first findings summary",
+      "description": "Replace the top stats strip with an actionable findings summary: deadlocks, hottest contended lock (owner + waiter count), BLOCKED ratio; demote dump format to secondary meta",
+      "dependencies": [
+        "feat-012"
+      ],
+      "status": "done",
+      "evidence": "web/src/Results.tsx findings panel; analysisUi.buildFindings; HTML/PDF export updated"
+    },
+    {
+      "id": "feat-014",
+      "name": "Aggregate lock contention by lock",
+      "description": "Group lock-contention edges by lock id showing owner and waiter count, with expandable waiter list",
+      "dependencies": [
+        "feat-013"
+      ],
+      "status": "done",
+      "evidence": "Results contention groups by lock + expandable waiters; analysisUi.aggregateContention"
+    },
+    {
+      "id": "feat-015",
+      "name": "Thread table filter and sort",
+      "description": "Filter threads by state (click state bar or dropdown), sort by name/state/stack/locks; default emphasis on BLOCKED when present",
+      "dependencies": [
+        "feat-013"
+      ],
+      "status": "done",
+      "evidence": "Results state filter (bar click + dropdown) and sortable columns; default BLOCKED when present"
+    },
+    {
+      "id": "feat-016",
+      "name": "waiting_on column and stack frames",
+      "description": "Parser keeps top stack frames on ThreadInfo; UI shows waiting_on and expandable stack preview per thread",
+      "dependencies": [
+        "feat-002"
+      ],
+      "status": "done",
+      "evidence": "parser ThreadInfo.stack (top 12); waiting_on column + expandable stack rows; cargo test captures_top_stack_frames"
+    },
+    {
+      "id": "feat-017",
+      "name": "Jump to lock owner / thread",
+      "description": "From contention groups and deadlock edges, click owner or waiter to scroll/highlight that thread row",
+      "dependencies": [
+        "feat-014",
+        "feat-015"
+      ],
+      "status": "done",
+      "evidence": "click owner/waiter/deadlock participants to scroll+highlight thread row"
+    },
+    {
+      "id": "feat-018",
+      "name": "Hide JVM noise threads",
+      "description": "Toggle to hide common JVM/system threads (GC, Compiler, Finalizer, Common-Cleaner, \u2026) so application threads stand out",
+      "dependencies": [
+        "feat-015"
+      ],
+      "status": "done",
+      "evidence": "Hide JVM noise checkbox (default on); analysisUi.isJvmNoise"
+    },
+    {
+      "id": "feat-019",
+      "name": "Cluster threads by stack signature",
+      "description": "Group threads that share the same top stack frames into clusters (count + sample names) to collapse duplicate BLOCKED/WAITING patterns",
+      "dependencies": [
+        "feat-016",
+        "feat-018"
+      ],
+      "status": "done",
+      "evidence": "Stack clusters panel; analysisUi.clusterByStack"
     }
   ]
 }

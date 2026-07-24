@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { aggregateContention, buildFindings } from "./analysisUi";
 import appCss from "./index.css?inline";
 import type { Analysis } from "./types";
 
@@ -25,14 +26,26 @@ function escapeHtml(value: string): string {
  */
 export function buildReportHtml(analysis: Analysis, sourceName: string): string {
   const maxState = Math.max(1, ...analysis.state_counts.map((s) => s.count));
+  const findings = buildFindings(analysis);
+  const groups = aggregateContention(analysis.blocked_edges);
 
-  const summary = `
-    <div class="summary">
-      <div class="stat"><span class="stat-value">${analysis.total_threads}</span><span class="stat-label">threads</span></div>
-      <div class="stat"><span class="stat-value">${escapeHtml(analysis.format)}</span><span class="stat-label">format</span></div>
-      <div class="stat"><span class="stat-value">${analysis.blocked_edges.length}</span><span class="stat-label">lock contentions</span></div>
-      <div class="stat"><span class="stat-value">${analysis.deadlocks.length}</span><span class="stat-label">deadlocks</span></div>
-    </div>`;
+  const findingsHtml = `
+    <section class="panel findings">
+      <div class="findings-header">
+        <h2>Findings</h2>
+        <span class="meta mono">${analysis.total_threads} threads · ${escapeHtml(analysis.format)}</span>
+      </div>
+      <ul class="findings-list">
+        ${findings
+          .map(
+            (f) =>
+              `<li class="finding finding-${f.severity}"><strong>${escapeHtml(
+                f.title,
+              )}</strong><span class="mono">${escapeHtml(f.detail)}</span></li>`,
+          )
+          .join("")}
+      </ul>
+    </section>`;
 
   const deadlockPanel =
     analysis.deadlocks.length === 0
@@ -64,14 +77,16 @@ export function buildReportHtml(analysis: Analysis, sourceName: string): string 
     .join("");
 
   const contentionRows =
-    analysis.blocked_edges.length === 0
+    groups.length === 0
       ? '<tr><td colspan="3">None detected</td></tr>'
-      : analysis.blocked_edges
+      : groups
           .map(
-            (e) =>
-              `<tr><td>${escapeHtml(e.blocked_thread)}</td><td class="mono">${escapeHtml(
-                e.lock,
-              )}</td><td>${escapeHtml(e.owner_thread ?? "(unknown)")}</td></tr>`,
+            (g) =>
+              `<tr><td class="mono">${escapeHtml(g.lock)}</td><td>${escapeHtml(
+                g.owner_thread ?? "(unknown)",
+              )}</td><td>${g.waiters.length}: ${escapeHtml(
+                g.waiters.slice(0, 8).join(", "),
+              )}${g.waiters.length > 8 ? ", …" : ""}</td></tr>`,
           )
           .join("");
 
@@ -82,7 +97,9 @@ export function buildReportHtml(analysis: Analysis, sourceName: string): string 
           t.id ?? "",
         )}</td><td><span class="state-pill" style="background:${
           STATE_COLORS[t.state] ?? "#64748b"
-        }">${escapeHtml(t.state)}</span></td><td>${t.stack_depth}</td><td class="mono">${escapeHtml(
+        }">${escapeHtml(t.state)}</span></td><td class="mono">${escapeHtml(
+          t.waiting_on ?? "",
+        )}</td><td>${t.stack_depth}</td><td class="mono">${escapeHtml(
           t.held_locks.join(", "),
         )}</td></tr>`,
     )
@@ -102,19 +119,19 @@ export function buildReportHtml(analysis: Analysis, sourceName: string): string 
     <h1><span class="logo">jblock</span> Thread Dump Report</h1>
     <p class="tagline">Source: ${escapeHtml(sourceName)}</p>
   </header>
-  ${summary}
+  ${findingsHtml}
   ${deadlockPanel}
   <section class="panel">
     <h2>Thread states</h2>
     <ul class="states">${states}</ul>
   </section>
   <section class="panel">
-    <h2>Lock contention</h2>
-    <table><thead><tr><th>Blocked thread</th><th>Lock</th><th>Held by</th></tr></thead><tbody>${contentionRows}</tbody></table>
+    <h2>Lock contention (by lock)</h2>
+    <table><thead><tr><th>Lock</th><th>Held by</th><th>Waiters</th></tr></thead><tbody>${contentionRows}</tbody></table>
   </section>
   <section class="panel">
     <h2>Threads (${analysis.threads.length})</h2>
-    <table><thead><tr><th>Name</th><th>Id</th><th>State</th><th>Stack</th><th>Held locks</th></tr></thead><tbody>${threadRows}</tbody></table>
+    <table><thead><tr><th>Name</th><th>Id</th><th>State</th><th>Waiting on</th><th>Stack</th><th>Held locks</th></tr></thead><tbody>${threadRows}</tbody></table>
   </section>
 </div>
 </body>
@@ -180,10 +197,16 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
 
   line("jblock — Java Thread Dump Report", 18, { bold: true, gap: 10 });
   line(
-    `Source: ${sourceName || "dump"}   Format: ${analysis.format}   Threads: ${analysis.total_threads}   Contentions: ${analysis.blocked_edges.length}   Deadlocks: ${analysis.deadlocks.length}`,
+    `Source: ${sourceName || "dump"}   Format: ${analysis.format}   Threads: ${analysis.total_threads}`,
     9,
-    { color: muted, gap: 14 },
+    { color: muted, gap: 8 },
   );
+  const findings = buildFindings(analysis).slice(0, 4);
+  for (const f of findings) {
+    line(`• ${f.title}`, 9, { bold: true, gap: 2 });
+    line(`  ${f.detail}`, 8, { color: muted, gap: 6 });
+  }
+  y -= 4;
 
   // Thread states with proportional bars.
   line("Thread states", 12, { bold: true });
@@ -216,17 +239,22 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
     y -= 6;
   }
 
-  // Lock contention (capped).
-  line(`Lock contention (${analysis.blocked_edges.length})`, 12, { bold: true });
-  const edges = analysis.blocked_edges.slice(0, 12);
-  if (edges.length === 0) {
+  // Lock contention (aggregated, capped).
+  const groups = aggregateContention(analysis.blocked_edges);
+  line(`Lock contention (${groups.length} lock(s))`, 12, { bold: true });
+  const shownGroups = groups.slice(0, 8);
+  if (shownGroups.length === 0) {
     line("None detected", 9, { color: muted, gap: 10 });
   } else {
-    for (const e of edges) {
-      line(`${e.blocked_thread}  ->  ${e.lock}  (held by ${e.owner_thread ?? "unknown"})`, 8, { gap: 4 });
+    for (const g of shownGroups) {
+      line(
+        `${g.lock}  owner=${g.owner_thread ?? "?"}  waiters=${g.waiters.length}`,
+        8,
+        { gap: 4 },
+      );
     }
-    if (analysis.blocked_edges.length > edges.length) {
-      line(`(+${analysis.blocked_edges.length - edges.length} more)`, 8, { color: muted });
+    if (groups.length > shownGroups.length) {
+      line(`(+${groups.length - shownGroups.length} more locks)`, 8, { color: muted });
     }
     y -= 6;
   }
@@ -236,7 +264,11 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
   const maxRows = Math.max(0, Math.floor((y - margin) / 12));
   const rows = analysis.threads.slice(0, maxRows);
   for (const t of rows) {
-    line(`${t.name}  [${t.state}]  stack=${t.stack_depth}`, 8, { gap: 4 });
+    line(
+      `${t.name}  [${t.state}]  wait=${t.waiting_on ?? "-"}  stack=${t.stack_depth}`,
+      8,
+      { gap: 4 },
+    );
   }
   if (analysis.threads.length > rows.length) {
     line(`(+${analysis.threads.length - rows.length} more)`, 8, { color: muted });
