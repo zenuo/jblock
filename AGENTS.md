@@ -43,6 +43,7 @@ Cloud / Cursor agents still use the required short-lived branch name template fo
 - `feature_list.json` — feature state tracker (source of truth).
 - `progress.md` — session continuity log.
 - `init.sh` — standard startup and verification path.
+- `scripts/e2e-features.mjs` — walks every `feature_list.json` entry; writes `harness/e2e-results.json`.
 - `session-handoff.md` — optional, for larger multi-session work.
 
 ## Definition of Done
@@ -78,8 +79,10 @@ Required checks:
 - `pnpm -C web run lint`
 - `pnpm -C web run typecheck`
 - `pnpm -C web run build`
+- `node scripts/e2e-features.mjs --skip-web` (per-feature matrix → `harness/e2e-results.json`; included in `./init.sh`)
 
 Record command + output as Verification Evidence in `progress.md` / `session-handoff.md`.
+Inspect `harness/e2e-results.json` for per-feature pass/fail detail.
 
 ## Skills
 

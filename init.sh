@@ -21,6 +21,9 @@ pnpm -C web run typecheck
 echo "=== pnpm -C web run build ==="
 pnpm -C web run build
 
+echo "=== e2e feature matrix (records harness/e2e-results.json) ==="
+node scripts/e2e-features.mjs --skip-web
+
 echo "=== Verification Complete ==="
 echo ""
 echo "Next steps:"
@@ -28,3 +31,4 @@ echo "1. Read feature_list.json to see current feature state"
 echo "2. Pick ONE unfinished feature to work on"
 echo "3. Implement only that feature"
 echo "4. Re-run verification before claiming done"
+echo "5. Inspect harness/e2e-results.json for per-feature e2e evidence"

@@ -6,7 +6,7 @@
       "description": "Rust WASM crate + React/Vite frontend build from a clean checkout; `./init.sh` runs cargo test and the web lint/typecheck/build gates",
       "dependencies": [],
       "status": "done",
-      "evidence": "cargo test 5/5 pass; pnpm -C web run lint/typecheck/build pass; wasm asset bundled"
+      "evidence": "cargo test 5/5 pass; pnpm -C web run lint/typecheck/build pass; wasm asset bundled; scripts/e2e-features.mjs records harness/e2e-results.json (41/41)"
     },
     {
       "id": "feat-002",
