@@ -782,4 +782,51 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
             .unwrap();
         assert!(holder.held_locks.iter().any(|l| l == log_lock));
     }
+
+    // feat-025: richer "Load sample" dump shipped with the web UI.
+    const WEB_SAMPLE: &str = include_str!("../web/src/sample.tdump");
+
+    #[test]
+    fn parses_web_sample_dump() {
+        let a = analyze(WEB_SAMPLE);
+        assert_eq!(a.format, DumpFormat::Jstack);
+        assert_eq!(a.total_threads, 17);
+
+        // 3-thread checkout deadlock cycle.
+        assert_eq!(a.deadlocks.len(), 1);
+        let dl = &a.deadlocks[0];
+        assert_eq!(dl.threads.len(), 3);
+        let members: BTreeSet<&str> = dl.threads.iter().map(|s| s.as_str()).collect();
+        assert!(members.contains("order-checkout-0"));
+        assert!(members.contains("order-checkout-1"));
+        assert!(members.contains("order-checkout-2"));
+
+        // Hot cache lock with 4 http-worker waiters.
+        let cache_lock = "0x000000076ab20000";
+        let cache_waiters: Vec<_> = a
+            .blocked_edges
+            .iter()
+            .filter(|e| e.lock == cache_lock)
+            .collect();
+        assert_eq!(cache_waiters.len(), 4);
+        for edge in &cache_waiters {
+            assert_eq!(edge.owner_thread.as_deref(), Some("cache-writer"));
+            assert!(edge.blocked_thread.starts_with("http-worker-"));
+        }
+
+        // Stack frames captured for UI expand / clusters.
+        let worker = a
+            .threads
+            .iter()
+            .find(|t| t.name == "http-worker-1")
+            .expect("http-worker-1");
+        assert!(!worker.stack.is_empty());
+        assert_eq!(worker.waiting_on.as_deref(), Some(cache_lock));
+
+        // Mixed states present.
+        let states: BTreeSet<&str> = a.state_counts.iter().map(|s| s.state.as_str()).collect();
+        for expected in ["BLOCKED", "RUNNABLE", "WAITING", "TIMED_WAITING"] {
+            assert!(states.contains(expected), "missing state {expected}");
+        }
+    }
 }

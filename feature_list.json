@@ -240,6 +240,18 @@
       ],
       "status": "done",
       "evidence": "web/public/favicon.svg; linked from web/index.html; theme-color #6366f1; ./init.sh green"
+    },
+    {
+      "id": "feat-025",
+      "name": "Richer Load sample dump",
+      "description": "Replace the minimal 3-thread sample with a richer jstack dump that demos deadlock cycle, hot-lock multi-waiter contention, stack clusters, mixed states, stack frames, and JVM noise threads",
+      "dependencies": [
+        "feat-019",
+        "feat-018",
+        "feat-013"
+      ],
+      "status": "in_progress",
+      "evidence": ""
     }
   ]
 }

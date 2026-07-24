@@ -10,25 +10,10 @@ import {
 import { exportHtml, exportPdf } from "./export";
 import { LOCALES, LOCALE_LABELS, useI18n, type Locale } from "./i18n";
 import Results from "./Results";
+import { SAMPLE_DUMP } from "./sampleDump";
 import type { Analysis } from "./types";
 
 type BusyPhase = "wasm" | "analyzing";
-
-const SAMPLE_DUMP = `"main" #1 prio=5 os_prio=0 tid=0x00007f0001 nid=0x1 waiting for monitor entry [0x00007f0002]
-   java.lang.Thread.State: BLOCKED (on object monitor)
-        at com.example.App.run(App.java:10)
-        - waiting to lock <0x000000076ab00000> (a java.lang.Object)
-        - locked <0x000000076ab11111> (a java.lang.Object)
-
-"worker" #2 prio=5 os_prio=0 tid=0x00007f0003 nid=0x2 runnable [0x00007f0004]
-   java.lang.Thread.State: RUNNABLE
-        at com.example.Worker.work(Worker.java:20)
-        - locked <0x000000076ab00000> (a java.lang.Object)
-
-"scheduler" #3 prio=5 os_prio=0 tid=0x00007f0005 nid=0x3 waiting on condition [0x00007f0006]
-   java.lang.Thread.State: TIMED_WAITING (sleeping)
-        at java.lang.Thread.sleep(Native Method)
-`;
 
 export default function App() {
   const { t, locale, setLocale } = useI18n();
