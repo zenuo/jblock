@@ -1,4 +1,4 @@
-"kafka-producer-network-thread | producer-2" Id=2125 BLOCKED on java.lang.Object@7ec4e9a owned by "Sink: sink (1/1)#0" Id=2119
+"kafka-producer-network-thread | producer-2" Id=2125 BLOCKED on java.lang.Object@7ec4e9a owned by "Writer: writer (1/1)#0" Id=2119
 	at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:102)
 	-  blocked on java.lang.Object@7ec4e9a
 	at sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:86)
@@ -13,7 +13,7 @@
 	at org.apache.kafka.clients.producer.internals.Sender.run(Sender.java:240)
 	...
 
-"Sink: sink (1/1)#0" Id=2119 RUNNABLE
+"Writer: writer (1/1)#0" Id=2119 RUNNABLE
 	at sun.nio.ch.EPollArrayWrapper.interrupt(Native Method)
 	at sun.nio.ch.EPollArrayWrapper.interrupt(EPollArrayWrapper.java:317)
 	at sun.nio.ch.EPollSelectorImpl.wakeup(EPollSelectorImpl.java:207)
@@ -25,7 +25,7 @@
 	at org.apache.kafka.clients.producer.KafkaProducer.send(KafkaProducer.java:886)
 	...
 
-"calc-price (149/150)#0" Id=2107 BLOCKED on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc owned by "calc -> Timestamps/Watermarks (58/60)#0" Id=356
+"map-op (149/150)#0" Id=2107 BLOCKED on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc owned by "stage -> Timestamps/Watermarks (58/60)#0" Id=356
 	at org.apache.logging.log4j.core.appender.OutputStreamManager.writeBytes(OutputStreamManager.java:352)
 	-  blocked on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc
 	at org.apache.logging.log4j.core.layout.TextEncoderHelper.writeEncodedText(TextEncoderHelper.java:96)
@@ -37,7 +37,7 @@
 	at org.apache.logging.log4j.core.appender.AbstractOutputStreamAppender.directEncodeEvent(AbstractOutputStreamAppender.java:197)
 	...
 
-"calc-price (1/150)#0" Id=1462 BLOCKED on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc owned by "calc -> Timestamps/Watermarks (58/60)#0" Id=356
+"map-op (1/150)#0" Id=1462 BLOCKED on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc owned by "stage -> Timestamps/Watermarks (58/60)#0" Id=356
 	at org.apache.logging.log4j.core.appender.rolling.RollingFileManager.checkRollover(RollingFileManager.java:307)
 	-  blocked on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc
 	at org.apache.logging.log4j.core.appender.RollingFileAppender.append(RollingFileAppender.java:311)
@@ -49,7 +49,7 @@
 	at org.apache.logging.log4j.core.config.LoggerConfig.processLogEvent(LoggerConfig.java:500)
 	...
 
-"calc -> Timestamps/Watermarks (58/60)#0" Id=356 RUNNABLE
+"stage -> Timestamps/Watermarks (58/60)#0" Id=356 RUNNABLE
 	at org.apache.logging.log4j.core.appender.rolling.RollingFileManager.checkRollover(RollingFileManager.java:307)
 	-  locked org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc
 	at org.apache.logging.log4j.core.appender.RollingFileAppender.append(RollingFileAppender.java:311)
@@ -61,7 +61,7 @@
 	at org.apache.logging.log4j.core.config.LoggerConfig.processLogEvent(LoggerConfig.java:500)
 	...
 
-"calc -> Timestamps/Watermarks (55/60)#0" Id=353 BLOCKED on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc owned by "calc -> Timestamps/Watermarks (58/60)#0" Id=356
+"stage -> Timestamps/Watermarks (55/60)#0" Id=353 BLOCKED on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc owned by "stage -> Timestamps/Watermarks (58/60)#0" Id=356
 	at org.apache.logging.log4j.core.appender.rolling.RollingFileManager.checkRollover(RollingFileManager.java:307)
 	-  blocked on org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc
 	at org.apache.logging.log4j.core.appender.RollingFileAppender.append(RollingFileAppender.java:311)

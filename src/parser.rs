@@ -730,7 +730,7 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
             .find(|e| e.blocked_thread.starts_with("kafka-producer-network-thread"))
             .expect("kafka contention edge");
         assert_eq!(kafka.lock, "java.lang.Object@7ec4e9a");
-        assert_eq!(kafka.owner_thread.as_deref(), Some("Sink: sink (1/1)#0"));
+        assert_eq!(kafka.owner_thread.as_deref(), Some("Writer: writer (1/1)#0"));
 
         let log_lock =
             "org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc";
@@ -747,14 +747,14 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         for edge in &log_edges {
             assert_eq!(
                 edge.owner_thread.as_deref(),
-                Some("calc -> Timestamps/Watermarks (58/60)#0")
+                Some("stage -> Timestamps/Watermarks (58/60)#0")
             );
         }
 
         let holder = a
             .threads
             .iter()
-            .find(|t| t.name == "calc -> Timestamps/Watermarks (58/60)#0")
+            .find(|t| t.name == "stage -> Timestamps/Watermarks (58/60)#0")
             .unwrap();
         assert!(holder.held_locks.iter().any(|l| l == log_lock));
     }
