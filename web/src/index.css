@@ -253,3 +253,59 @@ th {
   line-height: 1.5;
   max-height: 420px;
 }
+
+.app {
+  position: relative;
+}
+
+.app.dragging {
+  outline: 3px dashed var(--accent);
+  outline-offset: -6px;
+}
+
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(99, 102, 241, 0.12);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.stat.danger {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.stat.danger .stat-value {
+  color: #dc2626;
+}
+
+.deadlock-panel {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.deadlock-panel h2 {
+  color: #dc2626;
+}
+
+.deadlock-cycle {
+  margin-bottom: 0.75rem;
+}
+
+.deadlock-cycle > .mono {
+  font-weight: 700;
+}
+
+.deadlock-cycle ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--muted);
+}

@@ -13,6 +13,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "pdf-lib": "^1.17.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -30,6 +31,8 @@
     "vite": "^5.4.10"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

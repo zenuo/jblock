@@ -86,12 +86,39 @@ export default function App() {
     [runAnalysis],
   );
 
+  const [dragging, setDragging] = useState(false);
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragging(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file) void onFile(file);
+    },
+    [onFile],
+  );
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  }, []);
+
+  const onDragLeave = useCallback((e: React.DragEvent) => {
+    if (e.currentTarget === e.target) setDragging(false);
+  }, []);
+
   const maxState = analysis
     ? Math.max(1, ...analysis.state_counts.map((s) => s.count))
     : 1;
 
   return (
-    <div className="app">
+    <div
+      className={`app${dragging ? " dragging" : ""}`}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+    >
+      {dragging && <div className="drop-overlay">Drop thread dump to analyze</div>}
       <header className="app-header">
         <h1>
           <span className="logo">jblock</span> Java Thread Dump Analyzer
@@ -127,7 +154,7 @@ export default function App() {
             <button className="btn" onClick={() => exportHtml(analysis, sourceName)}>
               Export HTML
             </button>
-            <button className="btn" onClick={() => exportPdf(analysis, sourceName)}>
+            <button className="btn" onClick={() => void exportPdf(analysis, sourceName)}>
               Export PDF
             </button>
           </>
@@ -196,6 +223,10 @@ export default function App() {
               <span className="stat-value">{analysis.blocked_edges.length}</span>
               <span className="stat-label">lock contentions</span>
             </div>
+            <div className={`stat${analysis.deadlocks.length > 0 ? " danger" : ""}`}>
+              <span className="stat-value">{analysis.deadlocks.length}</span>
+              <span className="stat-label">deadlocks</span>
+            </div>
           </div>
 
           <section className="panel">
@@ -218,6 +249,27 @@ export default function App() {
               ))}
             </ul>
           </section>
+
+          {analysis.deadlocks.length > 0 && (
+            <section className="panel deadlock-panel" data-testid="deadlocks">
+              <h2>⚠ Deadlocks detected ({analysis.deadlocks.length})</h2>
+              {analysis.deadlocks.map((d, i) => (
+                <div key={i} className="deadlock-cycle">
+                  <span className="mono">
+                    {d.threads.join(" → ")} → {d.threads[0]}
+                  </span>
+                  <ul>
+                    {d.edges.map((e, j) => (
+                      <li key={j} className="mono">
+                        {e.blocked_thread} waits on {e.lock} (held by{" "}
+                        {e.owner_thread ?? "unknown"})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </section>
+          )}
 
           <section className="panel">
             <h2>Lock contention</h2>

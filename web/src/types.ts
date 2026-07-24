@@ -23,10 +23,16 @@ export interface BlockedEdge {
   owner_thread: string | null;
 }
 
+export interface Deadlock {
+  threads: string[];
+  edges: BlockedEdge[];
+}
+
 export interface Analysis {
   format: DumpFormat;
   total_threads: number;
   state_counts: StateCount[];
   threads: ThreadInfo[];
   blocked_edges: BlockedEdge[];
+  deadlocks: Deadlock[];
 }

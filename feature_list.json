@@ -34,19 +34,19 @@
     },
     {
       "id": "feat-005",
-      "name": "Export HTML / PDF",
-      "description": "Export a self-contained HTML report(same css/js as web app) and a PDF (via pdf-lib, in one page)",
+      "name": "Format & UX hardening",
+      "description": "Drag-and-drop upload, deadlock cycle detection, larger real-world dump coverage",
       "dependencies": ["feat-004"],
-      "status": "not-started",
-      "evidence": "web/src/export.ts (buildReportHtml, exportHtml, exportPdf)"
+      "status": "done",
+      "evidence": "web/src/App.tsx drag-and-drop (onDrop/onDragOver) + deadlock panel; src/parser.rs detect_deadlocks (functional wait-for graph) + is_thread_header robustness; tests detects_two_thread_deadlock, no_false_deadlock_on_simple_contention, parses_real_world_deadlock_dump (tests/fixtures/deadlock_real_jstack.txt from javac 21)"
     },
     {
       "id": "feat-006",
-      "name": "Format & UX hardening",
-      "description": "Drag-and-drop upload, deadlock cycle detection, larger real-world dump coverage, and a dedicated PDF renderer instead of print",
-      "dependencies": ["feat-005"],
-      "status": "not-started",
-      "evidence": ""
+      "name": "Export HTML / PDF",
+      "description": "Export a self-contained HTML report(same css/js as web app) and a PDF (via pdf-lib, in one page)",
+      "dependencies": ["feat-004"],
+      "status": "done",
+      "evidence": "web/src/export.ts: HTML report embeds the app's own index.css via ?inline and reuses result markup/classes (incl. deadlocks); PDF rendered with pdf-lib on a single A4 page (proportional state bars, deadlocks, contention, threads)"
     },
     {
       "id": "feat-007",
@@ -77,8 +77,8 @@
       "name": "Deadlock cycle detection",
       "description": "Detect and visualize deadlock cycles in the thread state graph",
       "dependencies": ["feat-007"],
-      "status": "not-started",
-      "evidence": ""
+      "status": "done",
+      "evidence": "Implemented with feat-005: src/parser.rs detect_deadlocks + Analysis.deadlocks; visualized in web/src/App.tsx deadlock panel and included in HTML/PDF exports"
     }
   ]
 }

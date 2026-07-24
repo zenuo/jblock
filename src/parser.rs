@@ -5,7 +5,7 @@
 
 use regex::Regex;
 use serde::Serialize;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 /// Known `java.lang.Thread.State` values, ordered for stable display.
 const KNOWN_STATES: [&str; 6] = [
@@ -58,6 +58,15 @@ pub struct BlockedEdge {
     pub owner_thread: Option<String>,
 }
 
+/// A detected deadlock: a set of threads in a circular wait-for relationship.
+#[derive(Debug, Clone, Serialize)]
+pub struct Deadlock {
+    /// Thread names ordered around the cycle (each waits for the next).
+    pub threads: Vec<String>,
+    /// The wait-for edges that close the cycle (one per participant).
+    pub edges: Vec<BlockedEdge>,
+}
+
 /// The full analysis result returned to the frontend.
 #[derive(Debug, Clone, Serialize)]
 pub struct Analysis {
@@ -67,6 +76,8 @@ pub struct Analysis {
     pub threads: Vec<ThreadInfo>,
     /// Detected lock-contention edges (blocking problem pattern).
     pub blocked_edges: Vec<BlockedEdge>,
+    /// Detected deadlock cycles (circular wait-for among threads).
+    pub deadlocks: Vec<Deadlock>,
 }
 
 fn detect_format(input: &str) -> DumpFormat {
@@ -79,13 +90,42 @@ fn detect_format(input: &str) -> DumpFormat {
     }
 }
 
-/// Split the dump into per-thread blocks. A new block starts on a line whose
-/// first non-whitespace character is a double quote (the thread name).
+/// Decide whether a line begins a real thread stack entry.
+///
+/// Real headers look like `"name" #12 prio=5 ... tid=0x..` (jstack) or
+/// `"name" Id=13 WAITING ..` (ThreadMXBean). This deliberately rejects the
+/// `"deadlock-0":` lines from jstack's "Found one Java-level deadlock" summary
+/// preamble, which would otherwise be mistaken for extra threads.
+fn is_thread_header(line: &str) -> bool {
+    let trimmed = line.trim_start();
+    if !trimmed.starts_with('"') {
+        return false;
+    }
+    let rest = &trimmed[1..];
+    let Some(end) = rest.find('"') else {
+        return false;
+    };
+    let after = rest[end + 1..].trim_start();
+    if after.is_empty() || after.starts_with(':') {
+        // Bare quoted string or `"name":` summary line — not a stack header.
+        return false;
+    }
+    after.starts_with('#')
+        || after.starts_with("daemon")
+        || after.contains("Id=")
+        || after.contains("prio=")
+        || after.contains("prio ")
+        || after.contains("os_prio")
+        || after.contains("tid=")
+        || after.contains("nid=")
+}
+
+/// Split the dump into per-thread blocks. A new block starts on a recognized
+/// thread header line; other lines attach to the current block.
 fn split_thread_blocks(input: &str) -> Vec<Vec<&str>> {
     let mut blocks: Vec<Vec<&str>> = Vec::new();
     for line in input.lines() {
-        let is_header = line.trim_start().starts_with('"');
-        if is_header {
+        if is_thread_header(line) {
             blocks.push(vec![line]);
         } else if let Some(last) = blocks.last_mut() {
             last.push(line);
@@ -220,13 +260,84 @@ pub fn analyze(input: &str) -> Analysis {
         }
     }
 
+    let deadlocks = detect_deadlocks(&threads, &lock_owner);
+
     Analysis {
         format,
         total_threads: threads.len(),
         state_counts,
         threads,
         blocked_edges,
+        deadlocks,
     }
+}
+
+/// Detect deadlock cycles from the wait-for graph.
+///
+/// Each thread waits on at most one lock, so the wait-for relation is a
+/// functional graph (out-degree <= 1). We follow each chain; if it returns to a
+/// node already on the current path, the tail from that node forms a cycle.
+fn detect_deadlocks(
+    threads: &[ThreadInfo],
+    lock_owner: &BTreeMap<String, String>,
+) -> Vec<Deadlock> {
+    // wait_for[name] = (lock it waits on, owner thread of that lock)
+    let mut wait_for: HashMap<&str, (&str, &str)> = HashMap::new();
+    for t in threads {
+        if let Some(lock) = &t.waiting_on {
+            if let Some(owner) = lock_owner.get(lock) {
+                if owner != &t.name {
+                    wait_for.insert(t.name.as_str(), (lock.as_str(), owner.as_str()));
+                }
+            }
+        }
+    }
+
+    // Deterministic iteration order over start nodes.
+    let mut starts: Vec<&str> = wait_for.keys().copied().collect();
+    starts.sort_unstable();
+
+    let mut in_cycle: BTreeSet<String> = BTreeSet::new();
+    let mut deadlocks: Vec<Deadlock> = Vec::new();
+
+    for start in starts {
+        if in_cycle.contains(start) {
+            continue;
+        }
+        let mut path: Vec<&str> = Vec::new();
+        let mut index: HashMap<&str, usize> = HashMap::new();
+        let mut cur = start;
+        loop {
+            if let Some(&pos) = index.get(cur) {
+                let cycle: Vec<&str> = path[pos..].to_vec();
+                if cycle.iter().all(|n| !in_cycle.contains(*n)) {
+                    let mut edges = Vec::new();
+                    for &name in &cycle {
+                        let (lock, owner) = wait_for[name];
+                        edges.push(BlockedEdge {
+                            blocked_thread: name.to_string(),
+                            lock: lock.to_string(),
+                            owner_thread: Some(owner.to_string()),
+                        });
+                        in_cycle.insert(name.to_string());
+                    }
+                    deadlocks.push(Deadlock {
+                        threads: cycle.iter().map(|s| s.to_string()).collect(),
+                        edges,
+                    });
+                }
+                break;
+            }
+            index.insert(cur, path.len());
+            path.push(cur);
+            match wait_for.get(cur) {
+                Some(&(_, owner)) => cur = owner,
+                None => break,
+            }
+        }
+    }
+
+    deadlocks
 }
 
 #[cfg(test)]
@@ -298,5 +409,61 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         let main = a.threads.iter().find(|t| t.name == "main").unwrap();
         assert_eq!(main.stack_depth, 1);
         assert_eq!(main.held_locks, vec!["0x000000076ab11111"]);
+    }
+
+    // Simple contention (main blocked by worker) is NOT a deadlock: worker is
+    // not itself blocked, so there is no cycle.
+    #[test]
+    fn no_false_deadlock_on_simple_contention() {
+        let a = analyze(JSTACK_SAMPLE);
+        assert!(a.deadlocks.is_empty());
+    }
+
+    const DEADLOCK_SAMPLE: &str = r#""t-A" #1 prio=5 os_prio=0 tid=0x0001 nid=0x1 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        - waiting to lock <0x000000000000000a> (a java.lang.Object)
+        - locked <0x000000000000000b> (a java.lang.Object)
+
+"t-B" #2 prio=5 os_prio=0 tid=0x0002 nid=0x2 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        - waiting to lock <0x000000000000000b> (a java.lang.Object)
+        - locked <0x000000000000000a> (a java.lang.Object)
+"#;
+
+    #[test]
+    fn detects_two_thread_deadlock() {
+        let a = analyze(DEADLOCK_SAMPLE);
+        assert_eq!(a.deadlocks.len(), 1);
+        let dl = &a.deadlocks[0];
+        assert_eq!(dl.threads.len(), 2);
+        let members: BTreeSet<&str> = dl.threads.iter().map(|s| s.as_str()).collect();
+        assert!(members.contains("t-A"));
+        assert!(members.contains("t-B"));
+        assert_eq!(dl.edges.len(), 2);
+    }
+
+    // feat-006: real jstack captured from a generated DeadlockCycle (javac 21),
+    // including the "Found one Java-level deadlock" summary preamble.
+    const REAL_JSTACK: &str = include_str!("../tests/fixtures/deadlock_real_jstack.txt");
+
+    #[test]
+    fn parses_real_world_deadlock_dump() {
+        let a = analyze(REAL_JSTACK);
+        assert_eq!(a.format, DumpFormat::Jstack);
+        // The deadlock summary lines ("deadlock-0":) must NOT be parsed as threads.
+        let phantom = a
+            .threads
+            .iter()
+            .filter(|t| t.name.starts_with("deadlock-") && t.state == "UNKNOWN")
+            .count();
+        assert_eq!(phantom, 0, "summary lines leaked in as phantom threads");
+        // Exactly one 3-thread deadlock cycle.
+        assert_eq!(a.deadlocks.len(), 1);
+        assert_eq!(a.deadlocks[0].threads.len(), 3);
+        let members: BTreeSet<&str> =
+            a.deadlocks[0].threads.iter().map(|s| s.as_str()).collect();
+        for name in ["deadlock-0", "deadlock-1", "deadlock-2"] {
+            assert!(members.contains(name), "missing {name} in cycle");
+        }
     }
 }

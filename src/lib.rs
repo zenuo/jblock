@@ -7,7 +7,7 @@ pub mod codegen;
 mod parser;
 
 pub use codegen::{generate as generate_java_source, parse_scenario, Scenario};
-pub use parser::{analyze, Analysis, BlockedEdge, DumpFormat, StateCount, ThreadInfo};
+pub use parser::{analyze, Analysis, BlockedEdge, Deadlock, DumpFormat, StateCount, ThreadInfo};
 
 use wasm_bindgen::prelude::*;
 
