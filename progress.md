@@ -2,37 +2,34 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:12
-**Active Feature:** feat-027 / feat-028 / feat-029 (done)
+**Last Updated:** 2026-07-24 14:30
+**Active Feature:** feat-037 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-026
-- [x] feat-027 Pattern reproducer + dump capture harness
-- [x] feat-028 Detect thread-pool exhaustion
-- [x] feat-029 Detect sync I/O / RPC hotspot clusters
+- [x] feat-001 … feat-036
+- [x] feat-037 Detect Finalizer / Reference Handler pressure
 
 ### What's In Progress
 
 - [ ] None on this branch
 
-### What's Next (by benefit)
+### What's Next
 
-1. feat-030 dangerous hot-lock owner
-2. feat-031 connection-pool borrow blocking
-3. … see feature_list.json
+1. feat-038 Thread.sleep-as-scheduler anti-pattern
+2. … see feature_list.json
 
 ## Decisions Made
 
-- Sync I/O detection clusters ≥3 threads sharing top frames that include socket/HTTP/gRPC/JDBC needles.
-- Reproducer: local ServerSocket + N clients blocked in `SocketInputStream.read`.
+- Ref-mgmt threads: Finalizer, Reference Handler, Common-Cleaner / Cleaner-*.
+- Idle = ReferenceQueue.remove (etc.) without finalize/clean work frames.
+- Pressure requires BLOCKED ref thread and/or app lock impact and/or explicit finalize work.
+- Reproducer: app holds LOCK; HeavyFinalizer.finalize() contends LOCK after System.gc().
 
 ## Evidence of Completion
 
-- [x] `./init.sh` green (`cargo test` 27/27)
-
-## Notes for Next Session
-
-Start feat-030 next. Reuse capture harness + PatternHit pipeline.
+- `./init.sh` green — 66 cargo lib tests; web lint/typecheck/build OK
+- Fixture: `tests/fixtures/patterns/finalizer_pressure_jstack.txt`
+- Live capture: `live_capture_finalizer_pressure_detects_pattern`

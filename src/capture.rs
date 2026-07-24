@@ -210,4 +210,367 @@ mod tests {
             hit.thread_names
         );
     }
+
+    #[test]
+    fn live_capture_dangerous_hot_lock_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::DangerousHotLock, 4);
+        let dump =
+            compile_run_jstack(&source, "DangerousHotLock", Duration::from_millis(900))
+                .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/dangerous_hot_lock_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DangerousHotLockOwner),
+            "expected dangerous-hot-lock-owner in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(60).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DangerousHotLockOwner)
+            .unwrap();
+        assert!(
+            hit.thread_names.iter().any(|n| n == "lock-owner"),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("waiter-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert!(hit.detail.contains("sleep") || hit.detail.contains("Thread.sleep"));
+    }
+
+    #[test]
+    fn live_capture_connection_pool_starve_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::ConnectionPoolStarve, 4);
+        let dump = compile_run_jstack(
+            &source,
+            "ConnectionPoolStarve",
+            Duration::from_millis(1000),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/connection_pool_starve_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ConnectionPoolBorrow),
+            "expected connection-pool-borrow in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(80).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ConnectionPoolBorrow)
+            .unwrap();
+        assert!(hit.thread_names.len() >= 3, "names={:?}", hit.thread_names);
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("db-borrower-")),
+            "expected db-borrower-* threads, got {:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn live_capture_future_latch_deadlock_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::FutureLatchDeadlock, 3);
+        let dump = compile_run_jstack(
+            &source,
+            "FutureLatchDeadlock",
+            Duration::from_millis(1000),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/future_latch_deadlock_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FutureLatchWaitTree),
+            "expected future-latch-wait-tree in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(100).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FutureLatchWaitTree)
+            .unwrap();
+        assert!(hit.thread_names.len() >= 2, "names={:?}", hit.thread_names);
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("future-waiter-")),
+            "expected future-waiter-* threads, got {:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn live_capture_logging_appender_contention_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::LoggingAppenderContention, 4);
+        let dump = compile_run_jstack(
+            &source,
+            "LoggingAppenderContention",
+            Duration::from_millis(1000),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/logging_appender_contention_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::LoggingAppenderContention),
+            "expected logging-appender-contention in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(100).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::LoggingAppenderContention)
+            .unwrap();
+        assert!(hit.thread_names.len() >= 3, "names={:?}", hit.thread_names);
+        assert!(
+            hit.thread_names.iter().any(|n| n == "log-holder"),
+            "expected log-holder, got {:?}",
+            hit.thread_names
+        );
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("log-writer-")),
+            "expected log-writer-* threads, got {:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn live_capture_busy_wait_spin_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::BusyWaitSpin, 4);
+        let dump = compile_run_jstack(&source, "BusyWaitSpin", Duration::from_millis(900))
+            .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/busy_wait_spin_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::BusyWaitSpinHotspot),
+            "expected busy-wait-spin-hotspot in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(100).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::BusyWaitSpinHotspot)
+            .unwrap();
+        assert!(hit.thread_names.len() >= 3, "names={:?}", hit.thread_names);
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("spin-worker-")),
+            "expected spin-worker-* threads, got {:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn live_capture_condition_starvation_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::ConditionStarvation, 4);
+        let dump = compile_run_jstack(
+            &source,
+            "ConditionStarvation",
+            Duration::from_millis(1000),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/condition_starvation_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ConditionParkStarvation),
+            "expected condition-park-starvation in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(100).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ConditionParkStarvation)
+            .unwrap();
+        assert!(hit.thread_names.len() >= 3, "names={:?}", hit.thread_names);
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("cond-waiter-")),
+            "expected cond-waiter-* threads, got {:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn live_capture_lock_order_risk_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::LockOrderRisk, 2);
+        let dump =
+            compile_run_jstack(&source, "LockOrderRisk", Duration::from_millis(1200))
+                .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/lock_order_risk_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::LockOrderInconsistency),
+            "expected lock-order-inconsistency in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(100).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::LockOrderInconsistency)
+            .unwrap();
+        assert!(
+            hit.thread_names.iter().any(|n| n == "order-ab"),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert!(
+            hit.thread_names.iter().any(|n| n == "order-ba"),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn live_capture_finalizer_pressure_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::FinalizerPressure, 3);
+        let dump = compile_run_jstack(
+            &source,
+            "FinalizerPressure",
+            Duration::from_millis(2200),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/finalizer_pressure_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FinalizerPressure),
+            "expected finalizer-pressure in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(120).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FinalizerPressure)
+            .unwrap();
+        assert!(
+            hit.thread_names.iter().any(|n| n == "Finalizer"),
+            "expected Finalizer thread, got {:?}",
+            hit.thread_names
+        );
+    }
 }

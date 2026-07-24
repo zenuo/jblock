@@ -9,7 +9,15 @@ export type FindingKind =
   | "blocked"
   | "clean"
   | "thread-pool-exhaustion"
-  | "sync-io-hotspot";
+  | "sync-io-hotspot"
+  | "dangerous-hot-lock-owner"
+  | "connection-pool-borrow"
+  | "future-latch-wait-tree"
+  | "logging-appender-contention"
+  | "busy-wait-spin-hotspot"
+  | "condition-park-starvation"
+  | "lock-order-inconsistency"
+  | "finalizer-pressure";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -162,6 +170,146 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+        },
+      });
+    } else if (p.kind === "dangerous-hot-lock-owner") {
+      const ownerName = p.thread_names[0] ?? null;
+      const waiters = p.thread_names.slice(1);
+      const lockMatch = /^lock (\S+)/.exec(p.detail);
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "critical",
+        kind: "dangerous-hot-lock-owner",
+        title: t("findings.dangerousHotLockTitle", {
+          count: waiters.length,
+        }),
+        detail: t("findings.dangerousHotLockDetail", { detail: p.detail }),
+        actors: {
+          nodes: [],
+          owner: actorFor(analysis, ownerName),
+          waiters: actorsForNames(analysis, waiters, 5),
+          lock: lockMatch?.[1] ?? null,
+        },
+      });
+    } else if (p.kind === "connection-pool-borrow") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "connection-pool-borrow",
+        title: t("findings.connectionPoolTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.connectionPoolDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "future-latch-wait-tree") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "critical",
+        kind: "future-latch-wait-tree",
+        title: t("findings.futureLatchTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.futureLatchDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 8),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "logging-appender-contention") {
+      const ownerName =
+        p.thread_names.find((n) => n.includes("holder") || n.includes("log-holder")) ??
+        p.thread_names[0] ??
+        null;
+      const waiters = p.thread_names.filter((n) => n !== ownerName);
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "logging-appender-contention",
+        title: t("findings.loggingAppenderTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.loggingAppenderDetail", { detail: p.detail }),
+        actors: {
+          nodes: [],
+          owner: actorFor(analysis, ownerName),
+          waiters: actorsForNames(analysis, waiters, 5),
+          lock: "Appender",
+        },
+      });
+    } else if (p.kind === "busy-wait-spin-hotspot") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "busy-wait-spin-hotspot",
+        title: t("findings.busyWaitTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.busyWaitDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "condition-park-starvation") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "condition-park-starvation",
+        title: t("findings.conditionStarvationTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.conditionStarvationDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: "Condition",
+        },
+      });
+    } else if (p.kind === "lock-order-inconsistency") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "lock-order-inconsistency",
+        title: t("findings.lockOrderTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.lockOrderDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "finalizer-pressure") {
+      const ownerName =
+        p.thread_names.find(
+          (n) =>
+            n === "Finalizer" ||
+            n === "Reference Handler" ||
+            n === "Common-Cleaner" ||
+            n.startsWith("Cleaner-"),
+        ) ??
+        p.thread_names.find((n) => n.includes("holder")) ??
+        p.thread_names[0] ??
+        null;
+      const waiters = p.thread_names.filter((n) => n !== ownerName);
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "finalizer-pressure",
+        title: t("findings.finalizerPressureTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.finalizerPressureDetail", { detail: p.detail }),
+        actors: {
+          nodes: [],
+          owner: actorFor(analysis, ownerName),
+          waiters: actorsForNames(analysis, waiters, 5),
+          lock: "finalize",
         },
       });
     }

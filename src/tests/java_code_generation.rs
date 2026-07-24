@@ -21,6 +21,43 @@ fn parses_scenario_aliases() {
         Some(Scenario::SyncIoHotspot)
     );
     assert_eq!(parse_scenario("rpc-hotspot"), Some(Scenario::SyncIoHotspot));
+    assert_eq!(
+        parse_scenario("dangerous-hot-lock"),
+        Some(Scenario::DangerousHotLock)
+    );
+    assert_eq!(parse_scenario("blocking-owner"), Some(Scenario::DangerousHotLock));
+    assert_eq!(
+        parse_scenario("connection-pool-starve"),
+        Some(Scenario::ConnectionPoolStarve)
+    );
+    assert_eq!(parse_scenario("hikari-starve"), Some(Scenario::ConnectionPoolStarve));
+    assert_eq!(
+        parse_scenario("future-latch-deadlock"),
+        Some(Scenario::FutureLatchDeadlock)
+    );
+    assert_eq!(parse_scenario("future-get"), Some(Scenario::FutureLatchDeadlock));
+    assert_eq!(
+        parse_scenario("logging-appender-contention"),
+        Some(Scenario::LoggingAppenderContention)
+    );
+    assert_eq!(
+        parse_scenario("logback-contention"),
+        Some(Scenario::LoggingAppenderContention)
+    );
+    assert_eq!(parse_scenario("busy-wait-spin"), Some(Scenario::BusyWaitSpin));
+    assert_eq!(parse_scenario("cpu-spin"), Some(Scenario::BusyWaitSpin));
+    assert_eq!(
+        parse_scenario("condition-starvation"),
+        Some(Scenario::ConditionStarvation)
+    );
+    assert_eq!(parse_scenario("park-starvation"), Some(Scenario::ConditionStarvation));
+    assert_eq!(parse_scenario("lock-order-risk"), Some(Scenario::LockOrderRisk));
+    assert_eq!(
+        parse_scenario("inconsistent-lock-order"),
+        Some(Scenario::LockOrderRisk)
+    );
+    assert_eq!(parse_scenario("finalizer-pressure"), Some(Scenario::FinalizerPressure));
+    assert_eq!(parse_scenario("reference-handler"), Some(Scenario::FinalizerPressure));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -69,6 +106,105 @@ fn sync_io_hotspot_blocks_on_socket_read() {
 }
 
 #[test]
+fn dangerous_hot_lock_owner_sleeps_while_holding() {
+    let code = generate(Scenario::DangerousHotLock, 4);
+    assert!(code.contains("public class DangerousHotLock"));
+    assert!(code.contains("\"lock-owner\""));
+    assert!(code.contains("waiter-"));
+    assert!(code.contains("final int waiters = 3;"));
+    assert!(code.contains("Thread.sleep(Long.MAX_VALUE)"));
+    assert!(code.contains("synchronized (LOCK)"));
+}
+
+#[test]
+fn connection_pool_starve_blocks_on_borrow() {
+    let code = generate(Scenario::ConnectionPoolStarve, 4);
+    assert!(code.contains("public class ConnectionPoolStarve"));
+    assert!(code.contains("HikariDataSource"));
+    assert!(code.contains("getConnection()"));
+    assert!(code.contains("borrowObject()"));
+    assert!(code.contains("db-borrower-"));
+    assert!(code.contains("pool-holder"));
+    assert!(code.contains("final int waiters = 3;"));
+}
+
+#[test]
+fn future_latch_deadlock_forms_wait_tree() {
+    let code = generate(Scenario::FutureLatchDeadlock, 3);
+    assert!(code.contains("public class FutureLatchDeadlock"));
+    assert!(code.contains("CompletableFuture"));
+    assert!(code.contains("CountDownLatch"));
+    assert!(code.contains("future-waiter-"));
+    assert!(code.contains("latch-waiter-"));
+    assert!(code.contains("final int futureWaiters = 3;"));
+    assert!(code.contains(".get()"));
+    assert!(code.contains(".await()"));
+}
+
+#[test]
+fn logging_appender_contention_holds_appender_lock() {
+    let code = generate(Scenario::LoggingAppenderContention, 4);
+    assert!(code.contains("public class LoggingAppenderContention"));
+    assert!(code.contains("OutputStreamAppender"));
+    assert!(code.contains("doAppend"));
+    assert!(code.contains("log-holder"));
+    assert!(code.contains("log-writer-"));
+    assert!(code.contains("final int waiters = 3;"));
+    assert!(code.contains("synchronized void append"));
+}
+
+#[test]
+fn busy_wait_spin_uses_tight_loop() {
+    let code = generate(Scenario::BusyWaitSpin, 4);
+    assert!(code.contains("public class BusyWaitSpin"));
+    assert!(code.contains("spinUntilReady"));
+    assert!(code.contains("spin-worker-"));
+    assert!(code.contains("final int workers = 4;"));
+    assert!(code.contains("while (!ready)"));
+    assert!(code.contains("sink++"));
+}
+
+#[test]
+fn condition_starvation_awaits_without_signal() {
+    let code = generate(Scenario::ConditionStarvation, 4);
+    assert!(code.contains("public class ConditionStarvation"));
+    assert!(code.contains("ReentrantLock"));
+    assert!(code.contains("Condition"));
+    assert!(code.contains("COND.await()"));
+    assert!(code.contains("cond-waiter-"));
+    assert!(code.contains("final int waiters = 4;"));
+    // No runtime signal call — only await (comments may mention signal).
+    assert!(!code.contains("COND.signal"));
+    assert!(!code.contains(".signal("));
+    assert!(!code.contains(".signalAll("));
+}
+
+#[test]
+fn lock_order_risk_uses_opposite_orders() {
+    let code = generate(Scenario::LockOrderRisk, 2);
+    assert!(code.contains("public class LockOrderRisk"));
+    assert!(code.contains("LOCK_A"));
+    assert!(code.contains("LOCK_B"));
+    assert!(code.contains("order-ab"));
+    assert!(code.contains("order-ba"));
+    assert!(code.contains("synchronized (LOCK_A)"));
+    assert!(code.contains("synchronized (LOCK_B)"));
+}
+
+#[test]
+fn finalizer_pressure_blocks_in_finalize() {
+    let code = generate(Scenario::FinalizerPressure, 3);
+    assert!(code.contains("public class FinalizerPressure"));
+    assert!(code.contains("HeavyFinalizer"));
+    assert!(code.contains("finalize()"));
+    assert!(code.contains("app-lock-holder"));
+    assert!(code.contains("app-waiter-"));
+    assert!(code.contains("System.gc()"));
+    assert!(code.contains("final int waiters = 2;"));
+    assert!(code.contains("synchronized (LOCK)"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -87,5 +223,25 @@ fn class_name_matches_source() {
         "ThreadPoolExhaustion"
     );
     assert_eq!(Scenario::SyncIoHotspot.class_name(), "SyncIoHotspot");
+    assert_eq!(Scenario::DangerousHotLock.class_name(), "DangerousHotLock");
+    assert_eq!(
+        Scenario::ConnectionPoolStarve.class_name(),
+        "ConnectionPoolStarve"
+    );
+    assert_eq!(
+        Scenario::FutureLatchDeadlock.class_name(),
+        "FutureLatchDeadlock"
+    );
+    assert_eq!(
+        Scenario::LoggingAppenderContention.class_name(),
+        "LoggingAppenderContention"
+    );
+    assert_eq!(Scenario::BusyWaitSpin.class_name(), "BusyWaitSpin");
+    assert_eq!(
+        Scenario::ConditionStarvation.class_name(),
+        "ConditionStarvation"
+    );
+    assert_eq!(Scenario::LockOrderRisk.class_name(), "LockOrderRisk");
+    assert_eq!(Scenario::FinalizerPressure.class_name(), "FinalizerPressure");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

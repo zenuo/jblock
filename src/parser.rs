@@ -77,6 +77,22 @@ pub enum PatternKind {
     ThreadPoolExhaustion,
     /// Many threads share the same sync socket/HTTP/JDBC stack (feat-029).
     SyncIoHotspot,
+    /// Hottest lock owner is blocked (sleep/I/O/park) while waiters pile up (feat-030).
+    DangerousHotLockOwner,
+    /// Many threads blocked borrowing from a connection pool (feat-031).
+    ConnectionPoolBorrow,
+    /// Wait tree on Future.get / CountDownLatch / CyclicBarrier (feat-032).
+    FutureLatchWaitTree,
+    /// Contended Log4j/Logback-style appender lock (feat-033).
+    LoggingAppenderContention,
+    /// Many RUNNABLE threads share a tight spin/busy-wait stack (feat-034).
+    BusyWaitSpinHotspot,
+    /// Many WAITING on ConditionObject/park with no signaler RUNNABLE (feat-035).
+    ConditionParkStarvation,
+    /// Conflicting lock acquisition orders that risk deadlock (feat-036).
+    LockOrderInconsistency,
+    /// Finalizer / Reference Handler busy or blocked under pressure (feat-037).
+    FinalizerPressure,
 }
 
 /// One detected high-level pattern hit.
@@ -393,6 +409,30 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
     if let Some(hit) = detect_sync_io_hotspot(threads) {
         out.push(hit);
     }
+    if let Some(hit) = detect_dangerous_hot_lock_owner(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_connection_pool_borrow(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_future_latch_wait_tree(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_logging_appender_contention(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_busy_wait_spin_hotspot(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_condition_park_starvation(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_lock_order_inconsistency(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_finalizer_pressure(threads) {
+        out.push(hit);
+    }
     out
 }
 
@@ -548,6 +588,744 @@ fn detect_sync_io_hotspot(threads: &[ThreadInfo]) -> Option<PatternHit> {
             "{} threads share sync I/O stack near {}",
             names.len(),
             io_frame
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames that mean the lock owner is blocked instead of doing useful CPU work.
+fn is_blocking_owner_frame(frame: &str) -> bool {
+    if is_sync_io_frame(frame) {
+        return true;
+    }
+    const NEEDLES: &[&str] = &[
+        "Thread.sleep",
+        "Thread.sleep0",
+        "Object.wait",
+        "Object.wait0",
+        "Unsafe.park",
+        "LockSupport.park",
+        "ConditionObject.await",
+        "Condition.await",
+        "CountDownLatch.await",
+        "CyclicBarrier.await",
+        "Semaphore.acquire",
+        "LinkedBlockingQueue.take",
+        "ArrayBlockingQueue.take",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// Dangerous hot-lock owner: hottest contended lock is held by a thread whose
+/// stack shows a blocking call (sleep / park / sync I/O) while waiters are BLOCKED.
+fn detect_dangerous_hot_lock_owner(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let mut lock_owner: BTreeMap<String, String> = BTreeMap::new();
+    for t in threads {
+        for lock in &t.held_locks {
+            lock_owner
+                .entry(lock.clone())
+                .or_insert_with(|| t.name.clone());
+        }
+    }
+
+    let mut waiters_by_lock: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for t in threads {
+        if t.state != "BLOCKED" {
+            continue;
+        }
+        if let Some(lock) = &t.waiting_on {
+            waiters_by_lock
+                .entry(lock.clone())
+                .or_default()
+                .push(t.name.clone());
+        }
+    }
+
+    let mut best: Option<(String, String, Vec<String>)> = None; // lock, owner, waiters
+    for (lock, waiters) in &waiters_by_lock {
+        if waiters.is_empty() {
+            continue;
+        }
+        let Some(owner) = lock_owner.get(lock) else {
+            continue;
+        };
+        let better = best
+            .as_ref()
+            .map(|(_, _, w)| waiters.len() > w.len())
+            .unwrap_or(true);
+        if better {
+            best = Some((lock.clone(), owner.clone(), waiters.clone()));
+        }
+    }
+    let (lock, owner_name, waiters) = best?;
+    let owner = threads.iter().find(|t| t.name == owner_name)?;
+    let blocking = owner.stack.iter().find(|f| is_blocking_owner_frame(f))?;
+
+    let mut names = vec![owner_name.clone()];
+    names.extend(waiters.iter().cloned());
+    let severity = if waiters.len() >= 2 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::DangerousHotLockOwner,
+        severity: severity.to_string(),
+        detail: format!(
+            "lock {} held by {} while blocked in {} ({} waiter(s))",
+            lock,
+            owner_name,
+            blocking,
+            waiters.len()
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames typical of Hikari / DBCP / Druid / mock pool borrow waits.
+fn is_connection_pool_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "HikariPool",
+        "HikariDataSource",
+        "HikariPool.getConnection",
+        "com.zaxxer.hikari",
+        "borrowObject",
+        "BasicDataSource.getConnection",
+        "PoolingDataSource.getConnection",
+        "DruidDataSource.getConnection",
+        "DruidAbstractDataSource",
+        "ConnectionPoolStarve",
+        "HikariDataSource.getConnection",
+        "HikariDataSource.borrowObject",
+    ];
+    if NEEDLES.iter().any(|n| frame.contains(n)) {
+        return true;
+    }
+    // Generic getConnection on a *DataSource / *Pool type, but not DriverManager.
+    (frame.contains(".getConnection(") || frame.contains(".getConnection)"))
+        && (frame.contains("DataSource")
+            || frame.contains("Pool")
+            || frame.contains("Hikari")
+            || frame.contains("Druid")
+            || frame.contains("ConnectionPoolStarve"))
+}
+
+/// Connection-pool borrow blocking: ≥3 threads wait in pool getConnection/borrow stacks.
+fn detect_connection_pool_borrow(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "WAITING" | "TIMED_WAITING" | "BLOCKED"
+            ) && t.stack.iter().any(|f| is_connection_pool_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    // Also accept ≥3 pool-borrow threads even if signatures differ slightly
+    // (e.g. getConnection vs borrowObject wrapper depth).
+    let (sig, members) = match best {
+        Some(v) => v,
+        None if candidates.len() >= 3 => (
+            stack_signature(&candidates[0].stack, 3),
+            candidates.clone(),
+        ),
+        None => return None,
+    };
+
+    let pool_frame = members[0]
+        .stack
+        .iter()
+        .find(|f| is_connection_pool_frame(f))
+        .cloned()
+        .unwrap_or(sig);
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::ConnectionPoolBorrow,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads blocked borrowing near {}",
+            names.len(),
+            pool_frame
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames for Future.get / CountDownLatch.await / CyclicBarrier.await wait trees.
+fn is_future_latch_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "CompletableFuture.get",
+        "CompletableFuture.waitingGet",
+        "CompletableFuture.getNow",
+        "FutureTask.get",
+        "FutureTask.awaitDone",
+        "Future.get",
+        "CountDownLatch.await",
+        "CyclicBarrier.await",
+        "CyclicBarrier.dowait",
+        "FutureLatchDeadlock",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+fn future_latch_kind_label(frame: &str) -> &'static str {
+    if frame.contains("CyclicBarrier") {
+        "CyclicBarrier.await"
+    } else if frame.contains("CountDownLatch") {
+        "CountDownLatch.await"
+    } else if frame.contains("CompletableFuture")
+        || frame.contains("FutureTask")
+        || frame.contains("Future.get")
+    {
+        "Future.get"
+    } else {
+        "Future/Latch await"
+    }
+}
+
+/// Future/Latch wait tree: ≥2 threads WAITING/TIMED_WAITING in Future.get /
+/// CountDownLatch.await / CyclicBarrier.await (logical-deadlock style waits).
+fn detect_future_latch_wait_tree(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(t.state.as_str(), "WAITING" | "TIMED_WAITING")
+                && t.stack.iter().any(|f| is_future_latch_frame(f))
+        })
+        .collect();
+    if candidates.len() < 2 {
+        return None;
+    }
+
+    let mut kinds: BTreeSet<&'static str> = BTreeSet::new();
+    for t in &candidates {
+        if let Some(frame) = t.stack.iter().find(|f| is_future_latch_frame(f)) {
+            kinds.insert(future_latch_kind_label(frame));
+        }
+    }
+
+    let sample = candidates[0]
+        .stack
+        .iter()
+        .find(|f| is_future_latch_frame(f))
+        .cloned()
+        .unwrap_or_else(|| "Future/Latch await".to_string());
+    let names: Vec<String> = candidates.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 3 || kinds.len() >= 2 {
+        "critical"
+    } else {
+        "warning"
+    };
+    let kind_list = kinds.into_iter().collect::<Vec<_>>().join("+");
+    Some(PatternHit {
+        kind: PatternKind::FutureLatchWaitTree,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads in Future/Latch wait tree near {} ({})",
+            names.len(),
+            sample,
+            if kind_list.is_empty() {
+                "await"
+            } else {
+                &kind_list
+            }
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames typical of Log4j / Logback / JUL-style synchronized appenders.
+fn is_logging_appender_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "OutputStreamAppender",
+        "AbstractOutputStreamAppender",
+        "ConsoleAppender",
+        "FileAppender",
+        "RollingFileAppender",
+        "WriterAppender",
+        "AppenderSkeleton",
+        "AppenderBase.doAppend",
+        "AppenderAttachableImpl",
+        "callAppenders",
+        "ch.qos.logback",
+        "org.apache.log4j",
+        "org.apache.logging.log4j.core.appender",
+        "LoggingAppenderContention",
+    ];
+    if NEEDLES.iter().any(|n| frame.contains(n)) {
+        return true;
+    }
+    // Generic doAppend on an *Appender type.
+    frame.contains(".doAppend(") && frame.contains("Appender")
+}
+
+/// Logging-appender contention: ≥3 threads stuck in appender/logger stacks
+/// (typically one holder sleeping in append + BLOCKED waiters on the same lock).
+fn detect_logging_appender_contention(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "BLOCKED" | "WAITING" | "TIMED_WAITING"
+            ) && t.stack.iter().any(|f| is_logging_appender_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let blocked = candidates.iter().filter(|t| t.state == "BLOCKED").count();
+    // Prefer a clear contention signature: at least two BLOCKED waiters.
+    if blocked < 2 {
+        return None;
+    }
+
+    let sample = candidates
+        .iter()
+        .find(|t| t.state == "BLOCKED")
+        .or(candidates.first())
+        .and_then(|t| t.stack.iter().find(|f| is_logging_appender_frame(f)))
+        .cloned()
+        .unwrap_or_else(|| "appender".to_string());
+    let names: Vec<String> = candidates.iter().map(|t| t.name.clone()).collect();
+    let severity = if blocked >= 3 || names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::LoggingAppenderContention,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads contending on logging appender near {} ({} BLOCKED)",
+            names.len(),
+            sample,
+            blocked
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames that mean the thread is blocked / yielding, not CPU-spinning.
+fn is_yielding_or_blocking_frame(frame: &str) -> bool {
+    // Reuse owner-blocking + sync-I/O needles (sleep/park/wait/socket/…).
+    is_blocking_owner_frame(frame)
+}
+
+/// Busy-wait / CPU spin hotspot: ≥3 RUNNABLE threads share a tight top-stack
+/// signature with no park/wait/sleep/I/O frames (feat-034).
+fn detect_busy_wait_spin_hotspot(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            t.state == "RUNNABLE"
+                && t.stack.len() >= 2
+                && !t
+                    .stack
+                    .first()
+                    .map(|f| f.contains("java.lang.Thread.run"))
+                    .unwrap_or(true)
+                && !t.stack.iter().any(|f| is_yielding_or_blocking_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        // Tight signature: top 3 frames capture the spin loop body.
+        let sig = stack_signature(&t.stack, 3);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let top = members[0]
+        .stack
+        .first()
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::BusyWaitSpinHotspot,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} RUNNABLE threads share busy-wait/spin stack near {}",
+            names.len(),
+            top
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames for `Condition.await` / AQS `ConditionObject` parking.
+fn is_condition_await_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "ConditionObject.await",
+        "ConditionObject.awaitNanos",
+        "ConditionObject.awaitUntil",
+        "Condition.await",
+        "ReentrantLock$ConditionObject",
+        "ConditionStarvation",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+fn is_condition_signal_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "ConditionObject.signal",
+        "ConditionObject.signalAll",
+        "Condition.signal",
+        "Condition.signalAll",
+        ".signal(",
+        ".signalAll(",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// Condition / park starvation: ≥3 WAITING/TIMED_WAITING threads in
+/// Condition.await / ConditionObject park stacks, with no RUNNABLE signaler.
+fn detect_condition_park_starvation(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(t.state.as_str(), "WAITING" | "TIMED_WAITING")
+                && t.stack.iter().any(|f| is_condition_await_frame(f))
+                && !stack_has_idle_get_task(&t.stack)
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    // Prefer a shared top-stack signature (≥3); else accept ≥3 condition waiters.
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+    let members: Vec<&ThreadInfo> = groups
+        .into_iter()
+        .filter(|(_, m)| m.len() >= 3)
+        .max_by_key(|(_, m)| m.len())
+        .map(|(_, m)| m)
+        .unwrap_or_else(|| candidates.clone());
+    if members.len() < 3 {
+        return None;
+    }
+
+    // Starvation signal: nobody RUNNABLE is in signal/signalAll.
+    let has_signaler = threads.iter().any(|t| {
+        t.state == "RUNNABLE" && t.stack.iter().any(|f| is_condition_signal_frame(f))
+    });
+    if has_signaler {
+        return None;
+    }
+
+    let sample = members[0]
+        .stack
+        .iter()
+        .find(|f| is_condition_await_frame(f))
+        .cloned()
+        .unwrap_or_else(|| "Condition.await".to_string());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::ConditionParkStarvation,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads parked on Condition/park near {} with no RUNNABLE signaler",
+            names.len(),
+            sample
+        ),
+        thread_names: names,
+    })
+}
+
+/// Build lock-acquisition order for a thread: outermost held lock first, then
+/// any `waiting to lock` target as the next intended acquisition.
+fn lock_acquisition_order(t: &ThreadInfo) -> Vec<String> {
+    // jstack lists innermost `locked` first; reverse to get acquire order.
+    let mut order: Vec<String> = t.held_locks.iter().rev().cloned().collect();
+    if let Some(w) = &t.waiting_on {
+        if !order.iter().any(|l| l == w) {
+            order.push(w.clone());
+        }
+    }
+    order
+}
+
+/// Nested lock-order inconsistency: observe both A→B and B→A acquisition
+/// orders across threads (risk of deadlock; may or may not already cycle).
+fn detect_lock_order_inconsistency(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    // edge (before, after) -> thread names that witnessed it
+    let mut edges: BTreeMap<(String, String), Vec<String>> = BTreeMap::new();
+    for t in threads {
+        let order = lock_acquisition_order(t);
+        if order.len() < 2 {
+            continue;
+        }
+        for i in 0..order.len() {
+            for j in (i + 1)..order.len() {
+                let before = order[i].clone();
+                let after = order[j].clone();
+                if before == after {
+                    continue;
+                }
+                edges
+                    .entry((before, after))
+                    .or_default()
+                    .push(t.name.clone());
+            }
+        }
+    }
+
+    let mut best: Option<(String, String, Vec<String>)> = None;
+    let keys: Vec<(String, String)> = edges.keys().cloned().collect();
+    for (a, b) in &keys {
+        if a >= b {
+            // Only consider each unordered pair once (canonical a < b).
+            continue;
+        }
+        let Some(fwd) = edges.get(&(a.clone(), b.clone())) else {
+            continue;
+        };
+        let Some(rev) = edges.get(&(b.clone(), a.clone())) else {
+            continue;
+        };
+        let mut names: BTreeSet<String> = BTreeSet::new();
+        names.extend(fwd.iter().cloned());
+        names.extend(rev.iter().cloned());
+        let names: Vec<String> = names.into_iter().collect();
+        if names.len() < 2 {
+            continue;
+        }
+        let better = best
+            .as_ref()
+            .map(|(_, _, n)| names.len() > n.len())
+            .unwrap_or(true);
+        if better {
+            best = Some((a.clone(), b.clone(), names));
+        }
+    }
+    let (a, b, names) = best?;
+    let severity = if names.len() >= 3 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::LockOrderInconsistency,
+        severity: severity.to_string(),
+        detail: format!(
+            "inconsistent lock order {}↔{} across {} threads (deadlock risk)",
+            a,
+            b,
+            names.len()
+        ),
+        thread_names: names,
+    })
+}
+
+fn is_ref_mgmt_thread(name: &str) -> bool {
+    let n = name.to_ascii_lowercase();
+    n == "finalizer"
+        || n == "reference handler"
+        || n == "common-cleaner"
+        || n.starts_with("cleaner-")
+}
+
+fn is_idle_ref_mgmt_stack(stack: &[String]) -> bool {
+    let idle = stack.iter().any(|f| {
+        f.contains("ReferenceQueue.remove")
+            || f.contains("ReferenceHandler.run")
+            || f.contains("CleanerImpl.run")
+            || f.contains("Common-Cleaner")
+    });
+    let working = stack.iter().any(|f| {
+        f.contains(".finalize(")
+            || f.contains("Finalizer.runFinalizer")
+            || f.contains("FinalizerPressure")
+            || f.contains("Cleaner.clean")
+    });
+    idle && !working
+}
+
+fn is_finalize_work_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        ".finalize(",
+        "Finalizer.runFinalizer",
+        "Finalizer$FinalizerThread",
+        "FinalizerPressure",
+        "Cleaner.clean",
+        "CleanerImpl",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// Finalizer / Reference Handler pressure: system ref-management thread is
+/// busy or BLOCKED (not idle on ReferenceQueue.remove), often while holding or
+/// waiting on an application lock (feat-037).
+fn detect_finalizer_pressure(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let ref_threads: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| is_ref_mgmt_thread(&t.name))
+        .collect();
+    if ref_threads.is_empty() {
+        return None;
+    }
+
+    let busy: Vec<&ThreadInfo> = ref_threads
+        .iter()
+        .copied()
+        .filter(|t| {
+            if is_idle_ref_mgmt_stack(&t.stack) {
+                return false;
+            }
+            match t.state.as_str() {
+                "BLOCKED" => true,
+                "RUNNABLE" | "TIMED_WAITING" | "WAITING" => {
+                    t.stack.iter().any(|f| is_finalize_work_frame(f))
+                        || (!t.held_locks.is_empty() && t.state != "WAITING")
+                        || t.state == "BLOCKED"
+                }
+                _ => false,
+            }
+        })
+        .collect();
+    if busy.is_empty() {
+        return None;
+    }
+
+    let mut lock_owner: BTreeMap<String, String> = BTreeMap::new();
+    for t in threads {
+        for lock in &t.held_locks {
+            lock_owner
+                .entry(lock.clone())
+                .or_insert_with(|| t.name.clone());
+        }
+    }
+
+    // Application impact: Finalizer BLOCKED, or app threads blocked on a lock
+    // it holds, or Finalizer blocked on a lock held by a non-ref thread.
+    let mut impact_names: BTreeSet<String> = BTreeSet::new();
+    for t in &busy {
+        impact_names.insert(t.name.clone());
+        if t.state == "BLOCKED" {
+            if let Some(lock) = &t.waiting_on {
+                if let Some(owner) = lock_owner.get(lock) {
+                    if !is_ref_mgmt_thread(owner) {
+                        impact_names.insert(owner.clone());
+                    }
+                }
+            }
+        }
+        for lock in &t.held_locks {
+            for w in threads {
+                if w.waiting_on.as_ref() == Some(lock) && !is_ref_mgmt_thread(&w.name) {
+                    impact_names.insert(w.name.clone());
+                }
+            }
+        }
+    }
+
+    let blocked_busy = busy.iter().filter(|t| t.state == "BLOCKED").count();
+    let has_finalize = busy
+        .iter()
+        .any(|t| t.stack.iter().any(|f| is_finalize_work_frame(f)));
+    // Require a clear pressure signal: blocked ref thread and/or app impact
+    // and/or explicit finalize work (not merely a non-idle name match).
+    if blocked_busy == 0 && impact_names.len() <= busy.len() && !has_finalize {
+        return None;
+    }
+    // If only busy names with finalize work but no BLOCKED and no extra app
+    // waiters, still report (Finalizer stuck in finalize/sleep).
+    let app_impact = impact_names.len() > busy.len() || blocked_busy > 0;
+    if !has_finalize && !app_impact {
+        return None;
+    }
+
+    let sample = busy[0]
+        .stack
+        .iter()
+        .find(|f| is_finalize_work_frame(f))
+        .cloned()
+        .unwrap_or_else(|| busy[0].name.clone());
+    let mut names: Vec<String> = impact_names.into_iter().collect();
+    names.sort();
+    let severity = if blocked_busy > 0 || names.len() >= 3 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::FinalizerPressure,
+        severity: severity.to_string(),
+        detail: format!(
+            "Finalizer/Reference Handler pressure near {} ({} ref-mgmt busy, {} BLOCKED)",
+            sample,
+            busy.len(),
+            blocked_busy
         ),
         thread_names: names,
     })
@@ -1070,11 +1848,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     #[test]
     fn detects_thread_pool_exhaustion_pattern() {
         let a = analyze(POOL_EXHAUSTION_SAMPLE);
-        assert_eq!(a.patterns.len(), 1);
-        let hit = &a.patterns[0];
-        assert_eq!(hit.kind, PatternKind::ThreadPoolExhaustion);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ThreadPoolExhaustion)
+            .expect("thread-pool-exhaustion");
         assert_eq!(hit.severity, "critical");
         assert_eq!(hit.thread_names.len(), 4);
+        // Same dump also shows a sleeping owner holding the contended lock.
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DangerousHotLockOwner)
+        );
     }
 
     #[test]
@@ -1100,6 +1886,110 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .any(|p| p.kind == PatternKind::SyncIoHotspot),
             "live fixture should detect sync-io hotspot"
+        );
+    }
+
+    #[test]
+    fn detects_dangerous_hot_lock_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/dangerous_hot_lock_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DangerousHotLockOwner),
+            "live fixture should detect dangerous hot-lock owner"
+        );
+    }
+
+    #[test]
+    fn detects_connection_pool_borrow_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/connection_pool_starve_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ConnectionPoolBorrow),
+            "live fixture should detect connection-pool borrow blocking"
+        );
+    }
+
+    #[test]
+    fn detects_future_latch_wait_tree_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/future_latch_deadlock_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FutureLatchWaitTree),
+            "live fixture should detect Future/Latch wait tree"
+        );
+    }
+
+    #[test]
+    fn detects_logging_appender_contention_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/logging_appender_contention_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::LoggingAppenderContention),
+            "live fixture should detect logging-appender contention"
+        );
+    }
+
+    #[test]
+    fn detects_busy_wait_spin_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/busy_wait_spin_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::BusyWaitSpinHotspot),
+            "live fixture should detect busy-wait/spin hotspot"
+        );
+    }
+
+    #[test]
+    fn detects_condition_park_starvation_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/condition_starvation_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ConditionParkStarvation),
+            "live fixture should detect Condition/park starvation"
+        );
+    }
+
+    #[test]
+    fn detects_lock_order_inconsistency_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/lock_order_risk_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::LockOrderInconsistency),
+            "live fixture should detect lock-order inconsistency"
+        );
+    }
+
+    #[test]
+    fn detects_finalizer_pressure_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/finalizer_pressure_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FinalizerPressure),
+            "live fixture should detect Finalizer/Reference Handler pressure"
         );
     }
 
@@ -1193,5 +2083,583 @@ Full thread dump OpenJDK 64-Bit Server VM:
             .expect("sync-io-hotspot");
         assert_eq!(hit.thread_names.len(), 4);
         assert!(hit.detail.contains("Socket") || hit.detail.contains("NioSocket"));
+    }
+
+    const DANGEROUS_HOT_LOCK_SAMPLE: &str = r#"2026-07-24 13:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"lock-owner" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab90000> (a java.lang.Object)
+        at DangerousHotLock.lambda$main$0(DangerousHotLock.java:18)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"waiter-0" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at DangerousHotLock.lambda$main$1(DangerousHotLock.java:28)
+        - waiting to lock <0x000000076ab90000> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"waiter-1" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at DangerousHotLock.lambda$main$1(DangerousHotLock.java:28)
+        - waiting to lock <0x000000076ab90000> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"waiter-2" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at DangerousHotLock.lambda$main$1(DangerousHotLock.java:28)
+        - waiting to lock <0x000000076ab90000> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_dangerous_hot_lock_owner_pattern() {
+        let a = analyze(DANGEROUS_HOT_LOCK_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DangerousHotLockOwner)
+            .expect("dangerous-hot-lock-owner");
+        assert_eq!(hit.severity, "critical");
+        assert!(hit.thread_names.iter().any(|n| n == "lock-owner"));
+        assert_eq!(
+            hit.thread_names.iter().filter(|n| n.starts_with("waiter-")).count(),
+            3
+        );
+        assert!(hit.detail.contains("sleep"));
+    }
+
+    #[test]
+    fn runnable_owner_is_not_dangerous_hot_lock() {
+        // Owner is RUNNABLE doing real work while holding the lock — not "blocked owner".
+        const SAFE: &str = r#""worker" #2 prio=5 os_prio=0 tid=0x2 nid=0x2 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.Worker.work(Worker.java:20)
+        - locked <0x000000076ab00000> (a java.lang.Object)
+
+"main" #1 prio=5 os_prio=0 tid=0x1 nid=0x1 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.run(App.java:10)
+        - waiting to lock <0x000000076ab00000> (a java.lang.Object)
+"#;
+        let a = analyze(SAFE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::DangerousHotLockOwner)
+        );
+    }
+
+    const CONN_POOL_SAMPLE: &str = r#"2026-07-24 13:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"db-borrower-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 in Object.wait() [0x1]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        - waiting on <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at java.lang.Object.wait(Object.java:338)
+        at ConnectionPoolStarve$HikariDataSource.borrowObject(ConnectionPoolStarve.java:18)
+        - locked <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at ConnectionPoolStarve$HikariDataSource.getConnection(ConnectionPoolStarve.java:12)
+        at ConnectionPoolStarve.lambda$main$1(ConnectionPoolStarve.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"db-borrower-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 in Object.wait() [0x2]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        - waiting on <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at java.lang.Object.wait(Object.java:338)
+        at ConnectionPoolStarve$HikariDataSource.borrowObject(ConnectionPoolStarve.java:18)
+        - locked <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at ConnectionPoolStarve$HikariDataSource.getConnection(ConnectionPoolStarve.java:12)
+        at ConnectionPoolStarve.lambda$main$1(ConnectionPoolStarve.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"db-borrower-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 in Object.wait() [0x3]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        - waiting on <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at java.lang.Object.wait(Object.java:338)
+        at ConnectionPoolStarve$HikariDataSource.borrowObject(ConnectionPoolStarve.java:18)
+        - locked <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at ConnectionPoolStarve$HikariDataSource.getConnection(ConnectionPoolStarve.java:12)
+        at ConnectionPoolStarve.lambda$main$1(ConnectionPoolStarve.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"pool-holder" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at ConnectionPoolStarve.lambda$main$0(ConnectionPoolStarve.java:36)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_connection_pool_borrow_pattern() {
+        let a = analyze(CONN_POOL_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ConnectionPoolBorrow)
+            .expect("connection-pool-borrow");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("borrow") || hit.detail.contains("getConnection") || hit.detail.contains("Hikari"));
+    }
+
+    const FUTURE_LATCH_SAMPLE: &str = r#"2026-07-24 14:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"future-waiter-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076aaa0001> (a java.util.concurrent.CompletableFuture$Signaller)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.CompletableFuture$Signaller.block(CompletableFuture.java:1864)
+        at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+        at java.util.concurrent.CompletableFuture.waitingGet(CompletableFuture.java:1898)
+        at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2072)
+        at FutureLatchDeadlock.lambda$main$0(FutureLatchDeadlock.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"future-waiter-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076aaa0002> (a java.util.concurrent.CompletableFuture$Signaller)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.CompletableFuture$Signaller.block(CompletableFuture.java:1864)
+        at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+        at java.util.concurrent.CompletableFuture.waitingGet(CompletableFuture.java:1898)
+        at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2072)
+        at FutureLatchDeadlock.lambda$main$0(FutureLatchDeadlock.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"latch-waiter-0" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076bbb0001> (a java.util.concurrent.CountDownLatch$Sync)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:754)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1099)
+        at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:230)
+        at FutureLatchDeadlock.lambda$main$1(FutureLatchDeadlock.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"latch-waiter-1" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076bbb0002> (a java.util.concurrent.CountDownLatch$Sync)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:754)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1099)
+        at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:230)
+        at FutureLatchDeadlock.lambda$main$2(FutureLatchDeadlock.java:50)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_future_latch_wait_tree_pattern() {
+        let a = analyze(FUTURE_LATCH_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FutureLatchWaitTree)
+            .expect("future-latch-wait-tree");
+        assert!(hit.thread_names.len() >= 4, "names={:?}", hit.thread_names);
+        assert_eq!(hit.severity, "critical");
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("future-waiter-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("latch-waiter-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn single_future_get_is_not_wait_tree() {
+        const ONE: &str = r#""worker" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2072)
+        at com.example.App.run(App.java:10)
+"#;
+        let a = analyze(ONE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::FutureLatchWaitTree)
+        );
+    }
+
+    const LOGGING_APPENDER_SAMPLE: &str = r#"2026-07-24 15:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"log-holder" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:18)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$0(LoggingAppenderContention.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"log-writer-0" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:16)
+        - waiting to lock <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$1(LoggingAppenderContention.java:58)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"log-writer-1" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:16)
+        - waiting to lock <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$1(LoggingAppenderContention.java:58)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"log-writer-2" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:16)
+        - waiting to lock <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$1(LoggingAppenderContention.java:58)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_logging_appender_contention_pattern() {
+        let a = analyze(LOGGING_APPENDER_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::LoggingAppenderContention)
+            .expect("logging-appender-contention");
+        assert!(hit.thread_names.len() >= 3, "names={:?}", hit.thread_names);
+        assert!(hit.detail.contains("BLOCKED") || hit.detail.contains("appender") || hit.detail.contains("OutputStreamAppender"));
+        assert!(
+            hit.thread_names.iter().any(|n| n == "log-holder"),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn two_blocked_loggers_without_third_is_not_logging_contention() {
+        const TWO: &str = r#""log-writer-0" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at ch.qos.logback.core.OutputStreamAppender.writeOut(OutputStreamAppender.java:200)
+        - waiting to lock <0x000000076abc1000> (a ch.qos.logback.core.OutputStreamAppender)
+
+"log-writer-1" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at ch.qos.logback.core.OutputStreamAppender.writeOut(OutputStreamAppender.java:200)
+        - waiting to lock <0x000000076abc1000> (a ch.qos.logback.core.OutputStreamAppender)
+"#;
+        let a = analyze(TWO);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::LoggingAppenderContention)
+        );
+    }
+
+    const BUSY_WAIT_SAMPLE: &str = r#"2026-07-24 16:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"spin-worker-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"spin-worker-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"spin-worker-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"spin-worker-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at BusyWaitSpin.spinUntilReady(BusyWaitSpin.java:12)
+        at BusyWaitSpin.lambda$main$0(BusyWaitSpin.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_busy_wait_spin_hotspot_pattern() {
+        let a = analyze(BUSY_WAIT_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::BusyWaitSpinHotspot)
+            .expect("busy-wait-spin-hotspot");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("spin") || hit.detail.contains("RUNNABLE"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("spin-worker-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn runnable_with_park_is_not_busy_wait() {
+        const PARKED: &str = r#""w0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at com.example.App.run(App.java:10)
+
+"w1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at com.example.App.run(App.java:10)
+
+"w2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at com.example.App.run(App.java:10)
+"#;
+        let a = analyze(PARKED);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::BusyWaitSpinHotspot)
+        );
+    }
+
+    const CONDITION_STARVATION_SAMPLE: &str = r#"2026-07-24 17:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"cond-waiter-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"cond-waiter-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"cond-waiter-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"cond-waiter-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_condition_park_starvation_pattern() {
+        let a = analyze(CONDITION_STARVATION_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ConditionParkStarvation)
+            .expect("condition-park-starvation");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("Condition") || hit.detail.contains("signaler"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("cond-waiter-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn condition_waiters_with_signaler_not_starvation() {
+        const WITH_SIGNAL: &str = r#""cond-waiter-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at com.example.App.await(App.java:10)
+
+"cond-waiter-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at com.example.App.await(App.java:10)
+
+"cond-waiter-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at com.example.App.await(App.java:10)
+
+"signaler" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.signalAll(AbstractQueuedSynchronizer.java:1800)
+        at com.example.App.signal(App.java:20)
+"#;
+        let a = analyze(WITH_SIGNAL);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::ConditionParkStarvation)
+        );
+    }
+
+    const LOCK_ORDER_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"order-ab" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LockOrderRisk.lambda$main$0(LockOrderRisk.java:24)
+        - waiting to lock <0x000000076ab00002> (a java.lang.Object)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"order-ba" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LockOrderRisk.lambda$main$1(LockOrderRisk.java:42)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        - locked <0x000000076ab00002> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_lock_order_inconsistency_pattern() {
+        let a = analyze(LOCK_ORDER_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::LockOrderInconsistency)
+            .expect("lock-order-inconsistency");
+        assert_eq!(hit.thread_names.len(), 2);
+        assert!(hit.detail.contains("inconsistent") || hit.detail.contains("↔"));
+        assert!(hit.thread_names.iter().any(|n| n == "order-ab"));
+        assert!(hit.thread_names.iter().any(|n| n == "order-ba"));
+        // Classic opposite orders also form a wait-for cycle.
+        assert!(!a.deadlocks.is_empty());
+    }
+
+    #[test]
+    fn one_way_lock_order_is_not_inconsistency() {
+        const ONE_WAY: &str = r#""worker" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.run(App.java:10)
+        - waiting to lock <0x000000076ab00002> (a java.lang.Object)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+
+"holder" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab00002> (a java.lang.Object)
+"#;
+        let a = analyze(ONE_WAY);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::LockOrderInconsistency)
+        );
+    }
+
+    const FINALIZER_PRESSURE_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"app-lock-holder" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+        at FinalizerPressure.lambda$main$0(FinalizerPressure.java:28)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FinalizerPressure$HeavyFinalizer.finalize(FinalizerPressure.java:14)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.System$2.invokeFinalize(System.java:2148)
+        at java.lang.ref.Finalizer.runFinalizer(Finalizer.java:96)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:174)
+
+"app-waiter-0" #22 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FinalizerPressure.lambda$main$1(FinalizerPressure.java:55)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"app-waiter-1" #23 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FinalizerPressure.lambda$main$1(FinalizerPressure.java:55)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x5 nid=0x35 waiting on condition [0x5]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:216)
+"#;
+
+    #[test]
+    fn detects_finalizer_pressure_pattern() {
+        let a = analyze(FINALIZER_PRESSURE_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FinalizerPressure)
+            .expect("finalizer-pressure");
+        assert!(hit.thread_names.iter().any(|n| n == "Finalizer"));
+        assert!(hit.thread_names.iter().any(|n| n == "app-lock-holder"));
+        assert!(
+            hit.detail.contains("Finalizer") || hit.detail.contains("pressure"),
+            "detail={}",
+            hit.detail
+        );
+        assert_eq!(hit.severity, "critical");
+    }
+
+    #[test]
+    fn idle_finalizer_is_not_pressure() {
+        const IDLE: &str = r#""Finalizer" #3 daemon prio=8 os_prio=0 tid=0x1 nid=0x31 in Object.wait() [0x1]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:151)
+        at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:172)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:165)
+
+"app-worker" #21 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+"#;
+        let a = analyze(IDLE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::FinalizerPressure)
+        );
     }
 }

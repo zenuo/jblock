@@ -295,6 +295,30 @@ export default function App() {
                   <option value="sync-io-hotspot">
                     {t("codegen.syncIoHotspot")}
                   </option>
+                  <option value="dangerous-hot-lock">
+                    {t("codegen.dangerousHotLock")}
+                  </option>
+                  <option value="connection-pool-starve">
+                    {t("codegen.connectionPoolStarve")}
+                  </option>
+                  <option value="future-latch-deadlock">
+                    {t("codegen.futureLatchDeadlock")}
+                  </option>
+                  <option value="logging-appender-contention">
+                    {t("codegen.loggingAppenderContention")}
+                  </option>
+                  <option value="busy-wait-spin">
+                    {t("codegen.busyWaitSpin")}
+                  </option>
+                  <option value="condition-starvation">
+                    {t("codegen.conditionStarvation")}
+                  </option>
+                  <option value="lock-order-risk">
+                    {t("codegen.lockOrderRisk")}
+                  </option>
+                  <option value="finalizer-pressure">
+                    {t("codegen.finalizerPressure")}
+                  </option>
                 </select>
               </label>
               <label>

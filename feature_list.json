@@ -303,8 +303,8 @@
         "feat-027",
         "feat-014"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::DangerousHotLockOwner; Scenario DangerousHotLock; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/dangerous_hot_lock_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-031",
@@ -313,8 +313,8 @@
       "dependencies": [
         "feat-027"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::ConnectionPoolBorrow; Scenario ConnectionPoolStarve (mock HikariDataSource); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/connection_pool_starve_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-032",
@@ -323,8 +323,8 @@
       "dependencies": [
         "feat-027"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::FutureLatchWaitTree; Scenario FutureLatchDeadlock (CompletableFuture ring + CountDownLatch cross-await); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/future_latch_deadlock_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-033",
@@ -334,8 +334,8 @@
         "feat-027",
         "feat-014"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::LoggingAppenderContention; Scenario LoggingAppenderContention (mock OutputStreamAppender); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/logging_appender_contention_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-034",
@@ -345,8 +345,8 @@
         "feat-027",
         "feat-019"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::BusyWaitSpinHotspot; Scenario BusyWaitSpin (spinUntilReady loop); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/busy_wait_spin_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-035",
@@ -355,8 +355,8 @@
       "dependencies": [
         "feat-027"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::ConditionParkStarvation; Scenario ConditionStarvation (ReentrantLock Condition.await, never signal); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/condition_starvation_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-036",
@@ -366,8 +366,8 @@
         "feat-027",
         "feat-010"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::LockOrderInconsistency; Scenario LockOrderRisk (A→B vs B→A); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/lock_order_risk_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-037",
@@ -377,8 +377,8 @@
         "feat-027",
         "feat-018"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::FinalizerPressure; Scenario FinalizerPressure (blocking finalize + app lock); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/finalizer_pressure_jstack.txt; ./init.sh green (66 cargo tests)"
     },
     {
       "id": "feat-038",
