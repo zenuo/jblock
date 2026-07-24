@@ -71,7 +71,7 @@
     {
       "id": "feat-008",
       "name": "java version support",
-      "description": "\u8c03\u7814\u4e0d\u540c\u7248\u672cjava\u7684jstack/ThreadMXBean\u8f93\u51fa\u683c\u5f0f\u5dee\u5f02\uff0c\u901a\u8fc7jenv\u5b89\u88c58/11/17/21\uff0c\u5206\u522b\u8fd0\u884c\u6837\u4f8b\u4ee3\u7801\uff0c\u7528jstack/ThreadMXBean#dumpAllThreads\uff0c\u89e3\u6790\u7ed3\u679c\u5e76\u5bf9\u6bd4",
+      "description": "调研不同版本java的jstack/ThreadMXBean输出格式差异，通过jenv安装8/11/17/21，分别运行样例代码，用jstack/ThreadMXBean#dumpAllThreads，解析结果并对比",
       "dependencies": [
         "feat-007"
       ],
@@ -189,6 +189,16 @@
       ],
       "status": "done",
       "evidence": "Stack clusters panel; analysisUi.clusterByStack"
+    },
+    {
+      "id": "feat-020",
+      "name": "GitHub Actions CI/CD",
+      "description": "Add GitHub Actions workflow that runs the same verification gates as ./init.sh on PRs/pushes, uploads the web build artifact, and deploys web/dist to GitHub Pages on main",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "evidence": ".github/workflows/ci.yml runs cargo test + pnpm wasm/lint/typecheck/build; uploads web-dist; deploys GitHub Pages on main; VITE_BASE=/jblock/ for project Pages; README CI/CD section; ./init.sh green"
     }
   ]
 }
