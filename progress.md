@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:10
+**Last Updated:** 2026-07-24 13:12
 **Active Feature:** feat-027 / feat-028 / feat-029 (done)
 
 ## Status
@@ -31,8 +31,7 @@
 
 ## Evidence of Completion
 
-- [ ] `./init.sh` green (running)
-- [x] live_capture_sync_io_hotspot_detects_pattern pass
+- [x] `./init.sh` green (`cargo test` 27/27)
 
 ## Notes for Next Session
 
