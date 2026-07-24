@@ -292,6 +292,9 @@ export default function App() {
                   <option value="thread-pool-exhaustion">
                     {t("codegen.threadPoolExhaustion")}
                   </option>
+                  <option value="sync-io-hotspot">
+                    {t("codegen.syncIoHotspot")}
+                  </option>
                 </select>
               </label>
               <label>

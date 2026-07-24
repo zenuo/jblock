@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:05
-**Active Feature:** feat-027 / feat-028 (done)
+**Last Updated:** 2026-07-24 13:10
+**Active Feature:** feat-027 / feat-028 / feat-029 (done)
 
 ## Status
 
@@ -12,6 +12,7 @@
 - [x] feat-001 … feat-026
 - [x] feat-027 Pattern reproducer + dump capture harness
 - [x] feat-028 Detect thread-pool exhaustion
+- [x] feat-029 Detect sync I/O / RPC hotspot clusters
 
 ### What's In Progress
 
@@ -19,23 +20,20 @@
 
 ### What's Next (by benefit)
 
-1. feat-029 sync I/O / RPC hotspot clusters
-2. feat-030 dangerous hot-lock owner
-3. feat-031 connection-pool borrow blocking
-4. … see feature_list.json feat-029..041
+1. feat-030 dangerous hot-lock owner
+2. feat-031 connection-pool borrow blocking
+3. … see feature_list.json
 
 ## Decisions Made
 
-- Patterns recorded as feat-027..041 sorted by benefit.
-- `Analysis.patterns: Vec<PatternHit>` for higher-level hits.
-- Live JDK capture in `src/capture.rs`; offline fixture under `tests/fixtures/patterns/`.
-- Refresh fixtures with `JBLOCK_UPDATE_FIXTURES=1 cargo test`.
+- Sync I/O detection clusters ≥3 threads sharing top frames that include socket/HTTP/gRPC/JDBC needles.
+- Reproducer: local ServerSocket + N clients blocked in `SocketInputStream.read`.
 
 ## Evidence of Completion
 
-- [x] `cargo test` 23/23 (includes live jstack capture)
-- [x] web lint / typecheck after wasm rebuild
+- [ ] `./init.sh` green (running)
+- [x] live_capture_sync_io_hotspot_detects_pattern pass
 
 ## Notes for Next Session
 
-Start feat-029 next. Reuse capture harness + PatternHit pipeline.
+Start feat-030 next. Reuse capture harness + PatternHit pipeline.

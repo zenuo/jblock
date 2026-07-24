@@ -292,8 +292,8 @@
         "feat-027",
         "feat-019"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::SyncIoHotspot; Scenario SyncIoHotspot codegen; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/sync_io_hotspot_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-030",

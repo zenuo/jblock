@@ -46,7 +46,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           ? "legend.blockedTitle"
           : kind === "thread-pool-exhaustion"
             ? "legend.poolExhaustionTitle"
-            : "legend.cleanTitle";
+            : kind === "sync-io-hotspot"
+              ? "legend.syncIoHotspotTitle"
+              : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -56,7 +58,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           ? "legend.blockedBody"
           : kind === "thread-pool-exhaustion"
             ? "legend.poolExhaustionBody"
-            : "legend.cleanBody";
+            : kind === "sync-io-hotspot"
+              ? "legend.syncIoHotspotBody"
+              : "legend.cleanBody";
 
   return (
     <div
@@ -92,6 +96,7 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "thread-pool-exhaustion" && (
             <PoolExhaustionDemo actors={actors} />
           )}
+          {kind === "sync-io-hotspot" && <SyncIoHotspotDemo actors={actors} />}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -113,6 +118,16 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               <li>
                 <span className="swatch swatch-thread" />{" "}
                 {t("legend.keyPoolWorker")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "sync-io-hotspot" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" /> {t("legend.keyIoThread")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}
@@ -436,6 +451,84 @@ function BlockedDemo({ actors }: { actors: FindingActors }) {
                   strokeWidth="2"
                 />
                 <ActorLabel actor={b} fallback={`B${i + 1}`} threadMax={14} />
+              </g>
+            </g>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
+  const nodes =
+    actors.nodes.length > 0
+      ? actors.nodes.slice(0, 4)
+      : [
+          { thread: "rpc-client-0", className: "SocketInputStream" },
+          { thread: "rpc-client-1", className: "SocketInputStream" },
+          { thread: "rpc-client-2", className: "SocketInputStream" },
+          { thread: "rpc-client-3", className: "SocketInputStream" },
+        ];
+  const positions = [
+    [60, 70],
+    [160, 50],
+    [260, 70],
+    [160, 130],
+  ] as const;
+
+  return (
+    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+      <rect
+        x="110"
+        y="155"
+        width="100"
+        height="36"
+        rx="8"
+        fill="#e0e7ff"
+        stroke="#6366f1"
+        strokeWidth="1.5"
+      />
+      <text
+        x="160"
+        y="177"
+        textAnchor="middle"
+        fontSize="10"
+        fontWeight="700"
+        fill="#4338ca"
+      >
+        remote I/O
+      </text>
+      {nodes.map((a, i) => {
+        const [x, y] = positions[i] ?? [160, 90];
+        return (
+          <g key={`${a.thread}-${i}`}>
+            <line
+              x1={x}
+              y1={y + 22}
+              x2="160"
+              y2="155"
+              className="legend-edge-wait"
+              stroke="#f59e0b"
+              strokeWidth="2"
+              strokeDasharray="5 4"
+            />
+            <g transform={`translate(${x} ${y})`}>
+              <g
+                className="legend-pulse"
+                style={{ animationDelay: `${i * 0.18}s` }}
+              >
+                <rect
+                  x="-48"
+                  y="-22"
+                  width="96"
+                  height="44"
+                  rx="8"
+                  fill="#ffedd5"
+                  stroke="#f59e0b"
+                  strokeWidth="2"
+                />
+                <ActorLabel actor={a} fallback={`C${i}`} threadMax={11} />
               </g>
             </g>
           </g>

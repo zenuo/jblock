@@ -16,6 +16,11 @@ fn parses_scenario_aliases() {
         Some(Scenario::ThreadPoolExhaustion)
     );
     assert_eq!(parse_scenario("pool"), Some(Scenario::ThreadPoolExhaustion));
+    assert_eq!(
+        parse_scenario("sync-io-hotspot"),
+        Some(Scenario::SyncIoHotspot)
+    );
+    assert_eq!(parse_scenario("rpc-hotspot"), Some(Scenario::SyncIoHotspot));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -53,6 +58,17 @@ fn thread_pool_exhaustion_uses_executor() {
 }
 
 #[test]
+fn sync_io_hotspot_blocks_on_socket_read() {
+    let code = generate(Scenario::SyncIoHotspot, 4);
+    assert!(code.contains("public class SyncIoHotspot"));
+    assert!(code.contains("ServerSocket"));
+    assert!(code.contains("final int clients = 4;"));
+    assert!(code.contains("rpc-client-"));
+    assert!(code.contains("getInputStream()"));
+    assert!(code.contains("in.read()"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -70,5 +86,6 @@ fn class_name_matches_source() {
         Scenario::ThreadPoolExhaustion.class_name(),
         "ThreadPoolExhaustion"
     );
+    assert_eq!(Scenario::SyncIoHotspot.class_name(), "SyncIoHotspot");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

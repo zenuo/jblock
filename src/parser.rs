@@ -75,6 +75,8 @@ pub struct Deadlock {
 pub enum PatternKind {
     /// Executor pool workers all busy/blocked; none idle in getTask.
     ThreadPoolExhaustion,
+    /// Many threads share the same sync socket/HTTP/JDBC stack (feat-029).
+    SyncIoHotspot,
 }
 
 /// One detected high-level pattern hit.
@@ -388,6 +390,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
     if let Some(hit) = detect_thread_pool_exhaustion(threads) {
         out.push(hit);
     }
+    if let Some(hit) = detect_sync_io_hotspot(threads) {
+        out.push(hit);
+    }
     out
 }
 
@@ -418,7 +423,12 @@ fn detect_thread_pool_exhaustion(threads: &[ThreadInfo]) -> Option<PatternHit> {
     }
     let busy = pool
         .iter()
-        .filter(|t| t.state == "BLOCKED" || t.state == "RUNNABLE" || t.state == "TIMED_WAITING" || t.state == "WAITING")
+        .filter(|t| {
+            t.state == "BLOCKED"
+                || t.state == "RUNNABLE"
+                || t.state == "TIMED_WAITING"
+                || t.state == "WAITING"
+        })
         .count();
     if busy < 3 {
         return None;
@@ -438,6 +448,106 @@ fn detect_thread_pool_exhaustion(threads: &[ThreadInfo]) -> Option<PatternHit> {
             "{} pool workers busy with 0 idle getTask ({} BLOCKED)",
             names.len(),
             blocked
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames that indicate synchronous network / JDBC / RPC blocking.
+fn is_sync_io_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "SocketInputStream",
+        "SocketOutputStream",
+        "SocketDispatcher",
+        "PlainSocketImpl",
+        "NioSocketImpl",
+        "SocketChannel.read",
+        "SocketChannel.write",
+        "ServerSocket.accept",
+        "Socket.accept",
+        "HttpURLConnection",
+        "HttpClient",
+        "okhttp3",
+        "OkHttpClient",
+        "org.apache.http",
+        "io.grpc",
+        "java.sql.",
+        "javax.sql.",
+        "jdbc",
+        "DriverManager.getConnection",
+        "Net.connect",
+        "Socket.connect",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+fn stack_signature(frames: &[String], depth: usize) -> String {
+    frames
+        .iter()
+        .take(depth)
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(" | ")
+}
+
+/// Sync I/O / RPC hotspot: ≥3 threads share the same top frames and at least
+/// one frame is a synchronous socket/HTTP/JDBC call.
+fn detect_sync_io_hotspot(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "RUNNABLE" | "WAITING" | "TIMED_WAITING" | "BLOCKED"
+            ) && t.stack.iter().any(|f| is_sync_io_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let io_frame = members[0]
+        .stack
+        .iter()
+        .find(|f| is_sync_io_frame(f))
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::SyncIoHotspot,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads share sync I/O stack near {}",
+            names.len(),
+            io_frame
         ),
         thread_names: names,
     })
@@ -981,6 +1091,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_sync_io_hotspot_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/sync_io_hotspot_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::SyncIoHotspot),
+            "live fixture should detect sync-io hotspot"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -1018,5 +1141,57 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .all(|p| p.kind != PatternKind::ThreadPoolExhaustion)
         );
+    }
+
+    const SYNC_IO_SAMPLE: &str = r#"2026-07-24 13:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"rpc-client-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"rpc-client-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"rpc-client-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"rpc-client-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:318)
+        at sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+        at sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+        at java.net.Socket$SocketInputStream.read(Socket.java:1099)
+        at SyncIoHotspot.lambda$main$1(SyncIoHotspot.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_sync_io_hotspot_pattern() {
+        let a = analyze(SYNC_IO_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::SyncIoHotspot)
+            .expect("sync-io-hotspot");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("Socket") || hit.detail.contains("NioSocket"));
     }
 }

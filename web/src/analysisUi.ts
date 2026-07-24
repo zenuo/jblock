@@ -8,7 +8,8 @@ export type FindingKind =
   | "hot-lock"
   | "blocked"
   | "clean"
-  | "thread-pool-exhaustion";
+  | "thread-pool-exhaustion"
+  | "sync-io-hotspot";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -141,6 +142,21 @@ export function buildFindings(
           count: p.thread_names.length,
         }),
         detail: t("findings.poolExhaustionDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "sync-io-hotspot") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "sync-io-hotspot",
+        title: t("findings.syncIoHotspotTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.syncIoHotspotDetail", { detail: p.detail }),
         actors: {
           nodes: actorsForNames(analysis, p.thread_names, 6),
           owner: null,

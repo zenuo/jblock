@@ -30,7 +30,7 @@ export interface Deadlock {
   edges: BlockedEdge[];
 }
 
-export type PatternKind = "thread-pool-exhaustion";
+export type PatternKind = "thread-pool-exhaustion" | "sync-io-hotspot";
 
 export interface PatternHit {
   kind: PatternKind;
