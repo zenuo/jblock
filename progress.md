@@ -2,35 +2,34 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 12:15
-**Active Feature:** feat-023 (done; landed on main)
+**Last Updated:** 2026-07-24 12:20
+**Active Feature:** feat-024 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-022 (on main)
-- [x] feat-023 Pattern legend demo modals
+- [x] feat-001 … feat-023 (on main)
+- [x] feat-024 Website favicon
 
 ### What's In Progress
 
-- [ ] None
+- [ ] None on this branch
 
 ### What's Next
 
-1. Optional: more locales / richer per-dump diagram using real thread names.
+1. Optional: raster apple-touch-icon if needed for iOS home-screen.
 
 ## Decisions Made
 
-- Each finding has a `kind` (`deadlock` | `hot-lock` | `blocked` | `clean`).
-- Legend button opens `PatternLegendModal` with animated SVG demos.
-- Animation nodes bind to dump **thread names** + top-stack **Java class names** (`Finding.actors` / `classNameFromFrame`).
-- Respect `prefers-reduced-motion`.
-- Landed on `main` per user request.
+- SVG favicon in `web/public/favicon.svg` (Vite copies `public/` to dist root).
+- Motif: indigo→violet brand tile + interlocking thread blocks with a wait-for edge (matches jblock purpose).
+- Linked via `<link rel="icon" type="image/svg+xml">` plus `theme-color`.
 
 ## Evidence of Completion
 
 - [x] `./init.sh` green
+- [x] Production build includes `dist/favicon.svg`
 
 ## Notes for Next Session
 
