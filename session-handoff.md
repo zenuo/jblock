@@ -19,7 +19,7 @@
 |---|---|---|---|
 | Unit tests | `cargo test` | pass | 16 tests |
 | Full dump | analyze `tdump_15c7.txt` | pass | 3962 threads, 68 edges |
-| Full gate | `./init.sh` | pending | before PR finalize |
+| Full gate | `./init.sh` | pass | cargo + wasm + lint + typecheck + build |
 
 ## Files Changed
 

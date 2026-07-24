@@ -41,7 +41,7 @@
 
 - [x] `cargo test` → 16 passed (incl. `detects_mxbean_format_lock_contentions` + real-world)
 - [x] Full dump smoke: 3962 threads, 68/68 BLOCKED edges with owners
-- [x] `./init.sh` (run before claiming done)
+- [x] `./init.sh` green
 
 ## Notes for Next Session
 
