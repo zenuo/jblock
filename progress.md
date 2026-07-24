@@ -2,19 +2,19 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:30
-**Active Feature:** feat-031 (verifying)
+**Last Updated:** 2026-07-24 13:32
+**Active Feature:** feat-031 (done)
 
 ## Status
 
 ### What's Done
 
 - [x] feat-001 … feat-030
-- [x] feat-031 Detect connection-pool borrow blocking (implementation)
+- [x] feat-031 Detect connection-pool borrow blocking
 
 ### What's In Progress
 
-- [ ] feat-031 verification (`./init.sh`)
+- [ ] None on this branch
 
 ### What's Next
 
@@ -28,8 +28,7 @@
 
 ## Evidence of Completion
 
-- [ ] `./init.sh` green
-- [x] live_capture_connection_pool_starve_detects_pattern pass
+- [x] `./init.sh` green (`cargo test` 36/36)
 
 ## Notes for Next Session
 
