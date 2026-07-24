@@ -482,6 +482,19 @@ th {
   background: #f8fafc;
 }
 
+.finding-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.finding-legend-btn {
+  flex-shrink: 0;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+}
+
 .finding-critical {
   border-color: #fca5a5;
   background: #fef2f2;
@@ -494,6 +507,215 @@ th {
 
 .finding strong {
   font-size: 0.92rem;
+}
+
+.legend-modal {
+  max-width: 520px;
+}
+
+.legend-body {
+  margin: 0 0 0.85rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.legend-stage {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  padding: 0.5rem;
+  margin-bottom: 0.85rem;
+  overflow: hidden;
+}
+
+.legend-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+}
+
+.legend-key {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.legend-key li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.swatch {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  display: inline-block;
+}
+
+.swatch-thread,
+.swatch-waiter {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.swatch-wait {
+  background: repeating-linear-gradient(
+    90deg,
+    #ef4444 0 4px,
+    transparent 4px 8px
+  );
+}
+
+.swatch-owner,
+.swatch-ok {
+  background: #dcfce7;
+  border-color: #22c55e;
+}
+
+.swatch-lock {
+  background: #eef2ff;
+  border-color: #6366f1;
+}
+
+.legend-flow {
+  animation: legend-dash 1.2s linear infinite;
+}
+
+.legend-flow-cycle {
+  animation: legend-dash 1.6s linear infinite;
+}
+
+.legend-node-pulse {
+  animation: legend-pulse 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.legend-node-bounce {
+  animation: legend-bounce 1.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.legend-node-shake {
+  animation: legend-shake 1.1s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.legend-lock-pulse {
+  animation: legend-pulse 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.legend-float {
+  animation: legend-float 2.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.legend-check {
+  animation: legend-pop 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.legend-caption-anim {
+  animation: legend-fade 2s ease-in-out infinite;
+}
+
+@keyframes legend-dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@keyframes legend-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes legend-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes legend-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes legend-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes legend-pop {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes legend-fade {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legend-flow,
+  .legend-flow-cycle,
+  .legend-node-pulse,
+  .legend-node-bounce,
+  .legend-node-shake,
+  .legend-lock-pulse,
+  .legend-float,
+  .legend-check,
+  .legend-caption-anim {
+    animation: none;
+  }
 }
 
 .linkish {

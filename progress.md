@@ -2,34 +2,34 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 12:05
-**Active Feature:** feat-022 (done)
+**Last Updated:** 2026-07-24 12:15
+**Active Feature:** feat-023 (done; landed on main)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-021 (on main)
-- [x] feat-022 Multi-language UI with browser auto-detect
+- [x] feat-001 … feat-022 (on main)
+- [x] feat-023 Pattern legend demo modals
 
 ### What's In Progress
 
-- [ ] None on this branch
+- [ ] None
 
 ### What's Next
 
-1. Optional: more locales beyond en/zh.
+1. Optional: more locales / richer per-dump diagram using real thread names.
 
 ## Decisions Made
 
-- Lightweight custom i18n (no i18next): `en` + `zh` catalogs under `web/src/i18n/`.
-- First visit: `detectBrowserLocale(navigator.languages)`; override stored in `localStorage` (`jblock.locale`).
-- HTML export localized; PDF labels stay English (pdf-lib Helvetica cannot embed CJK).
+- Each finding has a `kind` (`deadlock` | `hot-lock` | `blocked` | `clean`).
+- Legend button opens `PatternLegendModal` with animated SVG demos.
+- Respect `prefers-reduced-motion`.
+- Committed directly to `main` per user request.
 
 ## Evidence of Completion
 
 - [x] `./init.sh` green
-- [x] `detectBrowserLocale(['zh-CN']) === 'zh'`, `(['en-US']) === 'en'`
 
 ## Notes for Next Session
 

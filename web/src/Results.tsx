@@ -6,9 +6,11 @@ import {
   isJvmNoise,
   sortThreads,
   threadDomId,
+  type Finding,
   type ThreadSortKey,
 } from "./analysisUi";
 import { useI18n, type TranslateFn } from "./i18n";
+import PatternLegendModal from "./PatternLegendModal";
 import type { Analysis, ThreadInfo } from "./types";
 
 const STATE_COLORS: Record<string, string> = {
@@ -45,6 +47,7 @@ export default function Results({ analysis }: Props) {
   const [expandedLocks, setExpandedLocks] = useState<Set<string>>(new Set());
   const [expandedStacks, setExpandedStacks] = useState<Set<number>>(new Set());
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
+  const [legendKind, setLegendKind] = useState<Finding["kind"] | null>(null);
 
   useEffect(() => {
     setStateFilter(hasBlocked ? "BLOCKED" : "ALL");
@@ -145,12 +148,29 @@ export default function Results({ analysis }: Props) {
         <ul className="findings-list">
           {findings.map((f, i) => (
             <li key={i} className={`finding finding-${f.severity}`}>
-              <strong>{f.title}</strong>
+              <div className="finding-row">
+                <strong>{f.title}</strong>
+                <button
+                  type="button"
+                  className="btn finding-legend-btn"
+                  data-testid={`legend-btn-${f.kind}`}
+                  onClick={() => setLegendKind(f.kind)}
+                >
+                  {t("findings.legendBtn")}
+                </button>
+              </div>
               <span className="mono">{f.detail}</span>
             </li>
           ))}
         </ul>
       </section>
+
+      {legendKind && (
+        <PatternLegendModal
+          kind={legendKind}
+          onClose={() => setLegendKind(null)}
+        />
+      )}
 
       {analysis.deadlocks.length > 0 && (
         <section className="panel deadlock-panel" data-testid="deadlocks">

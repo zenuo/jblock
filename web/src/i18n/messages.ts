@@ -35,6 +35,26 @@ export const en: Messages = {
   "findings.blockedDetail": "{count} lock-contention edge(s) detected",
   "findings.cleanTitle": "No lock contention or deadlock detected",
   "findings.cleanDetail": "{count} threads parsed ({format})",
+  "findings.legendBtn": "Legend",
+  "legend.close": "Close",
+  "legend.deadlockTitle": "Deadlock cycle — legend",
+  "legend.deadlockBody":
+    "Each thread waits for a lock held by the next. The wait-for edges form a closed cycle, so nobody can proceed.",
+  "legend.hotLockTitle": "Hottest lock — legend",
+  "legend.hotLockBody":
+    "One owner holds the lock while several waiters pile up on the same monitor — this is the hottest contention point.",
+  "legend.blockedTitle": "BLOCKED threads — legend",
+  "legend.blockedBody":
+    "BLOCKED threads are stuck entering a monitor already owned by another thread. Reduce the ratio to free the pool.",
+  "legend.cleanTitle": "Healthy dump — legend",
+  "legend.cleanBody":
+    "No circular waits and no lock contention edges were found. Threads are free to run or wait without blocking on each other.",
+  "legend.keyThread": "Thread in the wait-for cycle",
+  "legend.keyWaitEdge": "Waits-for edge (animated)",
+  "legend.keyOwner": "Lock owner (RUNNABLE)",
+  "legend.keyWaiter": "Waiting / blocked thread",
+  "legend.keyLock": "Contended monitor / lock",
+  "legend.keyHealthy": "Independent runnable threads",
   "deadlocks.title": "Deadlocks detected ({count})",
   "deadlocks.waitsOn": "waits on",
   "deadlocks.heldBy": "held by",
@@ -103,6 +123,26 @@ export const zh: Messages = {
   "findings.blockedDetail": "检测到 {count} 条锁竞争边",
   "findings.cleanTitle": "未检测到锁竞争或死锁",
   "findings.cleanDetail": "已解析 {count} 个线程（{format}）",
+  "findings.legendBtn": "图例",
+  "legend.close": "关闭",
+  "legend.deadlockTitle": "死锁环 — 图例演示",
+  "legend.deadlockBody":
+    "每个线程都在等待下一线程持有的锁，等待关系首尾相连形成闭环，因此谁也无法继续执行。",
+  "legend.hotLockTitle": "最热锁 — 图例演示",
+  "legend.hotLockBody":
+    "一名持有者占着锁，多名等待者挤在同一把监视器上——这就是当前最热的竞争点。",
+  "legend.blockedTitle": "BLOCKED 线程 — 图例演示",
+  "legend.blockedBody":
+    "BLOCKED 线程卡在进入已被其他线程占用的监视器。降低该比例有助于释放线程池。",
+  "legend.cleanTitle": "健康转储 — 图例演示",
+  "legend.cleanBody":
+    "未发现环状等待，也没有锁竞争边。线程可独立运行或等待，彼此不互相阻塞。",
+  "legend.keyThread": "环上的线程",
+  "legend.keyWaitEdge": "等待边（动画）",
+  "legend.keyOwner": "锁持有者（RUNNABLE）",
+  "legend.keyWaiter": "等待 / 阻塞线程",
+  "legend.keyLock": "被争用的监视器 / 锁",
+  "legend.keyHealthy": "彼此独立的可运行线程",
   "deadlocks.title": "检测到死锁（{count}）",
   "deadlocks.waitsOn": "等待",
   "deadlocks.heldBy": "持有者",

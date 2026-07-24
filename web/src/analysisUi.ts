@@ -5,6 +5,8 @@ export type FindingSeverity = "critical" | "warning" | "info";
 
 export interface Finding {
   severity: FindingSeverity;
+  /** Pattern kind for legend/demo modal (feat-023). */
+  kind: "deadlock" | "hot-lock" | "blocked" | "clean";
   title: string;
   detail: string;
 }
@@ -40,6 +42,7 @@ export function buildFindings(
     for (const d of analysis.deadlocks) {
       findings.push({
         severity: "critical",
+        kind: "deadlock",
         title: t("findings.deadlockTitle", { count: d.threads.length }),
         detail: `${d.threads.join(" → ")} → ${d.threads[0] ?? ""}`,
       });
@@ -51,6 +54,7 @@ export function buildFindings(
     const hot = groups[0];
     findings.push({
       severity: analysis.deadlocks.length > 0 ? "warning" : "critical",
+      kind: "hot-lock",
       title: t("findings.hotLockTitle", { count: hot.waiters.length }),
       detail: t("findings.hotLockDetail", {
         lock: hot.lock,
@@ -62,6 +66,7 @@ export function buildFindings(
   if (blocked > 0) {
     findings.push({
       severity: blockedPct >= 20 ? "warning" : "info",
+      kind: "blocked",
       title: t("findings.blockedTitle", { count: blocked, pct: blockedPct }),
       detail: t("findings.blockedDetail", {
         count: analysis.blocked_edges.length,
@@ -70,6 +75,7 @@ export function buildFindings(
   } else if (analysis.deadlocks.length === 0 && groups.length === 0) {
     findings.push({
       severity: "info",
+      kind: "clean",
       title: t("findings.cleanTitle"),
       detail: t("findings.cleanDetail", {
         count: analysis.total_threads,
