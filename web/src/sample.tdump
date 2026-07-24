@@ -1,0 +1,132 @@
+2026-07-24 12:00:00
+Full thread dump OpenJDK 64-Bit Server VM (21.0.2+13 mixed mode):
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x00007f8c0c00a000 nid=0x1a waiting on condition [0x00007f8bfa1fe000]
+   java.lang.Thread.State: RUNNABLE
+        at java.lang.ref.Reference.waitForReferencePendingList(java.base@21.0.2/Native Method)
+        at java.lang.ref.Reference.processPendingReferences(java.base@21.0.2/Reference.java:246)
+        at java.lang.ref.Reference$ReferenceHandler.run(java.base@21.0.2/Reference.java:208)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x00007f8c0c00b800 nid=0x1b in Object.wait() [0x00007f8bfa0fe000]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait0(java.base@21.0.2/Native Method)
+        - waiting on <0x000000076aa00001> (a java.lang.ref.NativeReferenceQueue$Lock)
+        at java.lang.Object.wait(java.base@21.0.2/Object.java:366)
+        at java.lang.ref.NativeReferenceQueue.await(java.base@21.0.2/NativeReferenceQueue.java:48)
+        at java.lang.ref.Finalizer$FinalizerThread.run(java.base@21.0.2/Finalizer.java:173)
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 tid=0x00007f8c0c00d000 nid=0x1c waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" #5 daemon prio=8 os_prio=0 tid=0x00007f8c0c00e800 nid=0x1d waiting on condition [0x00007f8bf9efe000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(java.base@21.0.2/Native Method)
+        - parking to wait for  <0x000000076aa00010> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.2/LockSupport.java:269)
+        at jdk.internal.ref.CleanerImpl.run(java.base@21.0.2/CleanerImpl.java:140)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"C2 CompilerThread0" #6 daemon prio=9 os_prio=0 tid=0x00007f8c0c010000 nid=0x1e waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"order-checkout-0" #21 prio=5 os_prio=0 tid=0x00007f8c0c100000 nid=0x31 waiting for monitor entry [0x00007f8bf8efe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.acme.orders.CheckoutService.reserveInventory(CheckoutService.java:88)
+        - waiting to lock <0x000000076ab10002> (a java.lang.Object)
+        - locked <0x000000076ab10001> (a java.lang.Object)
+        at com.acme.orders.CheckoutService.checkout(CheckoutService.java:42)
+        at com.acme.orders.CheckoutWorker.run(CheckoutWorker.java:27)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"order-checkout-1" #22 prio=5 os_prio=0 tid=0x00007f8c0c101800 nid=0x32 waiting for monitor entry [0x00007f8bf8dfe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.acme.orders.CheckoutService.chargePayment(CheckoutService.java:112)
+        - waiting to lock <0x000000076ab10003> (a java.lang.Object)
+        - locked <0x000000076ab10002> (a java.lang.Object)
+        at com.acme.orders.CheckoutService.checkout(CheckoutService.java:51)
+        at com.acme.orders.CheckoutWorker.run(CheckoutWorker.java:27)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"order-checkout-2" #23 prio=5 os_prio=0 tid=0x00007f8c0c103000 nid=0x33 waiting for monitor entry [0x00007f8bf8cfe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.acme.orders.CheckoutService.confirmOrder(CheckoutService.java:130)
+        - waiting to lock <0x000000076ab10001> (a java.lang.Object)
+        - locked <0x000000076ab10003> (a java.lang.Object)
+        at com.acme.orders.CheckoutService.checkout(CheckoutService.java:60)
+        at com.acme.orders.CheckoutWorker.run(CheckoutWorker.java:27)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"cache-writer" #30 prio=5 os_prio=0 tid=0x00007f8c0c110000 nid=0x3a runnable [0x00007f8bf8bfe000]
+   java.lang.Thread.State: RUNNABLE
+        at com.acme.cache.LocalCache.flushBatch(LocalCache.java:214)
+        - locked <0x000000076ab20000> (a java.util.concurrent.ConcurrentHashMap)
+        at com.acme.cache.LocalCache.putAll(LocalCache.java:168)
+        at com.acme.cache.CacheWriterJob.run(CacheWriterJob.java:45)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"http-worker-1" #31 prio=5 os_prio=0 tid=0x00007f8c0c111800 nid=0x3b waiting for monitor entry [0x00007f8bf8afe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.acme.cache.LocalCache.get(LocalCache.java:97)
+        - waiting to lock <0x000000076ab20000> (a java.util.concurrent.ConcurrentHashMap)
+        at com.acme.api.ProductHandler.handle(ProductHandler.java:63)
+        at com.acme.api.HttpServer$Worker.run(HttpServer.java:188)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"http-worker-2" #32 prio=5 os_prio=0 tid=0x00007f8c0c113000 nid=0x3c waiting for monitor entry [0x00007f8bf89fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.acme.cache.LocalCache.get(LocalCache.java:97)
+        - waiting to lock <0x000000076ab20000> (a java.util.concurrent.ConcurrentHashMap)
+        at com.acme.api.ProductHandler.handle(ProductHandler.java:63)
+        at com.acme.api.HttpServer$Worker.run(HttpServer.java:188)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"http-worker-3" #33 prio=5 os_prio=0 tid=0x00007f8c0c114800 nid=0x3d waiting for monitor entry [0x00007f8bf88fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.acme.cache.LocalCache.get(LocalCache.java:97)
+        - waiting to lock <0x000000076ab20000> (a java.util.concurrent.ConcurrentHashMap)
+        at com.acme.api.ProductHandler.handle(ProductHandler.java:63)
+        at com.acme.api.HttpServer$Worker.run(HttpServer.java:188)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"http-worker-4" #34 prio=5 os_prio=0 tid=0x00007f8c0c116000 nid=0x3e waiting for monitor entry [0x00007f8bf87fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.acme.cache.LocalCache.get(LocalCache.java:97)
+        - waiting to lock <0x000000076ab20000> (a java.util.concurrent.ConcurrentHashMap)
+        at com.acme.api.ProductHandler.handle(ProductHandler.java:63)
+        at com.acme.api.HttpServer$Worker.run(HttpServer.java:188)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"event-listener" #40 prio=5 os_prio=0 tid=0x00007f8c0c120000 nid=0x44 waiting on condition [0x00007f8bf86fe000]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(java.base@21.0.2/Native Method)
+        - parking to wait for  <0x000000076ab30000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(java.base@21.0.2/LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(java.base@21.0.2/LinkedBlockingQueue.java:435)
+        at com.acme.events.EventBus.dispatchLoop(EventBus.java:78)
+        at com.acme.events.EventListener.run(EventListener.java:22)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"scheduler" #41 prio=5 os_prio=0 tid=0x00007f8c0c121800 nid=0x45 waiting on condition [0x00007f8bf85fe000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep0(java.base@21.0.2/Native Method)
+        at java.lang.Thread.sleep(java.base@21.0.2/Thread.java:509)
+        at com.acme.jobs.Scheduler.tick(Scheduler.java:54)
+        at com.acme.jobs.Scheduler.run(Scheduler.java:31)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"metrics-reporter" #42 prio=5 os_prio=0 tid=0x00007f8c0c123000 nid=0x46 runnable [0x00007f8bf84fe000]
+   java.lang.Thread.State: RUNNABLE
+        at com.acme.metrics.Reporter.flush(Reporter.java:119)
+        at com.acme.metrics.Reporter.run(Reporter.java:67)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)
+
+"db-pool-keeper" #43 prio=5 os_prio=0 tid=0x00007f8c0c124800 nid=0x47 waiting on condition [0x00007f8bf83fe000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(java.base@21.0.2/Native Method)
+        - parking to wait for  <0x000000076ab40000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.2/LockSupport.java:269)
+        at com.zaxxer.hikari.pool.HikariPool$HouseKeeper.run(HikariPool.java:831)
+        at java.util.concurrent.Executors$RunnableAdapter.call(java.base@21.0.2/Executors.java:572)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.2/ThreadPoolExecutor.java:1144)
+        at java.lang.Thread.run(java.base@21.0.2/Thread.java:1583)

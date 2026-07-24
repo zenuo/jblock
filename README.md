@@ -76,7 +76,7 @@ cd web
 pnpm run dev        # 先用 wasm-pack 构建 WASM（dev 模式），再启动 Vite
 ```
 
-打开 http://localhost:5173/ ，点击 **Load sample** 或 **Choose thread dump…** 选择本地 dump。
+打开 http://localhost:5173/ ，点击 **Load sample**（含死锁 / 热锁竞争 / JVM 噪音线程的示例 dump）或 **Choose thread dump…** 选择本地 dump。
 
 > 说明：WASM 不会随前端热更新自动重建。修改了 `src/*.rs` 后，需要重新运行
 > `pnpm run wasm`（或重启 `pnpm run dev`）以重建 `web/src/wasm/`。

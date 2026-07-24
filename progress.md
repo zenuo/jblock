@@ -2,34 +2,33 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 12:20
-**Active Feature:** feat-024 (done)
+**Last Updated:** 2026-07-24 12:30
+**Active Feature:** feat-025 (in progress → verifying)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-023 (on main)
-- [x] feat-024 Website favicon
+- [x] feat-001 … feat-024 (on main)
+- [x] feat-025 Richer Load sample dump (implementation)
 
 ### What's In Progress
 
-- [ ] None on this branch
+- [ ] feat-025 verification (`./init.sh`)
 
 ### What's Next
 
-1. Optional: raster apple-touch-icon if needed for iOS home-screen.
+1. Merge feat-025 after CI green.
 
 ## Decisions Made
 
-- SVG favicon in `web/public/favicon.svg` (Vite copies `public/` to dist root).
-- Motif: indigo→violet brand tile + interlocking thread blocks with a wait-for edge (matches jblock purpose).
-- Linked via `<link rel="icon" type="image/svg+xml">` plus `theme-color`.
+- Shared source of truth: `web/src/sample.tdump` (Vite `?raw` import + Rust `include_str!` test).
+- Sample intentionally demos: 3-thread deadlock, 4-waiter hot lock, stack clusters, JVM noise, mixed states.
 
 ## Evidence of Completion
 
-- [x] `./init.sh` green
-- [x] Production build includes `dist/favicon.svg`
+- [ ] `./init.sh` green
+- [x] `cargo test parses_web_sample_dump` pass
 
 ## Notes for Next Session
 

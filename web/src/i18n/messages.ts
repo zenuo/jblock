@@ -9,7 +9,8 @@ export const en: Messages = {
   "app.loadSample": "Load sample",
   "app.exportHtml": "Export HTML",
   "app.exportPdf": "Export PDF",
-  "app.hint": "Select a thread dump file or load the sample to get started.",
+  "app.hint":
+    "Select a thread dump file, or load the sample (deadlock + hot lock + JVM noise) to explore the analyzer.",
   "app.dropOverlay": "Drop thread dump to analyze",
   "app.loadingWasm": "Loading analyzer…",
   "app.analyzing": "Analyzing dump…",
@@ -98,7 +99,8 @@ export const zh: Messages = {
   "app.loadSample": "加载示例",
   "app.exportHtml": "导出 HTML",
   "app.exportPdf": "导出 PDF",
-  "app.hint": "请选择线程转储文件，或加载示例开始分析。",
+  "app.hint":
+    "请选择线程转储文件，或加载示例（死锁 + 热锁竞争 + JVM 噪音线程）开始体验分析功能。",
   "app.dropOverlay": "拖放线程转储文件到此处分析",
   "app.loadingWasm": "正在加载分析引擎…",
   "app.analyzing": "正在分析转储…",
