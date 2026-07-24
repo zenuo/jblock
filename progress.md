@@ -28,7 +28,7 @@
 
 - [x] Inline `.panel.codegen` removed from main flow
 - [x] Header button `data-testid="open-codegen"` + modal `data-testid="codegen-modal"`
-- [x] `./init.sh` (pending)
+- [x] `./init.sh` green
 
 ## Notes for Next Session
 

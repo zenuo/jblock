@@ -2,31 +2,26 @@
 
 ## Current Objective
 
-- Goal: feat-011 move Java codegen to frontend to shrink WASM
+- Goal: feat-012 codegen entry as top-right modal
 - Current status: done
-- Branch: `cursor/feat-011-frontend-java-codegen-6bfd`
+- Branch: `cursor/feat-012-codegen-modal-6bfd`
 
 ## Completed This Session
 
-- [x] Added feat-011 to `feature_list.json` and implemented it
-- [x] `web/src/codegen.ts` powers the page Generate panel
-- [x] Removed wasm-bindgen `generateJava`; Rust codegen host-only
-- [x] WASM size −5,428 bytes; `./init.sh` green
+- [x] Pulled latest `main` (feat-011 merged)
+- [x] Added feat-012 and moved Generate Java UI into header modal
+- [x] Main page is dump-analysis only
 
 ## Verification Evidence
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Unit tests | `cargo test` | pass | 16 tests; codegen still host-tested |
-| Example | `cargo run --example gen_java -- deadlock 2` | pass | |
 | Full gate | `./init.sh` | pass | |
-| WASM size | `wc -c web/src/wasm/jblock_bg.wasm` | 1044453 | was 1049881 |
 
 ## Files Changed
 
+- `web/src/App.tsx`, `web/src/index.css`
 - `feature_list.json`, `progress.md`, `session-handoff.md`, `README.md`
-- `src/lib.rs`, `src/codegen.rs`
-- `web/src/codegen.ts`, `web/src/analyzer.ts`, `web/src/App.tsx`
 
 ## Next Session Startup
 
