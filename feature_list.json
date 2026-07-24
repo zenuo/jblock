@@ -79,6 +79,14 @@
       "dependencies": ["feat-007"],
       "status": "done",
       "evidence": "Implemented with feat-005: src/parser.rs detect_deadlocks + Analysis.deadlocks; visualized in web/src/App.tsx deadlock panel and included in HTML/PDF exports"
+    },
+    {
+      "id": "feat-011",
+      "name": "Move Java codegen to frontend (shrink WASM)",
+      "description": "Page Java reproducer generation moves to front-end TypeScript; Rust codegen remains for tests/CLI only (not exported via wasm-bindgen), reducing WASM binary size",
+      "dependencies": ["feat-007"],
+      "status": "done",
+      "evidence": "web/src/codegen.ts + App sync generate; analyzer no longer imports wasm generateJava; src/codegen.rs gated cfg(not(target_arch=\"wasm32\")) for cargo test + examples/gen_java; jblock_bg.wasm 1049881→1044453 (−5428 bytes); ./init.sh green"
     }
   ]
 }

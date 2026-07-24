@@ -20,6 +20,7 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
   - **死锁环检测**：基于 wait-for 图检测线程间的循环等待并可视化。
   - 每个线程的持有锁、栈深度等信息。
 - **结果渲染**：状态分布条形图、死锁面板、锁竞争表、线程明细表。
+- **Java reproducer**：在浏览器前端生成可运行的死锁 / 锁竞争样例代码（不经过 WASM）。
 - **导出**：
   - HTML 报告：复用 web app 自身的 CSS（`?inline`）与结构，样式与页面一致。
   - PDF 报告：通过 [`pdf-lib`](https://pdf-lib.js.org/) 生成单页 A4 报告。
@@ -47,7 +48,8 @@ jblock/
     └── src/
         ├── main.tsx
         ├── App.tsx      # 页面 UI 与交互
-        ├── analyzer.ts  # 加载并调用 WASM
+        ├── analyzer.ts  # 加载并调用 WASM（analyzeDump）
+        ├── codegen.ts   # 前端生成 Java reproducer（不进 WASM）
         ├── export.ts    # HTML / PDF 导出
         ├── types.ts     # 与 Rust Analysis 结构对应的 TS 类型
         └── wasm/        # wasm-pack 生成产物（构建生成，已 gitignore）

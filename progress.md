@@ -2,47 +2,38 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 09:05
-**Active Feature:** feat-009 (done)
+**Last Updated:** 2026-07-24 09:25
+**Active Feature:** feat-011 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-008 (see prior entries)
-- [x] feat-009 ThreadMXBean lock-contention bug fix (`Class@hash` / `blocked on` / `locked`)
-- [x] feat-010 Deadlock cycle detection (done with feat-005)
+- [x] feat-001 … feat-010
+- [x] feat-011 Move Java codegen to frontend (shrink WASM)
 
 ### What's In Progress
 
-- [ ] None — backlog complete for feat-001..010.
+- [ ] None
 
 ### What's Next
 
-1. Optional polish / new features beyond the current backlog.
+1. Optional further WASM size work / new features.
 
 ## Blockers / Risks
 
-- [ ] Risk: `pnpm -C web run build` requires `wasm-pack` + the `wasm32-unknown-unknown` target.
+- [ ] Risk: `pnpm -C web run build` requires `wasm-pack` + `wasm32-unknown-unknown`.
 
 ## Decisions Made
 
-- **feat-009 MXBean locks**: parse `-  blocked on Class@hash` and `-  locked Class@hash`; ignore `-  waiting on` (Condition/park). Header `BLOCKED on … owned by "…"` is a fallback for waiting_on / owner when monitor lines are incomplete. Lock identity keeps the full `Class@hash` string so waiter and holder match.
-- Real-world evidence: Flink/Kafka dump `tdump_15c7` → fixture excerpt `tests/fixtures/mxbean_real_contention.txt`; full dump yields 68 blocked edges (66 on RollingFileManager@30dbe1cc, 1 kafka Object@7ec4e9a), all with owners.
-
-## Files Modified This Session (feat-009)
-
-- `src/parser.rs` — MXBean lock parsing + owned-by fallback; new tests
-- `tests/fixtures/mxbean_real_contention.txt` — excerpt from uploaded dump
-- `tests/fixtures/java-versions/FORMAT_DIFFS.md` — mark MXBean locks done
-- `feature_list.json` / `progress.md` / `session-handoff.md`
+- **feat-011**: Page generation in `web/src/codegen.ts`. Rust `src/codegen.rs` is `cfg(not(target_arch = "wasm32"))` so host `cargo test` and `examples/gen_java` still work; wasm-bindgen no longer exports `generateJava`.
 
 ## Evidence of Completion
 
-- [x] `cargo test` → 16 passed (incl. `detects_mxbean_format_lock_contentions` + real-world)
-- [x] Full dump smoke: 3962 threads, 68/68 BLOCKED edges with owners
-- [x] `./init.sh` green
+- [x] `cargo test` 16 passed
+- [x] WASM `jblock_bg.wasm` 1,049,881 → 1,044,453 (−5,428 bytes); no `generateJava` in wasm pkg
+- [x] `./init.sh` (pending run)
 
 ## Notes for Next Session
 
-Run `./init.sh` first. WASM is not hot-reloaded after `src/*.rs` edits.
+Run `./init.sh` first. After `src/*.rs` edits, re-run `pnpm -C web run wasm`.
