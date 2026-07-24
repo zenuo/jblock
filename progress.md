@@ -2,22 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 10:00
-**Active Feature:** feat-020 (done; rebased onto main with feat-013..019)
+**Last Updated:** 2026-07-24 10:15
+**Active Feature:** feat-021 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-012 (on main)
-- [x] feat-013 Problem-first findings summary
-- [x] feat-014 Aggregate lock contention by lock
-- [x] feat-015 Thread table filter and sort
-- [x] feat-016 waiting_on column and stack frames
-- [x] feat-017 Jump to lock owner / thread
-- [x] feat-018 Hide JVM noise threads
-- [x] feat-019 Cluster threads by stack signature
-- [x] feat-020 GitHub Actions CI/CD
+- [x] feat-001 … feat-020 (on main)
+- [x] feat-021 WASM preload + analyze loading UI
 
 ### What's In Progress
 
@@ -25,25 +18,20 @@
 
 ### What's Next
 
-1. Enable GitHub Pages source = GitHub Actions in repo settings after merge.
+1. Enable GitHub Pages source = GitHub Actions in repo settings if not already.
 
 ## Decisions Made
 
-- Results UI extracted to `web/src/Results.tsx` + helpers in `analysisUi.ts`.
-- Parser retains top 12 stack frames (`ThreadInfo.stack`) while `stack_depth` stays full count.
-- Default thread filter: BLOCKED when any exist; hide JVM noise on by default.
-- CI mirrors `./init.sh`: cargo test + pnpm wasm/lint/typecheck/build.
-- CD deploys `web/dist` to GitHub Pages only on `main` push.
-- Vite `base` comes from `VITE_BASE` (CI sets `/jblock/` for project Pages).
+- Preload WASM via `preloadWasm()` on App mount (same singleton as `ensureReady`).
+- Busy UI uses a fixed overlay with two phases: `wasm` ("Loading analyzer…") and `analyzing` ("Analyzing dump…").
+- Yield with `setTimeout(0)` before `analyzeDump` so the analyzing overlay can paint (WASM parse is sync on the main thread).
 
 ## Evidence of Completion
 
-- [x] `cargo test` 17 passed (incl. `captures_top_stack_frames`)
-- [x] `.github/workflows/ci.yml` present
-- [x] `VITE_BASE=/jblock/ pnpm -C web run build` produces `/jblock/` asset paths
+- [x] `preloadWasm` / `isWasmReady` in `web/src/analyzer.ts`
+- [x] Overlay in `App.tsx` (`data-testid="loading-overlay"`)
 - [x] `./init.sh` green
 
 ## Notes for Next Session
 
 Run `./init.sh` first. After `src/*.rs` edits, re-run `pnpm -C web run wasm`.
-After merging, turn on Pages → Build and deployment → Source: GitHub Actions.

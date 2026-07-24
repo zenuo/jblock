@@ -5,13 +5,30 @@ export type { JavaScenario } from "./codegen";
 export { generateJava, classNameFor } from "./codegen";
 
 let readyPromise: Promise<unknown> | null = null;
+let wasmReady = false;
 
-/** Lazily initialise the WASM module exactly once. */
+/** True once the WASM module has finished initialising. */
+export function isWasmReady(): boolean {
+  return wasmReady;
+}
+
+/**
+ * Initialise the WASM module exactly once.
+ * Safe to call on page load for background preload, and again before analyze.
+ */
 export function ensureReady(): Promise<unknown> {
   if (!readyPromise) {
-    readyPromise = init();
+    readyPromise = init().then((exports) => {
+      wasmReady = true;
+      return exports;
+    });
   }
   return readyPromise;
+}
+
+/** Kick off WASM load without waiting (same as ensureReady, clearer at call sites). */
+export function preloadWasm(): Promise<unknown> {
+  return ensureReady();
 }
 
 /** Parse and analyze a raw thread dump string using the Rust/WASM core. */

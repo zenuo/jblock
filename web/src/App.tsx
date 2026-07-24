@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { analyze, generateJava, classNameFor, type JavaScenario } from "./analyzer";
+import {
+  analyze,
+  generateJava,
+  classNameFor,
+  isWasmReady,
+  preloadWasm,
+  type JavaScenario,
+} from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
 import Results from "./Results";
 import type { Analysis } from "./types";
+
+type BusyPhase = "wasm" | "analyzing";
 
 const SAMPLE_DUMP = `"main" #1 prio=5 os_prio=0 tid=0x00007f0001 nid=0x1 waiting for monitor entry [0x00007f0002]
    java.lang.Thread.State: BLOCKED (on object monitor)
@@ -24,8 +33,10 @@ export default function App() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [sourceName, setSourceName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busyPhase, setBusyPhase] = useState<BusyPhase | null>(null);
+  const [wasmReady, setWasmReady] = useState(() => isWasmReady());
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const busy = busyPhase !== null;
 
   const [codegenOpen, setCodegenOpen] = useState(false);
   const [javaScenario, setJavaScenario] = useState<JavaScenario>("deadlock");
@@ -33,6 +44,27 @@ export default function App() {
   const [javaCode, setJavaCode] = useState<string>("");
   const [codegenError, setCodegenError] = useState<string | null>(null);
   const closeCodegenBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Background-load WASM as soon as the page mounts.
+  useEffect(() => {
+    let cancelled = false;
+    void preloadWasm()
+      .then(() => {
+        if (!cancelled) setWasmReady(true);
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setError(
+            e instanceof Error
+              ? `Failed to load analyzer: ${e.message}`
+              : `Failed to load analyzer: ${String(e)}`,
+          );
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const closeCodegen = useCallback(() => {
     setCodegenOpen(false);
@@ -82,9 +114,20 @@ export default function App() {
   }, [javaCode, javaScenario]);
 
   const runAnalysis = useCallback(async (text: string, name: string) => {
-    setBusy(true);
     setError(null);
+    // If WASM is still downloading/initialising, show that first; otherwise analyzing.
+    setBusyPhase(isWasmReady() || wasmReady ? "analyzing" : "wasm");
     try {
+      if (!isWasmReady()) {
+        setBusyPhase("wasm");
+        await preloadWasm();
+        setWasmReady(true);
+      }
+      setBusyPhase("analyzing");
+      // Yield so the loading UI can paint before sync WASM parse blocks the main thread.
+      await new Promise<void>((resolve) => {
+        window.setTimeout(resolve, 0);
+      });
       const result = await analyze(text);
       setAnalysis(result);
       setSourceName(name);
@@ -92,9 +135,9 @@ export default function App() {
       setError(e instanceof Error ? e.message : String(e));
       setAnalysis(null);
     } finally {
-      setBusy(false);
+      setBusyPhase(null);
     }
-  }, []);
+  }, [wasmReady]);
 
   const onFile = useCallback(
     async (file: File) => {
@@ -133,6 +176,23 @@ export default function App() {
       onDragLeave={onDragLeave}
     >
       {dragging && <div className="drop-overlay">Drop thread dump to analyze</div>}
+      {busyPhase && (
+        <div
+          className="loading-overlay"
+          role="status"
+          aria-live="polite"
+          data-testid="loading-overlay"
+        >
+          <div className="loading-card">
+            <div className="spinner" aria-hidden="true" />
+            <p>
+              {busyPhase === "wasm"
+                ? "Loading analyzer…"
+                : "Analyzing dump…"}
+            </p>
+          </div>
+        </div>
+      )}
       <header className="app-header">
         <div className="app-header-row">
           <h1>
@@ -153,13 +213,14 @@ export default function App() {
       </header>
 
       <section className="controls">
-        <label className="btn primary">
+        <label className={`btn primary${busy ? " disabled" : ""}`}>
           Choose thread dump…
           <input
             ref={fileInputRef}
             type="file"
             accept=".txt,.log,.tdump,.dump,text/plain"
             hidden
+            disabled={busy}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) void onFile(f);
@@ -175,20 +236,19 @@ export default function App() {
         </button>
         {analysis && (
           <>
-            <button className="btn" onClick={() => exportHtml(analysis, sourceName)}>
+            <button className="btn" onClick={() => exportHtml(analysis, sourceName)} disabled={busy}>
               Export HTML
             </button>
-            <button className="btn" onClick={() => void exportPdf(analysis, sourceName)}>
+            <button className="btn" onClick={() => void exportPdf(analysis, sourceName)} disabled={busy}>
               Export PDF
             </button>
           </>
         )}
       </section>
 
-      {busy && <p className="status">Analyzing…</p>}
       {error && <p className="status error">Error: {error}</p>}
 
-      {analysis && <Results analysis={analysis} />}
+      {analysis && !busy && <Results analysis={analysis} />}
 
       {!analysis && !busy && (
         <p className="hint">
