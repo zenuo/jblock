@@ -20,7 +20,8 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
   - **死锁环检测**：基于 wait-for 图检测线程间的循环等待并可视化。
   - 每个线程的持有锁、栈深度等信息。
 - **结果渲染**：问题优先 Findings、按锁聚合的竞争视图、可筛选/排序线程表、栈帧展开、JVM 噪音过滤、同栈聚类；死锁/竞争边可跳转到对应线程。
-- **Java reproducer**：右上角 **Generate Java…** 打开模态框，生成可运行的死锁 / 锁竞争样例代码（不经过 WASM）。
+- **问题模式**：死锁环、热锁竞争、**线程池耗尽**（`pool-*-thread-*` 工人全忙且无 idle `getTask`）等 Findings。
+- **Java reproducer**：右上角 **Generate Java…** 打开模态框，生成可运行的死锁 / 锁竞争 / 线程池耗尽样例代码（不经过 WASM）；测试可用 JDK 实机 `jstack` 捕获 dump。
 - **导出**：
   - HTML 报告：复用 web app 自身的 CSS（`?inline`）与结构，样式与页面一致。
   - PDF 报告：通过 [`pdf-lib`](https://pdf-lib.js.org/) 生成单页 A4 报告。

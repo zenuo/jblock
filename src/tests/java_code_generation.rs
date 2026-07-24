@@ -11,6 +11,11 @@ fn parses_scenario_aliases() {
     assert_eq!(parse_scenario("waiting_threads"), Some(Scenario::LockContention));
     assert_eq!(parse_scenario("deadlock"), Some(Scenario::Deadlock));
     assert_eq!(parse_scenario("deadlock-cycle"), Some(Scenario::Deadlock));
+    assert_eq!(
+        parse_scenario("thread-pool-exhaustion"),
+        Some(Scenario::ThreadPoolExhaustion)
+    );
+    assert_eq!(parse_scenario("pool"), Some(Scenario::ThreadPoolExhaustion));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -38,6 +43,16 @@ fn deadlock_forms_a_cycle() {
 }
 
 #[test]
+fn thread_pool_exhaustion_uses_executor() {
+    let code = generate(Scenario::ThreadPoolExhaustion, 4);
+    assert!(code.contains("public class ThreadPoolExhaustion"));
+    assert!(code.contains("Executors.newFixedThreadPool"));
+    assert!(code.contains("final int workers = 4;"));
+    assert!(code.contains("synchronized (LOCK)"));
+    assert!(code.contains("pool.submit"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -51,5 +66,9 @@ fn count_is_clamped_to_sane_range() {
 fn class_name_matches_source() {
     assert_eq!(Scenario::LockContention.class_name(), "LockContention");
     assert_eq!(Scenario::Deadlock.class_name(), "DeadlockCycle");
+    assert_eq!(
+        Scenario::ThreadPoolExhaustion.class_name(),
+        "ThreadPoolExhaustion"
+    );
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

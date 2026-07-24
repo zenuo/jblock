@@ -45,6 +45,12 @@ jobs:
           cache: pnpm
           cache-dependency-path: web/pnpm-lock.yaml
 
+      - name: Setup Java (Temurin 21) for pattern dump capture tests
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: cargo test
         run: cargo test
 

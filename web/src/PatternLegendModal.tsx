@@ -44,7 +44,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
         ? "legend.hotLockTitle"
         : kind === "blocked"
           ? "legend.blockedTitle"
-          : "legend.cleanTitle";
+          : kind === "thread-pool-exhaustion"
+            ? "legend.poolExhaustionTitle"
+            : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -52,7 +54,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
         ? "legend.hotLockBody"
         : kind === "blocked"
           ? "legend.blockedBody"
-          : "legend.cleanBody";
+          : kind === "thread-pool-exhaustion"
+            ? "legend.poolExhaustionBody"
+            : "legend.cleanBody";
 
   return (
     <div
@@ -85,6 +89,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "deadlock" && <DeadlockDemo actors={actors} />}
           {kind === "hot-lock" && <HotLockDemo actors={actors} />}
           {kind === "blocked" && <BlockedDemo actors={actors} />}
+          {kind === "thread-pool-exhaustion" && (
+            <PoolExhaustionDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -95,6 +102,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               </li>
               <li>
                 <span className="swatch swatch-wait" /> {t("legend.keyWaitEdge")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "thread-pool-exhaustion" && (
+            <>
+              <li>
+                <span className="swatch swatch-thread" />{" "}
+                {t("legend.keyPoolWorker")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}
@@ -419,6 +437,74 @@ function BlockedDemo({ actors }: { actors: FindingActors }) {
                 />
                 <ActorLabel actor={b} fallback={`B${i + 1}`} threadMax={14} />
               </g>
+            </g>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
+  const nodes =
+    actors.nodes.length > 0
+      ? actors.nodes.slice(0, 4)
+      : [
+          { thread: "pool-1-thread-1", className: null },
+          { thread: "pool-1-thread-2", className: null },
+          { thread: "pool-1-thread-3", className: null },
+          { thread: "pool-1-thread-4", className: null },
+        ];
+  const positions = [
+    [70, 90],
+    [160, 55],
+    [250, 90],
+    [160, 140],
+  ] as const;
+
+  return (
+    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+      <rect
+        x="40"
+        y="30"
+        width="240"
+        height="150"
+        rx="12"
+        fill="#eef2ff"
+        stroke="#6366f1"
+        strokeWidth="1.5"
+        strokeDasharray="4 3"
+      />
+      <text
+        x="160"
+        y="48"
+        textAnchor="middle"
+        fontSize="10"
+        fontWeight="700"
+        fill="#4f46e5"
+      >
+        FixedThreadPool
+      </text>
+      {nodes.map((a, i) => {
+        const [x, y] = positions[i] ?? [160, 110];
+        const blocked = i > 0;
+        return (
+          <g key={`${a.thread}-${i}`} transform={`translate(${x} ${y})`}>
+            <g
+              className={blocked ? "legend-pulse" : "legend-float"}
+              style={{ animationDelay: `${i * 0.2}s` }}
+            >
+              <rect
+                x="-48"
+                y="-22"
+                width="96"
+                height="44"
+                rx="8"
+                fill={blocked ? "#fee2e2" : "#ffedd5"}
+                stroke={blocked ? "#ef4444" : "#f59e0b"}
+                strokeWidth="2"
+              />
+              <ActorLabel actor={a} fallback={`W${i + 1}`} threadMax={11} />
             </g>
           </g>
         );

@@ -289,6 +289,9 @@ export default function App() {
                   <option value="lock-contention">
                     {t("codegen.lockContention")}
                   </option>
+                  <option value="thread-pool-exhaustion">
+                    {t("codegen.threadPoolExhaustion")}
+                  </option>
                 </select>
               </label>
               <label>

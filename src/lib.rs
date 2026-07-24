@@ -8,12 +8,17 @@
 //! (feat-011) so it is not shipped inside the WASM binary.
 
 #[cfg(not(target_arch = "wasm32"))]
+pub mod capture;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod codegen;
 mod parser;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use codegen::{generate as generate_java_source, parse_scenario, Scenario};
-pub use parser::{analyze, Analysis, BlockedEdge, Deadlock, DumpFormat, StateCount, ThreadInfo};
+pub use parser::{
+    analyze, Analysis, BlockedEdge, Deadlock, DumpFormat, PatternHit, PatternKind, StateCount,
+    ThreadInfo,
+};
 
 use wasm_bindgen::prelude::*;
 

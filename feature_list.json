@@ -106,7 +106,7 @@
         "feat-007"
       ],
       "status": "done",
-      "evidence": "web/src/codegen.ts + App sync generate; analyzer no longer imports wasm generateJava; src/codegen.rs gated cfg(not(target_arch=\"wasm32\")) for cargo test + examples/gen_java; jblock_bg.wasm 1049881\u21921044453 (\u22125428 bytes); ./init.sh green"
+      "evidence": "web/src/codegen.ts + App sync generate; analyzer no longer imports wasm generateJava; src/codegen.rs gated cfg(not(target_arch=\"wasm32\")) for cargo test + examples/gen_java; jblock_bg.wasm 1049881→1044453 (−5428 bytes); ./init.sh green"
     },
     {
       "id": "feat-012",
@@ -116,7 +116,7 @@
         "feat-011"
       ],
       "status": "done",
-      "evidence": "web/src/App.tsx: header Generate Java\u2026 opens modal (Escape/backdrop/close); inline codegen panel removed from main page; index.css modal styles; ./init.sh green"
+      "evidence": "web/src/App.tsx: header Generate Java… opens modal (Escape/backdrop/close); inline codegen panel removed from main page; index.css modal styles; ./init.sh green"
     },
     {
       "id": "feat-013",
@@ -172,7 +172,7 @@
     {
       "id": "feat-018",
       "name": "Hide JVM noise threads",
-      "description": "Toggle to hide common JVM/system threads (GC, Compiler, Finalizer, Common-Cleaner, \u2026) so application threads stand out",
+      "description": "Toggle to hide common JVM/system threads (GC, Compiler, Finalizer, Common-Cleaner, …) so application threads stand out",
       "dependencies": [
         "feat-015"
       ],
@@ -260,7 +260,168 @@
       "dependencies": [
         "feat-022"
       ],
-      "status": "in_progress",
+      "status": "done",
+      "evidence": "LanguageMenu globe icon dropdown; locales en/zh/pt/es/nl/fr/ja/ko under web/src/i18n/locales; detectBrowserLocale + htmlLangFor; ./init.sh green"
+    },
+    {
+      "id": "feat-027",
+      "name": "Pattern reproducer + dump capture harness",
+      "description": "Shared test/codegen harness: extend Scenario generators, compile/run Java, capture jstack dumps into fixtures, and assert analyzer PatternHit output. Required by all new pattern features.",
+      "dependencies": [
+        "feat-007",
+        "feat-013"
+      ],
+      "status": "done",
+      "evidence": "src/capture.rs compile_run_jstack + jdk_tools_available; Scenario::ThreadPoolExhaustion codegen; live_capture_thread_pool_exhaustion_detects_pattern; CI setup-java 21; ./init.sh green"
+    },
+    {
+      "id": "feat-028",
+      "name": "Detect thread-pool exhaustion (highest benefit)",
+      "description": "Detect Executor thread-pool exhaustion: pool-* workers all busy/blocked with none idle in ThreadPoolExecutor.getTask; codegen ThreadPoolExhaustion + live jstack capture test + finding in UI",
+      "dependencies": [
+        "feat-027"
+      ],
+      "status": "done",
+      "evidence": "parser PatternHit ThreadPoolExhaustion; synthetic+live fixture tests; web findings/legend/codegen scenario; tests/fixtures/patterns/thread_pool_exhaustion_jstack.txt; ./init.sh green"
+    },
+    {
+      "id": "feat-029",
+      "name": "Detect sync I/O / RPC hotspot clusters",
+      "description": "Large same-stack clusters stuck in socket/HTTP/gRPC/JDBC frames (RUNNABLE or WAITING); finding + Java reproducer that blocks on ServerSocket/accept or fake RPC + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-019"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-030",
+      "name": "Detect dangerous hot-lock owner (owner on blocking call)",
+      "description": "When hottest lock owner stack is sleep/I/O/JNI/park while waiters BLOCKED — escalate finding; reproducer holds lock during blocking call + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-014"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-031",
+      "name": "Detect connection-pool borrow blocking",
+      "description": "Many threads waiting in Hikari/DBCP/Druid getConnection/borrowObject stacks; finding + lightweight mock pool reproducer + dump capture",
+      "dependencies": [
+        "feat-027"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-032",
+      "name": "Detect Future/Latch wait trees",
+      "description": "Waiting trees on Future.get / CountDownLatch / CyclicBarrier that can form logical deadlocks; finding + reproducer + dump capture",
+      "dependencies": [
+        "feat-027"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-033",
+      "name": "Detect logging-appender contention signature",
+      "description": "Specialize contention when stacks are Log4j/Logback appenders; finding + reproducer synchronizing on logger lock + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-014"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-034",
+      "name": "Detect busy-wait / CPU spin hotspot",
+      "description": "High count of RUNNABLE threads sharing a tight same-stack signature with no park/wait/sleep; finding + spin-loop reproducer + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-019"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-035",
+      "name": "Detect Condition / park starvation",
+      "description": "Many WAITING on same ConditionObject/park with no matching signaler RUNNABLE; finding + reproducer + dump capture",
+      "dependencies": [
+        "feat-027"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-036",
+      "name": "Detect nested lock-order inconsistency risk",
+      "description": "Threads hold locks in inconsistent orders that risk deadlock but have not formed a cycle yet; finding + reproducer + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-010"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-037",
+      "name": "Detect Finalizer / Reference Handler pressure",
+      "description": "Finalizer or Reference Handler busy/blocked with growing application impact signals; finding + reproducer + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-018"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-038",
+      "name": "Detect Thread.sleep-as-scheduler anti-pattern",
+      "description": "Business threads (non-JVM-noise) dominated by TIMED_WAITING sleep frames; finding + reproducer + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-018"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-039",
+      "name": "Detect framework worker-pool saturation (Tomcat/Jetty/Netty)",
+      "description": "http-nio-*-exec / qtp / nioEventLoop threads saturated on same blocking work; finding + simplified named-thread reproducer + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-028"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-040",
+      "name": "Detect DNS / name-resolution stall clusters",
+      "description": "Clusters stuck in InetAddress/Resolver frames; finding + reproducer + dump capture",
+      "dependencies": [
+        "feat-027",
+        "feat-029"
+      ],
+      "status": "pending",
+      "evidence": ""
+    },
+    {
+      "id": "feat-041",
+      "name": "Cross-dump patterns: thread leak and livelock",
+      "description": "Compare multiple dumps over time to detect growing thread counts (leak) or changing stacks without progress (livelock). Requires multi-dump UI input.",
+      "dependencies": [
+        "feat-027",
+        "feat-004"
+      ],
+      "status": "pending",
       "evidence": ""
     }
   ]
