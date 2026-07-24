@@ -199,6 +199,16 @@
       ],
       "status": "done",
       "evidence": ".github/workflows/ci.yml runs cargo test + pnpm wasm/lint/typecheck/build; uploads web-dist; deploys GitHub Pages on main; VITE_BASE=/jblock/ for project Pages; README CI/CD section; ./init.sh green"
+    },
+    {
+      "id": "feat-021",
+      "name": "WASM preload + analyze loading UI",
+      "description": "After page init, preload WASM in the background; if the user starts analysis before WASM is ready, show a loading tip; if WASM is ready, show a loading tip until parse finishes",
+      "dependencies": [
+        "feat-004"
+      ],
+      "status": "done",
+      "evidence": "analyzer.preloadWasm/isWasmReady; App mounts preload; loading-overlay phases wasm|analyzing; ./init.sh green"
     }
   ]
 }
