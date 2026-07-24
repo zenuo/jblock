@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { analyze, generateJava, type JavaScenario } from "./analyzer";
+import { analyze, generateJava, classNameFor, type JavaScenario } from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
 import type { Analysis } from "./types";
 
@@ -39,19 +39,17 @@ export default function App() {
   const [javaCount, setJavaCount] = useState(3);
   const [javaCode, setJavaCode] = useState<string>("");
 
-  const onGenerateJava = useCallback(async () => {
+  const onGenerateJava = useCallback(() => {
     setError(null);
     try {
-      const code = await generateJava(javaScenario, javaCount);
-      setJavaCode(code);
+      setJavaCode(generateJava(javaScenario, javaCount));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   }, [javaScenario, javaCount]);
 
   const downloadJava = useCallback(() => {
-    const className =
-      javaScenario === "deadlock" ? "DeadlockCycle" : "LockContention";
+    const className = classNameFor(javaScenario);
     const blob = new Blob([javaCode], { type: "text/x-java-source" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -189,7 +187,7 @@ export default function App() {
               onChange={(e) => setJavaCount(Number(e.target.value))}
             />
           </label>
-          <button className="btn primary" onClick={() => void onGenerateJava()}>
+          <button className="btn primary" onClick={onGenerateJava}>
             Generate
           </button>
           {javaCode && (
