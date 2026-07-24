@@ -42,7 +42,8 @@ export type PatternKind =
   | "lock-order-inconsistency"
   | "finalizer-pressure"
   | "sleep-as-scheduler"
-  | "framework-pool-saturation";
+  | "framework-pool-saturation"
+  | "dns-resolution-stall";
 
 export interface PatternHit {
   kind: PatternKind;

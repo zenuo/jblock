@@ -325,6 +325,9 @@ export default function App() {
                   <option value="framework-pool-saturation">
                     {t("codegen.frameworkPoolSaturation")}
                   </option>
+                  <option value="dns-resolution-stall">
+                    {t("codegen.dnsResolutionStall")}
+                  </option>
                 </select>
               </label>
               <label>

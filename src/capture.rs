@@ -669,4 +669,52 @@ mod tests {
             hit.thread_names
         );
     }
+
+    #[test]
+    fn live_capture_dns_resolution_stall_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::DnsResolutionStall, 4);
+        let dump = compile_run_jstack(
+            &source,
+            "DnsResolutionStall",
+            Duration::from_millis(1500),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/dns_resolution_stall_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DnsResolutionStall),
+            "expected dns-resolution-stall in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(140).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DnsResolutionStall)
+            .unwrap();
+        assert!(
+            hit.thread_names
+                .iter()
+                .filter(|n| n.starts_with("dns-resolver-"))
+                .count()
+                >= 3,
+            "expected dns-resolver-* threads, got {:?}",
+            hit.thread_names
+        );
+    }
 }

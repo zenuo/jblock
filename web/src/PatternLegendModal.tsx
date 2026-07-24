@@ -68,7 +68,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                                 ? "legend.sleepAsSchedulerTitle"
                                 : kind === "framework-pool-saturation"
                                   ? "legend.frameworkPoolTitle"
-                                  : "legend.cleanTitle";
+                                  : kind === "dns-resolution-stall"
+                                    ? "legend.dnsStallTitle"
+                                    : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -100,7 +102,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                                 ? "legend.sleepAsSchedulerBody"
                                 : kind === "framework-pool-saturation"
                                   ? "legend.frameworkPoolBody"
-                                  : "legend.cleanBody";
+                                  : kind === "dns-resolution-stall"
+                                    ? "legend.dnsStallBody"
+                                    : "legend.cleanBody";
 
   return (
     <div
@@ -165,6 +169,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "framework-pool-saturation" && (
             <PoolExhaustionDemo actors={actors} />
           )}
+          {kind === "dns-resolution-stall" && (
+            <SyncIoHotspotDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -209,6 +216,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             <>
               <li>
                 <span className="swatch swatch-waiter" /> {t("legend.keyIoThread")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "dns-resolution-stall" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keyDnsResolver")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}

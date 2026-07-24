@@ -1,0 +1,180 @@
+2026-07-24 14:56:01
+Full thread dump OpenJDK 64-Bit Server VM (21.0.10+7-Ubuntu-124.04 mixed mode, sharing):
+
+Threads class SMR info:
+_java_thread_list=0x00007f96e4002110, length=15, elements={
+0x00007f977801a0f0, 0x00007f9778110ae0, 0x00007f9778112060, 0x00007f9778113920,
+0x00007f9778114f70, 0x00007f9778116520, 0x00007f9778118070, 0x00007f9778119740,
+0x00007f97781451b0, 0x00007f9778148130, 0x00007f9778178560, 0x00007f97781795e0,
+0x00007f977817a710, 0x00007f977817b8b0, 0x00007f96e4000fe0
+}
+
+"main" #1 [44464] prio=5 os_prio=0 cpu=39.21ms elapsed=1.69s tid=0x00007f977801a0f0 nid=44464 waiting on condition  [0x00007f977d48d000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep0(java.base@21.0.10/Native Method)
+	at java.lang.Thread.sleep(java.base@21.0.10/Thread.java:509)
+	at DnsResolutionStall.main(DnsResolutionStall.java:53)
+
+"Reference Handler" #9 [44472] daemon prio=10 os_prio=0 cpu=0.36ms elapsed=1.67s tid=0x00007f9778110ae0 nid=44472 waiting on condition  [0x00007f975160c000]
+   java.lang.Thread.State: RUNNABLE
+	at java.lang.ref.Reference.waitForReferencePendingList(java.base@21.0.10/Native Method)
+	at java.lang.ref.Reference.processPendingReferences(java.base@21.0.10/Reference.java:246)
+	at java.lang.ref.Reference$ReferenceHandler.run(java.base@21.0.10/Reference.java:208)
+
+"Finalizer" #10 [44473] daemon prio=8 os_prio=0 cpu=0.32ms elapsed=1.67s tid=0x00007f9778112060 nid=44473 in Object.wait()  [0x00007f975150c000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.10/Native Method)
+	- waiting on <0x000000070fe025f0> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@21.0.10/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.10/Object.java:339)
+	at java.lang.ref.NativeReferenceQueue.await(java.base@21.0.10/NativeReferenceQueue.java:48)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.10/ReferenceQueue.java:158)
+	at java.lang.ref.NativeReferenceQueue.remove(java.base@21.0.10/NativeReferenceQueue.java:89)
+	- locked <0x000000070fe025f0> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.ref.Finalizer$FinalizerThread.run(java.base@21.0.10/Finalizer.java:173)
+
+"Signal Dispatcher" #11 [44474] daemon prio=9 os_prio=0 cpu=0.31ms elapsed=1.67s tid=0x00007f9778113920 nid=44474 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Service Thread" #12 [44475] daemon prio=9 os_prio=0 cpu=0.06ms elapsed=1.67s tid=0x00007f9778114f70 nid=44475 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Monitor Deflation Thread" #13 [44476] daemon prio=9 os_prio=0 cpu=0.45ms elapsed=1.67s tid=0x00007f9778116520 nid=44476 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #14 [44477] daemon prio=9 os_prio=0 cpu=19.67ms elapsed=1.67s tid=0x00007f9778118070 nid=44477 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"C1 CompilerThread0" #16 [44478] daemon prio=9 os_prio=0 cpu=36.65ms elapsed=1.67s tid=0x00007f9778119740 nid=44478 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"Notification Thread" #17 [44479] daemon prio=9 os_prio=0 cpu=0.17ms elapsed=1.67s tid=0x00007f97781451b0 nid=44479 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" #18 [44480] daemon prio=8 os_prio=0 cpu=0.53ms elapsed=1.67s tid=0x00007f9778148130 nid=44480 waiting on condition  [0x00007f9750e0c000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.10/Native Method)
+	- parking to wait for  <0x000000070fe11f78> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.10/LockSupport.java:269)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.10/AbstractQueuedSynchronizer.java:1886)
+	at java.lang.ref.ReferenceQueue.await(java.base@21.0.10/ReferenceQueue.java:71)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.10/ReferenceQueue.java:143)
+	at java.lang.ref.ReferenceQueue.remove(java.base@21.0.10/ReferenceQueue.java:218)
+	at jdk.internal.ref.CleanerImpl.run(java.base@21.0.10/CleanerImpl.java:140)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+	at jdk.internal.misc.InnocuousThread.run(java.base@21.0.10/InnocuousThread.java:186)
+
+"dns-resolver-0" #19 [44481] prio=5 os_prio=0 cpu=11.04ms elapsed=1.65s tid=0x00007f9778178560 nid=44481 runnable  [0x00007f9750c3a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPoll.wait(java.base@21.0.10/Native Method)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(java.base@21.0.10/EPollSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.10/SelectorImpl.java:130)
+	- locked <0x000000070fd394b8> (a sun.nio.ch.Util$2)
+	- locked <0x000000070fd39120> (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.10/SelectorImpl.java:142)
+	at com.sun.jndi.dns.DnsClient.blockingReceive(jdk.naming.dns@21.0.10/DnsClient.java:545)
+	at com.sun.jndi.dns.DnsClient.doUdpQuery(jdk.naming.dns@21.0.10/DnsClient.java:509)
+	at com.sun.jndi.dns.DnsClient.query(jdk.naming.dns@21.0.10/DnsClient.java:259)
+	at com.sun.jndi.dns.Resolver.query(jdk.naming.dns@21.0.10/Resolver.java:81)
+	at com.sun.jndi.dns.DnsContext.c_getAttributes(jdk.naming.dns@21.0.10/DnsContext.java:434)
+	at com.sun.jndi.toolkit.ctx.ComponentDirContext.p_getAttributes(java.naming@21.0.10/ComponentDirContext.java:235)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:141)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:129)
+	at javax.naming.directory.InitialDirContext.getAttributes(java.naming@21.0.10/InitialDirContext.java:171)
+	at DnsResolutionStall.resolveHost(DnsResolutionStall.java:15)
+	at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+	at DnsResolutionStall$$Lambda/0x00007f9700000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"dns-resolver-1" #20 [44482] prio=5 os_prio=0 cpu=29.18ms elapsed=1.65s tid=0x00007f97781795e0 nid=44482 runnable  [0x00007f9750b3a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPoll.wait(java.base@21.0.10/Native Method)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(java.base@21.0.10/EPollSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.10/SelectorImpl.java:130)
+	- locked <0x000000070fdb0378> (a sun.nio.ch.Util$2)
+	- locked <0x000000070fdb0210> (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.10/SelectorImpl.java:142)
+	at com.sun.jndi.dns.DnsClient.blockingReceive(jdk.naming.dns@21.0.10/DnsClient.java:545)
+	at com.sun.jndi.dns.DnsClient.doUdpQuery(jdk.naming.dns@21.0.10/DnsClient.java:509)
+	at com.sun.jndi.dns.DnsClient.query(jdk.naming.dns@21.0.10/DnsClient.java:259)
+	at com.sun.jndi.dns.Resolver.query(jdk.naming.dns@21.0.10/Resolver.java:81)
+	at com.sun.jndi.dns.DnsContext.c_getAttributes(jdk.naming.dns@21.0.10/DnsContext.java:434)
+	at com.sun.jndi.toolkit.ctx.ComponentDirContext.p_getAttributes(java.naming@21.0.10/ComponentDirContext.java:235)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:141)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:129)
+	at javax.naming.directory.InitialDirContext.getAttributes(java.naming@21.0.10/InitialDirContext.java:171)
+	at DnsResolutionStall.resolveHost(DnsResolutionStall.java:15)
+	at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+	at DnsResolutionStall$$Lambda/0x00007f9700000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"dns-resolver-2" #21 [44483] prio=5 os_prio=0 cpu=15.76ms elapsed=1.65s tid=0x00007f977817a710 nid=44483 runnable  [0x00007f9750a3a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPoll.wait(java.base@21.0.10/Native Method)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(java.base@21.0.10/EPollSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.10/SelectorImpl.java:130)
+	- locked <0x000000070fd00218> (a sun.nio.ch.Util$2)
+	- locked <0x000000070fd000b0> (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.10/SelectorImpl.java:142)
+	at com.sun.jndi.dns.DnsClient.blockingReceive(jdk.naming.dns@21.0.10/DnsClient.java:545)
+	at com.sun.jndi.dns.DnsClient.doUdpQuery(jdk.naming.dns@21.0.10/DnsClient.java:509)
+	at com.sun.jndi.dns.DnsClient.query(jdk.naming.dns@21.0.10/DnsClient.java:259)
+	at com.sun.jndi.dns.Resolver.query(jdk.naming.dns@21.0.10/Resolver.java:81)
+	at com.sun.jndi.dns.DnsContext.c_getAttributes(jdk.naming.dns@21.0.10/DnsContext.java:434)
+	at com.sun.jndi.toolkit.ctx.ComponentDirContext.p_getAttributes(java.naming@21.0.10/ComponentDirContext.java:235)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:141)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:129)
+	at javax.naming.directory.InitialDirContext.getAttributes(java.naming@21.0.10/InitialDirContext.java:171)
+	at DnsResolutionStall.resolveHost(DnsResolutionStall.java:15)
+	at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+	at DnsResolutionStall$$Lambda/0x00007f9700000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"dns-resolver-3" #22 [44484] prio=5 os_prio=0 cpu=8.54ms elapsed=1.65s tid=0x00007f977817b8b0 nid=44484 runnable  [0x00007f975093a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPoll.wait(java.base@21.0.10/Native Method)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(java.base@21.0.10/EPollSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.10/SelectorImpl.java:130)
+	- locked <0x000000070fc6c418> (a sun.nio.ch.Util$2)
+	- locked <0x000000070fc6c2b0> (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.10/SelectorImpl.java:142)
+	at com.sun.jndi.dns.DnsClient.blockingReceive(jdk.naming.dns@21.0.10/DnsClient.java:545)
+	at com.sun.jndi.dns.DnsClient.doUdpQuery(jdk.naming.dns@21.0.10/DnsClient.java:509)
+	at com.sun.jndi.dns.DnsClient.query(jdk.naming.dns@21.0.10/DnsClient.java:259)
+	at com.sun.jndi.dns.Resolver.query(jdk.naming.dns@21.0.10/Resolver.java:81)
+	at com.sun.jndi.dns.DnsContext.c_getAttributes(jdk.naming.dns@21.0.10/DnsContext.java:434)
+	at com.sun.jndi.toolkit.ctx.ComponentDirContext.p_getAttributes(java.naming@21.0.10/ComponentDirContext.java:235)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:141)
+	at com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.getAttributes(java.naming@21.0.10/PartialCompositeDirContext.java:129)
+	at javax.naming.directory.InitialDirContext.getAttributes(java.naming@21.0.10/InitialDirContext.java:171)
+	at DnsResolutionStall.resolveHost(DnsResolutionStall.java:15)
+	at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+	at DnsResolutionStall$$Lambda/0x00007f9700000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"Attach Listener" #23 [44505] daemon prio=9 os_prio=0 cpu=0.26ms elapsed=0.10s tid=0x00007f96e4000fe0 nid=44505 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"VM Thread" os_prio=0 cpu=0.67ms elapsed=1.67s tid=0x00007f97781077e0 nid=44471 runnable  
+
+"VM Periodic Task Thread" os_prio=0 cpu=0.84ms elapsed=1.68s tid=0x00007f97780f5f40 nid=44470 waiting on condition  
+
+"G1 Service" os_prio=0 cpu=0.08ms elapsed=1.69s tid=0x00007f97780dbba0 nid=44469 runnable  
+
+"G1 Refine#0" os_prio=0 cpu=0.05ms elapsed=1.69s tid=0x00007f97780dabd0 nid=44468 runnable  
+
+"G1 Conc#0" os_prio=0 cpu=0.20ms elapsed=1.69s tid=0x00007f9778055150 nid=44467 runnable  
+
+"G1 Main Marker" os_prio=0 cpu=0.21ms elapsed=1.69s tid=0x00007f97780541a0 nid=44466 runnable  
+
+"GC Thread#0" os_prio=0 cpu=0.19ms elapsed=1.69s tid=0x00007f9778042b90 nid=44465 runnable  
+
+JNI global refs: 13, weak refs: 0
+

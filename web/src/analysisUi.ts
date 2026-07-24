@@ -19,7 +19,8 @@ export type FindingKind =
   | "lock-order-inconsistency"
   | "finalizer-pressure"
   | "sleep-as-scheduler"
-  | "framework-pool-saturation";
+  | "framework-pool-saturation"
+  | "dns-resolution-stall";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -337,6 +338,21 @@ export function buildFindings(
           count: p.thread_names.length,
         }),
         detail: t("findings.frameworkPoolDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "dns-resolution-stall") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "dns-resolution-stall",
+        title: t("findings.dnsStallTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.dnsStallDetail", { detail: p.detail }),
         actors: {
           nodes: actorsForNames(analysis, p.thread_names, 6),
           owner: null,

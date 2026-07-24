@@ -97,6 +97,8 @@ pub enum PatternKind {
     SleepAsScheduler,
     /// Tomcat/Jetty/Netty worker threads saturated on the same blocking work (feat-039).
     FrameworkPoolSaturation,
+    /// Clusters stuck in InetAddress / DNS Resolver frames (feat-040).
+    DnsResolutionStall,
 }
 
 /// One detected high-level pattern hit.
@@ -441,6 +443,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_framework_pool_saturation(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_dns_resolution_stall(threads) {
         out.push(hit);
     }
     out
@@ -1541,6 +1546,88 @@ fn detect_framework_pool_saturation(threads: &[ThreadInfo]) -> Option<PatternHit
     })
 }
 
+/// Frames that indicate DNS / name-resolution work (InetAddress or JNDI DNS).
+fn is_dns_resolution_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "InetAddress.getByName",
+        "InetAddress.getAllByName",
+        "InetAddress$NameServiceAddresses",
+        "InetAddress$PlatformNameService",
+        "InetAddressResolver",
+        "lookupAllHostAddr",
+        "Inet4AddressImpl",
+        "Inet6AddressImpl",
+        "com.sun.jndi.dns",
+        "DnsClient",
+        "DnsContext",
+        "DnsResolutionStall",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// DNS / name-resolution stall: ≥3 threads share stacks stuck in InetAddress
+/// or DNS Resolver frames (feat-040).
+fn detect_dns_resolution_stall(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "RUNNABLE" | "WAITING" | "TIMED_WAITING" | "BLOCKED"
+            ) && t.stack.iter().any(|f| is_dns_resolution_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let sample = members[0]
+        .stack
+        .iter()
+        .find(|f| is_dns_resolution_frame(f))
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::DnsResolutionStall,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads stalled in DNS/name-resolution near {}",
+            names.len(),
+            sample
+        ),
+        thread_names: names,
+    })
+}
+
 /// Detect deadlock cycles from the wait-for graph.
 ///
 /// Each thread waits on at most one lock, so the wait-for relation is a
@@ -2226,6 +2313,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .any(|p| p.kind == PatternKind::FrameworkPoolSaturation),
             "live fixture should detect framework worker-pool saturation"
+        );
+    }
+
+    #[test]
+    fn detects_dns_resolution_stall_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/dns_resolution_stall_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DnsResolutionStall),
+            "live fixture should detect DNS/name-resolution stall"
         );
     }
 
@@ -3106,6 +3206,140 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::FrameworkPoolSaturation)
+        );
+    }
+
+    const DNS_STALL_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"dns-resolver-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"dns-resolver-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"dns-resolver-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"dns-resolver-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.EPoll.wait(Native Method)
+        at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:121)
+        at com.sun.jndi.dns.DnsClient.blockingReceive(DnsClient.java:545)
+        at com.sun.jndi.dns.DnsClient.doUdpQuery(DnsClient.java:509)
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at com.sun.jndi.dns.Resolver.query(Resolver.java:81)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+        at DnsResolutionStall.lambda$main$0(DnsResolutionStall.java:40)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_dns_resolution_stall_pattern() {
+        let a = analyze(DNS_STALL_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DnsResolutionStall)
+            .expect("dns-resolution-stall");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("DNS") || hit.detail.contains("name-resolution"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("dns-resolver-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn detects_inetaddress_name_service_stall() {
+        const INET: &str = r#""lookup-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+        at java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929)
+        at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1515)
+        at java.net.InetAddress$NameServiceAddresses.get(InetAddress.java:848)
+        at java.net.InetAddress.getAllByName0(InetAddress.java:1505)
+        at java.net.InetAddress.getAllByName(InetAddress.java:1364)
+        at java.net.InetAddress.getByName(InetAddress.java:1315)
+        at com.example.App.connect(App.java:10)
+
+"lookup-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+        at java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929)
+        at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1515)
+        at java.net.InetAddress$NameServiceAddresses.get(InetAddress.java:848)
+        at java.net.InetAddress.getAllByName0(InetAddress.java:1505)
+        at java.net.InetAddress.getAllByName(InetAddress.java:1364)
+        at java.net.InetAddress.getByName(InetAddress.java:1315)
+        at com.example.App.connect(App.java:10)
+
+"lookup-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+        at java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929)
+        at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1515)
+        at java.net.InetAddress$NameServiceAddresses.get(InetAddress.java:848)
+        at java.net.InetAddress.getAllByName0(InetAddress.java:1505)
+        at java.net.InetAddress.getAllByName(InetAddress.java:1364)
+        at java.net.InetAddress.getByName(InetAddress.java:1315)
+        at com.example.App.connect(App.java:10)
+"#;
+        let a = analyze(INET);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DnsResolutionStall)
+            .expect("inetaddress dns-resolution-stall");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("InetAddress") || hit.detail.contains("DNS") || hit.detail.contains("lookup"));
+    }
+
+    #[test]
+    fn few_dns_threads_not_a_stall_cluster() {
+        const FEW: &str = r#""dns-resolver-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+
+"dns-resolver-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.sun.jndi.dns.DnsClient.query(DnsClient.java:259)
+        at DnsResolutionStall.resolveHost(DnsResolutionStall.java:12)
+"#;
+        let a = analyze(FEW);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::DnsResolutionStall)
         );
     }
 }

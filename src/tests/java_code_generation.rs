@@ -65,6 +65,11 @@ fn parses_scenario_aliases() {
         Some(Scenario::FrameworkPoolSaturation)
     );
     assert_eq!(parse_scenario("tomcat-pool"), Some(Scenario::FrameworkPoolSaturation));
+    assert_eq!(
+        parse_scenario("dns-resolution-stall"),
+        Some(Scenario::DnsResolutionStall)
+    );
+    assert_eq!(parse_scenario("dns-stall"), Some(Scenario::DnsResolutionStall));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -233,6 +238,17 @@ fn framework_pool_saturation_uses_tomcat_names() {
 }
 
 #[test]
+fn dns_resolution_stall_queries_via_jndi_dns() {
+    let code = generate(Scenario::DnsResolutionStall, 4);
+    assert!(code.contains("public class DnsResolutionStall"));
+    assert!(code.contains("resolveHost"));
+    assert!(code.contains("DnsContextFactory"));
+    assert!(code.contains("dns-resolver-"));
+    assert!(code.contains("DatagramSocket"));
+    assert!(code.contains("final int workers = 4;"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -276,5 +292,6 @@ fn class_name_matches_source() {
         Scenario::FrameworkPoolSaturation.class_name(),
         "FrameworkPoolSaturation"
     );
+    assert_eq!(Scenario::DnsResolutionStall.class_name(), "DnsResolutionStall");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }
