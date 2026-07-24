@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 17:10
-**Active Feature:** feat-035 (done)
+**Last Updated:** 2026-07-24 18:10
+**Active Feature:** feat-036 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-034
-- [x] feat-035 Detect Condition / park starvation
+- [x] feat-001 … feat-035
+- [x] feat-036 Detect nested lock-order inconsistency risk
 
 ### What's In Progress
 
@@ -18,18 +18,19 @@
 
 ### What's Next
 
-1. feat-036 Nested lock-order inconsistency risk
+1. feat-037 Finalizer / Reference Handler pressure
 2. … see feature_list.json
 
 ## Decisions Made
 
-- Reproducer: N threads `Condition.await()` on a shared `ReentrantLock` condition; never `signal`.
-- Detect ≥3 WAITING/TIMED_WAITING with ConditionObject.await frames and no RUNNABLE signal/signalAll stack.
+- Build lock-order edges from nested `locked` frames (reverse dump order) + hold-while-waiting.
+- Report when both A→B and B→A are observed across ≥2 threads.
+- Reproducer: classic opposite-order `LOCK_A`/`LOCK_B` handshake that deadlocks.
 
 ## Evidence of Completion
 
-- [x] `./init.sh` green (`cargo test` 56/56; web lint/typecheck/build)
+- [ ] `./init.sh` (pending this turn)
 
 ## Notes for Next Session
 
-Start feat-036 next.
+Start feat-037 next.

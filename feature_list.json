@@ -366,8 +366,8 @@
         "feat-027",
         "feat-010"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::LockOrderInconsistency; Scenario LockOrderRisk (A→B vs B→A); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/lock_order_risk_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-037",
