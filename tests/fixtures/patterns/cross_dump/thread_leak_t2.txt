@@ -1,0 +1,47 @@
+2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"worker-0" #1 prio=5 os_prio=0 tid=0x1 nid=0x1 runnable [0x1]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-1" #2 prio=5 os_prio=0 tid=0x2 nid=0x2 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-2" #3 prio=5 os_prio=0 tid=0x3 nid=0x3 runnable [0x3]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-3" #4 prio=5 os_prio=0 tid=0x4 nid=0x4 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-4" #5 prio=5 os_prio=0 tid=0x5 nid=0x5 runnable [0x5]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-5" #6 prio=5 os_prio=0 tid=0x6 nid=0x6 runnable [0x6]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-6" #7 prio=5 os_prio=0 tid=0x7 nid=0x7 runnable [0x7]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"worker-7" #8 prio=5 os_prio=0 tid=0x8 nid=0x8 runnable [0x8]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"Finalizer" #20 prio=5 os_prio=0 tid=0x20 nid=0x20 runnable [0x20]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:151)
+        at java.lang.Thread.run(Thread.java:1583)

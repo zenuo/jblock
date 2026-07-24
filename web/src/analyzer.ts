@@ -1,5 +1,5 @@
-import init, { analyzeDump } from "./wasm/jblock";
-import type { Analysis } from "./types";
+import init, { analyzeDump, analyzeDumps } from "./wasm/jblock";
+import type { Analysis, MultiDumpAnalysis } from "./types";
 
 export type { JavaScenario } from "./codegen";
 export { generateJava, classNameFor } from "./codegen";
@@ -35,4 +35,13 @@ export function preloadWasm(): Promise<unknown> {
 export async function analyze(text: string): Promise<Analysis> {
   await ensureReady();
   return analyzeDump(text) as Analysis;
+}
+
+/** Analyze an ordered series of dumps (cross-dump leak/livelock, feat-041). */
+export async function analyzeMany(texts: string[]): Promise<MultiDumpAnalysis> {
+  await ensureReady();
+  if (texts.length === 0) {
+    throw new Error("analyzeMany requires at least one dump");
+  }
+  return analyzeDumps(texts) as MultiDumpAnalysis;
 }

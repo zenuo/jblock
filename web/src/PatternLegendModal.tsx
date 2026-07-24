@@ -70,7 +70,11 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                                   ? "legend.frameworkPoolTitle"
                                   : kind === "dns-resolution-stall"
                                     ? "legend.dnsStallTitle"
-                                    : "legend.cleanTitle";
+                                    : kind === "thread-leak"
+                                      ? "legend.threadLeakTitle"
+                                      : kind === "livelock"
+                                        ? "legend.livelockTitle"
+                                        : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -104,7 +108,11 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                                   ? "legend.frameworkPoolBody"
                                   : kind === "dns-resolution-stall"
                                     ? "legend.dnsStallBody"
-                                    : "legend.cleanBody";
+                                    : kind === "thread-leak"
+                                      ? "legend.threadLeakBody"
+                                      : kind === "livelock"
+                                        ? "legend.livelockBody"
+                                        : "legend.cleanBody";
 
   return (
     <div
@@ -172,6 +180,8 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "dns-resolution-stall" && (
             <SyncIoHotspotDemo actors={actors} />
           )}
+          {kind === "thread-leak" && <PoolExhaustionDemo actors={actors} />}
+          {kind === "livelock" && <BusyWaitSpinDemo actors={actors} />}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -227,6 +237,28 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               <li>
                 <span className="swatch swatch-waiter" />{" "}
                 {t("legend.keyDnsResolver")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "thread-leak" && (
+            <>
+              <li>
+                <span className="swatch swatch-thread" />{" "}
+                {t("legend.keyLeakThread")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "livelock" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keyLivelockThread")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}

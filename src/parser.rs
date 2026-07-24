@@ -99,6 +99,10 @@ pub enum PatternKind {
     FrameworkPoolSaturation,
     /// Clusters stuck in InetAddress / DNS Resolver frames (feat-040).
     DnsResolutionStall,
+    /// App thread count grows across dumps (feat-041).
+    ThreadLeak,
+    /// Same threads keep changing stacks across dumps without settling (feat-041).
+    Livelock,
 }
 
 /// One detected high-level pattern hit.
@@ -126,6 +130,15 @@ pub struct Analysis {
     pub deadlocks: Vec<Deadlock>,
     /// Higher-level patterns (pool exhaustion, I/O hotspots, …).
     pub patterns: Vec<PatternHit>,
+}
+
+/// Result of analyzing an ordered series of dumps (feat-041).
+#[derive(Debug, Clone, Serialize)]
+pub struct MultiDumpAnalysis {
+    /// Per-dump analysis in the same order as the inputs.
+    pub dumps: Vec<Analysis>,
+    /// Cross-dump-only patterns (thread leak, livelock).
+    pub cross_patterns: Vec<PatternHit>,
 }
 
 fn detect_format(input: &str) -> DumpFormat {
@@ -403,6 +416,22 @@ pub fn analyze(input: &str) -> Analysis {
         blocked_edges,
         deadlocks,
         patterns,
+    }
+}
+
+/// Analyze an ordered series of dumps and detect cross-dump patterns (feat-041).
+pub fn analyze_series(inputs: &[&str]) -> MultiDumpAnalysis {
+    let dumps: Vec<Analysis> = inputs.iter().map(|s| analyze(s)).collect();
+    let mut cross_patterns = Vec::new();
+    if let Some(hit) = detect_thread_leak(&dumps) {
+        cross_patterns.push(hit);
+    }
+    if let Some(hit) = detect_livelock(&dumps) {
+        cross_patterns.push(hit);
+    }
+    MultiDumpAnalysis {
+        dumps,
+        cross_patterns,
     }
 }
 
@@ -1625,6 +1654,144 @@ fn detect_dns_resolution_stall(threads: &[ThreadInfo]) -> Option<PatternHit> {
             sample
         ),
         thread_names: names,
+    })
+}
+
+fn app_thread_count(a: &Analysis) -> usize {
+    a.threads
+        .iter()
+        .filter(|t| !is_jvm_noise_thread(&t.name))
+        .count()
+}
+
+/// Thread leak: non-JVM-noise thread count grows across an ordered dump series.
+fn detect_thread_leak(dumps: &[Analysis]) -> Option<PatternHit> {
+    if dumps.len() < 2 {
+        return None;
+    }
+    let counts: Vec<usize> = dumps.iter().map(app_thread_count).collect();
+    for w in counts.windows(2) {
+        if w[1] < w[0] {
+            return None;
+        }
+    }
+    let first = *counts.first()?;
+    let last = *counts.last()?;
+    let growth = last.saturating_sub(first);
+    if growth < 3 {
+        return None;
+    }
+
+    let first_names: BTreeSet<&str> = dumps[0].threads.iter().map(|t| t.name.as_str()).collect();
+    let mut new_names: Vec<String> = dumps
+        .last()?
+        .threads
+        .iter()
+        .filter(|t| !is_jvm_noise_thread(&t.name) && !first_names.contains(t.name.as_str()))
+        .map(|t| t.name.clone())
+        .collect();
+    new_names.sort();
+    new_names.dedup();
+    if new_names.is_empty() {
+        new_names = dumps
+            .last()?
+            .threads
+            .iter()
+            .filter(|t| !is_jvm_noise_thread(&t.name))
+            .map(|t| t.name.clone())
+            .take(8)
+            .collect();
+    } else {
+        new_names.truncate(8);
+    }
+
+    let count_path = counts
+        .iter()
+        .map(|c| c.to_string())
+        .collect::<Vec<_>>()
+        .join(" → ");
+    let severity = if growth >= 10 { "critical" } else { "warning" };
+    Some(PatternHit {
+        kind: PatternKind::ThreadLeak,
+        severity: severity.to_string(),
+        detail: format!(
+            "app thread count {} across {} dumps (+{})",
+            count_path,
+            dumps.len(),
+            growth
+        ),
+        thread_names: new_names,
+    })
+}
+
+/// Livelock: ≥2 non-noise threads present in every dump keep changing stacks.
+fn detect_livelock(dumps: &[Analysis]) -> Option<PatternHit> {
+    if dumps.len() < 2 {
+        return None;
+    }
+
+    let mut by_name: BTreeMap<String, Vec<Option<String>>> = BTreeMap::new();
+    for (i, dump) in dumps.iter().enumerate() {
+        for t in &dump.threads {
+            if is_jvm_noise_thread(&t.name) || t.state == "TERMINATED" {
+                continue;
+            }
+            let entry = by_name
+                .entry(t.name.clone())
+                .or_insert_with(|| vec![None; dumps.len()]);
+            if !t.stack.is_empty() {
+                entry[i] = Some(stack_signature(&t.stack, 4));
+            }
+        }
+    }
+
+    let mut oscillating: Vec<String> = Vec::new();
+    for (name, sigs) in &by_name {
+        if sigs.iter().any(|s| s.is_none()) {
+            continue;
+        }
+        let present: Vec<&String> = sigs.iter().filter_map(|s| s.as_ref()).collect();
+        if present.len() < dumps.len() {
+            continue;
+        }
+        let mut changed = false;
+        for w in present.windows(2) {
+            if w[0] != w[1] {
+                changed = true;
+                break;
+            }
+        }
+        if !changed {
+            continue;
+        }
+        let mut uniq: BTreeSet<&str> = BTreeSet::new();
+        for s in &present {
+            uniq.insert(s.as_str());
+        }
+        if uniq.len() < 2 {
+            continue;
+        }
+        oscillating.push(name.clone());
+    }
+
+    if oscillating.len() < 2 {
+        return None;
+    }
+    oscillating.sort();
+    let severity = if oscillating.len() >= 4 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::Livelock,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads changing stacks across {} dumps without settling (livelock)",
+            oscillating.len(),
+            dumps.len()
+        ),
+        thread_names: oscillating,
     })
 }
 
@@ -3341,5 +3508,62 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .all(|p| p.kind != PatternKind::DnsResolutionStall)
         );
+    }
+
+    #[test]
+    fn detects_thread_leak_across_dumps() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t0.txt");
+        let t1 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t1.txt");
+        let t2 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t2.txt");
+        let series = analyze_series(&[t0, t1, t2]);
+        let hit = series
+            .cross_patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ThreadLeak)
+            .expect("thread-leak");
+        assert!(hit.detail.contains("+5") || hit.detail.contains("3 → 5 → 8"));
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("worker-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert_eq!(series.dumps.len(), 3);
+    }
+
+    #[test]
+    fn detects_livelock_across_dumps() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/livelock_t0.txt");
+        let t1 = include_str!("../tests/fixtures/patterns/cross_dump/livelock_t1.txt");
+        let t2 = include_str!("../tests/fixtures/patterns/cross_dump/livelock_t2.txt");
+        let series = analyze_series(&[t0, t1, t2]);
+        let hit = series
+            .cross_patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::Livelock)
+            .expect("livelock");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("livelock") || hit.detail.contains("changing stacks"));
+        assert!(hit.thread_names.iter().all(|n| n.starts_with("spin-")));
+    }
+
+    #[test]
+    fn stable_series_has_no_cross_patterns() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/stable_t0.txt");
+        let t1 = include_str!("../tests/fixtures/patterns/cross_dump/stable_t1.txt");
+        let series = analyze_series(&[t0, t1]);
+        assert!(
+            series.cross_patterns.is_empty(),
+            "unexpected {:?}",
+            series.cross_patterns
+        );
+    }
+
+    #[test]
+    fn single_dump_series_has_no_cross_patterns() {
+        let t0 = include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t2.txt");
+        let series = analyze_series(&[t0]);
+        assert!(series.cross_patterns.is_empty());
+        assert_eq!(series.dumps.len(), 1);
+        assert_eq!(series.dumps[0].total_threads, analyze(t0).total_threads);
     }
 }

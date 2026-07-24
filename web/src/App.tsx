@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  analyze,
+  analyzeMany,
   generateJava,
   classNameFor,
   isWasmReady,
@@ -12,14 +12,20 @@ import { useI18n } from "./i18n";
 import LanguageMenu from "./LanguageMenu";
 import Results from "./Results";
 import { SAMPLE_DUMP } from "./sampleDump";
-import type { Analysis } from "./types";
+import type { Analysis, MultiDumpAnalysis, PatternHit } from "./types";
 
 type BusyPhase = "wasm" | "analyzing";
 
+function mergeCrossPatterns(dump: Analysis, cross: PatternHit[]): Analysis {
+  if (cross.length === 0) return dump;
+  return { ...dump, patterns: [...cross, ...dump.patterns] };
+}
+
 export default function App() {
   const { t, locale } = useI18n();
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [sourceName, setSourceName] = useState<string>("");
+  const [series, setSeries] = useState<MultiDumpAnalysis | null>(null);
+  const [dumpNames, setDumpNames] = useState<string[]>([]);
+  const [selectedDump, setSelectedDump] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [busyPhase, setBusyPhase] = useState<BusyPhase | null>(null);
   const [wasmReady, setWasmReady] = useState(() => isWasmReady());
@@ -32,6 +38,19 @@ export default function App() {
   const [javaCode, setJavaCode] = useState<string>("");
   const [codegenError, setCodegenError] = useState<string | null>(null);
   const closeCodegenBtnRef = useRef<HTMLButtonElement>(null);
+
+  const analysis = useMemo(() => {
+    if (!series || series.dumps.length === 0) return null;
+    const idx = Math.min(selectedDump, series.dumps.length - 1);
+    return mergeCrossPatterns(series.dumps[idx], series.cross_patterns);
+  }, [series, selectedDump]);
+
+  const sourceName = useMemo(() => {
+    if (dumpNames.length === 0) return "";
+    if (dumpNames.length === 1) return dumpNames[0];
+    const idx = Math.min(selectedDump, dumpNames.length - 1);
+    return `${dumpNames[idx]} (+${dumpNames.length - 1})`;
+  }, [dumpNames, selectedDump]);
 
   // Background-load WASM as soon as the page mounts.
   useEffect(() => {
@@ -98,8 +117,9 @@ export default function App() {
     URL.revokeObjectURL(url);
   }, [javaCode, javaScenario]);
 
-  const runAnalysis = useCallback(
-    async (text: string, name: string) => {
+  const runAnalysisSeries = useCallback(
+    async (items: { text: string; name: string }[]) => {
+      if (items.length === 0) return;
       setError(null);
       setBusyPhase(isWasmReady() || wasmReady ? "analyzing" : "wasm");
       try {
@@ -112,12 +132,14 @@ export default function App() {
         await new Promise<void>((resolve) => {
           window.setTimeout(resolve, 0);
         });
-        const result = await analyze(text);
-        setAnalysis(result);
-        setSourceName(name);
+        const result = await analyzeMany(items.map((i) => i.text));
+        setSeries(result);
+        setDumpNames(items.map((i) => i.name));
+        setSelectedDump(result.dumps.length - 1);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
-        setAnalysis(null);
+        setSeries(null);
+        setDumpNames([]);
       } finally {
         setBusyPhase(null);
       }
@@ -125,12 +147,19 @@ export default function App() {
     [wasmReady],
   );
 
-  const onFile = useCallback(
-    async (file: File) => {
-      const text = await file.text();
-      await runAnalysis(text, file.name);
+  const onFiles = useCallback(
+    async (fileList: FileList | File[]) => {
+      const files = Array.from(fileList);
+      if (files.length === 0) return;
+      const items = await Promise.all(
+        files.map(async (file) => ({
+          text: await file.text(),
+          name: file.name,
+        })),
+      );
+      await runAnalysisSeries(items);
     },
-    [runAnalysis],
+    [runAnalysisSeries],
   );
 
   const [dragging, setDragging] = useState(false);
@@ -139,10 +168,10 @@ export default function App() {
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragging(false);
-      const file = e.dataTransfer.files?.[0];
-      if (file) void onFile(file);
+      const list = e.dataTransfer.files;
+      if (list && list.length > 0) void onFiles(list);
     },
-    [onFile],
+    [onFiles],
   );
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -203,18 +232,22 @@ export default function App() {
           <input
             ref={fileInputRef}
             type="file"
+            multiple
             accept=".txt,.log,.tdump,.dump,text/plain"
             hidden
             disabled={busy}
             onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void onFile(f);
+              const list = e.target.files;
+              if (list && list.length > 0) void onFiles(list);
+              e.target.value = "";
             }}
           />
         </label>
         <button
           className="btn"
-          onClick={() => void runAnalysis(SAMPLE_DUMP, "sample.txt")}
+          onClick={() =>
+            void runAnalysisSeries([{ text: SAMPLE_DUMP, name: "sample.txt" }])
+          }
           disabled={busy}
         >
           {t("app.loadSample")}
@@ -223,14 +256,18 @@ export default function App() {
           <>
             <button
               className="btn"
-              onClick={() => exportHtml(analysis, sourceName, t, locale)}
+              onClick={() =>
+                void exportHtml(analysis, sourceName || "dump", locale)
+              }
               disabled={busy}
             >
               {t("app.exportHtml")}
             </button>
             <button
               className="btn"
-              onClick={() => void exportPdf(analysis, sourceName)}
+              onClick={() =>
+                void exportPdf(analysis, sourceName || "dump", locale)
+              }
               disabled={busy}
             >
               {t("app.exportPdf")}
@@ -238,16 +275,41 @@ export default function App() {
           </>
         )}
       </section>
+      {!analysis && !busy && <p className="hint">{t("app.hint")}</p>}
+
+      {series && series.dumps.length > 1 && (
+        <section
+          className="dump-series"
+          data-testid="dump-series"
+          aria-label={t("app.dumpSeries")}
+        >
+          <span className="dump-series-label">{t("app.dumpSeries")}</span>
+          <div className="dump-series-chips">
+            {series.dumps.map((d, i) => (
+              <button
+                key={`${dumpNames[i] ?? i}-${i}`}
+                type="button"
+                className={`dump-chip${selectedDump === i ? " active" : ""}`}
+                data-testid={`dump-chip-${i}`}
+                onClick={() => setSelectedDump(i)}
+              >
+                {t("app.dumpChip", {
+                  name: dumpNames[i] ?? `dump-${i + 1}`,
+                  count: d.total_threads,
+                })}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {error && (
-        <p className="status error">
-          {t("app.errorPrefix")} {error}
+        <p className="error" role="alert">
+          {t("app.errorPrefix")}: {error}
         </p>
       )}
 
-      {analysis && !busy && <Results analysis={analysis} />}
-
-      {!analysis && !busy && <p className="hint">{t("app.hint")}</p>}
+      {analysis && <Results analysis={analysis} />}
 
       {codegenOpen && (
         <div
