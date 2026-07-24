@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 09:25
-**Active Feature:** feat-011 (done)
+**Last Updated:** 2026-07-24 09:30
+**Active Feature:** feat-012 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-010
-- [x] feat-011 Move Java codegen to frontend (shrink WASM)
+- [x] feat-001 … feat-011
+- [x] feat-012 Codegen entry as top-right modal
 
 ### What's In Progress
 
@@ -18,22 +18,18 @@
 
 ### What's Next
 
-1. Optional further WASM size work / new features.
-
-## Blockers / Risks
-
-- [ ] Risk: `pnpm -C web run build` requires `wasm-pack` + `wasm32-unknown-unknown`.
+1. Optional UX polish / new features.
 
 ## Decisions Made
 
-- **feat-011**: Page generation in `web/src/codegen.ts`. Rust `src/codegen.rs` is `cfg(not(target_arch = "wasm32"))` so host `cargo test` and `examples/gen_java` still work; wasm-bindgen no longer exports `generateJava`.
+- **feat-012**: Main page is dump analysis only. Java reproducer opens from header top-right via modal (Escape, backdrop click, ×). Codegen errors stay local to the modal.
 
 ## Evidence of Completion
 
-- [x] `cargo test` 16 passed
-- [x] WASM `jblock_bg.wasm` 1,049,881 → 1,044,453 (−5,428 bytes); no `generateJava` in wasm pkg
+- [x] Inline `.panel.codegen` removed from main flow
+- [x] Header button `data-testid="open-codegen"` + modal `data-testid="codegen-modal"`
 - [x] `./init.sh` green
 
 ## Notes for Next Session
 
-Run `./init.sh` first. After `src/*.rs` edits, re-run `pnpm -C web run wasm`.
+Run `./init.sh` first.

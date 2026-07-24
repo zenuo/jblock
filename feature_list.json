@@ -87,6 +87,14 @@
       "dependencies": ["feat-007"],
       "status": "done",
       "evidence": "web/src/codegen.ts + App sync generate; analyzer no longer imports wasm generateJava; src/codegen.rs gated cfg(not(target_arch=\"wasm32\")) for cargo test + examples/gen_java; jblock_bg.wasm 1049881→1044453 (−5428 bytes); ./init.sh green"
+    },
+    {
+      "id": "feat-012",
+      "name": "Codegen entry as top-right modal",
+      "description": "Move the Generate Java reproducer UI off the main analysis page into a top-right header button that opens a modal, keeping the main page focused on analyzing uploaded dumps",
+      "dependencies": ["feat-011"],
+      "status": "done",
+      "evidence": "web/src/App.tsx: header Generate Java… opens modal (Escape/backdrop/close); inline codegen panel removed from main page; index.css modal styles; ./init.sh green"
     }
   ]
 }

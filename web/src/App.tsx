@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { analyze, generateJava, classNameFor, type JavaScenario } from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
 import type { Analysis } from "./types";
@@ -35,16 +35,44 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [codegenOpen, setCodegenOpen] = useState(false);
   const [javaScenario, setJavaScenario] = useState<JavaScenario>("deadlock");
   const [javaCount, setJavaCount] = useState(3);
   const [javaCode, setJavaCode] = useState<string>("");
+  const [codegenError, setCodegenError] = useState<string | null>(null);
+  const closeCodegenBtnRef = useRef<HTMLButtonElement>(null);
+
+  const closeCodegen = useCallback(() => {
+    setCodegenOpen(false);
+    setCodegenError(null);
+  }, []);
+
+  const openCodegen = useCallback(() => {
+    setCodegenOpen(true);
+    setCodegenError(null);
+  }, []);
+
+  useEffect(() => {
+    if (!codegenOpen) return;
+    closeCodegenBtnRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeCodegen();
+    };
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [codegenOpen, closeCodegen]);
 
   const onGenerateJava = useCallback(() => {
-    setError(null);
+    setCodegenError(null);
     try {
       setJavaCode(generateJava(javaScenario, javaCount));
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setCodegenError(e instanceof Error ? e.message : String(e));
     }
   }, [javaScenario, javaCount]);
 
@@ -118,9 +146,19 @@ export default function App() {
     >
       {dragging && <div className="drop-overlay">Drop thread dump to analyze</div>}
       <header className="app-header">
-        <h1>
-          <span className="logo">jblock</span> Java Thread Dump Analyzer
-        </h1>
+        <div className="app-header-row">
+          <h1>
+            <span className="logo">jblock</span> Java Thread Dump Analyzer
+          </h1>
+          <button
+            type="button"
+            className="btn"
+            data-testid="open-codegen"
+            onClick={openCodegen}
+          >
+            Generate Java…
+          </button>
+        </div>
         <p className="tagline">
           Parse jstack / ThreadMXBean dumps locally in your browser via Rust + WebAssembly.
         </p>
@@ -156,50 +194,6 @@ export default function App() {
               Export PDF
             </button>
           </>
-        )}
-      </section>
-
-      <section className="panel codegen" data-testid="codegen">
-        <h2>Generate Java reproducer</h2>
-        <p className="empty">
-          Emit a runnable Java program that reproduces a thread problem, then
-          capture its dump with <span className="mono">jstack</span> and analyze
-          it above.
-        </p>
-        <div className="codegen-controls">
-          <label>
-            Scenario{" "}
-            <select
-              value={javaScenario}
-              onChange={(e) => setJavaScenario(e.target.value as JavaScenario)}
-            >
-              <option value="deadlock">Deadlock cycle</option>
-              <option value="lock-contention">Lock contention</option>
-            </select>
-          </label>
-          <label>
-            Threads{" "}
-            <input
-              type="number"
-              min={2}
-              max={64}
-              value={javaCount}
-              onChange={(e) => setJavaCount(Number(e.target.value))}
-            />
-          </label>
-          <button className="btn primary" onClick={onGenerateJava}>
-            Generate
-          </button>
-          {javaCode && (
-            <button className="btn" onClick={downloadJava}>
-              Download .java
-            </button>
-          )}
-        </div>
-        {javaCode && (
-          <pre className="code-block" data-testid="java-code">
-            <code>{javaCode}</code>
-          </pre>
         )}
       </section>
 
@@ -334,6 +328,79 @@ export default function App() {
         <p className="hint">
           Select a thread dump file or load the sample to get started.
         </p>
+      )}
+
+      {codegenOpen && (
+        <div
+          className="modal-backdrop"
+          data-testid="codegen-modal"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeCodegen();
+          }}
+        >
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="codegen-title"
+          >
+            <div className="modal-header">
+              <h2 id="codegen-title">Generate Java reproducer</h2>
+              <button
+                ref={closeCodegenBtnRef}
+                type="button"
+                className="modal-close"
+                aria-label="Close"
+                onClick={closeCodegen}
+              >
+                ×
+              </button>
+            </div>
+            <p className="empty">
+              Emit a runnable Java program that reproduces a thread problem, then
+              capture its dump with <span className="mono">jstack</span> and analyze
+              it on the main page.
+            </p>
+            <div className="codegen-controls">
+              <label>
+                Scenario{" "}
+                <select
+                  value={javaScenario}
+                  onChange={(e) => setJavaScenario(e.target.value as JavaScenario)}
+                >
+                  <option value="deadlock">Deadlock cycle</option>
+                  <option value="lock-contention">Lock contention</option>
+                </select>
+              </label>
+              <label>
+                Threads{" "}
+                <input
+                  type="number"
+                  min={2}
+                  max={64}
+                  value={javaCount}
+                  onChange={(e) => setJavaCount(Number(e.target.value))}
+                />
+              </label>
+              <button type="button" className="btn primary" onClick={onGenerateJava}>
+                Generate
+              </button>
+              {javaCode && (
+                <button type="button" className="btn" onClick={downloadJava}>
+                  Download .java
+                </button>
+              )}
+            </div>
+            {codegenError && (
+              <p className="status error">Error: {codegenError}</p>
+            )}
+            {javaCode && (
+              <pre className="code-block" data-testid="java-code">
+                <code>{javaCode}</code>
+              </pre>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
