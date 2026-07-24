@@ -49,7 +49,7 @@
 ## Evidence of Completion
 
 - [x] Tests pass: `cargo test` -> 14 passed (incl. `detects_java_version_support`)
-- [x] Lint/type/build: `./init.sh` (run before claiming done)
+- [x] Lint/type/build: `./init.sh` green
 - [x] Research: FORMAT_DIFFS.md compares jstack + MXBean across 8/11/17/21
 
 ## Notes for Next Session

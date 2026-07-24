@@ -18,8 +18,8 @@
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Unit tests | `cargo test` | pending full `./init.sh` | 14 tests incl. version matrix |
-| Full gate | `./init.sh` | pending | cargo + wasm + lint + typecheck + build |
+| Unit tests | `cargo test` | pass | 14 tests incl. `detects_java_version_support` |
+| Full gate | `./init.sh` | pass | cargo + wasm + lint + typecheck + build |
 
 ## Files Changed
 
