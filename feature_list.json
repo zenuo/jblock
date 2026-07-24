@@ -230,6 +230,16 @@
       ],
       "status": "done",
       "evidence": "Finding.actors + classNameFromFrame; PatternLegendModal labels thread+class; Legend/图例 button; i18n en/zh; ./init.sh green"
+    },
+    {
+      "id": "feat-024",
+      "name": "Website favicon",
+      "description": "Design and ship a brand favicon for the web app (SVG matching the jblock indigo/violet logo tile and interlocking thread-block motif)",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "evidence": "web/public/favicon.svg; linked from web/index.html; theme-color #6366f1; ./init.sh green"
     }
   ]
 }
