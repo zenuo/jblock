@@ -411,7 +411,7 @@
         "feat-029"
       ],
       "status": "done",
-      "evidence": "PatternKind::DnsResolutionStall; Scenario DnsResolutionStall (UDP sink + JNDI DNS); InetAddress + DnsClient coverage; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/dns_resolution_stall_jstack.txt; ./init.sh green"
+      "evidence": "PatternKind::DnsResolutionStall; Scenario DnsResolutionStall (UDP sink + JNDI DNS); InetAddress + DnsClient coverage; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/dns_resolution_stall_jstack.txt; ./init.sh green (83 cargo tests)"
     },
     {
       "id": "feat-041",
