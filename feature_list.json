@@ -303,8 +303,8 @@
         "feat-027",
         "feat-014"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::DangerousHotLockOwner; Scenario DangerousHotLock; live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/dangerous_hot_lock_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-031",

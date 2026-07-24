@@ -9,7 +9,8 @@ export type FindingKind =
   | "blocked"
   | "clean"
   | "thread-pool-exhaustion"
-  | "sync-io-hotspot";
+  | "sync-io-hotspot"
+  | "dangerous-hot-lock-owner";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -162,6 +163,24 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+        },
+      });
+    } else if (p.kind === "dangerous-hot-lock-owner") {
+      const ownerName = p.thread_names[0] ?? null;
+      const waiters = p.thread_names.slice(1);
+      const lockMatch = /^lock (\S+)/.exec(p.detail);
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "critical",
+        kind: "dangerous-hot-lock-owner",
+        title: t("findings.dangerousHotLockTitle", {
+          count: waiters.length,
+        }),
+        detail: t("findings.dangerousHotLockDetail", { detail: p.detail }),
+        actors: {
+          nodes: [],
+          owner: actorFor(analysis, ownerName),
+          waiters: actorsForNames(analysis, waiters, 5),
+          lock: lockMatch?.[1] ?? null,
         },
       });
     }

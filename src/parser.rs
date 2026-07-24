@@ -77,6 +77,8 @@ pub enum PatternKind {
     ThreadPoolExhaustion,
     /// Many threads share the same sync socket/HTTP/JDBC stack (feat-029).
     SyncIoHotspot,
+    /// Hottest lock owner is blocked (sleep/I/O/park) while waiters pile up (feat-030).
+    DangerousHotLockOwner,
 }
 
 /// One detected high-level pattern hit.
@@ -393,6 +395,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
     if let Some(hit) = detect_sync_io_hotspot(threads) {
         out.push(hit);
     }
+    if let Some(hit) = detect_dangerous_hot_lock_owner(threads) {
+        out.push(hit);
+    }
     out
 }
 
@@ -548,6 +553,95 @@ fn detect_sync_io_hotspot(threads: &[ThreadInfo]) -> Option<PatternHit> {
             "{} threads share sync I/O stack near {}",
             names.len(),
             io_frame
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames that mean the lock owner is blocked instead of doing useful CPU work.
+fn is_blocking_owner_frame(frame: &str) -> bool {
+    if is_sync_io_frame(frame) {
+        return true;
+    }
+    const NEEDLES: &[&str] = &[
+        "Thread.sleep",
+        "Thread.sleep0",
+        "Object.wait",
+        "Object.wait0",
+        "Unsafe.park",
+        "LockSupport.park",
+        "ConditionObject.await",
+        "Condition.await",
+        "CountDownLatch.await",
+        "CyclicBarrier.await",
+        "Semaphore.acquire",
+        "LinkedBlockingQueue.take",
+        "ArrayBlockingQueue.take",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// Dangerous hot-lock owner: hottest contended lock is held by a thread whose
+/// stack shows a blocking call (sleep / park / sync I/O) while waiters are BLOCKED.
+fn detect_dangerous_hot_lock_owner(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let mut lock_owner: BTreeMap<String, String> = BTreeMap::new();
+    for t in threads {
+        for lock in &t.held_locks {
+            lock_owner
+                .entry(lock.clone())
+                .or_insert_with(|| t.name.clone());
+        }
+    }
+
+    let mut waiters_by_lock: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for t in threads {
+        if t.state != "BLOCKED" {
+            continue;
+        }
+        if let Some(lock) = &t.waiting_on {
+            waiters_by_lock
+                .entry(lock.clone())
+                .or_default()
+                .push(t.name.clone());
+        }
+    }
+
+    let mut best: Option<(String, String, Vec<String>)> = None; // lock, owner, waiters
+    for (lock, waiters) in &waiters_by_lock {
+        if waiters.is_empty() {
+            continue;
+        }
+        let Some(owner) = lock_owner.get(lock) else {
+            continue;
+        };
+        let better = best
+            .as_ref()
+            .map(|(_, _, w)| waiters.len() > w.len())
+            .unwrap_or(true);
+        if better {
+            best = Some((lock.clone(), owner.clone(), waiters.clone()));
+        }
+    }
+    let (lock, owner_name, waiters) = best?;
+    let owner = threads.iter().find(|t| t.name == owner_name)?;
+    let blocking = owner.stack.iter().find(|f| is_blocking_owner_frame(f))?;
+
+    let mut names = vec![owner_name.clone()];
+    names.extend(waiters.iter().cloned());
+    let severity = if waiters.len() >= 2 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::DangerousHotLockOwner,
+        severity: severity.to_string(),
+        detail: format!(
+            "lock {} held by {} while blocked in {} ({} waiter(s))",
+            lock,
+            owner_name,
+            blocking,
+            waiters.len()
         ),
         thread_names: names,
     })
@@ -1070,11 +1164,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     #[test]
     fn detects_thread_pool_exhaustion_pattern() {
         let a = analyze(POOL_EXHAUSTION_SAMPLE);
-        assert_eq!(a.patterns.len(), 1);
-        let hit = &a.patterns[0];
-        assert_eq!(hit.kind, PatternKind::ThreadPoolExhaustion);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ThreadPoolExhaustion)
+            .expect("thread-pool-exhaustion");
         assert_eq!(hit.severity, "critical");
         assert_eq!(hit.thread_names.len(), 4);
+        // Same dump also shows a sleeping owner holding the contended lock.
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DangerousHotLockOwner)
+        );
     }
 
     #[test]
@@ -1100,6 +1202,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .any(|p| p.kind == PatternKind::SyncIoHotspot),
             "live fixture should detect sync-io hotspot"
+        );
+    }
+
+    #[test]
+    fn detects_dangerous_hot_lock_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/dangerous_hot_lock_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::DangerousHotLockOwner),
+            "live fixture should detect dangerous hot-lock owner"
         );
     }
 
@@ -1193,5 +1308,72 @@ Full thread dump OpenJDK 64-Bit Server VM:
             .expect("sync-io-hotspot");
         assert_eq!(hit.thread_names.len(), 4);
         assert!(hit.detail.contains("Socket") || hit.detail.contains("NioSocket"));
+    }
+
+    const DANGEROUS_HOT_LOCK_SAMPLE: &str = r#"2026-07-24 13:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"lock-owner" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab90000> (a java.lang.Object)
+        at DangerousHotLock.lambda$main$0(DangerousHotLock.java:18)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"waiter-0" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at DangerousHotLock.lambda$main$1(DangerousHotLock.java:28)
+        - waiting to lock <0x000000076ab90000> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"waiter-1" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at DangerousHotLock.lambda$main$1(DangerousHotLock.java:28)
+        - waiting to lock <0x000000076ab90000> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"waiter-2" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at DangerousHotLock.lambda$main$1(DangerousHotLock.java:28)
+        - waiting to lock <0x000000076ab90000> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_dangerous_hot_lock_owner_pattern() {
+        let a = analyze(DANGEROUS_HOT_LOCK_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::DangerousHotLockOwner)
+            .expect("dangerous-hot-lock-owner");
+        assert_eq!(hit.severity, "critical");
+        assert!(hit.thread_names.iter().any(|n| n == "lock-owner"));
+        assert_eq!(
+            hit.thread_names.iter().filter(|n| n.starts_with("waiter-")).count(),
+            3
+        );
+        assert!(hit.detail.contains("sleep"));
+    }
+
+    #[test]
+    fn runnable_owner_is_not_dangerous_hot_lock() {
+        // Owner is RUNNABLE doing real work while holding the lock — not "blocked owner".
+        const SAFE: &str = r#""worker" #2 prio=5 os_prio=0 tid=0x2 nid=0x2 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.Worker.work(Worker.java:20)
+        - locked <0x000000076ab00000> (a java.lang.Object)
+
+"main" #1 prio=5 os_prio=0 tid=0x1 nid=0x1 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.run(App.java:10)
+        - waiting to lock <0x000000076ab00000> (a java.lang.Object)
+"#;
+        let a = analyze(SAFE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::DangerousHotLockOwner)
+        );
     }
 }

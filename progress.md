@@ -2,37 +2,35 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:12
-**Active Feature:** feat-027 / feat-028 / feat-029 (done)
+**Last Updated:** 2026-07-24 13:20
+**Active Feature:** feat-030 (verifying)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-026
-- [x] feat-027 Pattern reproducer + dump capture harness
-- [x] feat-028 Detect thread-pool exhaustion
-- [x] feat-029 Detect sync I/O / RPC hotspot clusters
+- [x] feat-001 … feat-029
+- [x] feat-030 Detect dangerous hot-lock owner (implementation)
 
 ### What's In Progress
 
-- [ ] None on this branch
+- [ ] feat-030 verification (`./init.sh`)
 
 ### What's Next (by benefit)
 
-1. feat-030 dangerous hot-lock owner
-2. feat-031 connection-pool borrow blocking
-3. … see feature_list.json
+1. feat-031 connection-pool borrow blocking
+2. … see feature_list.json
 
 ## Decisions Made
 
-- Sync I/O detection clusters ≥3 threads sharing top frames that include socket/HTTP/gRPC/JDBC needles.
-- Reproducer: local ServerSocket + N clients blocked in `SocketInputStream.read`.
+- Detect hottest lock where owner stack has sleep/park/wait/sync-I/O while BLOCKED waiters exist.
+- Reproducer `DangerousHotLock`: named `lock-owner` sleeps holding LOCK; `waiter-*` block.
 
 ## Evidence of Completion
 
-- [x] `./init.sh` green (`cargo test` 27/27)
+- [ ] `./init.sh` green
+- [x] live_capture_dangerous_hot_lock_detects_pattern pass
 
 ## Notes for Next Session
 
-Start feat-030 next. Reuse capture harness + PatternHit pipeline.
+Start feat-031 next.

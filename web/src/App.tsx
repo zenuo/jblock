@@ -295,6 +295,9 @@ export default function App() {
                   <option value="sync-io-hotspot">
                     {t("codegen.syncIoHotspot")}
                   </option>
+                  <option value="dangerous-hot-lock">
+                    {t("codegen.dangerousHotLock")}
+                  </option>
                 </select>
               </label>
               <label>

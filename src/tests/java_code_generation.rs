@@ -21,6 +21,11 @@ fn parses_scenario_aliases() {
         Some(Scenario::SyncIoHotspot)
     );
     assert_eq!(parse_scenario("rpc-hotspot"), Some(Scenario::SyncIoHotspot));
+    assert_eq!(
+        parse_scenario("dangerous-hot-lock"),
+        Some(Scenario::DangerousHotLock)
+    );
+    assert_eq!(parse_scenario("blocking-owner"), Some(Scenario::DangerousHotLock));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -69,6 +74,17 @@ fn sync_io_hotspot_blocks_on_socket_read() {
 }
 
 #[test]
+fn dangerous_hot_lock_owner_sleeps_while_holding() {
+    let code = generate(Scenario::DangerousHotLock, 4);
+    assert!(code.contains("public class DangerousHotLock"));
+    assert!(code.contains("\"lock-owner\""));
+    assert!(code.contains("waiter-"));
+    assert!(code.contains("final int waiters = 3;"));
+    assert!(code.contains("Thread.sleep(Long.MAX_VALUE)"));
+    assert!(code.contains("synchronized (LOCK)"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -87,5 +103,6 @@ fn class_name_matches_source() {
         "ThreadPoolExhaustion"
     );
     assert_eq!(Scenario::SyncIoHotspot.class_name(), "SyncIoHotspot");
+    assert_eq!(Scenario::DangerousHotLock.class_name(), "DangerousHotLock");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

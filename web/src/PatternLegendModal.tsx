@@ -48,7 +48,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             ? "legend.poolExhaustionTitle"
             : kind === "sync-io-hotspot"
               ? "legend.syncIoHotspotTitle"
-              : "legend.cleanTitle";
+              : kind === "dangerous-hot-lock-owner"
+                ? "legend.dangerousHotLockTitle"
+                : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -60,7 +62,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             ? "legend.poolExhaustionBody"
             : kind === "sync-io-hotspot"
               ? "legend.syncIoHotspotBody"
-              : "legend.cleanBody";
+              : kind === "dangerous-hot-lock-owner"
+                ? "legend.dangerousHotLockBody"
+                : "legend.cleanBody";
 
   return (
     <div
@@ -97,6 +101,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             <PoolExhaustionDemo actors={actors} />
           )}
           {kind === "sync-io-hotspot" && <SyncIoHotspotDemo actors={actors} />}
+          {kind === "dangerous-hot-lock-owner" && (
+            <HotLockDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -134,7 +141,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               </li>
             </>
           )}
-          {(kind === "hot-lock" || kind === "blocked") && (
+          {(kind === "hot-lock" ||
+            kind === "blocked" ||
+            kind === "dangerous-hot-lock-owner") && (
             <>
               <li>
                 <span className="swatch swatch-owner" /> {t("legend.keyOwner")}
