@@ -64,7 +64,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                             ? "legend.lockOrderTitle"
                             : kind === "finalizer-pressure"
                               ? "legend.finalizerPressureTitle"
-                              : "legend.cleanTitle";
+                              : kind === "sleep-as-scheduler"
+                                ? "legend.sleepAsSchedulerTitle"
+                                : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -92,7 +94,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                             ? "legend.lockOrderBody"
                             : kind === "finalizer-pressure"
                               ? "legend.finalizerPressureBody"
-                              : "legend.cleanBody";
+                              : kind === "sleep-as-scheduler"
+                                ? "legend.sleepAsSchedulerBody"
+                                : "legend.cleanBody";
 
   return (
     <div
@@ -151,6 +155,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             <DeadlockDemo actors={actors} />
           )}
           {kind === "finalizer-pressure" && <HotLockDemo actors={actors} />}
+          {kind === "sleep-as-scheduler" && (
+            <ConditionStarvationDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -208,6 +215,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               </li>
               <li>
                 <span className="swatch swatch-lock" /> {t("legend.keyCondition")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "sleep-as-scheduler" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keySleepScheduler")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}

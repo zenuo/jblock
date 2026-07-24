@@ -319,6 +319,9 @@ export default function App() {
                   <option value="finalizer-pressure">
                     {t("codegen.finalizerPressure")}
                   </option>
+                  <option value="sleep-as-scheduler">
+                    {t("codegen.sleepAsScheduler")}
+                  </option>
                 </select>
               </label>
               <label>

@@ -17,7 +17,8 @@ export type FindingKind =
   | "busy-wait-spin-hotspot"
   | "condition-park-starvation"
   | "lock-order-inconsistency"
-  | "finalizer-pressure";
+  | "finalizer-pressure"
+  | "sleep-as-scheduler";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -310,6 +311,21 @@ export function buildFindings(
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: "finalize",
+        },
+      });
+    } else if (p.kind === "sleep-as-scheduler") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "sleep-as-scheduler",
+        title: t("findings.sleepAsSchedulerTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.sleepAsSchedulerDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
         },
       });
     }

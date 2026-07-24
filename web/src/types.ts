@@ -40,7 +40,8 @@ export type PatternKind =
   | "busy-wait-spin-hotspot"
   | "condition-park-starvation"
   | "lock-order-inconsistency"
-  | "finalizer-pressure";
+  | "finalizer-pressure"
+  | "sleep-as-scheduler";
 
 export interface PatternHit {
   kind: PatternKind;

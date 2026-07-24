@@ -93,6 +93,8 @@ pub enum PatternKind {
     LockOrderInconsistency,
     /// Finalizer / Reference Handler busy or blocked under pressure (feat-037).
     FinalizerPressure,
+    /// Business threads dominated by TIMED_WAITING Thread.sleep (feat-038).
+    SleepAsScheduler,
 }
 
 /// One detected high-level pattern hit.
@@ -431,6 +433,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_finalizer_pressure(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_sleep_as_scheduler(threads) {
         out.push(hit);
     }
     out
@@ -1331,6 +1336,106 @@ fn detect_finalizer_pressure(threads: &[ThreadInfo]) -> Option<PatternHit> {
     })
 }
 
+/// Mirror of `web/src/analysisUi.ts` `isJvmNoise` — skip GC/compiler/Finalizer/…
+fn is_jvm_noise_thread(name: &str) -> bool {
+    let n = name.to_ascii_lowercase();
+    const EXACT: &[&str] = &[
+        "reference handler",
+        "finalizer",
+        "signal dispatcher",
+        "attach listener",
+        "service thread",
+        "common-cleaner",
+        "notification thread",
+        "monitor deflation thread",
+        "vm thread",
+        "vm periodic task thread",
+        "destroyjavavm",
+        "process reaper",
+        "sweeper thread",
+    ];
+    if EXACT.iter().any(|e| n == *e) {
+        return true;
+    }
+    n.starts_with("c1 compiler")
+        || n.starts_with("c2 compiler")
+        || n.starts_with("gc ")
+        || n.contains("gc thread")
+        || n.starts_with("g1 ")
+        || n.starts_with("gang worker")
+        || n.contains("parallelgc")
+        || n.starts_with("jvmci")
+        || n.contains("cleaner-")
+}
+
+fn is_sleep_frame(frame: &str) -> bool {
+    frame.contains("Thread.sleep") || frame.contains("Thread.sleep0")
+}
+
+/// Thread.sleep-as-scheduler: ≥3 non-JVM-noise TIMED_WAITING business threads
+/// share a stack dominated by Thread.sleep (feat-038).
+fn detect_sleep_as_scheduler(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            !is_jvm_noise_thread(&t.name)
+                && t.state == "TIMED_WAITING"
+                && t.stack.iter().any(|f| is_sleep_frame(f))
+                // Avoid Condition TIMED_WAITING park stacks (feat-035).
+                && !t.stack.iter().any(|f| is_condition_await_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 3);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    let (sig, members) = best?;
+    let sample = members[0]
+        .stack
+        .iter()
+        .find(|f| is_sleep_frame(f))
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::SleepAsScheduler,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} TIMED_WAITING business threads use Thread.sleep as a scheduler near {}",
+            names.len(),
+            sample
+        ),
+        thread_names: names,
+    })
+}
+
 /// Detect deadlock cycles from the wait-for graph.
 ///
 /// Each thread waits on at most one lock, so the wait-for relation is a
@@ -1990,6 +2095,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .any(|p| p.kind == PatternKind::FinalizerPressure),
             "live fixture should detect Finalizer/Reference Handler pressure"
+        );
+    }
+
+    #[test]
+    fn detects_sleep_as_scheduler_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/sleep_as_scheduler_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::SleepAsScheduler),
+            "live fixture should detect Thread.sleep-as-scheduler"
         );
     }
 
@@ -2660,6 +2778,87 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::FinalizerPressure)
+        );
+    }
+
+    const SLEEP_AS_SCHEDULER_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"sleep-scheduler-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"sleep-scheduler-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"sleep-scheduler-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"sleep-scheduler-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+        at SleepAsScheduler.lambda$main$0(SleepAsScheduler.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x5 nid=0x35 in Object.wait() [0x5]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:151)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:165)
+"#;
+
+    #[test]
+    fn detects_sleep_as_scheduler_pattern() {
+        let a = analyze(SLEEP_AS_SCHEDULER_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::SleepAsScheduler)
+            .expect("sleep-as-scheduler");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("sleep") || hit.detail.contains("scheduler"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("sleep-scheduler-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        assert!(!hit.thread_names.iter().any(|n| n == "Finalizer"));
+    }
+
+    #[test]
+    fn few_sleepers_or_jvm_noise_not_scheduler_pattern() {
+        const FEW: &str = r#""sleep-scheduler-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+
+"sleep-scheduler-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at SleepAsScheduler.scheduleNextTick(SleepAsScheduler.java:10)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:165)
+"#;
+        let a = analyze(FEW);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::SleepAsScheduler)
         );
     }
 }

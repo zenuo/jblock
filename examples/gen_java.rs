@@ -20,7 +20,7 @@ fn main() {
         Some(scenario) => print!("{}", jblock::generate_java_source(scenario, count)),
         None => {
             eprintln!(
-                "unknown scenario: {scenario:?}\nusage: gen_java <lock-contention|deadlock|thread-pool-exhaustion|sync-io-hotspot|dangerous-hot-lock|connection-pool-starve|future-latch-deadlock|logging-appender-contention|busy-wait-spin|condition-starvation|lock-order-risk|finalizer-pressure> [count]"
+                "unknown scenario: {scenario:?}\nusage: gen_java <lock-contention|deadlock|thread-pool-exhaustion|sync-io-hotspot|dangerous-hot-lock|connection-pool-starve|future-latch-deadlock|logging-appender-contention|busy-wait-spin|condition-starvation|lock-order-risk|finalizer-pressure|sleep-as-scheduler> [count]"
             );
             exit(2);
         }

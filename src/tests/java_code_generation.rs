@@ -58,6 +58,8 @@ fn parses_scenario_aliases() {
     );
     assert_eq!(parse_scenario("finalizer-pressure"), Some(Scenario::FinalizerPressure));
     assert_eq!(parse_scenario("reference-handler"), Some(Scenario::FinalizerPressure));
+    assert_eq!(parse_scenario("sleep-as-scheduler"), Some(Scenario::SleepAsScheduler));
+    assert_eq!(parse_scenario("thread-sleep-scheduler"), Some(Scenario::SleepAsScheduler));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -205,6 +207,17 @@ fn finalizer_pressure_blocks_in_finalize() {
 }
 
 #[test]
+fn sleep_as_scheduler_uses_sleep_loop() {
+    let code = generate(Scenario::SleepAsScheduler, 4);
+    assert!(code.contains("public class SleepAsScheduler"));
+    assert!(code.contains("scheduleNextTick"));
+    assert!(code.contains("Thread.sleep"));
+    assert!(code.contains("sleep-scheduler-"));
+    assert!(code.contains("final int workers = 4;"));
+    assert!(code.contains("while (true)"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -243,5 +256,6 @@ fn class_name_matches_source() {
     );
     assert_eq!(Scenario::LockOrderRisk.class_name(), "LockOrderRisk");
     assert_eq!(Scenario::FinalizerPressure.class_name(), "FinalizerPressure");
+    assert_eq!(Scenario::SleepAsScheduler.class_name(), "SleepAsScheduler");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }
