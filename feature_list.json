@@ -355,8 +355,8 @@
       "dependencies": [
         "feat-027"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::ConditionParkStarvation; Scenario ConditionStarvation (ReentrantLock Condition.await, never signal); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/condition_starvation_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-036",

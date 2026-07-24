@@ -166,7 +166,10 @@ fn condition_starvation_awaits_without_signal() {
     assert!(code.contains("COND.await()"));
     assert!(code.contains("cond-waiter-"));
     assert!(code.contains("final int waiters = 4;"));
-    assert!(!code.contains("signal"));
+    // No runtime signal call — only await (comments may mention signal).
+    assert!(!code.contains("COND.signal"));
+    assert!(!code.contains(".signal("));
+    assert!(!code.contains(".signalAll("));
 }
 
 #[test]
