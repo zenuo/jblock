@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 14:55
-**Active Feature:** feat-039 (done)
+**Last Updated:** 2026-07-24 15:05
+**Active Feature:** feat-040 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-038
-- [x] feat-039 Detect framework worker-pool saturation (Tomcat/Jetty/Netty)
+- [x] feat-001 … feat-039
+- [x] feat-040 Detect DNS / name-resolution stall clusters
 
 ### What's In Progress
 
@@ -18,18 +18,17 @@
 
 ### What's Next
 
-1. feat-040 DNS / name-resolution stall clusters
+1. feat-041 Cross-dump patterns: thread leak and livelock
 2. … see feature_list.json
 
 ## Decisions Made
 
-- Families: Tomcat `http-nio-*-exec-*`, Jetty `qtp*`, Netty `*nioEventLoop*`.
-- Idle stacks excluded: getTask / TaskQueue.take / QueuedThreadPool.idleJob / Selector.select / epollWait.
-- Saturation = ≥3 same-family non-idle workers sharing a top-4 stack signature.
-- Reproducer uses Tomcat-style names on a shared LOCK (detector covers all three families).
+- Detect ≥3 threads sharing a top-4 stack with InetAddress or JNDI DNS frames.
+- Needles cover InetAddress.getByName/getAllByName/lookupAllHostAddr and com.sun.jndi.dns.*.
+- Reproducer: local UDP sink that never replies + JNDI DnsContextFactory queries (stable DnsClient stacks).
 
 ## Evidence of Completion
 
 - `./init.sh` green — cargo lib tests + web lint/typecheck/build OK
-- Fixture: `tests/fixtures/patterns/framework_pool_saturation_jstack.txt`
-- Live capture: `live_capture_framework_pool_saturation_detects_pattern`
+- Fixture: `tests/fixtures/patterns/dns_resolution_stall_jstack.txt`
+- Live capture: `live_capture_dns_resolution_stall_detects_pattern`
