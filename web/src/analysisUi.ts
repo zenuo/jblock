@@ -14,7 +14,8 @@ export type FindingKind =
   | "connection-pool-borrow"
   | "future-latch-wait-tree"
   | "logging-appender-contention"
-  | "busy-wait-spin-hotspot";
+  | "busy-wait-spin-hotspot"
+  | "condition-park-starvation";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -250,6 +251,21 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+        },
+      });
+    } else if (p.kind === "condition-park-starvation") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "condition-park-starvation",
+        title: t("findings.conditionStarvationTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.conditionStarvationDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: "Condition",
         },
       });
     }

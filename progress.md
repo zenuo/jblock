@@ -28,7 +28,7 @@
 
 ## Evidence of Completion
 
-- [ ] `./init.sh` (pending this turn)
+- [x] `./init.sh` green (`cargo test` 51/51; web lint/typecheck/build)
 
 ## Notes for Next Session
 

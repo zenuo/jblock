@@ -1,0 +1,144 @@
+2026-07-24 14:01:10
+Full thread dump OpenJDK 64-Bit Server VM (21.0.10+7-Ubuntu-124.04 mixed mode, sharing):
+
+Threads class SMR info:
+_java_thread_list=0x00007fc5f0002110, length=15, elements={
+0x00007fc68401a0f0, 0x00007fc684110ae0, 0x00007fc684112060, 0x00007fc684113800,
+0x00007fc684114e50, 0x00007fc684116400, 0x00007fc684117f50, 0x00007fc684119620,
+0x00007fc684155070, 0x00007fc684158000, 0x00007fc684164bf0, 0x00007fc684165d70,
+0x00007fc684166ea0, 0x00007fc684168040, 0x00007fc5f0000fe0
+}
+
+"main" #1 [25400] prio=5 os_prio=0 cpu=36.38ms elapsed=1.21s tid=0x00007fc68401a0f0 nid=25400 waiting on condition  [0x00007fc689a56000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep0(java.base@21.0.10/Native Method)
+	at java.lang.Thread.sleep(java.base@21.0.10/Thread.java:509)
+	at ConditionStarvation.main(ConditionStarvation.java:36)
+
+"Reference Handler" #9 [25408] daemon prio=10 os_prio=0 cpu=0.34ms elapsed=1.19s tid=0x00007fc684110ae0 nid=25408 waiting on condition  [0x00007fc659b11000]
+   java.lang.Thread.State: RUNNABLE
+	at java.lang.ref.Reference.waitForReferencePendingList(java.base@21.0.10/Native Method)
+	at java.lang.ref.Reference.processPendingReferences(java.base@21.0.10/Reference.java:246)
+	at java.lang.ref.Reference$ReferenceHandler.run(java.base@21.0.10/Reference.java:208)
+
+"Finalizer" #10 [25409] daemon prio=8 os_prio=0 cpu=0.28ms elapsed=1.19s tid=0x00007fc684112060 nid=25409 in Object.wait()  [0x00007fc659a11000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.10/Native Method)
+	- waiting on <0x000000070fe025f0> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@21.0.10/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.10/Object.java:339)
+	at java.lang.ref.NativeReferenceQueue.await(java.base@21.0.10/NativeReferenceQueue.java:48)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.10/ReferenceQueue.java:158)
+	at java.lang.ref.NativeReferenceQueue.remove(java.base@21.0.10/NativeReferenceQueue.java:89)
+	- locked <0x000000070fe025f0> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.ref.Finalizer$FinalizerThread.run(java.base@21.0.10/Finalizer.java:173)
+
+"Signal Dispatcher" #11 [25410] daemon prio=9 os_prio=0 cpu=0.31ms elapsed=1.19s tid=0x00007fc684113800 nid=25410 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Service Thread" #12 [25411] daemon prio=9 os_prio=0 cpu=0.04ms elapsed=1.19s tid=0x00007fc684114e50 nid=25411 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Monitor Deflation Thread" #13 [25412] daemon prio=9 os_prio=0 cpu=0.10ms elapsed=1.19s tid=0x00007fc684116400 nid=25412 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #14 [25413] daemon prio=9 os_prio=0 cpu=7.47ms elapsed=1.19s tid=0x00007fc684117f50 nid=25413 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"C1 CompilerThread0" #16 [25414] daemon prio=9 os_prio=0 cpu=6.85ms elapsed=1.19s tid=0x00007fc684119620 nid=25414 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"Notification Thread" #17 [25415] daemon prio=9 os_prio=0 cpu=0.19ms elapsed=1.19s tid=0x00007fc684155070 nid=25415 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" #18 [25416] daemon prio=8 os_prio=0 cpu=0.26ms elapsed=1.18s tid=0x00007fc684158000 nid=25416 waiting on condition  [0x00007fc659311000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.10/Native Method)
+	- parking to wait for  <0x000000070fe11f80> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.10/LockSupport.java:269)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.10/AbstractQueuedSynchronizer.java:1886)
+	at java.lang.ref.ReferenceQueue.await(java.base@21.0.10/ReferenceQueue.java:71)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.10/ReferenceQueue.java:143)
+	at java.lang.ref.ReferenceQueue.remove(java.base@21.0.10/ReferenceQueue.java:218)
+	at jdk.internal.ref.CleanerImpl.run(java.base@21.0.10/CleanerImpl.java:140)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+	at jdk.internal.misc.InnocuousThread.run(java.base@21.0.10/InnocuousThread.java:186)
+
+"cond-waiter-0" #19 [25417] prio=5 os_prio=0 cpu=1.75ms elapsed=1.17s tid=0x00007fc684164bf0 nid=25417 waiting on condition  [0x00007fc659211000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.10/Native Method)
+	- parking to wait for  <0x000000070fe14038> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.10/LockSupport.java:371)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(java.base@21.0.10/AbstractQueuedSynchronizer.java:519)
+	at java.util.concurrent.ForkJoinPool.unmanagedBlock(java.base@21.0.10/ForkJoinPool.java:3780)
+	at java.util.concurrent.ForkJoinPool.managedBlock(java.base@21.0.10/ForkJoinPool.java:3725)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.10/AbstractQueuedSynchronizer.java:1746)
+	at ConditionStarvation.lambda$main$0(ConditionStarvation.java:25)
+	at ConditionStarvation$$Lambda/0x00007fc60c000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"cond-waiter-1" #20 [25418] prio=5 os_prio=0 cpu=0.39ms elapsed=1.17s tid=0x00007fc684165d70 nid=25418 waiting on condition  [0x00007fc659111000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.10/Native Method)
+	- parking to wait for  <0x000000070fe14038> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.10/LockSupport.java:371)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(java.base@21.0.10/AbstractQueuedSynchronizer.java:519)
+	at java.util.concurrent.ForkJoinPool.unmanagedBlock(java.base@21.0.10/ForkJoinPool.java:3780)
+	at java.util.concurrent.ForkJoinPool.managedBlock(java.base@21.0.10/ForkJoinPool.java:3725)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.10/AbstractQueuedSynchronizer.java:1746)
+	at ConditionStarvation.lambda$main$0(ConditionStarvation.java:25)
+	at ConditionStarvation$$Lambda/0x00007fc60c000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"cond-waiter-2" #21 [25419] prio=5 os_prio=0 cpu=0.23ms elapsed=1.17s tid=0x00007fc684166ea0 nid=25419 waiting on condition  [0x00007fc659011000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.10/Native Method)
+	- parking to wait for  <0x000000070fe14038> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.10/LockSupport.java:371)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(java.base@21.0.10/AbstractQueuedSynchronizer.java:519)
+	at java.util.concurrent.ForkJoinPool.unmanagedBlock(java.base@21.0.10/ForkJoinPool.java:3780)
+	at java.util.concurrent.ForkJoinPool.managedBlock(java.base@21.0.10/ForkJoinPool.java:3725)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.10/AbstractQueuedSynchronizer.java:1746)
+	at ConditionStarvation.lambda$main$0(ConditionStarvation.java:25)
+	at ConditionStarvation$$Lambda/0x00007fc60c000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"cond-waiter-3" #22 [25420] prio=5 os_prio=0 cpu=0.18ms elapsed=1.17s tid=0x00007fc684168040 nid=25420 waiting on condition  [0x00007fc658f11000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.10/Native Method)
+	- parking to wait for  <0x000000070fe14038> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.10/LockSupport.java:371)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(java.base@21.0.10/AbstractQueuedSynchronizer.java:519)
+	at java.util.concurrent.ForkJoinPool.unmanagedBlock(java.base@21.0.10/ForkJoinPool.java:3780)
+	at java.util.concurrent.ForkJoinPool.managedBlock(java.base@21.0.10/ForkJoinPool.java:3725)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.10/AbstractQueuedSynchronizer.java:1746)
+	at ConditionStarvation.lambda$main$0(ConditionStarvation.java:25)
+	at ConditionStarvation$$Lambda/0x00007fc60c000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"Attach Listener" #23 [25441] daemon prio=9 os_prio=0 cpu=0.30ms elapsed=0.10s tid=0x00007fc5f0000fe0 nid=25441 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"VM Thread" os_prio=0 cpu=0.66ms elapsed=1.19s tid=0x00007fc6841077e0 nid=25407 runnable  
+
+"VM Periodic Task Thread" os_prio=0 cpu=0.72ms elapsed=1.20s tid=0x00007fc6840f5f40 nid=25406 waiting on condition  
+
+"G1 Service" os_prio=0 cpu=0.11ms elapsed=1.21s tid=0x00007fc6840dbba0 nid=25405 runnable  
+
+"G1 Refine#0" os_prio=0 cpu=0.24ms elapsed=1.21s tid=0x00007fc6840dabd0 nid=25404 runnable  
+
+"G1 Conc#0" os_prio=0 cpu=0.20ms elapsed=1.21s tid=0x00007fc684055150 nid=25403 runnable  
+
+"GC Thread#0" os_prio=0 cpu=0.09ms elapsed=1.21s tid=0x00007fc684042b90 nid=25401 runnable  
+
+"G1 Main Marker" os_prio=0 cpu=0.21ms elapsed=1.21s tid=0x00007fc6840541a0 nid=25402 runnable  
+
+JNI global refs: 5, weak refs: 0
+

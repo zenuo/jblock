@@ -37,7 +37,8 @@ export type PatternKind =
   | "connection-pool-borrow"
   | "future-latch-wait-tree"
   | "logging-appender-contention"
-  | "busy-wait-spin-hotspot";
+  | "busy-wait-spin-hotspot"
+  | "condition-park-starvation";
 
 export interface PatternHit {
   kind: PatternKind;

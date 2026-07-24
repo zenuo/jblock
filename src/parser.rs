@@ -87,6 +87,8 @@ pub enum PatternKind {
     LoggingAppenderContention,
     /// Many RUNNABLE threads share a tight spin/busy-wait stack (feat-034).
     BusyWaitSpinHotspot,
+    /// Many WAITING on ConditionObject/park with no signaler RUNNABLE (feat-035).
+    ConditionParkStarvation,
 }
 
 /// One detected high-level pattern hit.
@@ -416,6 +418,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_busy_wait_spin_hotspot(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_condition_park_starvation(threads) {
         out.push(hit);
     }
     out
@@ -991,6 +996,97 @@ fn detect_busy_wait_spin_hotspot(threads: &[ThreadInfo]) -> Option<PatternHit> {
             "{} RUNNABLE threads share busy-wait/spin stack near {}",
             names.len(),
             top
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames for `Condition.await` / AQS `ConditionObject` parking.
+fn is_condition_await_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "ConditionObject.await",
+        "ConditionObject.awaitNanos",
+        "ConditionObject.awaitUntil",
+        "Condition.await",
+        "ReentrantLock$ConditionObject",
+        "ConditionStarvation",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+fn is_condition_signal_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "ConditionObject.signal",
+        "ConditionObject.signalAll",
+        "Condition.signal",
+        "Condition.signalAll",
+        ".signal(",
+        ".signalAll(",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// Condition / park starvation: ≥3 WAITING/TIMED_WAITING threads in
+/// Condition.await / ConditionObject park stacks, with no RUNNABLE signaler.
+fn detect_condition_park_starvation(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(t.state.as_str(), "WAITING" | "TIMED_WAITING")
+                && t.stack.iter().any(|f| is_condition_await_frame(f))
+                && !stack_has_idle_get_task(&t.stack)
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    // Prefer a shared top-stack signature (≥3); else accept ≥3 condition waiters.
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+    let members: Vec<&ThreadInfo> = groups
+        .into_iter()
+        .filter(|(_, m)| m.len() >= 3)
+        .max_by_key(|(_, m)| m.len())
+        .map(|(_, m)| m)
+        .unwrap_or_else(|| candidates.clone());
+    if members.len() < 3 {
+        return None;
+    }
+
+    // Starvation signal: nobody RUNNABLE is in signal/signalAll.
+    let has_signaler = threads.iter().any(|t| {
+        t.state == "RUNNABLE" && t.stack.iter().any(|f| is_condition_signal_frame(f))
+    });
+    if has_signaler {
+        return None;
+    }
+
+    let sample = members[0]
+        .stack
+        .iter()
+        .find(|f| is_condition_await_frame(f))
+        .cloned()
+        .unwrap_or_else(|| "Condition.await".to_string());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::ConditionParkStarvation,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads parked on Condition/park near {} with no RUNNABLE signaler",
+            names.len(),
+            sample
         ),
         thread_names: names,
     })
@@ -1620,6 +1716,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_condition_park_starvation_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/condition_starvation_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ConditionParkStarvation),
+            "live fixture should detect Condition/park starvation"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -2068,6 +2177,93 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::BusyWaitSpinHotspot)
+        );
+    }
+
+    const CONDITION_STARVATION_SAMPLE: &str = r#"2026-07-24 17:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"cond-waiter-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"cond-waiter-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"cond-waiter-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"cond-waiter-3" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        - parking to wait for  <0x000000076abc2000> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at ConditionStarvation.lambda$main$0(ConditionStarvation.java:22)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_condition_park_starvation_pattern() {
+        let a = analyze(CONDITION_STARVATION_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ConditionParkStarvation)
+            .expect("condition-park-starvation");
+        assert_eq!(hit.thread_names.len(), 4);
+        assert!(hit.detail.contains("Condition") || hit.detail.contains("signaler"));
+        assert!(
+            hit.thread_names.iter().all(|n| n.starts_with("cond-waiter-")),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn condition_waiters_with_signaler_not_starvation() {
+        const WITH_SIGNAL: &str = r#""cond-waiter-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at com.example.App.await(App.java:10)
+
+"cond-waiter-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at com.example.App.await(App.java:10)
+
+"cond-waiter-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1754)
+        at com.example.App.await(App.java:10)
+
+"signaler" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.signalAll(AbstractQueuedSynchronizer.java:1800)
+        at com.example.App.signal(App.java:20)
+"#;
+        let a = analyze(WITH_SIGNAL);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::ConditionParkStarvation)
         );
     }
 }

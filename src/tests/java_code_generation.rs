@@ -46,6 +46,11 @@ fn parses_scenario_aliases() {
     );
     assert_eq!(parse_scenario("busy-wait-spin"), Some(Scenario::BusyWaitSpin));
     assert_eq!(parse_scenario("cpu-spin"), Some(Scenario::BusyWaitSpin));
+    assert_eq!(
+        parse_scenario("condition-starvation"),
+        Some(Scenario::ConditionStarvation)
+    );
+    assert_eq!(parse_scenario("park-starvation"), Some(Scenario::ConditionStarvation));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -153,6 +158,18 @@ fn busy_wait_spin_uses_tight_loop() {
 }
 
 #[test]
+fn condition_starvation_awaits_without_signal() {
+    let code = generate(Scenario::ConditionStarvation, 4);
+    assert!(code.contains("public class ConditionStarvation"));
+    assert!(code.contains("ReentrantLock"));
+    assert!(code.contains("Condition"));
+    assert!(code.contains("COND.await()"));
+    assert!(code.contains("cond-waiter-"));
+    assert!(code.contains("final int waiters = 4;"));
+    assert!(!code.contains("signal"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -185,5 +202,9 @@ fn class_name_matches_source() {
         "LoggingAppenderContention"
     );
     assert_eq!(Scenario::BusyWaitSpin.class_name(), "BusyWaitSpin");
+    assert_eq!(
+        Scenario::ConditionStarvation.class_name(),
+        "ConditionStarvation"
+    );
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

@@ -310,6 +310,9 @@ export default function App() {
                   <option value="busy-wait-spin">
                     {t("codegen.busyWaitSpin")}
                   </option>
+                  <option value="condition-starvation">
+                    {t("codegen.conditionStarvation")}
+                  </option>
                 </select>
               </label>
               <label>

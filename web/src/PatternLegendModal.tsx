@@ -58,7 +58,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                       ? "legend.loggingAppenderTitle"
                       : kind === "busy-wait-spin-hotspot"
                         ? "legend.busyWaitTitle"
-                        : "legend.cleanTitle";
+                        : kind === "condition-park-starvation"
+                          ? "legend.conditionStarvationTitle"
+                          : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -80,7 +82,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                       ? "legend.loggingAppenderBody"
                       : kind === "busy-wait-spin-hotspot"
                         ? "legend.busyWaitBody"
-                        : "legend.cleanBody";
+                        : kind === "condition-park-starvation"
+                          ? "legend.conditionStarvationBody"
+                          : "legend.cleanBody";
 
   return (
     <div
@@ -132,6 +136,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "busy-wait-spin-hotspot" && (
             <BusyWaitSpinDemo actors={actors} />
           )}
+          {kind === "condition-park-starvation" && (
+            <ConditionStarvationDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -173,6 +180,20 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             <>
               <li>
                 <span className="swatch swatch-waiter" /> {t("legend.keySpinThread")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "condition-park-starvation" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keyConditionWaiter")}
+              </li>
+              <li>
+                <span className="swatch swatch-lock" /> {t("legend.keyCondition")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}
@@ -599,6 +620,85 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
                   strokeWidth="2"
                 />
                 <ActorLabel actor={a} fallback={`B${i}`} threadMax={10} />
+              </g>
+            </g>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
+  const nodes =
+    actors.nodes.length > 0
+      ? actors.nodes.slice(0, 4)
+      : [
+          { thread: "cond-waiter-0", className: "ConditionObject" },
+          { thread: "cond-waiter-1", className: "ConditionObject" },
+          { thread: "cond-waiter-2", className: "ConditionObject" },
+          { thread: "cond-waiter-3", className: "ConditionObject" },
+        ];
+  const positions = [
+    [55, 70],
+    [160, 45],
+    [265, 70],
+    [160, 130],
+  ] as const;
+
+  return (
+    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+      <rect
+        x="105"
+        y="155"
+        width="110"
+        height="40"
+        rx="8"
+        fill="#e0e7ff"
+        stroke="#6366f1"
+        strokeWidth="1.5"
+        className="legend-lock-pulse"
+      />
+      <text
+        x="160"
+        y="180"
+        textAnchor="middle"
+        fontSize="10"
+        fontWeight="700"
+        fill="#4338ca"
+      >
+        {shortLock(actors.lock ?? "Condition", 14)}
+      </text>
+      {nodes.map((a, i) => {
+        const [x, y] = positions[i] ?? [160, 90];
+        return (
+          <g key={`${a.thread}-${i}`}>
+            <line
+              x1={x}
+              y1={y + 22}
+              x2="160"
+              y2="155"
+              className="legend-edge-wait"
+              stroke="#f59e0b"
+              strokeWidth="2"
+              strokeDasharray="5 4"
+            />
+            <g transform={`translate(${x} ${y})`}>
+              <g
+                className="legend-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              >
+                <rect
+                  x="-48"
+                  y="-22"
+                  width="96"
+                  height="44"
+                  rx="8"
+                  fill="#fee2e2"
+                  stroke="#ef4444"
+                  strokeWidth="2"
+                />
+                <ActorLabel actor={a} fallback={`W${i}`} threadMax={11} />
               </g>
             </g>
           </g>
