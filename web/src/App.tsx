@@ -316,6 +316,9 @@ export default function App() {
                   <option value="lock-order-risk">
                     {t("codegen.lockOrderRisk")}
                   </option>
+                  <option value="finalizer-pressure">
+                    {t("codegen.finalizerPressure")}
+                  </option>
                 </select>
               </label>
               <label>

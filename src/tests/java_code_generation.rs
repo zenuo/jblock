@@ -56,6 +56,8 @@ fn parses_scenario_aliases() {
         parse_scenario("inconsistent-lock-order"),
         Some(Scenario::LockOrderRisk)
     );
+    assert_eq!(parse_scenario("finalizer-pressure"), Some(Scenario::FinalizerPressure));
+    assert_eq!(parse_scenario("reference-handler"), Some(Scenario::FinalizerPressure));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -190,6 +192,19 @@ fn lock_order_risk_uses_opposite_orders() {
 }
 
 #[test]
+fn finalizer_pressure_blocks_in_finalize() {
+    let code = generate(Scenario::FinalizerPressure, 3);
+    assert!(code.contains("public class FinalizerPressure"));
+    assert!(code.contains("HeavyFinalizer"));
+    assert!(code.contains("finalize()"));
+    assert!(code.contains("app-lock-holder"));
+    assert!(code.contains("app-waiter-"));
+    assert!(code.contains("System.gc()"));
+    assert!(code.contains("final int waiters = 2;"));
+    assert!(code.contains("synchronized (LOCK)"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -227,5 +242,6 @@ fn class_name_matches_source() {
         "ConditionStarvation"
     );
     assert_eq!(Scenario::LockOrderRisk.class_name(), "LockOrderRisk");
+    assert_eq!(Scenario::FinalizerPressure.class_name(), "FinalizerPressure");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

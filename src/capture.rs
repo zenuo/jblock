@@ -529,4 +529,48 @@ mod tests {
             hit.thread_names
         );
     }
+
+    #[test]
+    fn live_capture_finalizer_pressure_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::FinalizerPressure, 3);
+        let dump = compile_run_jstack(
+            &source,
+            "FinalizerPressure",
+            Duration::from_millis(2200),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/finalizer_pressure_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FinalizerPressure),
+            "expected finalizer-pressure in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(120).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FinalizerPressure)
+            .unwrap();
+        assert!(
+            hit.thread_names.iter().any(|n| n == "Finalizer"),
+            "expected Finalizer thread, got {:?}",
+            hit.thread_names
+        );
+    }
 }

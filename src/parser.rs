@@ -91,6 +91,8 @@ pub enum PatternKind {
     ConditionParkStarvation,
     /// Conflicting lock acquisition orders that risk deadlock (feat-036).
     LockOrderInconsistency,
+    /// Finalizer / Reference Handler busy or blocked under pressure (feat-037).
+    FinalizerPressure,
 }
 
 /// One detected high-level pattern hit.
@@ -426,6 +428,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_lock_order_inconsistency(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_finalizer_pressure(threads) {
         out.push(hit);
     }
     out
@@ -1182,6 +1187,150 @@ fn detect_lock_order_inconsistency(threads: &[ThreadInfo]) -> Option<PatternHit>
     })
 }
 
+fn is_ref_mgmt_thread(name: &str) -> bool {
+    let n = name.to_ascii_lowercase();
+    n == "finalizer"
+        || n == "reference handler"
+        || n == "common-cleaner"
+        || n.starts_with("cleaner-")
+}
+
+fn is_idle_ref_mgmt_stack(stack: &[String]) -> bool {
+    let idle = stack.iter().any(|f| {
+        f.contains("ReferenceQueue.remove")
+            || f.contains("ReferenceHandler.run")
+            || f.contains("CleanerImpl.run")
+            || f.contains("Common-Cleaner")
+    });
+    let working = stack.iter().any(|f| {
+        f.contains(".finalize(")
+            || f.contains("Finalizer.runFinalizer")
+            || f.contains("FinalizerPressure")
+            || f.contains("Cleaner.clean")
+    });
+    idle && !working
+}
+
+fn is_finalize_work_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        ".finalize(",
+        "Finalizer.runFinalizer",
+        "Finalizer$FinalizerThread",
+        "FinalizerPressure",
+        "Cleaner.clean",
+        "CleanerImpl",
+    ];
+    NEEDLES.iter().any(|n| frame.contains(n))
+}
+
+/// Finalizer / Reference Handler pressure: system ref-management thread is
+/// busy or BLOCKED (not idle on ReferenceQueue.remove), often while holding or
+/// waiting on an application lock (feat-037).
+fn detect_finalizer_pressure(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let ref_threads: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| is_ref_mgmt_thread(&t.name))
+        .collect();
+    if ref_threads.is_empty() {
+        return None;
+    }
+
+    let busy: Vec<&ThreadInfo> = ref_threads
+        .iter()
+        .copied()
+        .filter(|t| {
+            if is_idle_ref_mgmt_stack(&t.stack) {
+                return false;
+            }
+            match t.state.as_str() {
+                "BLOCKED" => true,
+                "RUNNABLE" | "TIMED_WAITING" | "WAITING" => {
+                    t.stack.iter().any(|f| is_finalize_work_frame(f))
+                        || (!t.held_locks.is_empty() && t.state != "WAITING")
+                        || t.state == "BLOCKED"
+                }
+                _ => false,
+            }
+        })
+        .collect();
+    if busy.is_empty() {
+        return None;
+    }
+
+    let mut lock_owner: BTreeMap<String, String> = BTreeMap::new();
+    for t in threads {
+        for lock in &t.held_locks {
+            lock_owner
+                .entry(lock.clone())
+                .or_insert_with(|| t.name.clone());
+        }
+    }
+
+    // Application impact: Finalizer BLOCKED, or app threads blocked on a lock
+    // it holds, or Finalizer blocked on a lock held by a non-ref thread.
+    let mut impact_names: BTreeSet<String> = BTreeSet::new();
+    for t in &busy {
+        impact_names.insert(t.name.clone());
+        if t.state == "BLOCKED" {
+            if let Some(lock) = &t.waiting_on {
+                if let Some(owner) = lock_owner.get(lock) {
+                    if !is_ref_mgmt_thread(owner) {
+                        impact_names.insert(owner.clone());
+                    }
+                }
+            }
+        }
+        for lock in &t.held_locks {
+            for w in threads {
+                if w.waiting_on.as_ref() == Some(lock) && !is_ref_mgmt_thread(&w.name) {
+                    impact_names.insert(w.name.clone());
+                }
+            }
+        }
+    }
+
+    let blocked_busy = busy.iter().filter(|t| t.state == "BLOCKED").count();
+    let has_finalize = busy
+        .iter()
+        .any(|t| t.stack.iter().any(|f| is_finalize_work_frame(f)));
+    // Require a clear pressure signal: blocked ref thread and/or app impact
+    // and/or explicit finalize work (not merely a non-idle name match).
+    if blocked_busy == 0 && impact_names.len() <= busy.len() && !has_finalize {
+        return None;
+    }
+    // If only busy names with finalize work but no BLOCKED and no extra app
+    // waiters, still report (Finalizer stuck in finalize/sleep).
+    let app_impact = impact_names.len() > busy.len() || blocked_busy > 0;
+    if !has_finalize && !app_impact {
+        return None;
+    }
+
+    let sample = busy[0]
+        .stack
+        .iter()
+        .find(|f| is_finalize_work_frame(f))
+        .cloned()
+        .unwrap_or_else(|| busy[0].name.clone());
+    let mut names: Vec<String> = impact_names.into_iter().collect();
+    names.sort();
+    let severity = if blocked_busy > 0 || names.len() >= 3 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::FinalizerPressure,
+        severity: severity.to_string(),
+        detail: format!(
+            "Finalizer/Reference Handler pressure near {} ({} ref-mgmt busy, {} BLOCKED)",
+            sample,
+            busy.len(),
+            blocked_busy
+        ),
+        thread_names: names,
+    })
+}
+
 /// Detect deadlock cycles from the wait-for graph.
 ///
 /// Each thread waits on at most one lock, so the wait-for relation is a
@@ -1832,6 +1981,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_finalizer_pressure_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/finalizer_pressure_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FinalizerPressure),
+            "live fixture should detect Finalizer/Reference Handler pressure"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -2422,6 +2584,82 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::LockOrderInconsistency)
+        );
+    }
+
+    const FINALIZER_PRESSURE_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"app-lock-holder" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+        at FinalizerPressure.lambda$main$0(FinalizerPressure.java:28)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FinalizerPressure$HeavyFinalizer.finalize(FinalizerPressure.java:14)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.System$2.invokeFinalize(System.java:2148)
+        at java.lang.ref.Finalizer.runFinalizer(Finalizer.java:96)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:174)
+
+"app-waiter-0" #22 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FinalizerPressure.lambda$main$1(FinalizerPressure.java:55)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"app-waiter-1" #23 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FinalizerPressure.lambda$main$1(FinalizerPressure.java:55)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x5 nid=0x35 waiting on condition [0x5]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:216)
+"#;
+
+    #[test]
+    fn detects_finalizer_pressure_pattern() {
+        let a = analyze(FINALIZER_PRESSURE_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FinalizerPressure)
+            .expect("finalizer-pressure");
+        assert!(hit.thread_names.iter().any(|n| n == "Finalizer"));
+        assert!(hit.thread_names.iter().any(|n| n == "app-lock-holder"));
+        assert!(
+            hit.detail.contains("Finalizer") || hit.detail.contains("pressure"),
+            "detail={}",
+            hit.detail
+        );
+        assert_eq!(hit.severity, "critical");
+    }
+
+    #[test]
+    fn idle_finalizer_is_not_pressure() {
+        const IDLE: &str = r#""Finalizer" #3 daemon prio=8 os_prio=0 tid=0x1 nid=0x31 in Object.wait() [0x1]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:151)
+        at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:172)
+        at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:165)
+
+"app-worker" #21 prio=5 os_prio=0 tid=0x2 nid=0x32 runnable [0x2]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.App.run(App.java:10)
+"#;
+        let a = analyze(IDLE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::FinalizerPressure)
         );
     }
 }

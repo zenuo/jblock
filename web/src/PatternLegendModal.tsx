@@ -62,7 +62,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                           ? "legend.conditionStarvationTitle"
                           : kind === "lock-order-inconsistency"
                             ? "legend.lockOrderTitle"
-                            : "legend.cleanTitle";
+                            : kind === "finalizer-pressure"
+                              ? "legend.finalizerPressureTitle"
+                              : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -88,7 +90,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                           ? "legend.conditionStarvationBody"
                           : kind === "lock-order-inconsistency"
                             ? "legend.lockOrderBody"
-                            : "legend.cleanBody";
+                            : kind === "finalizer-pressure"
+                              ? "legend.finalizerPressureBody"
+                              : "legend.cleanBody";
 
   return (
     <div
@@ -146,6 +150,7 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "lock-order-inconsistency" && (
             <DeadlockDemo actors={actors} />
           )}
+          {kind === "finalizer-pressure" && <HotLockDemo actors={actors} />}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -223,7 +228,8 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {(kind === "hot-lock" ||
             kind === "blocked" ||
             kind === "dangerous-hot-lock-owner" ||
-            kind === "logging-appender-contention") && (
+            kind === "logging-appender-contention" ||
+            kind === "finalizer-pressure") && (
             <>
               <li>
                 <span className="swatch swatch-owner" /> {t("legend.keyOwner")}

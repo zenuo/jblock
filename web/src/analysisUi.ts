@@ -16,7 +16,8 @@ export type FindingKind =
   | "logging-appender-contention"
   | "busy-wait-spin-hotspot"
   | "condition-park-starvation"
-  | "lock-order-inconsistency";
+  | "lock-order-inconsistency"
+  | "finalizer-pressure";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -282,6 +283,33 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+        },
+      });
+    } else if (p.kind === "finalizer-pressure") {
+      const ownerName =
+        p.thread_names.find(
+          (n) =>
+            n === "Finalizer" ||
+            n === "Reference Handler" ||
+            n === "Common-Cleaner" ||
+            n.startsWith("Cleaner-"),
+        ) ??
+        p.thread_names.find((n) => n.includes("holder")) ??
+        p.thread_names[0] ??
+        null;
+      const waiters = p.thread_names.filter((n) => n !== ownerName);
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "finalizer-pressure",
+        title: t("findings.finalizerPressureTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.finalizerPressureDetail", { detail: p.detail }),
+        actors: {
+          nodes: [],
+          owner: actorFor(analysis, ownerName),
+          waiters: actorsForNames(analysis, waiters, 5),
+          lock: "finalize",
         },
       });
     }

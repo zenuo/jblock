@@ -39,7 +39,8 @@ export type PatternKind =
   | "logging-appender-contention"
   | "busy-wait-spin-hotspot"
   | "condition-park-starvation"
-  | "lock-order-inconsistency";
+  | "lock-order-inconsistency"
+  | "finalizer-pressure";
 
 export interface PatternHit {
   kind: PatternKind;
