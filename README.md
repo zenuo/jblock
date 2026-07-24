@@ -99,6 +99,19 @@ Rust 侧：
 cargo test          # 运行 src/parser.rs 中的解析单元测试
 ```
 
+## CI / CD
+
+GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)：
+
+- **CI**（`pull_request` + `push`）：`cargo test`，以及 `pnpm` 的 `wasm` / `lint` / `typecheck` / `build`（与 `./init.sh` 对齐）。
+- **CD**（仅 `main` push）：将 `web/dist` 部署到 GitHub Pages（仓库需在 Settings → Pages 选择 **GitHub Actions** 作为源）。
+
+本地验证仍推荐：
+
+```bash
+./init.sh
+```
+
 ## 工作原理
 
 1. 前端读取本地 dump 文件内容（纯文本）。
