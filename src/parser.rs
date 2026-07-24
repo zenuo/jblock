@@ -79,6 +79,8 @@ pub enum PatternKind {
     SyncIoHotspot,
     /// Hottest lock owner is blocked (sleep/I/O/park) while waiters pile up (feat-030).
     DangerousHotLockOwner,
+    /// Many threads blocked borrowing from a connection pool (feat-031).
+    ConnectionPoolBorrow,
 }
 
 /// One detected high-level pattern hit.
@@ -398,6 +400,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
     if let Some(hit) = detect_dangerous_hot_lock_owner(threads) {
         out.push(hit);
     }
+    if let Some(hit) = detect_connection_pool_borrow(threads) {
+        out.push(hit);
+    }
     out
 }
 
@@ -642,6 +647,106 @@ fn detect_dangerous_hot_lock_owner(threads: &[ThreadInfo]) -> Option<PatternHit>
             owner_name,
             blocking,
             waiters.len()
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames typical of Hikari / DBCP / Druid / mock pool borrow waits.
+fn is_connection_pool_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "HikariPool",
+        "HikariDataSource",
+        "HikariPool.getConnection",
+        "com.zaxxer.hikari",
+        "borrowObject",
+        "BasicDataSource.getConnection",
+        "PoolingDataSource.getConnection",
+        "DruidDataSource.getConnection",
+        "DruidAbstractDataSource",
+        "ConnectionPoolStarve",
+        "HikariDataSource.getConnection",
+        "HikariDataSource.borrowObject",
+    ];
+    if NEEDLES.iter().any(|n| frame.contains(n)) {
+        return true;
+    }
+    // Generic getConnection on a *DataSource / *Pool type, but not DriverManager.
+    (frame.contains(".getConnection(") || frame.contains(".getConnection)"))
+        && (frame.contains("DataSource")
+            || frame.contains("Pool")
+            || frame.contains("Hikari")
+            || frame.contains("Druid")
+            || frame.contains("ConnectionPoolStarve"))
+}
+
+/// Connection-pool borrow blocking: ≥3 threads wait in pool getConnection/borrow stacks.
+fn detect_connection_pool_borrow(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "WAITING" | "TIMED_WAITING" | "BLOCKED"
+            ) && t.stack.iter().any(|f| is_connection_pool_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in &candidates {
+        let sig = stack_signature(&t.stack, 4);
+        if sig.is_empty() {
+            continue;
+        }
+        groups.entry(sig).or_default().push(*t);
+    }
+
+    let mut best: Option<(String, Vec<&ThreadInfo>)> = None;
+    for (sig, members) in groups {
+        if members.len() < 3 {
+            continue;
+        }
+        if best
+            .as_ref()
+            .map(|(_, m)| members.len() > m.len())
+            .unwrap_or(true)
+        {
+            best = Some((sig, members));
+        }
+    }
+    // Also accept ≥3 pool-borrow threads even if signatures differ slightly
+    // (e.g. getConnection vs borrowObject wrapper depth).
+    let (sig, members) = match best {
+        Some(v) => v,
+        None if candidates.len() >= 3 => (
+            stack_signature(&candidates[0].stack, 3),
+            candidates.clone(),
+        ),
+        None => return None,
+    };
+
+    let pool_frame = members[0]
+        .stack
+        .iter()
+        .find(|f| is_connection_pool_frame(f))
+        .cloned()
+        .unwrap_or(sig);
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::ConnectionPoolBorrow,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads blocked borrowing near {}",
+            names.len(),
+            pool_frame
         ),
         thread_names: names,
     })
@@ -1219,6 +1324,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_connection_pool_borrow_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/connection_pool_starve_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ConnectionPoolBorrow),
+            "live fixture should detect connection-pool borrow blocking"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -1375,5 +1493,60 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .all(|p| p.kind != PatternKind::DangerousHotLockOwner)
         );
+    }
+
+    const CONN_POOL_SAMPLE: &str = r#"2026-07-24 13:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"db-borrower-0" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 in Object.wait() [0x1]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        - waiting on <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at java.lang.Object.wait(Object.java:338)
+        at ConnectionPoolStarve$HikariDataSource.borrowObject(ConnectionPoolStarve.java:18)
+        - locked <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at ConnectionPoolStarve$HikariDataSource.getConnection(ConnectionPoolStarve.java:12)
+        at ConnectionPoolStarve.lambda$main$1(ConnectionPoolStarve.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"db-borrower-1" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 in Object.wait() [0x2]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        - waiting on <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at java.lang.Object.wait(Object.java:338)
+        at ConnectionPoolStarve$HikariDataSource.borrowObject(ConnectionPoolStarve.java:18)
+        - locked <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at ConnectionPoolStarve$HikariDataSource.getConnection(ConnectionPoolStarve.java:12)
+        at ConnectionPoolStarve.lambda$main$1(ConnectionPoolStarve.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"db-borrower-2" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 in Object.wait() [0x3]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+        - waiting on <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at java.lang.Object.wait(Object.java:338)
+        at ConnectionPoolStarve$HikariDataSource.borrowObject(ConnectionPoolStarve.java:18)
+        - locked <0x000000076abc0000> (a ConnectionPoolStarve$HikariDataSource)
+        at ConnectionPoolStarve$HikariDataSource.getConnection(ConnectionPoolStarve.java:12)
+        at ConnectionPoolStarve.lambda$main$1(ConnectionPoolStarve.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"pool-holder" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting on condition [0x4]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        at ConnectionPoolStarve.lambda$main$0(ConnectionPoolStarve.java:36)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_connection_pool_borrow_pattern() {
+        let a = analyze(CONN_POOL_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ConnectionPoolBorrow)
+            .expect("connection-pool-borrow");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("borrow") || hit.detail.contains("getConnection") || hit.detail.contains("Hikari"));
     }
 }

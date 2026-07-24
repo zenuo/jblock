@@ -257,4 +257,49 @@ mod tests {
         );
         assert!(hit.detail.contains("sleep") || hit.detail.contains("Thread.sleep"));
     }
+
+    #[test]
+    fn live_capture_connection_pool_starve_detects_pattern() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::ConnectionPoolStarve, 4);
+        let dump = compile_run_jstack(
+            &source,
+            "ConnectionPoolStarve",
+            Duration::from_millis(1000),
+        )
+        .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/connection_pool_starve_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ConnectionPoolBorrow),
+            "expected connection-pool-borrow in patterns, got {:?}; dump head:\n{}",
+            a.patterns.iter().map(|p| &p.kind).collect::<Vec<_>>(),
+            dump.lines().take(80).collect::<Vec<_>>().join("\n")
+        );
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::ConnectionPoolBorrow)
+            .unwrap();
+        assert!(hit.thread_names.len() >= 3, "names={:?}", hit.thread_names);
+        assert!(
+            hit.thread_names.iter().any(|n| n.starts_with("db-borrower-")),
+            "expected db-borrower-* threads, got {:?}",
+            hit.thread_names
+        );
+    }
 }

@@ -50,7 +50,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               ? "legend.syncIoHotspotTitle"
               : kind === "dangerous-hot-lock-owner"
                 ? "legend.dangerousHotLockTitle"
-                : "legend.cleanTitle";
+                : kind === "connection-pool-borrow"
+                  ? "legend.connectionPoolTitle"
+                  : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -64,7 +66,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               ? "legend.syncIoHotspotBody"
               : kind === "dangerous-hot-lock-owner"
                 ? "legend.dangerousHotLockBody"
-                : "legend.cleanBody";
+                : kind === "connection-pool-borrow"
+                  ? "legend.connectionPoolBody"
+                  : "legend.cleanBody";
 
   return (
     <div
@@ -104,6 +108,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "dangerous-hot-lock-owner" && (
             <HotLockDemo actors={actors} />
           )}
+          {kind === "connection-pool-borrow" && (
+            <ConnectionPoolDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -135,6 +142,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
             <>
               <li>
                 <span className="swatch swatch-waiter" /> {t("legend.keyIoThread")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "connection-pool-borrow" && (
+            <>
+              <li>
+                <span className="swatch swatch-waiter" />{" "}
+                {t("legend.keyPoolBorrower")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}
@@ -460,6 +478,95 @@ function BlockedDemo({ actors }: { actors: FindingActors }) {
                   strokeWidth="2"
                 />
                 <ActorLabel actor={b} fallback={`B${i + 1}`} threadMax={14} />
+              </g>
+            </g>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
+  const nodes =
+    actors.nodes.length > 0
+      ? actors.nodes.slice(0, 4)
+      : [
+          { thread: "db-borrower-0", className: "HikariDataSource" },
+          { thread: "db-borrower-1", className: "HikariDataSource" },
+          { thread: "db-borrower-2", className: "HikariDataSource" },
+          { thread: "pool-holder", className: null },
+        ];
+  const waiters = nodes.slice(0, 3);
+  const holder = nodes[3] ?? { thread: "pool-holder", className: null };
+
+  return (
+    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+      <rect
+        x="110"
+        y="30"
+        width="100"
+        height="40"
+        rx="8"
+        fill="#e0e7ff"
+        stroke="#6366f1"
+        strokeWidth="1.5"
+      />
+      <text
+        x="160"
+        y="55"
+        textAnchor="middle"
+        fontSize="10"
+        fontWeight="700"
+        fill="#4338ca"
+      >
+        ConnPool(1)
+      </text>
+      <g transform="translate(160 120)">
+        <g className="legend-float">
+          <rect
+            x="-48"
+            y="-22"
+            width="96"
+            height="44"
+            rx="8"
+            fill="#ffedd5"
+            stroke="#f59e0b"
+            strokeWidth="2"
+          />
+          <ActorLabel actor={holder} fallback="holder" threadMax={11} />
+        </g>
+      </g>
+      {waiters.map((a, i) => {
+        const x = 55 + i * 105;
+        return (
+          <g key={`${a.thread}-${i}`}>
+            <line
+              x1={x}
+              y1="175"
+              x2="160"
+              y2="70"
+              className="legend-edge-wait"
+              stroke="#f59e0b"
+              strokeWidth="2"
+              strokeDasharray="5 4"
+            />
+            <g transform={`translate(${x} 185)`}>
+              <g
+                className="legend-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              >
+                <rect
+                  x="-42"
+                  y="-18"
+                  width="84"
+                  height="36"
+                  rx="8"
+                  fill="#fee2e2"
+                  stroke="#ef4444"
+                  strokeWidth="2"
+                />
+                <ActorLabel actor={a} fallback={`B${i}`} threadMax={10} />
               </g>
             </g>
           </g>

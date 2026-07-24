@@ -313,8 +313,8 @@
       "dependencies": [
         "feat-027"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::ConnectionPoolBorrow; Scenario ConnectionPoolStarve (mock HikariDataSource); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/connection_pool_starve_jstack.txt; ./init.sh green"
     },
     {
       "id": "feat-032",

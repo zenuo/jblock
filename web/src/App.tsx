@@ -298,6 +298,9 @@ export default function App() {
                   <option value="dangerous-hot-lock">
                     {t("codegen.dangerousHotLock")}
                   </option>
+                  <option value="connection-pool-starve">
+                    {t("codegen.connectionPoolStarve")}
+                  </option>
                 </select>
               </label>
               <label>

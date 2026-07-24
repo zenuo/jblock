@@ -10,7 +10,8 @@ export type FindingKind =
   | "clean"
   | "thread-pool-exhaustion"
   | "sync-io-hotspot"
-  | "dangerous-hot-lock-owner";
+  | "dangerous-hot-lock-owner"
+  | "connection-pool-borrow";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -181,6 +182,21 @@ export function buildFindings(
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: lockMatch?.[1] ?? null,
+        },
+      });
+    } else if (p.kind === "connection-pool-borrow") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "connection-pool-borrow",
+        title: t("findings.connectionPoolTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.connectionPoolDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
         },
       });
     }

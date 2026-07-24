@@ -2,35 +2,35 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 13:22
-**Active Feature:** feat-030 (done)
+**Last Updated:** 2026-07-24 13:30
+**Active Feature:** feat-031 (verifying)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-029
-- [x] feat-030 Detect dangerous hot-lock owner
+- [x] feat-001 … feat-030
+- [x] feat-031 Detect connection-pool borrow blocking (implementation)
 
 ### What's In Progress
 
-- [ ] None on this branch
+- [ ] feat-031 verification (`./init.sh`)
 
-### What's Next (by benefit)
+### What's Next
 
-1. feat-031 connection-pool borrow blocking
+1. feat-032 Future/Latch wait trees
 2. … see feature_list.json
 
 ## Decisions Made
 
-- Detect hottest lock where owner stack has sleep/park/wait/sync-I/O while BLOCKED waiters exist.
-- Reproducer `DangerousHotLock`: named `lock-owner` sleeps holding LOCK; `waiter-*` block.
-- Pool-exhaustion dumps may also surface this pattern (owner sleeping on shared lock) — intentional overlap.
+- Lightweight mock `HikariDataSource` inside `ConnectionPoolStarve` (no external deps).
+- Detect ≥3 threads in WAITING/TIMED_WAITING/BLOCKED with Hikari/DBCP/Druid/getConnection/borrowObject frames.
 
 ## Evidence of Completion
 
-- [x] `./init.sh` green (`cargo test` 32/32)
+- [ ] `./init.sh` green
+- [x] live_capture_connection_pool_starve_detects_pattern pass
 
 ## Notes for Next Session
 
-Start feat-031 next.
+Start feat-032 next.

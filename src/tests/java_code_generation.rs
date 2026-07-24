@@ -26,6 +26,11 @@ fn parses_scenario_aliases() {
         Some(Scenario::DangerousHotLock)
     );
     assert_eq!(parse_scenario("blocking-owner"), Some(Scenario::DangerousHotLock));
+    assert_eq!(
+        parse_scenario("connection-pool-starve"),
+        Some(Scenario::ConnectionPoolStarve)
+    );
+    assert_eq!(parse_scenario("hikari-starve"), Some(Scenario::ConnectionPoolStarve));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -85,6 +90,18 @@ fn dangerous_hot_lock_owner_sleeps_while_holding() {
 }
 
 #[test]
+fn connection_pool_starve_blocks_on_borrow() {
+    let code = generate(Scenario::ConnectionPoolStarve, 4);
+    assert!(code.contains("public class ConnectionPoolStarve"));
+    assert!(code.contains("HikariDataSource"));
+    assert!(code.contains("getConnection()"));
+    assert!(code.contains("borrowObject()"));
+    assert!(code.contains("db-borrower-"));
+    assert!(code.contains("pool-holder"));
+    assert!(code.contains("final int waiters = 3;"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -104,5 +121,9 @@ fn class_name_matches_source() {
     );
     assert_eq!(Scenario::SyncIoHotspot.class_name(), "SyncIoHotspot");
     assert_eq!(Scenario::DangerousHotLock.class_name(), "DangerousHotLock");
+    assert_eq!(
+        Scenario::ConnectionPoolStarve.class_name(),
+        "ConnectionPoolStarve"
+    );
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

@@ -33,7 +33,8 @@ export interface Deadlock {
 export type PatternKind =
   | "thread-pool-exhaustion"
   | "sync-io-hotspot"
-  | "dangerous-hot-lock-owner";
+  | "dangerous-hot-lock-owner"
+  | "connection-pool-borrow";
 
 export interface PatternHit {
   kind: PatternKind;
