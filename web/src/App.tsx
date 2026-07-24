@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { analyze, generateJava, classNameFor, type JavaScenario } from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
+import Results from "./Results";
 import type { Analysis } from "./types";
 
 const SAMPLE_DUMP = `"main" #1 prio=5 os_prio=0 tid=0x00007f0001 nid=0x1 waiting for monitor entry [0x00007f0002]
@@ -18,15 +19,6 @@ const SAMPLE_DUMP = `"main" #1 prio=5 os_prio=0 tid=0x00007f0001 nid=0x1 waiting
    java.lang.Thread.State: TIMED_WAITING (sleeping)
         at java.lang.Thread.sleep(Native Method)
 `;
-
-const STATE_COLORS: Record<string, string> = {
-  RUNNABLE: "#22c55e",
-  BLOCKED: "#ef4444",
-  WAITING: "#f59e0b",
-  TIMED_WAITING: "#eab308",
-  NEW: "#38bdf8",
-  TERMINATED: "#94a3b8",
-};
 
 export default function App() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
@@ -133,10 +125,6 @@ export default function App() {
     if (e.currentTarget === e.target) setDragging(false);
   }, []);
 
-  const maxState = analysis
-    ? Math.max(1, ...analysis.state_counts.map((s) => s.count))
-    : 1;
-
   return (
     <div
       className={`app${dragging ? " dragging" : ""}`}
@@ -200,129 +188,7 @@ export default function App() {
       {busy && <p className="status">Analyzing…</p>}
       {error && <p className="status error">Error: {error}</p>}
 
-      {analysis && (
-        <main className="results" data-testid="results">
-          <div className="summary">
-            <div className="stat">
-              <span className="stat-value">{analysis.total_threads}</span>
-              <span className="stat-label">threads</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">{analysis.format}</span>
-              <span className="stat-label">format</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">{analysis.blocked_edges.length}</span>
-              <span className="stat-label">lock contentions</span>
-            </div>
-            <div className={`stat${analysis.deadlocks.length > 0 ? " danger" : ""}`}>
-              <span className="stat-value">{analysis.deadlocks.length}</span>
-              <span className="stat-label">deadlocks</span>
-            </div>
-          </div>
-
-          <section className="panel">
-            <h2>Thread states</h2>
-            <ul className="states">
-              {analysis.state_counts.map((s) => (
-                <li key={s.state}>
-                  <span className="state-name">{s.state}</span>
-                  <span className="bar-track">
-                    <span
-                      className="bar-fill"
-                      style={{
-                        width: `${(s.count / maxState) * 100}%`,
-                        background: STATE_COLORS[s.state] ?? "#64748b",
-                      }}
-                    />
-                  </span>
-                  <span className="state-count">{s.count}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {analysis.deadlocks.length > 0 && (
-            <section className="panel deadlock-panel" data-testid="deadlocks">
-              <h2>⚠ Deadlocks detected ({analysis.deadlocks.length})</h2>
-              {analysis.deadlocks.map((d, i) => (
-                <div key={i} className="deadlock-cycle">
-                  <span className="mono">
-                    {d.threads.join(" → ")} → {d.threads[0]}
-                  </span>
-                  <ul>
-                    {d.edges.map((e, j) => (
-                      <li key={j} className="mono">
-                        {e.blocked_thread} waits on {e.lock} (held by{" "}
-                        {e.owner_thread ?? "unknown"})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </section>
-          )}
-
-          <section className="panel">
-            <h2>Lock contention</h2>
-            {analysis.blocked_edges.length === 0 ? (
-              <p className="empty">No blocked threads detected.</p>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Blocked thread</th>
-                    <th>Lock</th>
-                    <th>Held by</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analysis.blocked_edges.map((e, i) => (
-                    <tr key={i}>
-                      <td>{e.blocked_thread}</td>
-                      <td className="mono">{e.lock}</td>
-                      <td>{e.owner_thread ?? "(unknown)"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </section>
-
-          <section className="panel">
-            <h2>Threads ({analysis.threads.length})</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Id</th>
-                  <th>State</th>
-                  <th>Stack</th>
-                  <th>Held locks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analysis.threads.map((t, i) => (
-                  <tr key={i}>
-                    <td>{t.name}</td>
-                    <td>{t.id ?? ""}</td>
-                    <td>
-                      <span
-                        className="state-pill"
-                        style={{ background: STATE_COLORS[t.state] ?? "#64748b" }}
-                      >
-                        {t.state}
-                      </span>
-                    </td>
-                    <td>{t.stack_depth}</td>
-                    <td className="mono">{t.held_locks.join(", ")}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        </main>
-      )}
+      {analysis && <Results analysis={analysis} />}
 
       {!analysis && !busy && (
         <p className="hint">

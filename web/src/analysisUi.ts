@@ -1,0 +1,189 @@
+import type { Analysis, BlockedEdge, ThreadInfo } from "./types";
+
+export type FindingSeverity = "critical" | "warning" | "info";
+
+export interface Finding {
+  severity: FindingSeverity;
+  title: string;
+  detail: string;
+}
+
+export interface ContentionGroup {
+  lock: string;
+  owner_thread: string | null;
+  waiters: string[];
+}
+
+export interface StackCluster {
+  signature: string;
+  frames: string[];
+  count: number;
+  sample_names: string[];
+  state: string;
+}
+
+/** feat-013: actionable findings for the top of the results page. */
+export function buildFindings(analysis: Analysis): Finding[] {
+  const findings: Finding[] = [];
+  const blocked =
+    analysis.state_counts.find((s) => s.state === "BLOCKED")?.count ?? 0;
+  const blockedPct =
+    analysis.total_threads === 0
+      ? 0
+      : Math.round((blocked / analysis.total_threads) * 100);
+
+  if (analysis.deadlocks.length > 0) {
+    for (const d of analysis.deadlocks) {
+      findings.push({
+        severity: "critical",
+        title: `Deadlock cycle (${d.threads.length} threads)`,
+        detail: `${d.threads.join(" → ")} → ${d.threads[0] ?? ""}`,
+      });
+    }
+  }
+
+  const groups = aggregateContention(analysis.blocked_edges);
+  if (groups.length > 0) {
+    const hot = groups[0];
+    findings.push({
+      severity: analysis.deadlocks.length > 0 ? "warning" : "critical",
+      title: `Hottest lock: ${hot.waiters.length} waiter(s)`,
+      detail: `${hot.lock} held by ${hot.owner_thread ?? "unknown"}`,
+    });
+  }
+
+  if (blocked > 0) {
+    findings.push({
+      severity: blockedPct >= 20 ? "warning" : "info",
+      title: `${blocked} BLOCKED thread(s) (${blockedPct}%)`,
+      detail: `${analysis.blocked_edges.length} lock-contention edge(s) detected`,
+    });
+  } else if (analysis.deadlocks.length === 0 && groups.length === 0) {
+    findings.push({
+      severity: "info",
+      title: "No lock contention or deadlock detected",
+      detail: `${analysis.total_threads} threads parsed (${analysis.format})`,
+    });
+  }
+
+  return findings;
+}
+
+/** feat-014: group edges by lock, hottest first. */
+export function aggregateContention(edges: BlockedEdge[]): ContentionGroup[] {
+  const map = new Map<string, ContentionGroup>();
+  for (const e of edges) {
+    let g = map.get(e.lock);
+    if (!g) {
+      g = { lock: e.lock, owner_thread: e.owner_thread, waiters: [] };
+      map.set(e.lock, g);
+    }
+    if (!g.owner_thread && e.owner_thread) g.owner_thread = e.owner_thread;
+    if (!g.waiters.includes(e.blocked_thread)) {
+      g.waiters.push(e.blocked_thread);
+    }
+  }
+  return [...map.values()].sort((a, b) => b.waiters.length - a.waiters.length);
+}
+
+/** feat-018: common HotSpot / JDK system thread names. */
+export function isJvmNoise(name: string): boolean {
+  const n = name.toLowerCase();
+  const exact = [
+    "reference handler",
+    "finalizer",
+    "signal dispatcher",
+    "attach listener",
+    "service thread",
+    "common-cleaner",
+    "notification thread",
+    "monitor deflation thread",
+    "vm thread",
+    "vm periodic task thread",
+    "destroyjavavm",
+    "process reaper",
+    "sweeper thread",
+  ];
+  if (exact.includes(n)) return true;
+  return (
+    n.startsWith("c1 compiler") ||
+    n.startsWith("c2 compiler") ||
+    n.startsWith("gc ") ||
+    n.includes("gc thread") ||
+    n.startsWith("g1 ") ||
+    n.startsWith("gang worker") ||
+    n.includes("parallelgc") ||
+    n.startsWith("jvmci") ||
+    n.includes("cleaner-")
+  );
+}
+
+function stackSignature(frames: string[], depth = 5): string {
+  return frames.slice(0, depth).join(" | ");
+}
+
+/** feat-019: cluster threads that share the same top frames. */
+export function clusterByStack(
+  threads: ThreadInfo[],
+  minCount = 2,
+): StackCluster[] {
+  const map = new Map<string, StackCluster>();
+  for (const t of threads) {
+    if (t.stack.length === 0) continue;
+    const frames = t.stack.slice(0, 5);
+    const signature = stackSignature(frames);
+    let c = map.get(signature);
+    if (!c) {
+      c = {
+        signature,
+        frames,
+        count: 0,
+        sample_names: [],
+        state: t.state,
+      };
+      map.set(signature, c);
+    }
+    c.count += 1;
+    if (c.sample_names.length < 5) c.sample_names.push(t.name);
+  }
+  return [...map.values()]
+    .filter((c) => c.count >= minCount)
+    .sort((a, b) => b.count - a.count);
+}
+
+export function threadKey(t: ThreadInfo, index: number): string {
+  return `${t.name}::${t.id ?? index}`;
+}
+
+/** Safe DOM id for scrolling/highlighting a thread row. */
+export function threadDomId(index: number): string {
+  return `thread-row-${index}`;
+}
+
+export type ThreadSortKey = "name" | "state" | "stack" | "locks";
+
+export function sortThreads(
+  threads: ThreadInfo[],
+  key: ThreadSortKey,
+  dir: "asc" | "desc",
+): ThreadInfo[] {
+  const mul = dir === "asc" ? 1 : -1;
+  return [...threads].sort((a, b) => {
+    let cmp = 0;
+    switch (key) {
+      case "name":
+        cmp = a.name.localeCompare(b.name);
+        break;
+      case "state":
+        cmp = a.state.localeCompare(b.state) || a.name.localeCompare(b.name);
+        break;
+      case "stack":
+        cmp = a.stack_depth - b.stack_depth;
+        break;
+      case "locks":
+        cmp = a.held_locks.length - b.held_locks.length;
+        break;
+    }
+    return cmp * mul;
+  });
+}

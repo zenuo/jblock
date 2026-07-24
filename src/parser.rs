@@ -41,6 +41,8 @@ pub struct ThreadInfo {
     pub held_locks: Vec<String>,
     /// Number of stack frames captured for this thread.
     pub stack_depth: usize,
+    /// Top stack frames (`at …` lines without the leading `at `), capped for size.
+    pub stack: Vec<String>,
 }
 
 /// Count of threads in a given state.
@@ -155,6 +157,9 @@ fn extract_id(header: &str, mxbean_id_re: &Regex, jstack_id_re: &Regex) -> Optio
         })
 }
 
+/// Max stack frames retained per thread (full depth still counted in `stack_depth`).
+const MAX_STACK_FRAMES: usize = 12;
+
 fn parse_block(
     block: &[&str],
     // jstack: `- waiting to lock <0x…>` / `- locked <0x…>`
@@ -195,11 +200,15 @@ fn parse_block(
     let mut waiting_on: Option<String> = None;
     let mut held_locks: Vec<String> = Vec::new();
     let mut stack_depth = 0usize;
+    let mut stack: Vec<String> = Vec::new();
 
     for line in &block[1..] {
         let trimmed = line.trim_start();
-        if trimmed.starts_with("at ") {
+        if let Some(rest) = trimmed.strip_prefix("at ") {
             stack_depth += 1;
+            if stack.len() < MAX_STACK_FRAMES {
+                stack.push(rest.to_string());
+            }
         }
         // jstack monitor lines use angle-bracket hex identities.
         if let Some(cap) = jstack_lock_re.captures(line) {
@@ -238,6 +247,7 @@ fn parse_block(
         waiting_on,
         held_locks,
         stack_depth,
+        stack,
     }
 }
 
@@ -533,6 +543,20 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         let main = a.threads.iter().find(|t| t.name == "main").unwrap();
         assert_eq!(main.stack_depth, 1);
         assert_eq!(main.held_locks, vec!["0x000000076ab11111"]);
+        assert_eq!(main.stack, vec!["com.example.App.run(App.java:10)".to_string()]);
+        assert_eq!(
+            main.waiting_on.as_deref(),
+            Some("0x000000076ab00000")
+        );
+    }
+
+    #[test]
+    fn captures_top_stack_frames() {
+        let a = analyze(JSTACK_SAMPLE);
+        let worker = a.threads.iter().find(|t| t.name == "worker").unwrap();
+        assert_eq!(worker.stack_depth, 1);
+        assert!(!worker.stack.is_empty());
+        assert!(worker.stack[0].contains("com.example.Worker.work"));
     }
 
     // Simple contention (main blocked by worker) is NOT a deadlock: worker is
