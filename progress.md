@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 15:05
-**Active Feature:** feat-040 (done)
+**Last Updated:** 2026-07-24 15:20
+**Active Feature:** feat-041 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-039
-- [x] feat-040 Detect DNS / name-resolution stall clusters
+- [x] feat-001 … feat-040
+- [x] feat-041 Cross-dump patterns: thread leak and livelock
 
 ### What's In Progress
 
@@ -18,17 +18,17 @@
 
 ### What's Next
 
-1. feat-041 Cross-dump patterns: thread leak and livelock
-2. … see feature_list.json
+1. feature_list.json is complete through feat-041
 
 ## Decisions Made
 
-- Detect ≥3 threads sharing a top-4 stack with InetAddress or JNDI DNS frames.
-- Needles cover InetAddress.getByName/getAllByName/lookupAllHostAddr and com.sun.jndi.dns.*.
-- Reproducer: local UDP sink that never replies + JNDI DnsContextFactory queries (stable DnsClient stacks).
+- New `MultiDumpAnalysis` + `analyze_series` / WASM `analyzeDumps(string[])`.
+- Thread leak: non-JVM-noise counts non-decreasing with overall growth ≥ 3.
+- Livelock: ≥2 non-noise threads present in every dump with changing top-4 stack signatures.
+- UI: multi-file picker/drop; dump chips switch selected dump; cross patterns merged into findings.
 
 ## Evidence of Completion
 
-- `./init.sh` green — cargo lib tests + web lint/typecheck/build OK
-- Fixture: `tests/fixtures/patterns/dns_resolution_stall_jstack.txt`
-- Live capture: `live_capture_dns_resolution_stall_detects_pattern`
+- `./init.sh` green — 87 cargo lib tests; web lint/typecheck/build OK
+- Fixtures: `tests/fixtures/patterns/cross_dump/`
+- Unit tests: `detects_thread_leak_across_dumps`, `detects_livelock_across_dumps`, stable/single negatives

@@ -421,8 +421,8 @@
         "feat-027",
         "feat-004"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "analyze_series + WASM analyzeDumps; PatternKind::ThreadLeak/Livelock; multi-file UI dump chips; fixtures tests/fixtures/patterns/cross_dump/*; findings/legend/i18n; ./init.sh green (87 cargo tests)"
     }
   ]
 }
