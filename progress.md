@@ -2,15 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-24 14:00
-**Active Feature:** feat-032 (done)
+**Last Updated:** 2026-07-24 15:10
+**Active Feature:** feat-033 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-031
-- [x] feat-032 Detect Future/Latch wait trees
+- [x] feat-001 … feat-032
+- [x] feat-033 Detect logging-appender contention signature
 
 ### What's In Progress
 
@@ -18,18 +18,18 @@
 
 ### What's Next
 
-1. feat-033 Logging-appender contention
+1. feat-034 Busy-wait / CPU spin hotspot
 2. … see feature_list.json
 
 ## Decisions Made
 
-- Reproducer: circular `CompletableFuture.get()` ring + CountDownLatch cross-await pair.
-- Detect ≥2 threads in WAITING/TIMED_WAITING with Future.get / CountDownLatch.await / CyclicBarrier.await frames; critical when ≥3 waiters or mixed primitive kinds.
+- Reproducer: mock `OutputStreamAppender` with synchronized `append` + `doAppend` / `Logger.info` (Logback/Log4j-shaped stacks).
+- Detect ≥3 threads in BLOCKED/WAITING/TIMED_WAITING with logging-appender frames and ≥2 BLOCKED waiters.
 
 ## Evidence of Completion
 
-- [x] `./init.sh` green (`cargo test` 41/41; web lint/typecheck/build)
+- [ ] `./init.sh` (pending this turn)
 
 ## Notes for Next Session
 
-Start feat-033 next.
+Start feat-034 next.
