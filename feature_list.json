@@ -69,8 +69,8 @@
       "name": "ThreadMXBean format lock contentions bug fix",
       "description": "Fix the bug in the ThreadMXBean format lock contentions detection",
       "dependencies": ["feat-007"],
-      "status": "not-started",
-      "evidence": "src/parser.rs; tests detects_mxbean_format_lock_contentions"
+      "status": "done",
+      "evidence": "src/parser.rs parses MXBean `-  blocked on Class@hash` / `-  locked Class@hash` (+ header BLOCKED on / owned by fallback); tests detects_mxbean_format_lock_contentions + real Flink/Kafka fixture mxbean_real_contention.txt; full tdump_15c7: 3962 threads, 68/68 BLOCKED edges with owners"
     },
     {
       "id": "feat-010",
