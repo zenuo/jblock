@@ -209,6 +209,16 @@
       ],
       "status": "done",
       "evidence": "analyzer.preloadWasm/isWasmReady; App mounts preload; loading-overlay phases wasm|analyzing; ./init.sh green"
+    },
+    {
+      "id": "feat-022",
+      "name": "Multi-language UI with browser auto-detect",
+      "description": "Localize the web UI (English + Chinese); auto-detect locale from navigator.languages on first visit; allow manual override persisted in localStorage; HTML export follows locale (PDF stays English due to Helvetica)",
+      "dependencies": [
+        "feat-004"
+      ],
+      "status": "done",
+      "evidence": "web/src/i18n/*; I18nProvider + detectBrowserLocale; App/Results/export wired; lang switcher; ./init.sh green"
     }
   ]
 }

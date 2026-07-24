@@ -8,6 +8,7 @@ import {
   type JavaScenario,
 } from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
+import { LOCALES, LOCALE_LABELS, useI18n, type Locale } from "./i18n";
 import Results from "./Results";
 import type { Analysis } from "./types";
 
@@ -30,6 +31,7 @@ const SAMPLE_DUMP = `"main" #1 prio=5 os_prio=0 tid=0x00007f0001 nid=0x1 waiting
 `;
 
 export default function App() {
+  const { t, locale, setLocale } = useI18n();
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [sourceName, setSourceName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -54,17 +56,14 @@ export default function App() {
       })
       .catch((e) => {
         if (!cancelled) {
-          setError(
-            e instanceof Error
-              ? `Failed to load analyzer: ${e.message}`
-              : `Failed to load analyzer: ${String(e)}`,
-          );
+          const msg = e instanceof Error ? e.message : String(e);
+          setError(t("app.wasmLoadFailed", { error: msg }));
         }
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const closeCodegen = useCallback(() => {
     setCodegenOpen(false);
@@ -113,31 +112,32 @@ export default function App() {
     URL.revokeObjectURL(url);
   }, [javaCode, javaScenario]);
 
-  const runAnalysis = useCallback(async (text: string, name: string) => {
-    setError(null);
-    // If WASM is still downloading/initialising, show that first; otherwise analyzing.
-    setBusyPhase(isWasmReady() || wasmReady ? "analyzing" : "wasm");
-    try {
-      if (!isWasmReady()) {
-        setBusyPhase("wasm");
-        await preloadWasm();
-        setWasmReady(true);
+  const runAnalysis = useCallback(
+    async (text: string, name: string) => {
+      setError(null);
+      setBusyPhase(isWasmReady() || wasmReady ? "analyzing" : "wasm");
+      try {
+        if (!isWasmReady()) {
+          setBusyPhase("wasm");
+          await preloadWasm();
+          setWasmReady(true);
+        }
+        setBusyPhase("analyzing");
+        await new Promise<void>((resolve) => {
+          window.setTimeout(resolve, 0);
+        });
+        const result = await analyze(text);
+        setAnalysis(result);
+        setSourceName(name);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+        setAnalysis(null);
+      } finally {
+        setBusyPhase(null);
       }
-      setBusyPhase("analyzing");
-      // Yield so the loading UI can paint before sync WASM parse blocks the main thread.
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, 0);
-      });
-      const result = await analyze(text);
-      setAnalysis(result);
-      setSourceName(name);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-      setAnalysis(null);
-    } finally {
-      setBusyPhase(null);
-    }
-  }, [wasmReady]);
+    },
+    [wasmReady],
+  );
 
   const onFile = useCallback(
     async (file: File) => {
@@ -175,7 +175,7 @@ export default function App() {
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
     >
-      {dragging && <div className="drop-overlay">Drop thread dump to analyze</div>}
+      {dragging && <div className="drop-overlay">{t("app.dropOverlay")}</div>}
       {busyPhase && (
         <div
           className="loading-overlay"
@@ -186,9 +186,7 @@ export default function App() {
           <div className="loading-card">
             <div className="spinner" aria-hidden="true" />
             <p>
-              {busyPhase === "wasm"
-                ? "Loading analyzer…"
-                : "Analyzing dump…"}
+              {busyPhase === "wasm" ? t("app.loadingWasm") : t("app.analyzing")}
             </p>
           </div>
         </div>
@@ -196,25 +194,39 @@ export default function App() {
       <header className="app-header">
         <div className="app-header-row">
           <h1>
-            <span className="logo">jblock</span> Java Thread Dump Analyzer
+            <span className="logo">jblock</span> {t("app.title")}
           </h1>
-          <button
-            type="button"
-            className="btn"
-            data-testid="open-codegen"
-            onClick={openCodegen}
-          >
-            Generate Java…
-          </button>
+          <div className="header-actions">
+            <label className="lang-switch" data-testid="lang-switch">
+              <span className="visually-hidden">{t("app.language")}</span>
+              <select
+                value={locale}
+                aria-label={t("app.language")}
+                onChange={(e) => setLocale(e.target.value as Locale)}
+              >
+                {LOCALES.map((code) => (
+                  <option key={code} value={code}>
+                    {LOCALE_LABELS[code]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="btn"
+              data-testid="open-codegen"
+              onClick={openCodegen}
+            >
+              {t("app.generateJava")}
+            </button>
+          </div>
         </div>
-        <p className="tagline">
-          Parse jstack / ThreadMXBean dumps locally in your browser via Rust + WebAssembly.
-        </p>
+        <p className="tagline">{t("app.tagline")}</p>
       </header>
 
       <section className="controls">
         <label className={`btn primary${busy ? " disabled" : ""}`}>
-          Choose thread dump…
+          {t("app.chooseDump")}
           <input
             ref={fileInputRef}
             type="file"
@@ -232,29 +244,37 @@ export default function App() {
           onClick={() => void runAnalysis(SAMPLE_DUMP, "sample.txt")}
           disabled={busy}
         >
-          Load sample
+          {t("app.loadSample")}
         </button>
         {analysis && (
           <>
-            <button className="btn" onClick={() => exportHtml(analysis, sourceName)} disabled={busy}>
-              Export HTML
+            <button
+              className="btn"
+              onClick={() => exportHtml(analysis, sourceName, t, locale)}
+              disabled={busy}
+            >
+              {t("app.exportHtml")}
             </button>
-            <button className="btn" onClick={() => void exportPdf(analysis, sourceName)} disabled={busy}>
-              Export PDF
+            <button
+              className="btn"
+              onClick={() => void exportPdf(analysis, sourceName)}
+              disabled={busy}
+            >
+              {t("app.exportPdf")}
             </button>
           </>
         )}
       </section>
 
-      {error && <p className="status error">Error: {error}</p>}
+      {error && (
+        <p className="status error">
+          {t("app.errorPrefix")} {error}
+        </p>
+      )}
 
       {analysis && !busy && <Results analysis={analysis} />}
 
-      {!analysis && !busy && (
-        <p className="hint">
-          Select a thread dump file or load the sample to get started.
-        </p>
-      )}
+      {!analysis && !busy && <p className="hint">{t("app.hint")}</p>}
 
       {codegenOpen && (
         <div
@@ -271,35 +291,35 @@ export default function App() {
             aria-labelledby="codegen-title"
           >
             <div className="modal-header">
-              <h2 id="codegen-title">Generate Java reproducer</h2>
+              <h2 id="codegen-title">{t("codegen.title")}</h2>
               <button
                 ref={closeCodegenBtnRef}
                 type="button"
                 className="modal-close"
-                aria-label="Close"
+                aria-label={t("codegen.close")}
                 onClick={closeCodegen}
               >
                 ×
               </button>
             </div>
-            <p className="empty">
-              Emit a runnable Java program that reproduces a thread problem, then
-              capture its dump with <span className="mono">jstack</span> and analyze
-              it on the main page.
-            </p>
+            <p className="empty">{t("codegen.blurb")}</p>
             <div className="codegen-controls">
               <label>
-                Scenario{" "}
+                {t("codegen.scenario")}{" "}
                 <select
                   value={javaScenario}
-                  onChange={(e) => setJavaScenario(e.target.value as JavaScenario)}
+                  onChange={(e) =>
+                    setJavaScenario(e.target.value as JavaScenario)
+                  }
                 >
-                  <option value="deadlock">Deadlock cycle</option>
-                  <option value="lock-contention">Lock contention</option>
+                  <option value="deadlock">{t("codegen.deadlock")}</option>
+                  <option value="lock-contention">
+                    {t("codegen.lockContention")}
+                  </option>
                 </select>
               </label>
               <label>
-                Threads{" "}
+                {t("codegen.threads")}{" "}
                 <input
                   type="number"
                   min={2}
@@ -308,17 +328,23 @@ export default function App() {
                   onChange={(e) => setJavaCount(Number(e.target.value))}
                 />
               </label>
-              <button type="button" className="btn primary" onClick={onGenerateJava}>
-                Generate
+              <button
+                type="button"
+                className="btn primary"
+                onClick={onGenerateJava}
+              >
+                {t("codegen.generate")}
               </button>
               {javaCode && (
                 <button type="button" className="btn" onClick={downloadJava}>
-                  Download .java
+                  {t("codegen.download")}
                 </button>
               )}
             </div>
             {codegenError && (
-              <p className="status error">Error: {codegenError}</p>
+              <p className="status error">
+                {t("app.errorPrefix")} {codegenError}
+              </p>
             )}
             {javaCode && (
               <pre className="code-block" data-testid="java-code">

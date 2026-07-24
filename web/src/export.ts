@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { aggregateContention, buildFindings } from "./analysisUi";
+import { createTranslator, type Locale, type TranslateFn } from "./i18n";
 import appCss from "./index.css?inline";
 import type { Analysis } from "./types";
 
@@ -24,16 +25,27 @@ function escapeHtml(value: string): string {
  * (imported with `?inline`) and result markup, so the report looks identical to
  * the on-screen analysis (feat-005).
  */
-export function buildReportHtml(analysis: Analysis, sourceName: string): string {
+export function buildReportHtml(
+  analysis: Analysis,
+  sourceName: string,
+  t: TranslateFn,
+  locale: Locale,
+): string {
   const maxState = Math.max(1, ...analysis.state_counts.map((s) => s.count));
-  const findings = buildFindings(analysis);
+  const findings = buildFindings(analysis, t);
   const groups = aggregateContention(analysis.blocked_edges);
+  const htmlLang = locale === "zh" ? "zh-CN" : "en";
 
   const findingsHtml = `
     <section class="panel findings">
       <div class="findings-header">
-        <h2>Findings</h2>
-        <span class="meta mono">${analysis.total_threads} threads · ${escapeHtml(analysis.format)}</span>
+        <h2>${escapeHtml(t("findings.title"))}</h2>
+        <span class="meta mono">${escapeHtml(
+          t("findings.meta", {
+            count: analysis.total_threads,
+            format: analysis.format,
+          }),
+        )}</span>
       </div>
       <ul class="findings-list">
         ${findings
@@ -52,12 +64,12 @@ export function buildReportHtml(analysis: Analysis, sourceName: string): string 
       ? ""
       : `
     <section class="panel">
-      <h2>Deadlocks (${analysis.deadlocks.length})</h2>
+      <h2>${escapeHtml(t("report.deadlocks", { count: analysis.deadlocks.length }))}</h2>
       ${analysis.deadlocks
         .map(
           (d) =>
             `<p class="mono">${d.threads
-              .map((t) => escapeHtml(t))
+              .map((name) => escapeHtml(name))
               .join(" &rarr; ")} &rarr; ${escapeHtml(d.threads[0] ?? "")}</p>`,
         )
         .join("")}
@@ -78,12 +90,12 @@ export function buildReportHtml(analysis: Analysis, sourceName: string): string 
 
   const contentionRows =
     groups.length === 0
-      ? '<tr><td colspan="3">None detected</td></tr>'
+      ? `<tr><td colspan="3">${escapeHtml(t("report.none"))}</td></tr>`
       : groups
           .map(
             (g) =>
               `<tr><td class="mono">${escapeHtml(g.lock)}</td><td>${escapeHtml(
-                g.owner_thread ?? "(unknown)",
+                g.owner_thread ?? t("contention.unknownOwner"),
               )}</td><td>${g.waiters.length}: ${escapeHtml(
                 g.waiters.slice(0, 8).join(", "),
               )}${g.waiters.length > 8 ? ", …" : ""}</td></tr>`,
@@ -92,46 +104,54 @@ export function buildReportHtml(analysis: Analysis, sourceName: string): string 
 
   const threadRows = analysis.threads
     .map(
-      (t) =>
-        `<tr><td>${escapeHtml(t.name)}</td><td>${escapeHtml(
-          t.id ?? "",
+      (th) =>
+        `<tr><td>${escapeHtml(th.name)}</td><td>${escapeHtml(
+          th.id ?? "",
         )}</td><td><span class="state-pill" style="background:${
-          STATE_COLORS[t.state] ?? "#64748b"
-        }">${escapeHtml(t.state)}</span></td><td class="mono">${escapeHtml(
-          t.waiting_on ?? "",
-        )}</td><td>${t.stack_depth}</td><td class="mono">${escapeHtml(
-          t.held_locks.join(", "),
+          STATE_COLORS[th.state] ?? "#64748b"
+        }">${escapeHtml(th.state)}</span></td><td class="mono">${escapeHtml(
+          th.waiting_on ?? "",
+        )}</td><td>${th.stack_depth}</td><td class="mono">${escapeHtml(
+          th.held_locks.join(", "),
         )}</td></tr>`,
     )
     .join("");
 
   return `<!doctype html>
-<html lang="en">
+<html lang="${htmlLang}">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>jblock report — ${escapeHtml(sourceName)}</title>
+<title>jblock — ${escapeHtml(t("report.title"))} — ${escapeHtml(sourceName)}</title>
 <style>${appCss}</style>
 </head>
 <body>
 <div class="app">
   <header class="app-header">
-    <h1><span class="logo">jblock</span> Thread Dump Report</h1>
-    <p class="tagline">Source: ${escapeHtml(sourceName)}</p>
+    <h1><span class="logo">jblock</span> ${escapeHtml(t("report.title"))}</h1>
+    <p class="tagline">${escapeHtml(t("report.source", { name: sourceName }))}</p>
   </header>
   ${findingsHtml}
   ${deadlockPanel}
   <section class="panel">
-    <h2>Thread states</h2>
+    <h2>${escapeHtml(t("states.title"))}</h2>
     <ul class="states">${states}</ul>
   </section>
   <section class="panel">
-    <h2>Lock contention (by lock)</h2>
-    <table><thead><tr><th>Lock</th><th>Held by</th><th>Waiters</th></tr></thead><tbody>${contentionRows}</tbody></table>
+    <h2>${escapeHtml(t("report.contention"))}</h2>
+    <table><thead><tr><th>${escapeHtml(t("report.lock"))}</th><th>${escapeHtml(
+      t("report.heldBy"),
+    )}</th><th>${escapeHtml(t("report.waiters"))}</th></tr></thead><tbody>${contentionRows}</tbody></table>
   </section>
   <section class="panel">
-    <h2>Threads (${analysis.threads.length})</h2>
-    <table><thead><tr><th>Name</th><th>Id</th><th>State</th><th>Waiting on</th><th>Stack</th><th>Held locks</th></tr></thead><tbody>${threadRows}</tbody></table>
+    <h2>${escapeHtml(t("threads.title", { shown: String(analysis.threads.length) }))}</h2>
+    <table><thead><tr><th>${escapeHtml(t("threads.colName"))}</th><th>${escapeHtml(
+      t("threads.colId"),
+    )}</th><th>${escapeHtml(t("threads.colState"))}</th><th>${escapeHtml(
+      t("threads.colWaitingOn"),
+    )}</th><th>${escapeHtml(t("threads.colStack"))}</th><th>${escapeHtml(
+      t("threads.colHeldLocks"),
+    )}</th></tr></thead><tbody>${threadRows}</tbody></table>
   </section>
 </div>
 </body>
@@ -149,10 +169,18 @@ function triggerDownload(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-/** Download the HTML report. */
-export function exportHtml(analysis: Analysis, sourceName: string): void {
-  const html = buildReportHtml(analysis, sourceName);
-  triggerDownload(new Blob([html], { type: "text/html" }), `jblock-report-${sourceName || "dump"}.html`);
+/** Download the HTML report (localized). */
+export function exportHtml(
+  analysis: Analysis,
+  sourceName: string,
+  t: TranslateFn,
+  locale: Locale,
+): void {
+  const html = buildReportHtml(analysis, sourceName, t, locale);
+  triggerDownload(
+    new Blob([html], { type: "text/html" }),
+    `jblock-report-${sourceName || "dump"}.html`,
+  );
 }
 
 // pdf-lib's standard fonts are WinAnsi-encoded; drop anything they can't render.
@@ -170,10 +198,14 @@ function hexToRgb(hex: string) {
 }
 
 /**
- * Render a concise one-page PDF report using pdf-lib (feat-005). Lists are
- * capped so the whole summary fits on a single A4 page.
+ * Render a concise one-page PDF report using pdf-lib (feat-005).
+ * Labels stay English: Helvetica cannot embed CJK glyphs.
  */
-export async function exportPdf(analysis: Analysis, sourceName: string): Promise<void> {
+export async function exportPdf(
+  analysis: Analysis,
+  sourceName: string,
+): Promise<void> {
+  const t = createTranslator("en");
   const doc = await PDFDocument.create();
   const page = doc.addPage([595.28, 841.89]); // A4 portrait
   const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -184,7 +216,11 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
   const ink = rgb(0.1, 0.13, 0.16);
   const muted = rgb(0.4, 0.45, 0.5);
 
-  const line = (text: string, size: number, opts: { bold?: boolean; color?: ReturnType<typeof rgb>; gap?: number } = {}) => {
+  const line = (
+    text: string,
+    size: number,
+    opts: { bold?: boolean; color?: ReturnType<typeof rgb>; gap?: number } = {},
+  ) => {
     page.drawText(ansi(text), {
       x: margin,
       y,
@@ -195,27 +231,32 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
     y -= size + (opts.gap ?? 6);
   };
 
-  line("jblock — Java Thread Dump Report", 18, { bold: true, gap: 10 });
+  line(`jblock — ${t("report.title")}`, 18, { bold: true, gap: 10 });
   line(
-    `Source: ${sourceName || "dump"}   Format: ${analysis.format}   Threads: ${analysis.total_threads}`,
+    `${t("report.source", { name: sourceName || "dump" })}   Format: ${analysis.format}   Threads: ${analysis.total_threads}`,
     9,
     { color: muted, gap: 8 },
   );
-  const findings = buildFindings(analysis).slice(0, 4);
+  const findings = buildFindings(analysis, t).slice(0, 4);
   for (const f of findings) {
     line(`• ${f.title}`, 9, { bold: true, gap: 2 });
     line(`  ${f.detail}`, 8, { color: muted, gap: 6 });
   }
   y -= 4;
 
-  // Thread states with proportional bars.
-  line("Thread states", 12, { bold: true });
+  line(t("states.title"), 12, { bold: true });
   const maxState = Math.max(1, ...analysis.state_counts.map((s) => s.count));
   const barX = margin + 130;
   const barMax = 220;
   for (const s of analysis.state_counts) {
     page.drawText(ansi(s.state), { x: margin, y, size: 9, font, color: ink });
-    page.drawRectangle({ x: barX, y: y - 1, width: barMax, height: 9, color: rgb(0.94, 0.96, 0.98) });
+    page.drawRectangle({
+      x: barX,
+      y: y - 1,
+      width: barMax,
+      height: 9,
+      color: rgb(0.94, 0.96, 0.98),
+    });
     page.drawRectangle({
       x: barX,
       y: y - 1,
@@ -223,15 +264,22 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
       height: 9,
       color: hexToRgb(STATE_COLORS[s.state] ?? "#64748b"),
     });
-    page.drawText(String(s.count), { x: barX + barMax + 8, y, size: 9, font, color: ink });
+    page.drawText(String(s.count), {
+      x: barX + barMax + 8,
+      y,
+      size: 9,
+      font,
+      color: ink,
+    });
     y -= 15;
   }
   y -= 6;
 
-  // Deadlocks.
-  line(`Deadlocks (${analysis.deadlocks.length})`, 12, { bold: true });
+  line(t("report.deadlocks", { count: analysis.deadlocks.length }), 12, {
+    bold: true,
+  });
   if (analysis.deadlocks.length === 0) {
-    line("None detected", 9, { color: muted, gap: 10 });
+    line(t("report.none"), 9, { color: muted, gap: 10 });
   } else {
     for (const d of analysis.deadlocks.slice(0, 6)) {
       line(`${d.threads.join(" -> ")} -> ${d.threads[0] ?? ""}`, 9, { gap: 4 });
@@ -239,12 +287,11 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
     y -= 6;
   }
 
-  // Lock contention (aggregated, capped).
   const groups = aggregateContention(analysis.blocked_edges);
-  line(`Lock contention (${groups.length} lock(s))`, 12, { bold: true });
+  line(t("contention.title", { count: groups.length }), 12, { bold: true });
   const shownGroups = groups.slice(0, 8);
   if (shownGroups.length === 0) {
-    line("None detected", 9, { color: muted, gap: 10 });
+    line(t("report.none"), 9, { color: muted, gap: 10 });
   } else {
     for (const g of shownGroups) {
       line(
@@ -254,24 +301,29 @@ export async function exportPdf(analysis: Analysis, sourceName: string): Promise
       );
     }
     if (groups.length > shownGroups.length) {
-      line(`(+${groups.length - shownGroups.length} more locks)`, 8, { color: muted });
+      line(`(+${groups.length - shownGroups.length} more locks)`, 8, {
+        color: muted,
+      });
     }
     y -= 6;
   }
 
-  // Threads (capped to remaining space).
-  line(`Threads (${analysis.threads.length})`, 12, { bold: true });
+  line(t("threads.title", { shown: String(analysis.threads.length) }), 12, {
+    bold: true,
+  });
   const maxRows = Math.max(0, Math.floor((y - margin) / 12));
   const rows = analysis.threads.slice(0, maxRows);
-  for (const t of rows) {
+  for (const th of rows) {
     line(
-      `${t.name}  [${t.state}]  wait=${t.waiting_on ?? "-"}  stack=${t.stack_depth}`,
+      `${th.name}  [${th.state}]  wait=${th.waiting_on ?? "-"}  stack=${th.stack_depth}`,
       8,
       { gap: 4 },
     );
   }
   if (analysis.threads.length > rows.length) {
-    line(`(+${analysis.threads.length - rows.length} more)`, 8, { color: muted });
+    line(`(+${analysis.threads.length - rows.length} more)`, 8, {
+      color: muted,
+    });
   }
 
   const bytes = await doc.save();
