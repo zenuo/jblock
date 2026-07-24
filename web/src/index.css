@@ -585,6 +585,15 @@ th {
   border-color: #6366f1;
 }
 
+.swatch-class {
+  background: #f1f5f9;
+  border-color: #64748b;
+}
+
+.legend-class-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 .legend-flow {
   animation: legend-dash 1.2s linear infinite;
 }

@@ -47,7 +47,7 @@ export default function Results({ analysis }: Props) {
   const [expandedLocks, setExpandedLocks] = useState<Set<string>>(new Set());
   const [expandedStacks, setExpandedStacks] = useState<Set<number>>(new Set());
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
-  const [legendKind, setLegendKind] = useState<Finding["kind"] | null>(null);
+  const [legendFinding, setLegendFinding] = useState<Finding | null>(null);
 
   useEffect(() => {
     setStateFilter(hasBlocked ? "BLOCKED" : "ALL");
@@ -154,7 +154,7 @@ export default function Results({ analysis }: Props) {
                   type="button"
                   className="btn finding-legend-btn"
                   data-testid={`legend-btn-${f.kind}`}
-                  onClick={() => setLegendKind(f.kind)}
+                  onClick={() => setLegendFinding(f)}
                 >
                   {t("findings.legendBtn")}
                 </button>
@@ -165,10 +165,10 @@ export default function Results({ analysis }: Props) {
         </ul>
       </section>
 
-      {legendKind && (
+      {legendFinding && (
         <PatternLegendModal
-          kind={legendKind}
-          onClose={() => setLegendKind(null)}
+          finding={legendFinding}
+          onClose={() => setLegendFinding(null)}
         />
       )}
 

@@ -24,8 +24,9 @@
 
 - Each finding has a `kind` (`deadlock` | `hot-lock` | `blocked` | `clean`).
 - Legend button opens `PatternLegendModal` with animated SVG demos.
+- Animation nodes bind to dump **thread names** + top-stack **Java class names** (`Finding.actors` / `classNameFromFrame`).
 - Respect `prefers-reduced-motion`.
-- Committed directly to `main` per user request.
+- Landed on `main` per user request.
 
 ## Evidence of Completion
 

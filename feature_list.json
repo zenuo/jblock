@@ -223,13 +223,13 @@
     {
       "id": "feat-023",
       "name": "Pattern legend demo modals",
-      "description": "For each detected finding pattern (deadlock, hot lock, blocked, clean), add a button that opens a modal with an animated SVG legend explaining the pattern",
+      "description": "For each detected finding pattern (deadlock, hot lock, blocked, clean), add a button that opens a modal with an animated SVG legend explaining the pattern; animation nodes use real dump thread names and top-stack Java class names",
       "dependencies": [
         "feat-013",
         "feat-022"
       ],
       "status": "done",
-      "evidence": "Finding.kind; PatternLegendModal with CSS animations; findings Legend/图例 button; i18n en/zh; ./init.sh green"
+      "evidence": "Finding.actors + classNameFromFrame; PatternLegendModal labels thread+class; Legend/图例 button; i18n en/zh; ./init.sh green"
     }
   ]
 }

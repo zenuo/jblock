@@ -3,12 +3,84 @@ import type { TranslateFn } from "./i18n";
 
 export type FindingSeverity = "critical" | "warning" | "info";
 
+export type FindingKind = "deadlock" | "hot-lock" | "blocked" | "clean";
+
+/** Actors shown in the pattern legend animation (feat-023). */
+export interface FindingActor {
+  /** Thread name from the dump. */
+  thread: string;
+  /** Top-of-stack Java class name when available. */
+  className: string | null;
+}
+
+export interface FindingActors {
+  /** Primary nodes (cycle members, sample healthy threads, or blocked threads). */
+  nodes: FindingActor[];
+  /** Lock owner when applicable. */
+  owner: FindingActor | null;
+  /** Waiters on the hottest / contended lock. */
+  waiters: FindingActor[];
+  /** Contended lock id (short form for display). */
+  lock: string | null;
+}
+
 export interface Finding {
   severity: FindingSeverity;
   /** Pattern kind for legend/demo modal (feat-023). */
-  kind: "deadlock" | "hot-lock" | "blocked" | "clean";
+  kind: FindingKind;
   title: string;
   detail: string;
+  /** Concrete dump actors for the legend animation. */
+  actors: FindingActors;
+}
+
+/** Extract the Java class FQCN from a stack frame (`pkg.Cls.method(File:line)`). */
+export function classNameFromFrame(frame: string): string | null {
+  const trimmed = frame.trim().replace(/^at\s+/, "");
+  if (!trimmed) return null;
+  const beforeParen = trimmed.split("(")[0] ?? trimmed;
+  const lastDot = beforeParen.lastIndexOf(".");
+  if (lastDot <= 0) return beforeParen || null;
+  return beforeParen.slice(0, lastDot);
+}
+
+function actorFor(
+  analysis: Analysis,
+  threadName: string | null | undefined,
+): FindingActor | null {
+  if (!threadName) return null;
+  const th = analysis.threads.find((t) => t.name === threadName);
+  const className = th?.stack[0] ? classNameFromFrame(th.stack[0]) : null;
+  return { thread: threadName, className };
+}
+
+function actorsForNames(
+  analysis: Analysis,
+  names: string[],
+  limit = 6,
+): FindingActor[] {
+  const out: FindingActor[] = [];
+  for (const name of names) {
+    const a = actorFor(analysis, name);
+    if (a) out.push(a);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+/** Truncate labels for SVG nodes. */
+export function shortLabel(value: string, max = 14): string {
+  if (value.length <= max) return value;
+  return `${value.slice(0, Math.max(1, max - 1))}…`;
+}
+
+/** Prefer simple class name (`Foo` from `com.example.Foo`). */
+export function shortClassName(className: string | null, max = 16): string {
+  if (!className) return "";
+  const simple = className.includes(".")
+    ? className.slice(className.lastIndexOf(".") + 1)
+    : className;
+  return shortLabel(simple, max);
 }
 
 export interface ContentionGroup {
@@ -45,6 +117,12 @@ export function buildFindings(
         kind: "deadlock",
         title: t("findings.deadlockTitle", { count: d.threads.length }),
         detail: `${d.threads.join(" → ")} → ${d.threads[0] ?? ""}`,
+        actors: {
+          nodes: actorsForNames(analysis, d.threads, 8),
+          owner: null,
+          waiters: [],
+          lock: d.edges[0]?.lock ?? null,
+        },
       });
     }
   }
@@ -60,10 +138,21 @@ export function buildFindings(
         lock: hot.lock,
         owner: hot.owner_thread ?? t("deadlocks.unknown"),
       }),
+      actors: {
+        nodes: [],
+        owner: actorFor(analysis, hot.owner_thread),
+        waiters: actorsForNames(analysis, hot.waiters, 5),
+        lock: hot.lock,
+      },
     });
   }
 
   if (blocked > 0) {
+    const blockedNames = analysis.blocked_edges.map((e) => e.blocked_thread);
+    const firstOwner = analysis.blocked_edges.find(
+      (e) => e.owner_thread,
+    )?.owner_thread;
+    const firstLock = analysis.blocked_edges[0]?.lock ?? null;
     findings.push({
       severity: blockedPct >= 20 ? "warning" : "info",
       kind: "blocked",
@@ -71,8 +160,22 @@ export function buildFindings(
       detail: t("findings.blockedDetail", {
         count: analysis.blocked_edges.length,
       }),
+      actors: {
+        nodes: actorsForNames(analysis, blockedNames, 5),
+        owner: actorFor(analysis, firstOwner),
+        waiters: [],
+        lock: firstLock,
+      },
     });
   } else if (analysis.deadlocks.length === 0 && groups.length === 0) {
+    const sample = analysis.threads
+      .filter((th) => !isJvmNoise(th.name))
+      .slice(0, 3)
+      .map((th) => th.name);
+    const fallback =
+      sample.length > 0
+        ? sample
+        : analysis.threads.slice(0, 3).map((th) => th.name);
     findings.push({
       severity: "info",
       kind: "clean",
@@ -81,6 +184,12 @@ export function buildFindings(
         count: analysis.total_threads,
         format: analysis.format,
       }),
+      actors: {
+        nodes: actorsForNames(analysis, fallback, 3),
+        owner: null,
+        waiters: [],
+        lock: null,
+      },
     });
   }
 

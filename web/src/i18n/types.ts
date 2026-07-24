@@ -56,6 +56,7 @@ export type MessageKey =
   | "legend.keyWaiter"
   | "legend.keyLock"
   | "legend.keyHealthy"
+  | "legend.keyClass"
   | "deadlocks.title"
   | "deadlocks.waitsOn"
   | "deadlocks.heldBy"
