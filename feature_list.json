@@ -377,8 +377,8 @@
         "feat-027",
         "feat-018"
       ],
-      "status": "pending",
-      "evidence": ""
+      "status": "done",
+      "evidence": "PatternKind::FinalizerPressure; Scenario FinalizerPressure (blocking finalize + app lock); live+fixture tests; web findings/legend/codegen; tests/fixtures/patterns/finalizer_pressure_jstack.txt; ./init.sh green (66 cargo tests)"
     },
     {
       "id": "feat-038",
