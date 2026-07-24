@@ -18,7 +18,8 @@ export type FindingKind =
   | "condition-park-starvation"
   | "lock-order-inconsistency"
   | "finalizer-pressure"
-  | "sleep-as-scheduler";
+  | "sleep-as-scheduler"
+  | "framework-pool-saturation";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -321,6 +322,21 @@ export function buildFindings(
           count: p.thread_names.length,
         }),
         detail: t("findings.sleepAsSchedulerDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
+        },
+      });
+    } else if (p.kind === "framework-pool-saturation") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "framework-pool-saturation",
+        title: t("findings.frameworkPoolTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.frameworkPoolDetail", { detail: p.detail }),
         actors: {
           nodes: actorsForNames(analysis, p.thread_names, 6),
           owner: null,

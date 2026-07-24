@@ -60,6 +60,11 @@ fn parses_scenario_aliases() {
     assert_eq!(parse_scenario("reference-handler"), Some(Scenario::FinalizerPressure));
     assert_eq!(parse_scenario("sleep-as-scheduler"), Some(Scenario::SleepAsScheduler));
     assert_eq!(parse_scenario("thread-sleep-scheduler"), Some(Scenario::SleepAsScheduler));
+    assert_eq!(
+        parse_scenario("framework-pool-saturation"),
+        Some(Scenario::FrameworkPoolSaturation)
+    );
+    assert_eq!(parse_scenario("tomcat-pool"), Some(Scenario::FrameworkPoolSaturation));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -218,6 +223,16 @@ fn sleep_as_scheduler_uses_sleep_loop() {
 }
 
 #[test]
+fn framework_pool_saturation_uses_tomcat_names() {
+    let code = generate(Scenario::FrameworkPoolSaturation, 4);
+    assert!(code.contains("public class FrameworkPoolSaturation"));
+    assert!(code.contains("http-nio-8080-exec-"));
+    assert!(code.contains("handleRequest"));
+    assert!(code.contains("synchronized (LOCK)"));
+    assert!(code.contains("final int workers = 4;"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -257,5 +272,9 @@ fn class_name_matches_source() {
     assert_eq!(Scenario::LockOrderRisk.class_name(), "LockOrderRisk");
     assert_eq!(Scenario::FinalizerPressure.class_name(), "FinalizerPressure");
     assert_eq!(Scenario::SleepAsScheduler.class_name(), "SleepAsScheduler");
+    assert_eq!(
+        Scenario::FrameworkPoolSaturation.class_name(),
+        "FrameworkPoolSaturation"
+    );
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

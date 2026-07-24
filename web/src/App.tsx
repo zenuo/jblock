@@ -322,6 +322,9 @@ export default function App() {
                   <option value="sleep-as-scheduler">
                     {t("codegen.sleepAsScheduler")}
                   </option>
+                  <option value="framework-pool-saturation">
+                    {t("codegen.frameworkPoolSaturation")}
+                  </option>
                 </select>
               </label>
               <label>

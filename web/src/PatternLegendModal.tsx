@@ -66,7 +66,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                               ? "legend.finalizerPressureTitle"
                               : kind === "sleep-as-scheduler"
                                 ? "legend.sleepAsSchedulerTitle"
-                                : "legend.cleanTitle";
+                                : kind === "framework-pool-saturation"
+                                  ? "legend.frameworkPoolTitle"
+                                  : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -96,7 +98,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                               ? "legend.finalizerPressureBody"
                               : kind === "sleep-as-scheduler"
                                 ? "legend.sleepAsSchedulerBody"
-                                : "legend.cleanBody";
+                                : kind === "framework-pool-saturation"
+                                  ? "legend.frameworkPoolBody"
+                                  : "legend.cleanBody";
 
   return (
     <div
@@ -158,6 +162,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "sleep-as-scheduler" && (
             <ConditionStarvationDemo actors={actors} />
           )}
+          {kind === "framework-pool-saturation" && (
+            <PoolExhaustionDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
@@ -181,6 +188,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
               <li>
                 <span className="swatch swatch-thread" />{" "}
                 {t("legend.keyPoolWorker")}
+              </li>
+              <li>
+                <span className="swatch swatch-class" /> {t("legend.keyClass")}
+              </li>
+            </>
+          )}
+          {kind === "framework-pool-saturation" && (
+            <>
+              <li>
+                <span className="swatch swatch-thread" />{" "}
+                {t("legend.keyFrameworkWorker")}
               </li>
               <li>
                 <span className="swatch swatch-class" /> {t("legend.keyClass")}

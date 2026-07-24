@@ -41,7 +41,8 @@ export type PatternKind =
   | "condition-park-starvation"
   | "lock-order-inconsistency"
   | "finalizer-pressure"
-  | "sleep-as-scheduler";
+  | "sleep-as-scheduler"
+  | "framework-pool-saturation";
 
 export interface PatternHit {
   kind: PatternKind;

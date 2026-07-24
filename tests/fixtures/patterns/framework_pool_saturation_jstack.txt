@@ -1,0 +1,126 @@
+2026-07-24 14:48:53
+Full thread dump OpenJDK 64-Bit Server VM (21.0.10+7-Ubuntu-124.04 mixed mode, sharing):
+
+Threads class SMR info:
+_java_thread_list=0x00007f0a78002110, length=15, elements={
+0x00007f0b0c01a120, 0x00007f0b0c110ad0, 0x00007f0b0c112050, 0x00007f0b0c1137f0,
+0x00007f0b0c114e40, 0x00007f0b0c1163f0, 0x00007f0b0c117f40, 0x00007f0b0c119610,
+0x00007f0b0c14d070, 0x00007f0b0c14ffb0, 0x00007f0b0c164d80, 0x00007f0b0c165f00,
+0x00007f0b0c167030, 0x00007f0b0c1681d0, 0x00007f0a78000fe0
+}
+
+"main" #1 [41075] prio=5 os_prio=0 cpu=27.68ms elapsed=1.18s tid=0x00007f0b0c01a120 nid=41075 waiting on condition  [0x00007f0b12fb1000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep0(java.base@21.0.10/Native Method)
+	at java.lang.Thread.sleep(java.base@21.0.10/Thread.java:509)
+	at FrameworkPoolSaturation.main(FrameworkPoolSaturation.java:36)
+
+"Reference Handler" #9 [41083] daemon prio=10 os_prio=0 cpu=0.43ms elapsed=1.16s tid=0x00007f0b0c110ad0 nid=41083 waiting on condition  [0x00007f0b108eb000]
+   java.lang.Thread.State: RUNNABLE
+	at java.lang.ref.Reference.waitForReferencePendingList(java.base@21.0.10/Native Method)
+	at java.lang.ref.Reference.processPendingReferences(java.base@21.0.10/Reference.java:246)
+	at java.lang.ref.Reference$ReferenceHandler.run(java.base@21.0.10/Reference.java:208)
+
+"Finalizer" #10 [41084] daemon prio=8 os_prio=0 cpu=0.31ms elapsed=1.16s tid=0x00007f0b0c112050 nid=41084 in Object.wait()  [0x00007f0b107eb000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.10/Native Method)
+	- waiting on <0x000000070fe025f0> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@21.0.10/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.10/Object.java:339)
+	at java.lang.ref.NativeReferenceQueue.await(java.base@21.0.10/NativeReferenceQueue.java:48)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.10/ReferenceQueue.java:158)
+	at java.lang.ref.NativeReferenceQueue.remove(java.base@21.0.10/NativeReferenceQueue.java:89)
+	- locked <0x000000070fe025f0> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.ref.Finalizer$FinalizerThread.run(java.base@21.0.10/Finalizer.java:173)
+
+"Signal Dispatcher" #11 [41085] daemon prio=9 os_prio=0 cpu=0.23ms elapsed=1.16s tid=0x00007f0b0c1137f0 nid=41085 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Service Thread" #12 [41086] daemon prio=9 os_prio=0 cpu=0.31ms elapsed=1.16s tid=0x00007f0b0c114e40 nid=41086 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Monitor Deflation Thread" #13 [41087] daemon prio=9 os_prio=0 cpu=0.38ms elapsed=1.16s tid=0x00007f0b0c1163f0 nid=41087 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #14 [41088] daemon prio=9 os_prio=0 cpu=9.87ms elapsed=1.16s tid=0x00007f0b0c117f40 nid=41088 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"C1 CompilerThread0" #16 [41089] daemon prio=9 os_prio=0 cpu=6.31ms elapsed=1.16s tid=0x00007f0b0c119610 nid=41089 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"Notification Thread" #17 [41090] daemon prio=9 os_prio=0 cpu=0.26ms elapsed=1.16s tid=0x00007f0b0c14d070 nid=41090 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" #18 [41091] daemon prio=8 os_prio=0 cpu=0.28ms elapsed=1.16s tid=0x00007f0b0c14ffb0 nid=41091 waiting on condition  [0x00007f0b039c0000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.10/Native Method)
+	- parking to wait for  <0x000000070fe11f90> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.10/LockSupport.java:269)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.10/AbstractQueuedSynchronizer.java:1886)
+	at java.lang.ref.ReferenceQueue.await(java.base@21.0.10/ReferenceQueue.java:71)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.10/ReferenceQueue.java:143)
+	at java.lang.ref.ReferenceQueue.remove(java.base@21.0.10/ReferenceQueue.java:218)
+	at jdk.internal.ref.CleanerImpl.run(java.base@21.0.10/CleanerImpl.java:140)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+	at jdk.internal.misc.InnocuousThread.run(java.base@21.0.10/InnocuousThread.java:186)
+
+"http-nio-8080-exec-1" #19 [41092] prio=5 os_prio=0 cpu=1.23ms elapsed=1.15s tid=0x00007f0b0c164d80 nid=41092 waiting on condition  [0x00007f0af07fe000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep0(java.base@21.0.10/Native Method)
+	at java.lang.Thread.sleep(java.base@21.0.10/Thread.java:509)
+	at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:14)
+	- locked <0x000000070fe13e60> (a java.lang.Object)
+	at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:30)
+	at FrameworkPoolSaturation$$Lambda/0x00007f0a94000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"http-nio-8080-exec-2" #20 [41093] prio=5 os_prio=0 cpu=1.18ms elapsed=1.15s tid=0x00007f0b0c165f00 nid=41093 waiting for monitor entry  [0x00007f0af06fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:14)
+	- waiting to lock <0x000000070fe13e60> (a java.lang.Object)
+	at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:30)
+	at FrameworkPoolSaturation$$Lambda/0x00007f0a94000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"http-nio-8080-exec-3" #21 [41094] prio=5 os_prio=0 cpu=0.77ms elapsed=1.15s tid=0x00007f0b0c167030 nid=41094 waiting for monitor entry  [0x00007f0af05fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:14)
+	- waiting to lock <0x000000070fe13e60> (a java.lang.Object)
+	at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:30)
+	at FrameworkPoolSaturation$$Lambda/0x00007f0a94000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"http-nio-8080-exec-4" #22 [41095] prio=5 os_prio=0 cpu=0.75ms elapsed=1.15s tid=0x00007f0b0c1681d0 nid=41095 waiting for monitor entry  [0x00007f0af04fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:14)
+	- waiting to lock <0x000000070fe13e60> (a java.lang.Object)
+	at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:30)
+	at FrameworkPoolSaturation$$Lambda/0x00007f0a94000a08.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.10/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.10/Thread.java:1583)
+
+"Attach Listener" #23 [41116] daemon prio=9 os_prio=0 cpu=0.24ms elapsed=0.10s tid=0x00007f0a78000fe0 nid=41116 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"VM Thread" os_prio=0 cpu=0.50ms elapsed=1.17s tid=0x00007f0b0c1077d0 nid=41082 runnable  
+
+"VM Periodic Task Thread" os_prio=0 cpu=0.72ms elapsed=1.17s tid=0x00007f0b0c0f5f30 nid=41081 waiting on condition  
+
+"G1 Service" os_prio=0 cpu=0.07ms elapsed=1.18s tid=0x00007f0b0c0dbbd0 nid=41080 runnable  
+
+"G1 Refine#0" os_prio=0 cpu=0.06ms elapsed=1.18s tid=0x00007f0b0c0dac00 nid=41079 runnable  
+
+"G1 Conc#0" os_prio=0 cpu=0.04ms elapsed=1.18s tid=0x00007f0b0c055180 nid=41078 runnable  
+
+"G1 Main Marker" os_prio=0 cpu=0.21ms elapsed=1.18s tid=0x00007f0b0c0541d0 nid=41077 runnable  
+
+"GC Thread#0" os_prio=0 cpu=0.11ms elapsed=1.18s tid=0x00007f0b0c042bc0 nid=41076 runnable  
+
+JNI global refs: 5, weak refs: 0
+

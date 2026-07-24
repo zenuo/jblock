@@ -95,6 +95,8 @@ pub enum PatternKind {
     FinalizerPressure,
     /// Business threads dominated by TIMED_WAITING Thread.sleep (feat-038).
     SleepAsScheduler,
+    /// Tomcat/Jetty/Netty worker threads saturated on the same blocking work (feat-039).
+    FrameworkPoolSaturation,
 }
 
 /// One detected high-level pattern hit.
@@ -436,6 +438,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_sleep_as_scheduler(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_framework_pool_saturation(threads) {
         out.push(hit);
     }
     out
@@ -1436,6 +1441,106 @@ fn detect_sleep_as_scheduler(threads: &[ThreadInfo]) -> Option<PatternHit> {
     })
 }
 
+/// Tomcat `http-nio-*-exec-*`, Jetty `qtp*`, Netty `*nioEventLoop*` worker names.
+fn framework_worker_family(name: &str) -> Option<&'static str> {
+    let tomcat = Regex::new(r"(?i)^http-nio-\d+-exec-\d+$").unwrap();
+    if tomcat.is_match(name) {
+        return Some("tomcat");
+    }
+    // Broader Tomcat connector exec naming.
+    if name.contains("http-nio-") && name.contains("-exec-") {
+        return Some("tomcat");
+    }
+    let jetty = Regex::new(r"^qtp\d+-\d+$").unwrap();
+    if jetty.is_match(name) || (name.starts_with("qtp") && name.contains('-')) {
+        return Some("jetty");
+    }
+    let lower = name.to_ascii_lowercase();
+    if lower.contains("nioeventloop") {
+        return Some("netty");
+    }
+    None
+}
+
+/// Healthy idle stacks for framework workers (waiting for the next request/event).
+fn is_framework_idle_stack(stack: &[String]) -> bool {
+    stack.iter().any(|f| {
+        f.contains("ThreadPoolExecutor.getTask")
+            || f.contains("TaskQueue.take")
+            || f.contains("QueuedThreadPool.idleJob")
+            || f.contains("NioEventLoop.select")
+            || f.contains("Selector.select")
+            || f.contains("SelectorImpl.select")
+            || f.contains("epollWait")
+            || f.contains("KQueue.kevent")
+    })
+}
+
+/// Framework worker-pool saturation: ≥3 Tomcat/Jetty/Netty workers share the
+/// same non-idle blocking work stack (feat-039).
+fn detect_framework_pool_saturation(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let mut by_family: BTreeMap<&'static str, Vec<&ThreadInfo>> = BTreeMap::new();
+    for t in threads {
+        if let Some(fam) = framework_worker_family(&t.name) {
+            if !is_framework_idle_stack(&t.stack) {
+                by_family.entry(fam).or_default().push(t);
+            }
+        }
+    }
+
+    let mut best: Option<(&'static str, String, Vec<&ThreadInfo>)> = None;
+    for (fam, members) in by_family {
+        if members.len() < 3 {
+            continue;
+        }
+        let mut groups: BTreeMap<String, Vec<&ThreadInfo>> = BTreeMap::new();
+        for t in &members {
+            let sig = stack_signature(&t.stack, 4);
+            if sig.is_empty() {
+                continue;
+            }
+            groups.entry(sig).or_default().push(*t);
+        }
+        for (sig, cluster) in groups {
+            if cluster.len() < 3 {
+                continue;
+            }
+            let better = best
+                .as_ref()
+                .map(|(_, _, m)| cluster.len() > m.len())
+                .unwrap_or(true);
+            if better {
+                best = Some((fam, sig, cluster));
+            }
+        }
+    }
+    let (fam, sig, members) = best?;
+    let blocked = members.iter().filter(|t| t.state == "BLOCKED").count();
+    let sample = members[0]
+        .stack
+        .first()
+        .cloned()
+        .unwrap_or_else(|| sig.clone());
+    let names: Vec<String> = members.iter().map(|t| t.name.clone()).collect();
+    let severity = if blocked >= 2 || names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::FrameworkPoolSaturation,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} {} framework workers saturated on shared work near {} ({} BLOCKED)",
+            names.len(),
+            fam,
+            sample,
+            blocked
+        ),
+        thread_names: names,
+    })
+}
+
 /// Detect deadlock cycles from the wait-for graph.
 ///
 /// Each thread waits on at most one lock, so the wait-for relation is a
@@ -2108,6 +2213,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
                 .iter()
                 .any(|p| p.kind == PatternKind::SleepAsScheduler),
             "live fixture should detect Thread.sleep-as-scheduler"
+        );
+    }
+
+    #[test]
+    fn detects_framework_pool_saturation_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/framework_pool_saturation_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::FrameworkPoolSaturation),
+            "live fixture should detect framework worker-pool saturation"
         );
     }
 
@@ -2859,6 +2977,135 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::SleepAsScheduler)
+        );
+    }
+
+    const FRAMEWORK_POOL_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"http-nio-8080-exec-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:12)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"http-nio-8080-exec-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"http-nio-8080-exec-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"http-nio-8080-exec-4" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at FrameworkPoolSaturation.handleRequest(FrameworkPoolSaturation.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        at FrameworkPoolSaturation.lambda$main$0(FrameworkPoolSaturation.java:24)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"qtp1234567890-45" #25 prio=5 os_prio=0 tid=0x5 nid=0x35 waiting on condition [0x5]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+        at org.eclipse.jetty.util.thread.QueuedThreadPool.idleJob(QueuedThreadPool.java:900)
+"#;
+
+    #[test]
+    fn detects_framework_pool_saturation_pattern() {
+        let a = analyze(FRAMEWORK_POOL_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FrameworkPoolSaturation)
+            .expect("framework-pool-saturation");
+        assert!(hit.thread_names.len() >= 3);
+        assert!(hit.detail.contains("tomcat") || hit.detail.contains("framework"));
+        assert!(
+            hit.thread_names
+                .iter()
+                .all(|n| n.starts_with("http-nio-8080-exec-")),
+            "names={:?}",
+            hit.thread_names
+        );
+        // Idle Jetty worker must not be pulled into the Tomcat cluster.
+        assert!(!hit.thread_names.iter().any(|n| n.starts_with("qtp")));
+    }
+
+    #[test]
+    fn detects_jetty_and_netty_framework_names() {
+        const MIXED: &str = r#""qtp111-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.handle(App.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+
+"qtp111-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.handle(App.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+
+"qtp111-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.handle(App.java:10)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+
+"nioEventLoopGroup-2-1" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 runnable [0x4]
+   java.lang.Thread.State: RUNNABLE
+        at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:100)
+        at io.netty.channel.nio.NioEventLoop.select(NioEventLoop.java:800)
+"#;
+        let a = analyze(MIXED);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::FrameworkPoolSaturation)
+            .expect("jetty framework-pool-saturation");
+        assert_eq!(hit.thread_names.len(), 3);
+        assert!(hit.detail.contains("jetty"));
+        assert!(hit.thread_names.iter().all(|n| n.starts_with("qtp")));
+        // Idle Netty selector must not form a saturated cluster alone.
+        assert!(!hit.thread_names.iter().any(|n| n.contains("nioEventLoop")));
+    }
+
+    #[test]
+    fn idle_framework_workers_not_saturated() {
+        const IDLE: &str = r#""http-nio-8080-exec-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:100)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+
+"http-nio-8080-exec-2" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:100)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+
+"http-nio-8080-exec-3" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting on condition [0x3]
+   java.lang.Thread.State: WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+        at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:100)
+        at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+"#;
+        let a = analyze(IDLE);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::FrameworkPoolSaturation)
         );
     }
 }
