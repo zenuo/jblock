@@ -256,18 +256,14 @@ export default function App() {
           <>
             <button
               className="btn"
-              onClick={() =>
-                void exportHtml(analysis, sourceName || "dump", locale)
-              }
+              onClick={() => exportHtml(analysis, sourceName, t, locale)}
               disabled={busy}
             >
               {t("app.exportHtml")}
             </button>
             <button
               className="btn"
-              onClick={() =>
-                void exportPdf(analysis, sourceName || "dump", locale)
-              }
+              onClick={() => void exportPdf(analysis, sourceName)}
               disabled={busy}
             >
               {t("app.exportPdf")}
