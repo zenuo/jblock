@@ -2,47 +2,33 @@
 
 ## Current Objective
 
-- Goal: feat-009 ThreadMXBean lock-contention detection fix
+- Goal: feat-011 move Java codegen to frontend to shrink WASM
 - Current status: done
-- Branch / commit: `cursor/feat-009-mxbean-lock-contention-6bfd`
+- Branch: `cursor/feat-011-frontend-java-codegen-6bfd`
 
 ## Completed This Session
 
-- [x] Parsed MXBean `Class@hash` locks (`blocked on` / `locked`; not `waiting on`)
-- [x] Header `BLOCKED on` / `owned by` fallback
-- [x] Tests: synthetic + Java 8–21 fixtures + real Flink/Kafka excerpt from `tdump_15c7`
-- [x] Verified full uploaded dump: 68 BLOCKED → 68 edges with owners
+- [x] Added feat-011 to `feature_list.json` and implemented it
+- [x] `web/src/codegen.ts` powers the page Generate panel
+- [x] Removed wasm-bindgen `generateJava`; Rust codegen host-only
+- [x] WASM size −5,428 bytes; `./init.sh` green
 
 ## Verification Evidence
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Unit tests | `cargo test` | pass | 16 tests |
-| Full dump | analyze `tdump_15c7.txt` | pass | 3962 threads, 68 edges |
-| Full gate | `./init.sh` | pass | cargo + wasm + lint + typecheck + build |
+| Unit tests | `cargo test` | pass | 16 tests; codegen still host-tested |
+| Example | `cargo run --example gen_java -- deadlock 2` | pass | |
+| Full gate | `./init.sh` | pass | |
+| WASM size | `wc -c web/src/wasm/jblock_bg.wasm` | 1044453 | was 1049881 |
 
 ## Files Changed
 
-- `src/parser.rs`
-- `tests/fixtures/mxbean_real_contention.txt`
-- `tests/fixtures/java-versions/FORMAT_DIFFS.md`
-- `feature_list.json`, `progress.md`, `session-handoff.md`
-
-## Decisions Made
-
-- Keep full `Class@hash` as lock id (not hash-only) for stable matching.
-- Do not treat Condition `waiting on` as lock contention.
-
-## Blockers / Risks
-
-- None.
+- `feature_list.json`, `progress.md`, `session-handoff.md`, `README.md`
+- `src/lib.rs`, `src/codegen.rs`
+- `web/src/codegen.ts`, `web/src/analyzer.ts`, `web/src/App.tsx`
 
 ## Next Session Startup
 
-1. Read `AGENTS.md`.
-2. Read `feature_list.json` and `progress.md`.
-3. Run `./init.sh`.
-
-## Recommended Next Step
-
-- Backlog feat-001..010 is complete; pick new work or UX polish.
+1. Read `AGENTS.md` / `feature_list.json`.
+2. Run `./init.sh`.

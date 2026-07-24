@@ -32,7 +32,7 @@
 
 - [x] `cargo test` 16 passed
 - [x] WASM `jblock_bg.wasm` 1,049,881 → 1,044,453 (−5,428 bytes); no `generateJava` in wasm pkg
-- [x] `./init.sh` (pending run)
+- [x] `./init.sh` green
 
 ## Notes for Next Session
 
