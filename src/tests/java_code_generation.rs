@@ -51,6 +51,11 @@ fn parses_scenario_aliases() {
         Some(Scenario::ConditionStarvation)
     );
     assert_eq!(parse_scenario("park-starvation"), Some(Scenario::ConditionStarvation));
+    assert_eq!(parse_scenario("lock-order-risk"), Some(Scenario::LockOrderRisk));
+    assert_eq!(
+        parse_scenario("inconsistent-lock-order"),
+        Some(Scenario::LockOrderRisk)
+    );
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -173,6 +178,18 @@ fn condition_starvation_awaits_without_signal() {
 }
 
 #[test]
+fn lock_order_risk_uses_opposite_orders() {
+    let code = generate(Scenario::LockOrderRisk, 2);
+    assert!(code.contains("public class LockOrderRisk"));
+    assert!(code.contains("LOCK_A"));
+    assert!(code.contains("LOCK_B"));
+    assert!(code.contains("order-ab"));
+    assert!(code.contains("order-ba"));
+    assert!(code.contains("synchronized (LOCK_A)"));
+    assert!(code.contains("synchronized (LOCK_B)"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -209,5 +226,6 @@ fn class_name_matches_source() {
         Scenario::ConditionStarvation.class_name(),
         "ConditionStarvation"
     );
+    assert_eq!(Scenario::LockOrderRisk.class_name(), "LockOrderRisk");
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

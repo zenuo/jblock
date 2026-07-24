@@ -15,7 +15,8 @@ export type FindingKind =
   | "future-latch-wait-tree"
   | "logging-appender-contention"
   | "busy-wait-spin-hotspot"
-  | "condition-park-starvation";
+  | "condition-park-starvation"
+  | "lock-order-inconsistency";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -266,6 +267,21 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: "Condition",
+        },
+      });
+    } else if (p.kind === "lock-order-inconsistency") {
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "lock-order-inconsistency",
+        title: t("findings.lockOrderTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.lockOrderDetail", { detail: p.detail }),
+        actors: {
+          nodes: actorsForNames(analysis, p.thread_names, 6),
+          owner: null,
+          waiters: [],
+          lock: null,
         },
       });
     }

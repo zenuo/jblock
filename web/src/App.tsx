@@ -313,6 +313,9 @@ export default function App() {
                   <option value="condition-starvation">
                     {t("codegen.conditionStarvation")}
                   </option>
+                  <option value="lock-order-risk">
+                    {t("codegen.lockOrderRisk")}
+                  </option>
                 </select>
               </label>
               <label>

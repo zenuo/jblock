@@ -60,7 +60,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                         ? "legend.busyWaitTitle"
                         : kind === "condition-park-starvation"
                           ? "legend.conditionStarvationTitle"
-                          : "legend.cleanTitle";
+                          : kind === "lock-order-inconsistency"
+                            ? "legend.lockOrderTitle"
+                            : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -84,7 +86,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                         ? "legend.busyWaitBody"
                         : kind === "condition-park-starvation"
                           ? "legend.conditionStarvationBody"
-                          : "legend.cleanBody";
+                          : kind === "lock-order-inconsistency"
+                            ? "legend.lockOrderBody"
+                            : "legend.cleanBody";
 
   return (
     <div
@@ -139,10 +143,15 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "condition-park-starvation" && (
             <ConditionStarvationDemo actors={actors} />
           )}
+          {kind === "lock-order-inconsistency" && (
+            <DeadlockDemo actors={actors} />
+          )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
         <ul className="legend-key">
-          {(kind === "deadlock" || kind === "future-latch-wait-tree") && (
+          {(kind === "deadlock" ||
+            kind === "future-latch-wait-tree" ||
+            kind === "lock-order-inconsistency") && (
             <>
               <li>
                 <span className="swatch swatch-thread" /> {t("legend.keyThread")}

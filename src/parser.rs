@@ -89,6 +89,8 @@ pub enum PatternKind {
     BusyWaitSpinHotspot,
     /// Many WAITING on ConditionObject/park with no signaler RUNNABLE (feat-035).
     ConditionParkStarvation,
+    /// Conflicting lock acquisition orders that risk deadlock (feat-036).
+    LockOrderInconsistency,
 }
 
 /// One detected high-level pattern hit.
@@ -421,6 +423,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_condition_park_starvation(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_lock_order_inconsistency(threads) {
         out.push(hit);
     }
     out
@@ -1092,6 +1097,91 @@ fn detect_condition_park_starvation(threads: &[ThreadInfo]) -> Option<PatternHit
     })
 }
 
+/// Build lock-acquisition order for a thread: outermost held lock first, then
+/// any `waiting to lock` target as the next intended acquisition.
+fn lock_acquisition_order(t: &ThreadInfo) -> Vec<String> {
+    // jstack lists innermost `locked` first; reverse to get acquire order.
+    let mut order: Vec<String> = t.held_locks.iter().rev().cloned().collect();
+    if let Some(w) = &t.waiting_on {
+        if !order.iter().any(|l| l == w) {
+            order.push(w.clone());
+        }
+    }
+    order
+}
+
+/// Nested lock-order inconsistency: observe both A→B and B→A acquisition
+/// orders across threads (risk of deadlock; may or may not already cycle).
+fn detect_lock_order_inconsistency(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    // edge (before, after) -> thread names that witnessed it
+    let mut edges: BTreeMap<(String, String), Vec<String>> = BTreeMap::new();
+    for t in threads {
+        let order = lock_acquisition_order(t);
+        if order.len() < 2 {
+            continue;
+        }
+        for i in 0..order.len() {
+            for j in (i + 1)..order.len() {
+                let before = order[i].clone();
+                let after = order[j].clone();
+                if before == after {
+                    continue;
+                }
+                edges
+                    .entry((before, after))
+                    .or_default()
+                    .push(t.name.clone());
+            }
+        }
+    }
+
+    let mut best: Option<(String, String, Vec<String>)> = None;
+    let keys: Vec<(String, String)> = edges.keys().cloned().collect();
+    for (a, b) in &keys {
+        if a >= b {
+            // Only consider each unordered pair once (canonical a < b).
+            continue;
+        }
+        let Some(fwd) = edges.get(&(a.clone(), b.clone())) else {
+            continue;
+        };
+        let Some(rev) = edges.get(&(b.clone(), a.clone())) else {
+            continue;
+        };
+        let mut names: BTreeSet<String> = BTreeSet::new();
+        names.extend(fwd.iter().cloned());
+        names.extend(rev.iter().cloned());
+        let names: Vec<String> = names.into_iter().collect();
+        if names.len() < 2 {
+            continue;
+        }
+        let better = best
+            .as_ref()
+            .map(|(_, _, n)| names.len() > n.len())
+            .unwrap_or(true);
+        if better {
+            best = Some((a.clone(), b.clone(), names));
+        }
+    }
+    let (a, b, names) = best?;
+    let severity = if names.len() >= 3 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::LockOrderInconsistency,
+        severity: severity.to_string(),
+        detail: format!(
+            "inconsistent lock order {}↔{} across {} threads (deadlock risk)",
+            a,
+            b,
+            names.len()
+        ),
+        thread_names: names,
+    })
+}
+
 /// Detect deadlock cycles from the wait-for graph.
 ///
 /// Each thread waits on at most one lock, so the wait-for relation is a
@@ -1729,6 +1819,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_lock_order_inconsistency_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/lock_order_risk_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::LockOrderInconsistency),
+            "live fixture should detect lock-order inconsistency"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -2264,6 +2367,61 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::ConditionParkStarvation)
+        );
+    }
+
+    const LOCK_ORDER_SAMPLE: &str = r#"2026-07-24 18:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"order-ab" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LockOrderRisk.lambda$main$0(LockOrderRisk.java:24)
+        - waiting to lock <0x000000076ab00002> (a java.lang.Object)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"order-ba" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LockOrderRisk.lambda$main$1(LockOrderRisk.java:42)
+        - waiting to lock <0x000000076ab00001> (a java.lang.Object)
+        - locked <0x000000076ab00002> (a java.lang.Object)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_lock_order_inconsistency_pattern() {
+        let a = analyze(LOCK_ORDER_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::LockOrderInconsistency)
+            .expect("lock-order-inconsistency");
+        assert_eq!(hit.thread_names.len(), 2);
+        assert!(hit.detail.contains("inconsistent") || hit.detail.contains("↔"));
+        assert!(hit.thread_names.iter().any(|n| n == "order-ab"));
+        assert!(hit.thread_names.iter().any(|n| n == "order-ba"));
+        // Classic opposite orders also form a wait-for cycle.
+        assert!(!a.deadlocks.is_empty());
+    }
+
+    #[test]
+    fn one_way_lock_order_is_not_inconsistency() {
+        const ONE_WAY: &str = r#""worker" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting for monitor entry [0x1]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.App.run(App.java:10)
+        - waiting to lock <0x000000076ab00002> (a java.lang.Object)
+        - locked <0x000000076ab00001> (a java.lang.Object)
+
+"holder" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting on condition [0x2]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076ab00002> (a java.lang.Object)
+"#;
+        let a = analyze(ONE_WAY);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::LockOrderInconsistency)
         );
     }
 }

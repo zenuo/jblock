@@ -38,7 +38,8 @@ export type PatternKind =
   | "future-latch-wait-tree"
   | "logging-appender-contention"
   | "busy-wait-spin-hotspot"
-  | "condition-park-starvation";
+  | "condition-park-starvation"
+  | "lock-order-inconsistency";
 
 export interface PatternHit {
   kind: PatternKind;
