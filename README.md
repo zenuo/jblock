@@ -1,1 +1,106 @@
 # jblock
+
+> 基于 React + Rust/WebAssembly 的单页面 Java 线程转储（thread dump）分析工具。
+
+`jblock` 在浏览器本地解析并分析 Java 线程转储：选择本地 dump 文件后，由 Rust 编译成的
+WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并可导出为 HTML / PDF。所有解析都在
+本地完成，dump 内容不会上传到任何服务器。
+
+## 功能特性
+
+- **本地文件选择**：在浏览器中选择本地线程转储文件（`.txt` / `.log` / `.tdump` 等）。
+- **多格式适配**：
+  - `jstack` 工具输出（状态位于独立的 `java.lang.Thread.State:` 行）。
+  - `ThreadMXBean#dumpAllThreads` / `ThreadInfo#toString()` 输出（状态在线程头行）。
+- **Rust/WASM 解析**：核心解析器用 Rust 编写，编译为 WebAssembly，兼顾性能与安全。
+- **分析结果**：
+  - 线程状态分组计数（RUNNABLE / BLOCKED / WAITING / TIMED_WAITING / …）。
+  - 锁阻塞问题模式识别：找出被阻塞线程、其等待的锁，以及持有该锁的线程。
+  - 每个线程的持有锁、栈深度等信息。
+- **结果渲染**：状态分布条形图、锁竞争表、线程明细表。
+- **导出**：一键导出自包含 HTML 报告；PDF 通过浏览器打印对话框（"另存为 PDF"）导出。
+
+## 技术栈
+
+| 层 | 技术 |
+| --- | --- |
+| 解析核心 | Rust（`wasm-bindgen` + `serde` + `regex`），编译为 `wasm32-unknown-unknown` |
+| 打包 | `wasm-pack`（`--target web`） |
+| 前端 | React 18 + TypeScript + Vite |
+
+## 目录结构
+
+```
+jblock/
+├── Cargo.toml           # Rust WASM crate 清单
+├── src/
+│   ├── lib.rs           # wasm-bindgen 绑定层（analyzeDump 导出）
+│   └── parser.rs        # 纯 Rust 解析/分析逻辑（含单元测试）
+└── web/                 # React + Vite 前端
+    ├── package.json
+    ├── vite.config.ts
+    ├── eslint.config.js
+    └── src/
+        ├── main.tsx
+        ├── App.tsx      # 页面 UI 与交互
+        ├── analyzer.ts  # 加载并调用 WASM
+        ├── export.ts    # HTML / PDF 导出
+        ├── types.ts     # 与 Rust Analysis 结构对应的 TS 类型
+        └── wasm/        # wasm-pack 生成产物（构建生成，已 gitignore）
+```
+
+## 环境要求
+
+- Rust 工具链（`rustc` / `cargo`）与 `wasm32-unknown-unknown` target
+- [`wasm-pack`](https://rustwasm.github.io/wasm-pack/)
+- Node.js 18+ 与 `pnpm`
+
+一次性安装：
+
+```bash
+rustup target add wasm32-unknown-unknown
+curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+cd web && pnpm install
+```
+
+## 开发
+
+```bash
+cd web
+pnpm run dev        # 先用 wasm-pack 构建 WASM（dev 模式），再启动 Vite
+```
+
+打开 http://localhost:5173/ ，点击 **Load sample** 或 **Choose thread dump…** 选择本地 dump。
+
+> 说明：WASM 不会随前端热更新自动重建。修改了 `src/*.rs` 后，需要重新运行
+> `pnpm run wasm`（或重启 `pnpm run dev`）以重建 `web/src/wasm/`。
+
+## 常用命令（在 `web/` 目录下）
+
+| 命令 | 作用 |
+| --- | --- |
+| `pnpm run wasm` | release 模式构建 WASM 到 `web/src/wasm/` |
+| `pnpm run wasm:dev` | dev 模式构建 WASM（更快，未优化） |
+| `pnpm run dev` | 构建 WASM 并启动 Vite 开发服务器 |
+| `pnpm run build` | 构建 WASM + 类型检查 + 生产打包到 `web/dist/` |
+| `pnpm run preview` | 预览生产构建 |
+| `pnpm run typecheck` | TypeScript 类型检查 |
+| `pnpm run lint` | ESLint 检查 |
+
+Rust 侧：
+
+```bash
+cargo test          # 运行 src/parser.rs 中的解析单元测试
+```
+
+## 工作原理
+
+1. 前端读取本地 dump 文件内容（纯文本）。
+2. 调用 WASM 导出的 `analyzeDump(text)`（对应 Rust `src/lib.rs`）。
+3. Rust 侧 `parser::analyze` 检测格式、按线程切块、提取名称/ID/状态/锁信息，
+   统计状态分组，并根据"持锁-等锁"关系构建锁竞争边。
+4. 结果以 JS 对象返回前端并渲染；可导出为 HTML / PDF。
+
+## License
+
+MIT

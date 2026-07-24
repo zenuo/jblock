@@ -1,0 +1,17 @@
+# dependencies
+node_modules
+
+# build output
+dist
+*.tsbuildinfo
+
+# generated WASM package (built from ../src via wasm-pack)
+src/wasm
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor
+.DS_Store
