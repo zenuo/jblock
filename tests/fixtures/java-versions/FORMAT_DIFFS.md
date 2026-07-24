@@ -50,13 +50,12 @@ Shared across all versions:
 | 17 | same as 11 | `java.base@17…` |
 | 21 | same as 11 | `Thread.sleep0` + `Thread.runWith`; lambda names `$$Lambda/0x…` |
 
-Parser impact: format detection via `Id=`; jstack-style `<0x…>` lock regex does
-**not** match MXBean locks (tracked as feat-009). Name / state / thread split
-already work on 8–21.
+Parser impact: format detection via `Id=`; lock lines use `Class@identityHash`
+(parsed by feat-009). Name / state / thread split work on 8–21.
 
-## Compatibility matrix (feat-008)
+## Compatibility matrix (feat-008 + feat-009)
 
 | Dump | Detect format | Split threads | States | jstack contention | jstack deadlock | MXBean contention locks |
 | --- | --- | --- | --- | --- | --- | --- |
 | jstack 8/11/17/21 | yes | yes | yes | yes | yes | n/a |
-| MXBean 8/11/17/21 | yes | yes | yes | n/a | n/a | no (feat-009) |
+| MXBean 8/11/17/21 | yes | yes | yes | n/a | n/a | yes (feat-009) |
