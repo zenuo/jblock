@@ -141,14 +141,36 @@ fn extract_name(header: &str) -> Option<String> {
     Some(rest[..end].to_string())
 }
 
-fn parse_block(block: &[&str], lock_re: &Regex, id_re: &Regex, state_re: &Regex) -> ThreadInfo {
+/// Thread id from an MXBean `Id=N` header, or the jstack `#N` ordinal.
+fn extract_id(header: &str, mxbean_id_re: &Regex, jstack_id_re: &Regex) -> Option<String> {
+    mxbean_id_re
+        .captures(header)
+        .and_then(|c| c.get(1))
+        .map(|m| m.as_str().to_string())
+        .or_else(|| {
+            jstack_id_re
+                .captures(header)
+                .and_then(|c| c.get(1))
+                .map(|m| m.as_str().to_string())
+        })
+}
+
+fn parse_block(
+    block: &[&str],
+    // jstack: `- waiting to lock <0x…>` / `- locked <0x…>`
+    jstack_lock_re: &Regex,
+    // MXBean: `-  blocked on Class@hash` / `-  locked Class@hash` / `-  waiting to lock Class@hash`
+    mxbean_lock_re: &Regex,
+    // Header fallback: `BLOCKED on Class@hash owned by "owner"`
+    mxbean_header_blocked_re: &Regex,
+    mxbean_id_re: &Regex,
+    jstack_id_re: &Regex,
+    state_re: &Regex,
+) -> ThreadInfo {
     let header = block[0];
     let name = extract_name(header).unwrap_or_else(|| "<unknown>".to_string());
 
-    let id = id_re
-        .captures(header)
-        .and_then(|c| c.get(1))
-        .map(|m| m.as_str().to_string());
+    let id = extract_id(header, mxbean_id_re, jstack_id_re);
 
     // State: prefer the explicit jstack line, fall back to a token in the header.
     let mut state = String::new();
@@ -179,15 +201,33 @@ fn parse_block(block: &[&str], lock_re: &Regex, id_re: &Regex, state_re: &Regex)
         if trimmed.starts_with("at ") {
             stack_depth += 1;
         }
-        if let Some(cap) = lock_re.captures(line) {
-            let lock_id = cap.get(1).map(|m| m.as_str().to_string());
-            if let Some(lock_id) = lock_id {
-                if trimmed.contains("waiting to lock") || trimmed.contains("- waiting to lock") {
-                    waiting_on = Some(lock_id);
-                } else if trimmed.contains("locked") {
-                    held_locks.push(lock_id);
-                }
+        // jstack monitor lines use angle-bracket hex identities.
+        if let Some(cap) = jstack_lock_re.captures(line) {
+            let lock_id = cap[1].to_string();
+            if trimmed.contains("waiting to lock") {
+                waiting_on = Some(lock_id);
+            } else if trimmed.contains("locked") {
+                held_locks.push(lock_id);
             }
+            // Note: `- waiting on <0x…>` is Object.wait / park, not lock acquisition.
+        }
+        // ThreadMXBean / ThreadInfo#toString uses `Class@identityHash`.
+        if let Some(cap) = mxbean_lock_re.captures(trimmed) {
+            let kind = cap.get(1).map(|m| m.as_str()).unwrap_or("");
+            let lock_id = cap[2].to_string();
+            match kind {
+                "blocked on" | "waiting to lock" => waiting_on = Some(lock_id),
+                "locked" => held_locks.push(lock_id),
+                _ => {}
+            }
+        }
+    }
+
+    // Header fallback when lockedMonitors details are missing but the
+    // ThreadInfo header still carries `BLOCKED on Class@hash`.
+    if waiting_on.is_none() {
+        if let Some(cap) = mxbean_header_blocked_re.captures(header) {
+            waiting_on = Some(cap[1].to_string());
         }
     }
 
@@ -204,16 +244,40 @@ fn parse_block(block: &[&str], lock_re: &Regex, id_re: &Regex, state_re: &Regex)
 /// Parse and analyze a Java thread dump.
 pub fn analyze(input: &str) -> Analysis {
     let format = detect_format(input);
-    let lock_re = Regex::new(r"<(0x[0-9a-fA-F]+)>").unwrap();
-    let id_re = Regex::new(r"Id=(\d+)").unwrap();
+    let jstack_lock_re = Regex::new(r"<(0x[0-9a-fA-F]+)>").unwrap();
+    // MXBean lock lines: kind in group 1, `Class@hash` in group 2.
+    // Do not match `-  waiting on …` (Condition/park), only acquisition/contention.
+    let mxbean_lock_re = Regex::new(
+        r"-\s+(blocked on|waiting to lock|locked)\s+([\w.$]+@[0-9a-fA-F]+)",
+    )
+    .unwrap();
+    let mxbean_header_blocked_re =
+        Regex::new(r"\bBLOCKED on ([\w.$]+@[0-9a-fA-F]+)").unwrap();
+    // Optional owner name from the same header (`owned by "name"`).
+    let mxbean_owned_by_re = Regex::new(r#"\bowned by "([^"]+)""#).unwrap();
+    // MXBean headers: `"name" Id=13 …` (Java 8) or `"name" prio=5 Id=13 …` (11+).
+    let mxbean_id_re = Regex::new(r"\bId=(\d+)").unwrap();
+    // jstack headers: `"name" #19 …` (Java 21 may insert `[os_tid]` after `#N`).
+    let jstack_id_re = Regex::new(r#"^"[^"]*"\s+#(\d+)"#).unwrap();
     let state_re = Regex::new(
         r"\b(NEW|RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|TERMINATED)\b",
     )
     .unwrap();
 
-    let threads: Vec<ThreadInfo> = split_thread_blocks(input)
+    let blocks = split_thread_blocks(input);
+    let threads: Vec<ThreadInfo> = blocks
         .iter()
-        .map(|b| parse_block(b, &lock_re, &id_re, &state_re))
+        .map(|b| {
+            parse_block(
+                b,
+                &jstack_lock_re,
+                &mxbean_lock_re,
+                &mxbean_header_blocked_re,
+                &mxbean_id_re,
+                &jstack_id_re,
+                &state_re,
+            )
+        })
         .collect();
 
     // State grouping counts.
@@ -247,6 +311,18 @@ pub fn analyze(input: &str) -> Analysis {
             lock_owner
                 .entry(lock.clone())
                 .or_insert_with(|| t.name.clone());
+        }
+    }
+    // Harvest `owned by "…"` from MXBean BLOCKED headers when the owner's
+    // `-  locked` line is absent (still enough to attribute the edge).
+    for (t, block) in threads.iter().zip(blocks.iter()) {
+        if let Some(lock) = &t.waiting_on {
+            if lock_owner.contains_key(lock) {
+                continue;
+            }
+            if let Some(cap) = mxbean_owned_by_re.captures(block[0]) {
+                lock_owner.insert(lock.clone(), cap[1].to_string());
+            }
         }
     }
     let mut blocked_edges: Vec<BlockedEdge> = Vec::new();
@@ -370,6 +446,22 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         at sun.misc.Unsafe.park(Native Method)
 "#;
 
+    const MXBEAN_CONTENTION: &str = r#""waiter-1" Id=11 BLOCKED on java.lang.Object@53d8d10a owned by "holder" Id=9
+	at MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@53d8d10a
+	at java.lang.Thread.run(Thread.java:750)
+
+"waiter-0" Id=10 BLOCKED on java.lang.Object@53d8d10a owned by "holder" Id=9
+	at MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@53d8d10a
+	at java.lang.Thread.run(Thread.java:750)
+
+"holder" Id=9 TIMED_WAITING
+	at java.lang.Thread.sleep(Native Method)
+	-  locked java.lang.Object@53d8d10a
+	at java.lang.Thread.run(Thread.java:750)
+"#;
+
     #[test]
     fn detects_jstack_format() {
         let a = analyze(JSTACK_SAMPLE);
@@ -382,6 +474,38 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         let a = analyze(MXBEAN_SAMPLE);
         assert_eq!(a.format, DumpFormat::ThreadMxBean);
         assert_eq!(a.total_threads, 2);
+        // Condition `waiting on` must NOT become a contention edge.
+        assert!(a.blocked_edges.is_empty());
+    }
+
+    #[test]
+    fn detects_mxbean_format_lock_contentions() {
+        let a = analyze(MXBEAN_CONTENTION);
+        assert_eq!(a.format, DumpFormat::ThreadMxBean);
+        let holder = a.threads.iter().find(|t| t.name == "holder").unwrap();
+        assert_eq!(
+            holder.held_locks,
+            vec!["java.lang.Object@53d8d10a".to_string()]
+        );
+        let waiters: Vec<_> = a
+            .threads
+            .iter()
+            .filter(|t| t.name.starts_with("waiter-"))
+            .collect();
+        assert_eq!(waiters.len(), 2);
+        for w in &waiters {
+            assert_eq!(w.state, "BLOCKED");
+            assert_eq!(
+                w.waiting_on.as_deref(),
+                Some("java.lang.Object@53d8d10a")
+            );
+        }
+        assert_eq!(a.blocked_edges.len(), 2);
+        for edge in &a.blocked_edges {
+            assert!(edge.blocked_thread.starts_with("waiter-"));
+            assert_eq!(edge.lock, "java.lang.Object@53d8d10a");
+            assert_eq!(edge.owner_thread.as_deref(), Some("holder"));
+        }
     }
 
     #[test]
@@ -465,5 +589,173 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         for name in ["deadlock-0", "deadlock-1", "deadlock-2"] {
             assert!(members.contains(name), "missing {name} in cycle");
         }
+    }
+
+    // feat-008: real dumps captured with Temurin 8/11/17/21 via jenv
+    // (see tests/fixtures/java-versions/FORMAT_DIFFS.md).
+    const JV_JSTACK_CONTENTION: [&str; 4] = [
+        include_str!("../tests/fixtures/java-versions/java8-jstack-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java11-jstack-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java17-jstack-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java21-jstack-contention.txt"),
+    ];
+    const JV_JSTACK_DEADLOCK: [&str; 4] = [
+        include_str!("../tests/fixtures/java-versions/java8-jstack-deadlock.txt"),
+        include_str!("../tests/fixtures/java-versions/java11-jstack-deadlock.txt"),
+        include_str!("../tests/fixtures/java-versions/java17-jstack-deadlock.txt"),
+        include_str!("../tests/fixtures/java-versions/java21-jstack-deadlock.txt"),
+    ];
+    const JV_MXBEAN_CONTENTION: [&str; 4] = [
+        include_str!("../tests/fixtures/java-versions/java8-mxbean-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java11-mxbean-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java17-mxbean-contention.txt"),
+        include_str!("../tests/fixtures/java-versions/java21-mxbean-contention.txt"),
+    ];
+    const JV_LABELS: [&str; 4] = ["8", "11", "17", "21"];
+
+    #[test]
+    fn detects_java_version_support() {
+        for (i, label) in JV_LABELS.iter().enumerate() {
+            // --- jstack lock contention ---
+            let a = analyze(JV_JSTACK_CONTENTION[i]);
+            assert_eq!(a.format, DumpFormat::Jstack, "java{label} jstack format");
+            let holder = a
+                .threads
+                .iter()
+                .find(|t| t.name == "holder")
+                .unwrap_or_else(|| panic!("java{label}: missing holder"));
+            assert_eq!(holder.state, "TIMED_WAITING");
+            assert_eq!(holder.held_locks.len(), 1, "java{label}: holder lock");
+            assert!(holder.id.is_some(), "java{label}: jstack #N id");
+
+            let waiters: Vec<_> = a
+                .threads
+                .iter()
+                .filter(|t| t.name.starts_with("waiter-"))
+                .collect();
+            assert_eq!(waiters.len(), 2, "java{label}: waiter count");
+            for w in &waiters {
+                assert_eq!(w.state, "BLOCKED");
+                assert_eq!(w.waiting_on.as_ref(), Some(&holder.held_locks[0]));
+            }
+            assert!(
+                a.blocked_edges.len() >= 2,
+                "java{label}: expected contention edges, got {}",
+                a.blocked_edges.len()
+            );
+            for edge in a
+                .blocked_edges
+                .iter()
+                .filter(|e| e.blocked_thread.starts_with("waiter-"))
+            {
+                assert_eq!(edge.owner_thread.as_deref(), Some("holder"));
+            }
+
+            // --- jstack deadlock ---
+            let d = analyze(JV_JSTACK_DEADLOCK[i]);
+            assert_eq!(d.format, DumpFormat::Jstack, "java{label} deadlock format");
+            let phantom = d
+                .threads
+                .iter()
+                .filter(|t| t.name.starts_with("deadlock-") && t.state == "UNKNOWN")
+                .count();
+            assert_eq!(phantom, 0, "java{label}: deadlock summary leaked as threads");
+            assert_eq!(d.deadlocks.len(), 1, "java{label}: deadlock cycle count");
+            assert_eq!(d.deadlocks[0].threads.len(), 3, "java{label}: cycle size");
+            let members: BTreeSet<&str> =
+                d.deadlocks[0].threads.iter().map(|s| s.as_str()).collect();
+            for name in ["deadlock-0", "deadlock-1", "deadlock-2"] {
+                assert!(
+                    members.contains(name),
+                    "java{label}: missing {name} in cycle"
+                );
+            }
+
+            // --- ThreadMXBean: format + thread split + lock contention ---
+            let m = analyze(JV_MXBEAN_CONTENTION[i]);
+            assert_eq!(
+                m.format,
+                DumpFormat::ThreadMxBean,
+                "java{label} mxbean format"
+            );
+            let holder = m
+                .threads
+                .iter()
+                .find(|t| t.name == "holder")
+                .unwrap_or_else(|| panic!("java{label} mxbean: missing holder"));
+            assert_eq!(holder.state, "TIMED_WAITING");
+            assert!(holder.id.is_some(), "java{label} mxbean: Id=N");
+            assert_eq!(
+                holder.held_locks.len(),
+                1,
+                "java{label} mxbean: holder lock"
+            );
+            let waiters: Vec<_> = m
+                .threads
+                .iter()
+                .filter(|t| t.name.starts_with("waiter-"))
+                .collect();
+            assert_eq!(waiters.len(), 2, "java{label} mxbean: waiter count");
+            for w in &waiters {
+                assert_eq!(w.state, "BLOCKED", "java{label} mxbean: waiter state");
+                assert_eq!(
+                    w.waiting_on.as_ref(),
+                    Some(&holder.held_locks[0]),
+                    "java{label} mxbean: waiter lock"
+                );
+            }
+            let edges: Vec<_> = m
+                .blocked_edges
+                .iter()
+                .filter(|e| e.blocked_thread.starts_with("waiter-"))
+                .collect();
+            assert_eq!(edges.len(), 2, "java{label} mxbean: contention edges");
+            for edge in edges {
+                assert_eq!(edge.owner_thread.as_deref(), Some("holder"));
+            }
+        }
+    }
+
+    // feat-009: excerpt from a real Flink/Kafka ThreadMXBean dump (tdump_15c7).
+    const REAL_MXBEAN: &str = include_str!("../tests/fixtures/mxbean_real_contention.txt");
+
+    #[test]
+    fn detects_mxbean_format_lock_contentions_real_world() {
+        let a = analyze(REAL_MXBEAN);
+        assert_eq!(a.format, DumpFormat::ThreadMxBean);
+
+        let kafka = a
+            .blocked_edges
+            .iter()
+            .find(|e| e.blocked_thread.starts_with("kafka-producer-network-thread"))
+            .expect("kafka contention edge");
+        assert_eq!(kafka.lock, "java.lang.Object@7ec4e9a");
+        assert_eq!(kafka.owner_thread.as_deref(), Some("Writer: writer (1/1)#0"));
+
+        let log_lock =
+            "org.apache.logging.log4j.core.appender.rolling.RollingFileManager@30dbe1cc";
+        let log_edges: Vec<_> = a
+            .blocked_edges
+            .iter()
+            .filter(|e| e.lock == log_lock)
+            .collect();
+        assert!(
+            log_edges.len() >= 2,
+            "expected multiple RollingFileManager waiters, got {}",
+            log_edges.len()
+        );
+        for edge in &log_edges {
+            assert_eq!(
+                edge.owner_thread.as_deref(),
+                Some("stage -> Timestamps/Watermarks (58/60)#0")
+            );
+        }
+
+        let holder = a
+            .threads
+            .iter()
+            .find(|t| t.name == "stage -> Timestamps/Watermarks (58/60)#0")
+            .unwrap();
+        assert!(holder.held_locks.iter().any(|l| l == log_lock));
     }
 }

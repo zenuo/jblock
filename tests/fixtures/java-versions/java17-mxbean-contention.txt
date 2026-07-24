@@ -1,0 +1,58 @@
+"main" prio=5 Id=1 RUNNABLE
+	at java.management@17.0.19/sun.management.ThreadImpl.dumpThreads0(Native Method)
+	at java.management@17.0.19/sun.management.ThreadImpl.dumpAllThreads(ThreadImpl.java:528)
+	at java.management@17.0.19/sun.management.ThreadImpl.dumpAllThreads(ThreadImpl.java:516)
+	at app//MxBeanDump.main(MxBeanDump.java:31)
+
+
+"Reference Handler" daemon prio=10 Id=2 RUNNABLE
+	at java.base@17.0.19/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+	at java.base@17.0.19/java.lang.ref.Reference.processPendingReferences(Reference.java:253)
+	at java.base@17.0.19/java.lang.ref.Reference$ReferenceHandler.run(Reference.java:215)
+
+
+"Finalizer" daemon prio=8 Id=3 WAITING on java.lang.ref.ReferenceQueue$Lock@5a07e868
+	at java.base@17.0.19/java.lang.Object.wait(Native Method)
+	-  waiting on java.lang.ref.ReferenceQueue$Lock@5a07e868
+	at java.base@17.0.19/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:155)
+	at java.base@17.0.19/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:176)
+	at java.base@17.0.19/java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:172)
+
+
+"Signal Dispatcher" daemon prio=9 Id=4 RUNNABLE
+
+
+"Notification Thread" daemon prio=9 Id=11 RUNNABLE
+
+
+"Common-Cleaner" daemon prio=8 Id=12 TIMED_WAITING on java.lang.ref.ReferenceQueue$Lock@4517d9a3
+	at java.base@17.0.19/java.lang.Object.wait(Native Method)
+	-  waiting on java.lang.ref.ReferenceQueue$Lock@4517d9a3
+	at java.base@17.0.19/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:155)
+	at java.base@17.0.19/jdk.internal.ref.CleanerImpl.run(CleanerImpl.java:140)
+	at java.base@17.0.19/java.lang.Thread.run(Thread.java:840)
+	at java.base@17.0.19/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:162)
+
+
+"holder" prio=5 Id=13 TIMED_WAITING
+	at java.base@17.0.19/java.lang.Thread.sleep(Native Method)
+	at app//MxBeanDump.lambda$main$0(MxBeanDump.java:11)
+	-  locked java.lang.Object@372f7a8d
+	at app//MxBeanDump$$Lambda$1/0x00007ff578000a08.run(Unknown Source)
+	at java.base@17.0.19/java.lang.Thread.run(Thread.java:840)
+
+
+"waiter-0" prio=5 Id=14 BLOCKED on java.lang.Object@372f7a8d owned by "holder" Id=13
+	at app//MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@372f7a8d
+	at app//MxBeanDump$$Lambda$2/0x00007ff578000c28.run(Unknown Source)
+	at java.base@17.0.19/java.lang.Thread.run(Thread.java:840)
+
+
+"waiter-1" prio=5 Id=15 BLOCKED on java.lang.Object@372f7a8d owned by "holder" Id=13
+	at app//MxBeanDump.lambda$main$1(MxBeanDump.java:22)
+	-  blocked on java.lang.Object@372f7a8d
+	at app//MxBeanDump$$Lambda$2/0x00007ff578000c28.run(Unknown Source)
+	at java.base@17.0.19/java.lang.Thread.run(Thread.java:840)
+
+

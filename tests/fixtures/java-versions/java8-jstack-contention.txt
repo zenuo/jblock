@@ -1,0 +1,80 @@
+2026-07-24 08:48:23
+Full thread dump OpenJDK 64-Bit Server VM (25.492-b09 mixed mode):
+
+"Attach Listener" #12 daemon prio=9 os_prio=0 tid=0x00007f9a0c001000 nid=0x175c waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"waiter-1" #11 prio=5 os_prio=0 tid=0x00007f9a4419b000 nid=0x174c waiting for monitor entry [0x00007f9a304fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at LockContention.lambda$main$1(LockContention.java:20)
+	- waiting to lock <0x000000076c9dc998> (a java.lang.Object)
+	at LockContention$$Lambda$2/135721597.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+"waiter-0" #10 prio=5 os_prio=0 tid=0x00007f9a44199000 nid=0x174b waiting for monitor entry [0x00007f9a305fe000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at LockContention.lambda$main$1(LockContention.java:20)
+	- waiting to lock <0x000000076c9dc998> (a java.lang.Object)
+	at LockContention$$Lambda$2/135721597.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+"holder" #9 prio=5 os_prio=0 tid=0x00007f9a44196800 nid=0x174a waiting on condition [0x00007f9a309fe000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at LockContention.lambda$main$0(LockContention.java:8)
+	- locked <0x000000076c9dc998> (a java.lang.Object)
+	at LockContention$$Lambda$1/471910020.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:750)
+
+"Service Thread" #8 daemon prio=9 os_prio=0 tid=0x00007f9a440d6800 nid=0x1748 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C1 CompilerThread2" #7 daemon prio=9 os_prio=0 tid=0x00007f9a440c1800 nid=0x1747 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread1" #6 daemon prio=9 os_prio=0 tid=0x00007f9a440bf800 nid=0x1746 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #5 daemon prio=9 os_prio=0 tid=0x00007f9a440bc800 nid=0x1745 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 tid=0x00007f9a440ba000 nid=0x1744 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x00007f9a44087000 nid=0x1743 in Object.wait() [0x00007f9a3161d000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000076c988f00> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)
+	- locked <0x000000076c988f00> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:188)
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x00007f9a44082800 nid=0x1742 in Object.wait() [0x00007f9a3171d000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000076c986b98> (a java.lang.ref.Reference$Lock)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	- locked <0x000000076c986b98> (a java.lang.ref.Reference$Lock)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+"main" #1 prio=5 os_prio=0 tid=0x00007f9a4400a800 nid=0x173c waiting on condition [0x00007f9a487fe000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at LockContention.main(LockContention.java:26)
+
+"VM Thread" os_prio=0 tid=0x00007f9a44078800 nid=0x1741 runnable 
+
+"GC task thread#0 (ParallelGC)" os_prio=0 tid=0x00007f9a44020000 nid=0x173d runnable 
+
+"GC task thread#1 (ParallelGC)" os_prio=0 tid=0x00007f9a44022000 nid=0x173e runnable 
+
+"GC task thread#2 (ParallelGC)" os_prio=0 tid=0x00007f9a44023800 nid=0x173f runnable 
+
+"GC task thread#3 (ParallelGC)" os_prio=0 tid=0x00007f9a44025800 nid=0x1740 runnable 
+
+"VM Periodic Task Thread" os_prio=0 tid=0x00007f9a440d9000 nid=0x1749 waiting on condition 
+
+JNI global references: 319
+

@@ -61,16 +61,16 @@
       "name": "java version support",
       "description": "调研不同版本java的jstack/ThreadMXBean输出格式差异，通过jenv安装8/11/17/21，分别运行样例代码，用jstack/ThreadMXBean#dumpAllThreads，解析结果并对比",
       "dependencies": ["feat-007"],
-      "status": "not-started",
-      "evidence": "src/parser.rs; tests detects_java_version_support"
+      "status": "done",
+      "evidence": "jenv+Temurin 8/11/17/21 dumps in tests/fixtures/java-versions/ (FORMAT_DIFFS.md + capture script); parser extracts jstack #N ids (incl. Java 21 [os_tid]/nid decimal); tests detects_java_version_support covers jstack contention/deadlock + MXBean format/split for all 4 versions (MXBean lock ids deferred to feat-009)"
     },
     {
       "id": "feat-009",
       "name": "ThreadMXBean format lock contentions bug fix",
       "description": "Fix the bug in the ThreadMXBean format lock contentions detection",
       "dependencies": ["feat-007"],
-      "status": "not-started",
-      "evidence": "src/parser.rs; tests detects_mxbean_format_lock_contentions"
+      "status": "done",
+      "evidence": "src/parser.rs parses MXBean `-  blocked on Class@hash` / `-  locked Class@hash` (+ header BLOCKED on / owned by fallback); tests detects_mxbean_format_lock_contentions + real Flink/Kafka fixture mxbean_real_contention.txt; full tdump_15c7: 3962 threads, 68/68 BLOCKED edges with owners"
     },
     {
       "id": "feat-010",
