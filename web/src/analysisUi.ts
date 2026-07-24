@@ -12,7 +12,8 @@ export type FindingKind =
   | "sync-io-hotspot"
   | "dangerous-hot-lock-owner"
   | "connection-pool-borrow"
-  | "future-latch-wait-tree";
+  | "future-latch-wait-tree"
+  | "logging-appender-contention";
 
 /** Actors shown in the pattern legend animation (feat-023). */
 export interface FindingActor {
@@ -213,6 +214,26 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+        },
+      });
+    } else if (p.kind === "logging-appender-contention") {
+      const ownerName =
+        p.thread_names.find((n) => n.includes("holder") || n.includes("log-holder")) ??
+        p.thread_names[0] ??
+        null;
+      const waiters = p.thread_names.filter((n) => n !== ownerName);
+      findings.push({
+        severity: (p.severity as FindingSeverity) || "warning",
+        kind: "logging-appender-contention",
+        title: t("findings.loggingAppenderTitle", {
+          count: p.thread_names.length,
+        }),
+        detail: t("findings.loggingAppenderDetail", { detail: p.detail }),
+        actors: {
+          nodes: [],
+          owner: actorFor(analysis, ownerName),
+          waiters: actorsForNames(analysis, waiters, 5),
+          lock: "Appender",
         },
       });
     }

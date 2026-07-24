@@ -54,7 +54,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                   ? "legend.connectionPoolTitle"
                   : kind === "future-latch-wait-tree"
                     ? "legend.futureLatchTitle"
-                    : "legend.cleanTitle";
+                    : kind === "logging-appender-contention"
+                      ? "legend.loggingAppenderTitle"
+                      : "legend.cleanTitle";
   const bodyKey =
     kind === "deadlock"
       ? "legend.deadlockBody"
@@ -72,7 +74,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
                   ? "legend.connectionPoolBody"
                   : kind === "future-latch-wait-tree"
                     ? "legend.futureLatchBody"
-                    : "legend.cleanBody";
+                    : kind === "logging-appender-contention"
+                      ? "legend.loggingAppenderBody"
+                      : "legend.cleanBody";
 
   return (
     <div
@@ -117,6 +121,9 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           )}
           {kind === "future-latch-wait-tree" && (
             <DeadlockDemo actors={actors} />
+          )}
+          {kind === "logging-appender-contention" && (
+            <HotLockDemo actors={actors} />
           )}
           {kind === "clean" && <CleanDemo actors={actors} />}
         </div>
@@ -168,7 +175,8 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           )}
           {(kind === "hot-lock" ||
             kind === "blocked" ||
-            kind === "dangerous-hot-lock-owner") && (
+            kind === "dangerous-hot-lock-owner" ||
+            kind === "logging-appender-contention") && (
             <>
               <li>
                 <span className="swatch swatch-owner" /> {t("legend.keyOwner")}

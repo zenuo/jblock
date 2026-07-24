@@ -36,6 +36,14 @@ fn parses_scenario_aliases() {
         Some(Scenario::FutureLatchDeadlock)
     );
     assert_eq!(parse_scenario("future-get"), Some(Scenario::FutureLatchDeadlock));
+    assert_eq!(
+        parse_scenario("logging-appender-contention"),
+        Some(Scenario::LoggingAppenderContention)
+    );
+    assert_eq!(
+        parse_scenario("logback-contention"),
+        Some(Scenario::LoggingAppenderContention)
+    );
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -120,6 +128,18 @@ fn future_latch_deadlock_forms_wait_tree() {
 }
 
 #[test]
+fn logging_appender_contention_holds_appender_lock() {
+    let code = generate(Scenario::LoggingAppenderContention, 4);
+    assert!(code.contains("public class LoggingAppenderContention"));
+    assert!(code.contains("OutputStreamAppender"));
+    assert!(code.contains("doAppend"));
+    assert!(code.contains("log-holder"));
+    assert!(code.contains("log-writer-"));
+    assert!(code.contains("final int waiters = 3;"));
+    assert!(code.contains("synchronized void append"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -146,6 +166,10 @@ fn class_name_matches_source() {
     assert_eq!(
         Scenario::FutureLatchDeadlock.class_name(),
         "FutureLatchDeadlock"
+    );
+    assert_eq!(
+        Scenario::LoggingAppenderContention.class_name(),
+        "LoggingAppenderContention"
     );
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

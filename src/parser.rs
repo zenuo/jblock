@@ -83,6 +83,8 @@ pub enum PatternKind {
     ConnectionPoolBorrow,
     /// Wait tree on Future.get / CountDownLatch / CyclicBarrier (feat-032).
     FutureLatchWaitTree,
+    /// Contended Log4j/Logback-style appender lock (feat-033).
+    LoggingAppenderContention,
 }
 
 /// One detected high-level pattern hit.
@@ -406,6 +408,9 @@ fn detect_patterns(threads: &[ThreadInfo]) -> Vec<PatternHit> {
         out.push(hit);
     }
     if let Some(hit) = detect_future_latch_wait_tree(threads) {
+        out.push(hit);
+    }
+    if let Some(hit) = detect_logging_appender_contention(threads) {
         out.push(hit);
     }
     out
@@ -835,6 +840,79 @@ fn detect_future_latch_wait_tree(threads: &[ThreadInfo]) -> Option<PatternHit> {
             } else {
                 &kind_list
             }
+        ),
+        thread_names: names,
+    })
+}
+
+/// Frames typical of Log4j / Logback / JUL-style synchronized appenders.
+fn is_logging_appender_frame(frame: &str) -> bool {
+    const NEEDLES: &[&str] = &[
+        "OutputStreamAppender",
+        "AbstractOutputStreamAppender",
+        "ConsoleAppender",
+        "FileAppender",
+        "RollingFileAppender",
+        "WriterAppender",
+        "AppenderSkeleton",
+        "AppenderBase.doAppend",
+        "AppenderAttachableImpl",
+        "callAppenders",
+        "ch.qos.logback",
+        "org.apache.log4j",
+        "org.apache.logging.log4j.core.appender",
+        "LoggingAppenderContention",
+    ];
+    if NEEDLES.iter().any(|n| frame.contains(n)) {
+        return true;
+    }
+    // Generic doAppend on an *Appender type.
+    frame.contains(".doAppend(") && frame.contains("Appender")
+}
+
+/// Logging-appender contention: ≥3 threads stuck in appender/logger stacks
+/// (typically one holder sleeping in append + BLOCKED waiters on the same lock).
+fn detect_logging_appender_contention(threads: &[ThreadInfo]) -> Option<PatternHit> {
+    let candidates: Vec<&ThreadInfo> = threads
+        .iter()
+        .filter(|t| {
+            matches!(
+                t.state.as_str(),
+                "BLOCKED" | "WAITING" | "TIMED_WAITING"
+            ) && t.stack.iter().any(|f| is_logging_appender_frame(f))
+        })
+        .collect();
+    if candidates.len() < 3 {
+        return None;
+    }
+
+    let blocked = candidates.iter().filter(|t| t.state == "BLOCKED").count();
+    // Prefer a clear contention signature: at least two BLOCKED waiters.
+    if blocked < 2 {
+        return None;
+    }
+
+    let sample = candidates
+        .iter()
+        .find(|t| t.state == "BLOCKED")
+        .or(candidates.first())
+        .and_then(|t| t.stack.iter().find(|f| is_logging_appender_frame(f)))
+        .cloned()
+        .unwrap_or_else(|| "appender".to_string());
+    let names: Vec<String> = candidates.iter().map(|t| t.name.clone()).collect();
+    let severity = if blocked >= 3 || names.len() >= 5 {
+        "critical"
+    } else {
+        "warning"
+    };
+    Some(PatternHit {
+        kind: PatternKind::LoggingAppenderContention,
+        severity: severity.to_string(),
+        detail: format!(
+            "{} threads contending on logging appender near {} ({} BLOCKED)",
+            names.len(),
+            sample,
+            blocked
         ),
         thread_names: names,
     })
@@ -1438,6 +1516,19 @@ Full thread dump OpenJDK 64-Bit Server VM:
     }
 
     #[test]
+    fn detects_logging_appender_contention_from_live_fixture() {
+        const LIVE: &str =
+            include_str!("../tests/fixtures/patterns/logging_appender_contention_jstack.txt");
+        let a = analyze(LIVE);
+        assert!(
+            a.patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::LoggingAppenderContention),
+            "live fixture should detect logging-appender contention"
+        );
+    }
+
+    #[test]
     fn idle_pool_is_not_exhaustion() {
         const IDLE: &str = r#""pool-1-thread-1" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
    java.lang.Thread.State: WAITING (parking)
@@ -1735,6 +1826,84 @@ Full thread dump OpenJDK 64-Bit Server VM:
             a.patterns
                 .iter()
                 .all(|p| p.kind != PatternKind::FutureLatchWaitTree)
+        );
+    }
+
+    const LOGGING_APPENDER_SAMPLE: &str = r#"2026-07-24 15:00:00
+Full thread dump OpenJDK 64-Bit Server VM:
+
+"log-holder" #21 prio=5 os_prio=0 tid=0x1 nid=0x31 waiting on condition [0x1]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+        at java.lang.Thread.sleep(Native Method)
+        - locked <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:18)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$0(LoggingAppenderContention.java:48)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"log-writer-0" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:16)
+        - waiting to lock <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$1(LoggingAppenderContention.java:58)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"log-writer-1" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:16)
+        - waiting to lock <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$1(LoggingAppenderContention.java:58)
+        at java.lang.Thread.run(Thread.java:1583)
+
+"log-writer-2" #24 prio=5 os_prio=0 tid=0x4 nid=0x34 waiting for monitor entry [0x4]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at LoggingAppenderContention$OutputStreamAppender.append(LoggingAppenderContention.java:16)
+        - waiting to lock <0x000000076abc1000> (a LoggingAppenderContention$OutputStreamAppender)
+        at LoggingAppenderContention$OutputStreamAppender.doAppend(LoggingAppenderContention.java:25)
+        at LoggingAppenderContention$Logger.info(LoggingAppenderContention.java:36)
+        at LoggingAppenderContention.lambda$main$1(LoggingAppenderContention.java:58)
+        at java.lang.Thread.run(Thread.java:1583)
+"#;
+
+    #[test]
+    fn detects_logging_appender_contention_pattern() {
+        let a = analyze(LOGGING_APPENDER_SAMPLE);
+        let hit = a
+            .patterns
+            .iter()
+            .find(|p| p.kind == PatternKind::LoggingAppenderContention)
+            .expect("logging-appender-contention");
+        assert!(hit.thread_names.len() >= 3, "names={:?}", hit.thread_names);
+        assert!(hit.detail.contains("BLOCKED") || hit.detail.contains("appender") || hit.detail.contains("OutputStreamAppender"));
+        assert!(
+            hit.thread_names.iter().any(|n| n == "log-holder"),
+            "names={:?}",
+            hit.thread_names
+        );
+    }
+
+    #[test]
+    fn two_blocked_loggers_without_third_is_not_logging_contention() {
+        const TWO: &str = r#""log-writer-0" #22 prio=5 os_prio=0 tid=0x2 nid=0x32 waiting for monitor entry [0x2]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at ch.qos.logback.core.OutputStreamAppender.writeOut(OutputStreamAppender.java:200)
+        - waiting to lock <0x000000076abc1000> (a ch.qos.logback.core.OutputStreamAppender)
+
+"log-writer-1" #23 prio=5 os_prio=0 tid=0x3 nid=0x33 waiting for monitor entry [0x3]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at ch.qos.logback.core.OutputStreamAppender.writeOut(OutputStreamAppender.java:200)
+        - waiting to lock <0x000000076abc1000> (a ch.qos.logback.core.OutputStreamAppender)
+"#;
+        let a = analyze(TWO);
+        assert!(
+            a.patterns
+                .iter()
+                .all(|p| p.kind != PatternKind::LoggingAppenderContention)
         );
     }
 }

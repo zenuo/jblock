@@ -304,6 +304,9 @@ export default function App() {
                   <option value="future-latch-deadlock">
                     {t("codegen.futureLatchDeadlock")}
                   </option>
+                  <option value="logging-appender-contention">
+                    {t("codegen.loggingAppenderContention")}
+                  </option>
                 </select>
               </label>
               <label>
