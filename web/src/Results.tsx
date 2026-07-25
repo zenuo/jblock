@@ -383,7 +383,8 @@ export default function Results({ analysis }: Props) {
         {filteredThreads.length === 0 ? (
           <p className="empty">{t("threads.empty")}</p>
         ) : (
-          <table>
+          <div className="table-scroll">
+            <table className="threads-table">
             <thead>
               <tr>
                 <th>
@@ -440,6 +441,7 @@ export default function Results({ analysis }: Props) {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </section>
     </main>
@@ -467,7 +469,7 @@ function ThreadRow({
         id={threadDomId(index)}
         className={focused ? "thread-row focus" : "thread-row"}
       >
-        <td>{th.name}</td>
+        <td className="cell-break">{th.name}</td>
         <td>{th.id ?? ""}</td>
         <td>
           <span
@@ -477,7 +479,7 @@ function ThreadRow({
             {th.state}
           </span>
         </td>
-        <td className="mono">{th.waiting_on ?? ""}</td>
+        <td className="mono cell-break">{th.waiting_on ?? ""}</td>
         <td>
           {th.stack_depth > 0 ? (
             <button type="button" className="linkish" onClick={onToggleStack}>
@@ -488,7 +490,19 @@ function ThreadRow({
             0
           )}
         </td>
-        <td className="mono">{th.held_locks.join(", ")}</td>
+        <td className="held-locks-cell">
+          {th.held_locks.length === 0 ? (
+            ""
+          ) : (
+            <ul className="held-locks-list">
+              {th.held_locks.map((lock, i) => (
+                <li key={`${lock}-${i}`} className="mono cell-break">
+                  {lock}
+                </li>
+              ))}
+            </ul>
+          )}
+        </td>
       </tr>
       {expanded && th.stack.length > 0 && (
         <tr className="stack-row">
