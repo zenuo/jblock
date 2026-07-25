@@ -433,8 +433,8 @@
         "feat-022",
         "feat-041"
       ],
-      "status": "in_progress",
-      "evidence": ""
+      "status": "done",
+      "evidence": "web/src/HelpModal.tsx + HelpButton; header ? icon; modal covers local-only security, pattern list, Java 8/11/17/21 + jstack/MXBean; animated dump→import→results; 8 locales; codegen UI removed from App; e2e 42/42"
     }
   ]
 }
