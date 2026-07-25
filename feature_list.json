@@ -423,6 +423,18 @@
       ],
       "status": "done",
       "evidence": "analyze_series + WASM analyzeDumps; PatternKind::ThreadLeak/Livelock; multi-file UI dump chips; fixtures tests/fixtures/patterns/cross_dump/*; findings/legend/i18n; ./init.sh green (87 cargo tests)"
+    },
+    {
+      "id": "feat-042",
+      "name": "Help modal replaces Java codegen entry",
+      "description": "Replace the header 'Generate Java reproducer' control with a ? help button whose modal explains local-only security, supported problem patterns, supported Java versions, and an animated dump→import→results walkthrough in plain language.",
+      "dependencies": [
+        "feat-012",
+        "feat-022",
+        "feat-041"
+      ],
+      "status": "in_progress",
+      "evidence": ""
     }
   ]
 }

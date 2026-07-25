@@ -323,31 +323,235 @@ th {
   color: var(--muted);
 }
 
-.codegen-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0.75rem 0;
+.help-modal {
+  width: min(680px, 100%);
 }
 
-.codegen-controls label {
-  font-size: 0.85rem;
-  font-weight: 600;
+.help-lead {
+  margin: 0 0 1rem;
   color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.95rem;
 }
 
-.codegen-controls select,
-.codegen-controls input {
-  font: inherit;
-  padding: 0.4rem 0.5rem;
+.help-section {
+  margin: 0 0 1.15rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.help-section h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.98rem;
+}
+
+.help-section-body {
+  margin: 0 0 0.65rem;
+  color: #334155;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.help-section-note {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.help-security {
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 55%);
+  border: 1px solid #e0e7ff;
+  border-radius: 10px;
+  padding: 0.85rem 1rem 0.95rem;
+  border-top: 1px solid #e0e7ff;
+}
+
+.help-bullets,
+.help-steps {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.help-bullets li,
+.help-steps li {
+  margin: 0.25rem 0;
+}
+
+.help-pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  gap: 0.4rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.help-pattern-grid li {
+  position: relative;
+  padding: 0.35rem 0.55rem 0.35rem 0.85rem;
+  background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: 8px;
-  margin-left: 0.25rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #1e293b;
 }
 
-.codegen-controls input[type="number"] {
-  width: 80px;
+.help-pattern-grid li::before {
+  content: "";
+  position: absolute;
+  left: 0.35rem;
+  top: 0.65rem;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.help-java-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.help-java-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+  font-size: 0.82rem;
+  border: 1px solid #c7d2fe;
+}
+
+.help-howto {
+  margin: 0.35rem 0 0.75rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.help-howto-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.help-anim-label {
+  fill: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.help-anim-step {
+  animation: help-step-in 0.55s ease both;
+}
+
+.help-anim-step-1 {
+  animation-delay: 0.05s;
+}
+
+.help-anim-step-2 {
+  animation-delay: 0.35s;
+}
+
+.help-anim-step-3 {
+  animation-delay: 0.65s;
+}
+
+.help-anim-arrow {
+  opacity: 0;
+  animation: help-fade-in 0.4s ease both;
+}
+
+.help-anim-arrow-1 {
+  animation-delay: 0.25s;
+}
+
+.help-anim-arrow-2 {
+  animation-delay: 0.55s;
+}
+
+.help-anim-arrow path:first-child {
+  stroke-dashoffset: 0;
+  animation: help-dash 1.4s linear infinite;
+}
+
+.help-anim-flying-file {
+  animation: help-drop 1.8s ease-in-out infinite;
+  transform-origin: 280px 87px;
+}
+
+.help-anim-dropzone {
+  animation: help-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes help-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes help-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes help-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+@keyframes help-drop {
+  0%,
+  100% {
+    transform: translateY(-6px);
+    opacity: 0.55;
+  }
+  45%,
+  55% {
+    transform: translateY(2px);
+    opacity: 1;
+  }
+}
+
+@keyframes help-pulse {
+  0%,
+  100% {
+    stroke-opacity: 0.55;
+  }
+  50% {
+    stroke-opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-anim-step,
+  .help-anim-arrow,
+  .help-anim-arrow path:first-child,
+  .help-anim-flying-file,
+  .help-anim-dropzone {
+    animation: none !important;
+    opacity: 1;
+  }
 }
 
 .code-block {

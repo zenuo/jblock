@@ -218,8 +218,11 @@ const FEATURE_CHECKS = {
     cargo: [],
     static: [
       () => ({
-        ok: contains("web/src/App.tsx", "modal") || contains("web/src/App.tsx", "Generate"),
-        detail: "codegen modal entry in App",
+        ok:
+          contains("web/src/App.tsx", "HelpButton") ||
+          contains("web/src/App.tsx", "open-help") ||
+          contains("web/src/HelpModal.tsx", "help-modal"),
+        detail: "help modal entry in App (replaces codegen modal)",
       }),
     ],
   },
@@ -617,6 +620,36 @@ FEATURE_CHECKS["feat-041"] = {
     () => ({
       ok: contains("web/src/types.ts", '"thread-leak"') && contains("web/src/types.ts", '"livelock"'),
       detail: "TS PatternKind thread-leak + livelock",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-042"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok: fileExists("web/src/HelpModal.tsx") && contains("web/src/App.tsx", "HelpButton"),
+      detail: "HelpModal + HelpButton wired in App",
+    }),
+    () => ({
+      ok: contains("web/src/HelpModal.tsx", "help-security"),
+      detail: "security section in help modal",
+    }),
+    () => ({
+      ok: contains("web/src/HelpModal.tsx", "help-howto") && contains("web/src/index.css", "help-anim"),
+      detail: "animated how-to walkthrough",
+    }),
+    () => ({
+      ok: contains("web/src/HelpModal.tsx", '"21"'),
+      detail: "Java version badges 8/11/17/21",
+    }),
+    () => ({
+      ok: contains("web/src/i18n/locales/en.ts", "help.title") && contains("web/src/i18n/locales/zh.ts", "help.title"),
+      detail: "help i18n en+zh",
+    }),
+    () => ({
+      ok: !contains("web/src/App.tsx", "open-codegen") && !contains("web/src/App.tsx", "generateJava"),
+      detail: "codegen UI removed from App header",
     }),
   ],
 };

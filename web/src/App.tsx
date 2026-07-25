@@ -1,13 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  analyzeMany,
-  generateJava,
-  classNameFor,
-  isWasmReady,
-  preloadWasm,
-  type JavaScenario,
-} from "./analyzer";
+import { analyzeMany, isWasmReady, preloadWasm } from "./analyzer";
 import { exportHtml, exportPdf } from "./export";
+import HelpModal, { HelpButton } from "./HelpModal";
 import { useI18n } from "./i18n";
 import LanguageMenu from "./LanguageMenu";
 import Results from "./Results";
@@ -32,12 +26,7 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const busy = busyPhase !== null;
 
-  const [codegenOpen, setCodegenOpen] = useState(false);
-  const [javaScenario, setJavaScenario] = useState<JavaScenario>("deadlock");
-  const [javaCount, setJavaCount] = useState(3);
-  const [javaCode, setJavaCode] = useState<string>("");
-  const [codegenError, setCodegenError] = useState<string | null>(null);
-  const closeCodegenBtnRef = useRef<HTMLButtonElement>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const analysis = useMemo(() => {
     if (!series || series.dumps.length === 0) return null;
@@ -70,52 +59,8 @@ export default function App() {
     };
   }, [t]);
 
-  const closeCodegen = useCallback(() => {
-    setCodegenOpen(false);
-    setCodegenError(null);
-  }, []);
-
-  const openCodegen = useCallback(() => {
-    setCodegenOpen(true);
-    setCodegenError(null);
-  }, []);
-
-  useEffect(() => {
-    if (!codegenOpen) return;
-    closeCodegenBtnRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeCodegen();
-    };
-    window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [codegenOpen, closeCodegen]);
-
-  const onGenerateJava = useCallback(() => {
-    setCodegenError(null);
-    try {
-      setJavaCode(generateJava(javaScenario, javaCount));
-    } catch (e) {
-      setCodegenError(e instanceof Error ? e.message : String(e));
-    }
-  }, [javaScenario, javaCount]);
-
-  const downloadJava = useCallback(() => {
-    const className = classNameFor(javaScenario);
-    const blob = new Blob([javaCode], { type: "text/x-java-source" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${className}.java`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [javaCode, javaScenario]);
+  const closeHelp = useCallback(() => setHelpOpen(false), []);
+  const openHelp = useCallback(() => setHelpOpen(true), []);
 
   const runAnalysisSeries = useCallback(
     async (items: { text: string; name: string }[]) => {
@@ -213,14 +158,7 @@ export default function App() {
           </h1>
           <div className="header-actions">
             <LanguageMenu />
-            <button
-              type="button"
-              className="btn"
-              data-testid="open-codegen"
-              onClick={openCodegen}
-            >
-              {t("app.generateJava")}
-            </button>
+            <HelpButton onClick={openHelp} />
           </div>
         </div>
         <p className="tagline">{t("app.tagline")}</p>
@@ -307,123 +245,7 @@ export default function App() {
 
       {analysis && <Results analysis={analysis} />}
 
-      {codegenOpen && (
-        <div
-          className="modal-backdrop"
-          data-testid="codegen-modal"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeCodegen();
-          }}
-        >
-          <div
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="codegen-title"
-          >
-            <div className="modal-header">
-              <h2 id="codegen-title">{t("codegen.title")}</h2>
-              <button
-                ref={closeCodegenBtnRef}
-                type="button"
-                className="modal-close"
-                aria-label={t("codegen.close")}
-                onClick={closeCodegen}
-              >
-                ×
-              </button>
-            </div>
-            <p className="empty">{t("codegen.blurb")}</p>
-            <div className="codegen-controls">
-              <label>
-                {t("codegen.scenario")}{" "}
-                <select
-                  value={javaScenario}
-                  onChange={(e) =>
-                    setJavaScenario(e.target.value as JavaScenario)
-                  }
-                >
-                  <option value="deadlock">{t("codegen.deadlock")}</option>
-                  <option value="lock-contention">
-                    {t("codegen.lockContention")}
-                  </option>
-                  <option value="thread-pool-exhaustion">
-                    {t("codegen.threadPoolExhaustion")}
-                  </option>
-                  <option value="sync-io-hotspot">
-                    {t("codegen.syncIoHotspot")}
-                  </option>
-                  <option value="dangerous-hot-lock">
-                    {t("codegen.dangerousHotLock")}
-                  </option>
-                  <option value="connection-pool-starve">
-                    {t("codegen.connectionPoolStarve")}
-                  </option>
-                  <option value="future-latch-deadlock">
-                    {t("codegen.futureLatchDeadlock")}
-                  </option>
-                  <option value="logging-appender-contention">
-                    {t("codegen.loggingAppenderContention")}
-                  </option>
-                  <option value="busy-wait-spin">
-                    {t("codegen.busyWaitSpin")}
-                  </option>
-                  <option value="condition-starvation">
-                    {t("codegen.conditionStarvation")}
-                  </option>
-                  <option value="lock-order-risk">
-                    {t("codegen.lockOrderRisk")}
-                  </option>
-                  <option value="finalizer-pressure">
-                    {t("codegen.finalizerPressure")}
-                  </option>
-                  <option value="sleep-as-scheduler">
-                    {t("codegen.sleepAsScheduler")}
-                  </option>
-                  <option value="framework-pool-saturation">
-                    {t("codegen.frameworkPoolSaturation")}
-                  </option>
-                  <option value="dns-resolution-stall">
-                    {t("codegen.dnsResolutionStall")}
-                  </option>
-                </select>
-              </label>
-              <label>
-                {t("codegen.threads")}{" "}
-                <input
-                  type="number"
-                  min={2}
-                  max={64}
-                  value={javaCount}
-                  onChange={(e) => setJavaCount(Number(e.target.value))}
-                />
-              </label>
-              <button
-                type="button"
-                className="btn primary"
-                onClick={onGenerateJava}
-              >
-                {t("codegen.generate")}
-              </button>
-              {javaCode && (
-                <button type="button" className="btn" onClick={downloadJava}>
-                  {t("codegen.download")}
-                </button>
-              )}
-            </div>
-            {codegenError && (
-              <p className="status error">
-                {t("app.errorPrefix")} {codegenError}
-              </p>
-            )}
-            {javaCode && (
-              <pre className="code-block" data-testid="java-code">
-                <code>{javaCode}</code>
-              </pre>
-            )}
-          </div>
-        </div>
-      )}
+      {helpOpen && <HelpModal onClose={closeHelp} />}
     </div>
   );
 }
