@@ -34,6 +34,8 @@ export default function App() {
     return mergeCrossPatterns(series.dumps[idx], series.cross_patterns);
   }, [series, selectedDump]);
 
+  const hasResults = analysis !== null;
+
   const sourceName = useMemo(() => {
     if (dumpNames.length === 0) return "";
     if (dumpNames.length === 1) return dumpNames[0];
@@ -41,7 +43,6 @@ export default function App() {
     return `${dumpNames[idx]} (+${dumpNames.length - 1})`;
   }, [dumpNames, selectedDump]);
 
-  // Background-load WASM as soon as the page mounts.
   useEffect(() => {
     let cancelled = false;
     void preloadWasm()
@@ -128,9 +129,45 @@ export default function App() {
     if (e.currentTarget === e.target) setDragging(false);
   }, []);
 
+  const chooseDumpControl = (
+    <label
+      className={`btn primary${busy ? " disabled" : ""}`}
+      data-testid="choose-dump"
+    >
+      {t("app.chooseDump")}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept=".txt,.log,.tdump,.dump,text/plain"
+        hidden
+        disabled={busy}
+        onChange={(e) => {
+          const list = e.target.files;
+          if (list && list.length > 0) void onFiles(list);
+          e.target.value = "";
+        }}
+      />
+    </label>
+  );
+
+  const sampleControl = (
+    <button
+      type="button"
+      className="btn"
+      data-testid="load-sample"
+      onClick={() =>
+        void runAnalysisSeries([{ text: SAMPLE_DUMP, name: "sample.txt" }])
+      }
+      disabled={busy}
+    >
+      {t("app.loadSample")}
+    </button>
+  );
+
   return (
     <div
-      className={`app${dragging ? " dragging" : ""}`}
+      className={`app${dragging ? " dragging" : ""}${hasResults ? " has-results" : ""}`}
       onDrop={onDrop}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -151,65 +188,75 @@ export default function App() {
           </div>
         </div>
       )}
+
       <header className="app-header">
         <div className="app-header-row">
-          <h1>
-            <span className="logo">jblock</span> {t("app.title")}
-          </h1>
+          <a className="brand" href="#top" onClick={(e) => e.preventDefault()}>
+            <span className="brand-mark" aria-hidden="true" />
+            <span className="brand-name">jblock</span>
+          </a>
           <div className="header-actions">
             <LanguageMenu />
             <HelpButton onClick={openHelp} />
           </div>
         </div>
-        <p className="tagline">{t("app.tagline")}</p>
       </header>
 
-      <section className="controls">
-        <label className={`btn primary${busy ? " disabled" : ""}`}>
-          {t("app.chooseDump")}
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept=".txt,.log,.tdump,.dump,text/plain"
-            hidden
-            disabled={busy}
-            onChange={(e) => {
-              const list = e.target.files;
-              if (list && list.length > 0) void onFiles(list);
-              e.target.value = "";
-            }}
-          />
-        </label>
-        <button
-          className="btn"
-          onClick={() =>
-            void runAnalysisSeries([{ text: SAMPLE_DUMP, name: "sample.txt" }])
-          }
-          disabled={busy}
-        >
-          {t("app.loadSample")}
-        </button>
-        {analysis && (
-          <>
-            <button
-              className="btn"
-              onClick={() => exportHtml(analysis, sourceName, t, locale)}
-              disabled={busy}
-            >
-              {t("app.exportHtml")}
-            </button>
-            <button
-              className="btn"
-              onClick={() => void exportPdf(analysis, sourceName)}
-              disabled={busy}
-            >
-              {t("app.exportPdf")}
-            </button>
-          </>
-        )}
+      <section
+        className={`home-intro${hasResults ? " is-collapsed" : ""}`}
+        data-testid="home-intro"
+        aria-hidden={hasResults}
+      >
+        <div className="home-intro-inner">
+          <p className="home-kicker">{t("home.kicker")}</p>
+          <h1 className="home-title">
+            <span className="home-title-brand">jblock</span>
+            <span className="home-title-rest">{t("home.title")}</span>
+          </h1>
+          <p className="home-lead">{t("home.lead")}</p>
+          <p className="home-privacy">{t("home.privacy")}</p>
+
+          {!hasResults && (
+            <div className="home-cta controls" data-testid="home-cta">
+              {chooseDumpControl}
+              {sampleControl}
+            </div>
+          )}
+
+          <ul className="home-points" aria-label={t("home.pointsLabel")}>
+            <li>{t("home.pointLocal")}</li>
+            <li>{t("home.pointFormats")}</li>
+            <li>{t("home.pointVersions")}</li>
+          </ul>
+        </div>
       </section>
-      {!analysis && !busy && <p className="hint">{t("app.hint")}</p>}
+
+      {hasResults && (
+        <section
+          className="workspace-toolbar controls"
+          data-testid="workspace-toolbar"
+          aria-label={t("home.toolbarLabel")}
+        >
+          {chooseDumpControl}
+          {sampleControl}
+          <button
+            type="button"
+            className="btn"
+            onClick={() => exportHtml(analysis, sourceName, t, locale)}
+            disabled={busy}
+          >
+            {t("app.exportHtml")}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => void exportPdf(analysis, sourceName)}
+            disabled={busy}
+          >
+            {t("app.exportPdf")}
+          </button>
+        </section>
+      )}
 
       {series && series.dumps.length > 1 && (
         <section

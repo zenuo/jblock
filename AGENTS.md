@@ -93,6 +93,9 @@ Inspect `harness/e2e-results.json` for per-feature pass/fail detail.
   `progress.md`, or session-handoff files. Bundled scripts (run with `node`):
   `scripts/create-harness.mjs`, `scripts/validate-harness.mjs`,
   `scripts/render-assessment-html.mjs`, `scripts/run-benchmark.mjs`.
+- `ui-design-brain` (`.cursor/skills/ui-design-brain/SKILL.md`): production UI
+  patterns (60+ components). Prefer its design philosophies (e.g. Apple-level
+  Minimal) when redesigning web surfaces.
 
 ## Cursor Cloud specific instructions
 

@@ -2,32 +2,32 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-25 02:40
-**Active Feature:** feat-042 (done)
+**Last Updated:** 2026-07-25 10:35
+**Active Feature:** feat-043 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-001 … feat-041
-- [x] feat-042 Help modal replaces Java codegen entry
+- [x] feat-042 Help modal
+- [x] feat-043 Apple-level Minimal home intro (collapses on results)
+- [x] Installed `ui-design-brain` skill under `.cursor/skills/`
 
 ### What's In Progress
 
-- [ ] None on this branch
+- [ ] None
 
 ### What's Next
 
-1. Keep help modal / i18n in sync when new patterns land
+1. Optionally refine Results panels further under the same visual system
 
 ## Decisions Made
 
-- Header “Generate Java…” becomes a `?` icon button (same footprint as language menu).
-- Modal focuses on: local-only security, supported patterns, Java 8/11/17/21 + jstack/MXBean, and an animated dump → import → results walkthrough.
-- `web/src/codegen.ts` remains for tests/CLI; UI entry removed.
+- Design philosophy: Apple-level Minimal from ui-design-brain (near-monochrome, large type, 150–250ms ease-out).
+- Empty state = brand-forward intro + CTAs; results state collapses intro and shows compact toolbar.
+- Accent `#0071e3` instead of indigo/violet gradients.
 
 ## Evidence of Completion
 
-- `pnpm -C web run lint` + `typecheck` OK
-- `node scripts/e2e-features.mjs --skip-web` → **42/42 PASS**
-- Artifact: `harness/e2e-results.json`
+- lint/typecheck OK; e2e **43/43 PASS**
+- `harness/e2e-results.json`

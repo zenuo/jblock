@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-25T02:32:14.422Z",
+  "generated_at": "2026-07-25T10:23:52.659Z",
   "root": "/workspace",
   "summary": {
-    "total": 42,
-    "pass": 42,
+    "total": 43,
+    "pass": 43,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 88,
@@ -1284,7 +1284,7 @@
     {
       "id": "feat-042",
       "name": "Help modal replaces Java codegen entry",
-      "status_in_list": "in_progress",
+      "status_in_list": "done",
       "ok": true,
       "checks": [
         {
@@ -1316,6 +1316,44 @@
           "name": "static:codegen UI removed from App header",
           "ok": true,
           "detail": "codegen UI removed from App header"
+        }
+      ]
+    },
+    {
+      "id": "feat-043",
+      "name": "Apple-level Minimal home intro that collapses on results",
+      "status_in_list": "in_progress",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:ui-design-brain skill installed",
+          "ok": true,
+          "detail": "ui-design-brain skill installed"
+        },
+        {
+          "name": "static:home intro collapses when results exist",
+          "ok": true,
+          "detail": "home intro collapses when results exist"
+        },
+        {
+          "name": "static:workspace toolbar when has results",
+          "ok": true,
+          "detail": "workspace toolbar when has results"
+        },
+        {
+          "name": "static:Instrument Sans typography (Apple-level Minimal)",
+          "ok": true,
+          "detail": "Instrument Sans typography (Apple-level Minimal)"
+        },
+        {
+          "name": "static:near-monochrome Apple accent palette",
+          "ok": true,
+          "detail": "near-monochrome Apple accent palette"
+        },
+        {
+          "name": "static:home intro i18n",
+          "ok": true,
+          "detail": "home intro i18n"
         }
       ]
     }

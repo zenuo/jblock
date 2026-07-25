@@ -654,6 +654,36 @@ FEATURE_CHECKS["feat-042"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-043"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok: fileExists(".cursor/skills/ui-design-brain/SKILL.md"),
+      detail: "ui-design-brain skill installed",
+    }),
+    () => ({
+      ok: contains("web/src/App.tsx", "home-intro") && contains("web/src/App.tsx", "is-collapsed"),
+      detail: "home intro collapses when results exist",
+    }),
+    () => ({
+      ok: contains("web/src/App.tsx", "workspace-toolbar") && contains("web/src/App.tsx", "hasResults"),
+      detail: "workspace toolbar when has results",
+    }),
+    () => ({
+      ok: contains("web/index.html", "Instrument Sans") || contains("web/src/index.css", "Instrument Sans"),
+      detail: "Instrument Sans typography (Apple-level Minimal)",
+    }),
+    () => ({
+      ok: contains("web/src/index.css", "--accent: #0071e3") || contains("web/src/index.css", "#0071e3"),
+      detail: "near-monochrome Apple accent palette",
+    }),
+    () => ({
+      ok: contains("web/src/i18n/locales/en.ts", "home.lead") && contains("web/src/i18n/locales/zh.ts", "home.lead"),
+      detail: "home intro i18n",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

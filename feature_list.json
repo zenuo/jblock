@@ -435,6 +435,17 @@
       ],
       "status": "done",
       "evidence": "web/src/HelpModal.tsx + HelpButton; header ? icon; modal covers local-only security, pattern list, Java 8/11/17/21 + jstack/MXBean; animated dump→import→results; 8 locales; codegen UI removed from App; e2e 42/42"
+    },
+    {
+      "id": "feat-043",
+      "name": "Apple-level Minimal home intro that collapses on results",
+      "description": "Install ui-design-brain skill; restyle the web shell in Apple-level Minimal. On first load show brand-forward intro copy + primary actions; when analysis results exist, collapse the intro and keep a compact workspace toolbar.",
+      "dependencies": [
+        "feat-042",
+        "feat-025"
+      ],
+      "status": "done",
+      "evidence": "Installed .cursor/skills/ui-design-brain; Apple-level Minimal shell (Instrument Sans/Serif, warm gray + #0071e3); home-intro with brand/CTA/points collapses via is-collapsed when analysis exists; workspace-toolbar for actions; 8-locale home.*; e2e 43/43"
     }
   ]
 }
