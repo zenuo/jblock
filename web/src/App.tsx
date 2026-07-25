@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { analyzeMany, isWasmReady, preloadWasm } from "./analyzer";
 import { exportHtml } from "./export";
+import GitHubLink from "./GitHubLink";
 import HelpModal, { HelpButton } from "./HelpModal";
 import { useI18n } from "./i18n";
 import LanguageMenu from "./LanguageMenu";
@@ -205,6 +206,7 @@ export default function App() {
           <div className="header-actions">
             <LanguageMenu />
             <HelpButton onClick={openHelp} />
+            <GitHubLink />
           </div>
         </div>
       </header>

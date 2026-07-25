@@ -25,6 +25,7 @@ export const ja: Messages = {
   "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "ワークスペース操作",
   "app.help": "jblock について",
+  "app.github": "GitHub リポジトリ",
   "help.title": "jblock について",
   "help.close": "閉じる",
   "help.lead": "jblock はブラウザ内で Java スレッドダンプを読み、よくある並行処理の問題を示します — アカウントもアップロードも不要です。",

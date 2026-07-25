@@ -25,6 +25,7 @@ export const es: Messages = {
   "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "Acciones del espacio de trabajo",
   "app.help": "Acerca de jblock",
+  "app.github": "Repositorio de GitHub",
   "help.title": "Acerca de jblock",
   "help.close": "Cerrar",
   "help.lead": "jblock lee thread dumps de Java en tu navegador y señala problemas comunes de concurrencia — sin cuenta ni subidas.",

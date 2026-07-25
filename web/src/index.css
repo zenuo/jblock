@@ -117,8 +117,15 @@ body {
 }
 
 .lang-icon,
-.help-icon {
+.help-icon,
+.github-icon {
   display: block;
+}
+
+a.btn.icon-btn {
+  text-decoration: none;
+  color: inherit;
+  box-sizing: border-box;
 }
 
 .lang-menu-list {
