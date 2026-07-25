@@ -290,31 +290,18 @@ export default function Results({ analysis }: Props) {
         )}
       </section>
 
-      <section className="panel">
+      <section className="panel states-panel" data-testid="thread-states">
         <h2>{t("states.title")}</h2>
         <ul className="states">
-          <li>
-            <button
-              type="button"
-              className={`state-filter${stateFilter === "ALL" ? " active" : ""}`}
-              onClick={() => setStateFilter("ALL")}
-            >
-              <span className="state-name">{t("states.all")}</span>
-              <span className="bar-track">
-                <span
-                  className="bar-fill"
-                  style={{ width: "100%", background: "#94a3b8" }}
-                />
-              </span>
-              <span className="state-count">{analysis.total_threads}</span>
-            </button>
-          </li>
           {analysis.state_counts.map((s) => (
             <li key={s.state}>
               <button
                 type="button"
-                className={`state-filter${stateFilter === s.state ? " active" : ""}`}
-                onClick={() => setStateFilter(s.state)}
+                className={`state-row${stateFilter === s.state ? " active" : ""}`}
+                onClick={() =>
+                  setStateFilter(stateFilter === s.state ? "ALL" : s.state)
+                }
+                aria-pressed={stateFilter === s.state}
               >
                 <span className="state-name">{s.state}</span>
                 <span className="bar-track">

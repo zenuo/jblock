@@ -79,11 +79,13 @@ export function buildReportHtml(
     .map(
       (s) => `
       <li>
-        <span class="state-name">${escapeHtml(s.state)}</span>
-        <span class="bar-track"><span class="bar-fill" style="width:${
-          (s.count / maxState) * 100
-        }%;background:${STATE_COLORS[s.state] ?? "#64748b"}"></span></span>
-        <span class="state-count">${s.count}</span>
+        <div class="state-row">
+          <span class="state-name">${escapeHtml(s.state)}</span>
+          <span class="bar-track"><span class="bar-fill" style="width:${
+            (s.count / maxState) * 100
+          }%;background:${STATE_COLORS[s.state] ?? "#64748b"}"></span></span>
+          <span class="state-count">${s.count}</span>
+        </div>
       </li>`,
     )
     .join("");
