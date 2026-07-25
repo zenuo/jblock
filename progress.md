@@ -2,15 +2,16 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-25 12:15
-**Active Feature:** docs + header GitHub link (PR #23)
+**Last Updated:** 2026-07-25 15:15
+**Active Feature:** results vertical spacing rhythm (main)
 
 ## Status
 
 ### What's Done
 
-- [x] README 增加「本地部署」
-- [x] Header 右上角 GitHub icon → https://github.com/zenuo/jblock（8 语言 aria-label）
+- [x] Unified results workspace vertical gaps via `--space-1..4` tokens
+- [x] Toolbar → findings and panel → panel use the same `--space-3` stack gap
+- [x] Panel padding / list gaps / dump-series / threads-toolbar aligned to tokens
 
 ### What's In Progress
 
@@ -22,8 +23,8 @@
 
 ## Decisions Made
 
-- GitHub link sits after Help in `header-actions`, matches existing `icon-btn` style; opens in new tab.
+- Single stack rhythm: `--space-3` (16px) between major blocks; `.results` uses flex `gap` so panels no longer rely on unequal `margin-bottom`.
 
 ## Evidence of Completion
 
-- lint + typecheck pass; e2e **43/43 PASS**
+- Pending lint/typecheck after CSS change
