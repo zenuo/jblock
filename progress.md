@@ -28,4 +28,6 @@
 
 ## Evidence of Completion
 
-- See Verification Evidence after `./init.sh`
+- `./init.sh` green: cargo 88/88, lint/typecheck/build pass, e2e **43/43 PASS**
+- Bundle: `index-*.js` 762→330 kB after removing pdf-lib
+- `harness/e2e-results.json` feat-006 checks assert HTML-only + no pdf-lib
