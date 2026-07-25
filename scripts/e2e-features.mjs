@@ -148,6 +148,10 @@ const FEATURE_CHECKS = {
         ok: !contains("web/package.json", "pdf-lib") && !contains("web/src/export.ts", "pdf-lib"),
         detail: "pdf-lib dependency removed",
       }),
+      () => ({
+        ok: contains("web/src/export.ts", 'class="app report"') && contains("web/src/index.css", ".app.report .app-header"),
+        detail: "HTML export header not sticky",
+      }),
     ],
   },
   "feat-007": {

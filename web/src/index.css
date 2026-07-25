@@ -63,6 +63,16 @@ body {
   border-bottom-color: var(--border);
 }
 
+/* HTML export: keep header in document flow (no sticky chrome). */
+.app.report .app-header {
+  position: static;
+  z-index: auto;
+  backdrop-filter: none;
+  background: transparent;
+  border-bottom: none;
+  margin-bottom: var(--space-3);
+}
+
 .app-header-row {
   display: flex;
   align-items: center;

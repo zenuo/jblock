@@ -138,7 +138,7 @@ export function buildReportHtml(
 <style>${appCss}</style>
 </head>
 <body>
-<div class="app">
+<div class="app report">
   <header class="app-header">
     <h1><span class="logo">jblock</span> ${escapeHtml(t("report.title"))}</h1>
     <p class="tagline"><span class="report-source-name"${sourceTitle}>${escapeHtml(

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T15:27:25.191Z",
+  "generated_at": "2026-07-25T15:41:13.833Z",
   "root": "/workspace",
   "summary": {
     "total": 44,
@@ -148,6 +148,11 @@
           "name": "static:pdf-lib dependency removed",
           "ok": true,
           "detail": "pdf-lib dependency removed"
+        },
+        {
+          "name": "static:HTML export header not sticky",
+          "ok": true,
+          "detail": "HTML export header not sticky"
         }
       ]
     },

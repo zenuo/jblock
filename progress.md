@@ -2,17 +2,14 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-25 15:35
-**Active Feature:** feat-044 (done)
+**Last Updated:** 2026-07-26 01:45
+**Active Feature:** HTML export non-sticky header (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Chose Web Crypto SHA-256 (option C) over MD5 / Rust
-- [x] Toolbar shows dump filename after results; hover = SHA-256
-- [x] HTML export source line `title` shows SHA-256
-- [x] feat-044 + e2e static checks
+- [x] Export HTML uses `.app.report`; CSS forces `.app-header` to `position: static` (no sticky overlay)
 
 ### What's In Progress
 
@@ -24,9 +21,8 @@
 
 ## Decisions Made
 
-- Digest = SHA-256 of dump UTF-8 text (`TextEncoder` + `crypto.subtle`), matching analyzed content.
-- Computed in JS at analyze time; not in WASM.
+- Live app keeps sticky header; only exported report opts out via `.report` class so in-app UX is unchanged.
 
 ## Evidence of Completion
 
-- lint + typecheck pass; e2e **44/44 PASS**
+- Pending lint/typecheck/e2e
