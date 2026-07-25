@@ -3,7 +3,7 @@
 ## Current State
 
 **Last Updated:** 2026-07-25 15:35
-**Active Feature:** feat-044 (dump filename + SHA-256 hover)
+**Active Feature:** feat-044 (done)
 
 ## Status
 
@@ -16,7 +16,7 @@
 
 ### What's In Progress
 
-- [ ] Verification
+- [ ] None
 
 ### What's Next
 
@@ -29,4 +29,4 @@
 
 ## Evidence of Completion
 
-- Pending `./init.sh` / lint+typecheck+e2e
+- lint + typecheck pass; e2e **44/44 PASS**
