@@ -271,26 +271,37 @@ body {
 }
 
 .home-cta {
-  margin-bottom: 1.75rem;
+  margin-bottom: 2.75rem;
 }
 
 .home-points {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 0.65rem;
+  align-items: center;
+  gap: 0.45rem 0;
   margin: 0;
-  padding: 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--border);
   list-style: none;
 }
 
 .home-points li {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 500;
-  color: #424245;
-  padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid var(--border);
+  letter-spacing: -0.01em;
+  color: var(--muted);
+  line-height: 1.45;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+.home-points li:not(:last-child)::after {
+  content: "·";
+  margin: 0 0.7rem;
+  color: #aeaeb2;
+  font-weight: 400;
 }
 
 .workspace-toolbar {
