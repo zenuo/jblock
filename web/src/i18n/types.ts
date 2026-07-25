@@ -42,7 +42,6 @@ export type MessageKey =
   | "app.chooseDump"
   | "app.loadSample"
   | "app.exportHtml"
-  | "app.exportPdf"
   | "app.hint"
   | "app.dropOverlay"
   | "app.dumpSeries"

@@ -6,7 +6,6 @@ export const es: Messages = {
   "app.chooseDump": "Elegir dump(s)…",
   "app.loadSample": "Cargar ejemplo",
   "app.exportHtml": "Exportar HTML",
-  "app.exportPdf": "Exportar PDF",
   "app.hint": "Selecciona uno o más thread dumps (multi-selección compara leak/livelock en el tiempo), o carga el ejemplo para explorar el analizador.",
   "app.dropOverlay": "Suelta thread dump(s) para analizar",
   "app.dumpChip": "{name} · {count} hilos",

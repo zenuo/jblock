@@ -6,7 +6,6 @@ export const ko: Messages = {
   "app.chooseDump": "덤프 선택…",
   "app.loadSample": "샘플 불러오기",
   "app.exportHtml": "HTML 내보내기",
-  "app.exportPdf": "PDF 내보내기",
   "app.hint": "스레드 덤프를 하나 이상 선택하세요(다중 선택 시 누수/라이브락을 시간에 따라 비교). 또는 샘플을 불러 분석기를 살펴보세요.",
   "app.dropOverlay": "스레드 덤프를 놓아 분석",
   "app.dumpChip": "{name} · {count}개 스레드",

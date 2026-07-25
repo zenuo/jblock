@@ -6,7 +6,6 @@ export const ja: Messages = {
   "app.chooseDump": "ダンプを選択…",
   "app.loadSample": "サンプルを読み込む",
   "app.exportHtml": "HTML をエクスポート",
-  "app.exportPdf": "PDF をエクスポート",
   "app.hint": "1 つ以上のスレッドダンプを選択（複数選択でリーク/ライブロックを時系列比較）、またはサンプルを読み込んで解析を体験してください。",
   "app.dropOverlay": "スレッドダンプをドロップして解析",
   "app.dumpChip": "{name} · {count} スレッド",

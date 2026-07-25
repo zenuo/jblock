@@ -10,7 +10,7 @@
 
 - [x] Added feat-013..019 to `feature_list.json` and implemented them in order
 - [x] Parser stack frames + richer Results UI (findings, contention groups, filters, jump, noise, clusters)
-- [x] HTML/PDF export updated for findings / aggregated contention / waiting_on
+- [x] HTML export updated for findings / aggregated contention / waiting_on
 
 ## Verification Evidence
 

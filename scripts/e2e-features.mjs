@@ -141,12 +141,12 @@ const FEATURE_CHECKS = {
     cargo: [],
     static: [
       () => ({
-        ok: contains("web/src/export.ts", "exportHtml") && contains("web/src/export.ts", "exportPdf"),
-        detail: "exportHtml + exportPdf",
+        ok: contains("web/src/export.ts", "exportHtml") && !contains("web/src/export.ts", "exportPdf"),
+        detail: "exportHtml only (PDF removed)",
       }),
       () => ({
-        ok: contains("web/src/export.ts", "pdf-lib"),
-        detail: "pdf-lib dependency usage",
+        ok: !contains("web/package.json", "pdf-lib") && !contains("web/src/export.ts", "pdf-lib"),
+        detail: "pdf-lib dependency removed",
       }),
     ],
   },

@@ -2,16 +2,17 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-25 10:35
-**Active Feature:** feat-043 (done)
+**Last Updated:** 2026-07-25 11:40
+**Active Feature:** feat-006 (PDF export removed; HTML-only)
 
 ## Status
 
 ### What's Done
 
-- [x] feat-042 Help modal
-- [x] feat-043 Apple-level Minimal home intro (collapses on results)
-- [x] Installed `ui-design-brain` skill under `.cursor/skills/`
+- [x] Removed PDF export UI button and `exportPdf` from `web/src/export.ts`
+- [x] Removed `pdf-lib` dependency from `web/package.json` / lockfile
+- [x] Removed `app.exportPdf` i18n keys (8 locales + types)
+- [x] Updated README, feature_list, e2e harness for HTML-only export
 
 ### What's In Progress
 
@@ -23,11 +24,8 @@
 
 ## Decisions Made
 
-- Design philosophy: Apple-level Minimal from ui-design-brain (near-monochrome, large type, 150–250ms ease-out).
-- Empty state = brand-forward intro + CTAs; results state collapses intro and shows compact toolbar.
-- Accent `#0071e3` instead of indigo/violet gradients.
+- Drop PDF export entirely (including `pdf-lib`) rather than keep a stub; HTML report remains the only export path.
 
 ## Evidence of Completion
 
-- lint/typecheck OK; e2e **43/43 PASS**
-- `harness/e2e-results.json`
+- See Verification Evidence after `./init.sh`

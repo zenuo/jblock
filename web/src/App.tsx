@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { analyzeMany, isWasmReady, preloadWasm } from "./analyzer";
-import { exportHtml, exportPdf } from "./export";
+import { exportHtml } from "./export";
 import HelpModal, { HelpButton } from "./HelpModal";
 import { useI18n } from "./i18n";
 import LanguageMenu from "./LanguageMenu";
@@ -252,14 +252,6 @@ export default function App() {
             disabled={busy}
           >
             {t("app.exportHtml")}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => void exportPdf(analysis, sourceName)}
-            disabled={busy}
-          >
-            {t("app.exportPdf")}
           </button>
         </section>
       )}

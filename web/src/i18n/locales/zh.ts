@@ -6,7 +6,6 @@ export const zh: Messages = {
   "app.chooseDump": "选择转储文件…",
   "app.loadSample": "加载示例",
   "app.exportHtml": "导出 HTML",
-  "app.exportPdf": "导出 PDF",
   "app.hint": "请选择一个或多个线程转储（多选可对比跨时间的线程泄漏/活锁），或加载示例开始体验。",
   "app.dropOverlay": "拖放一个或多个线程转储文件到此处分析",
   "app.dumpChip": "{name} · {count} 线程",

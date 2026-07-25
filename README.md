@@ -3,7 +3,7 @@
 > 基于 React + Rust/WebAssembly 的单页面 Java 线程转储（thread dump）分析工具。
 
 `jblock` 在浏览器本地解析并分析 Java 线程转储：选择本地 dump 文件后，由 Rust 编译成的
-WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并可导出为 HTML / PDF。所有解析都在
+WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并可导出为 HTML。所有解析都在
 本地完成，dump 内容不会上传到任何服务器。
 
 ## 功能特性
@@ -24,7 +24,6 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
 - **Java reproducer**：右上角 **Generate Java…** 打开模态框，生成可运行的死锁 / 锁竞争 / 线程池耗尽 / 同步 I/O 热点 / 危险热锁 / 连接池借出阻塞样例代码（不经过 WASM）；测试可用 JDK 实机 `jstack` 捕获 dump。
 - **导出**：
   - HTML 报告：复用 web app 自身的 CSS（`?inline`）与结构，样式与页面一致。
-  - PDF 报告：通过 [`pdf-lib`](https://pdf-lib.js.org/) 生成单页 A4 报告。
 
 ## 技术栈
 
@@ -51,7 +50,7 @@ jblock/
         ├── App.tsx      # 页面 UI 与交互
         ├── analyzer.ts  # 加载并调用 WASM（analyzeDump）
         ├── codegen.ts   # 前端生成 Java reproducer（不进 WASM）
-        ├── export.ts    # HTML / PDF 导出
+        ├── export.ts    # HTML 导出
         ├── types.ts     # 与 Rust Analysis 结构对应的 TS 类型
         └── wasm/        # wasm-pack 生成产物（构建生成，已 gitignore）
 ```
@@ -119,7 +118,7 @@ GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)�
 2. 调用 WASM 导出的 `analyzeDump(text)`（对应 Rust `src/lib.rs`）。
 3. Rust 侧 `parser::analyze` 检测格式、按线程切块、提取名称/ID/状态/锁信息，
    统计状态分组，并根据"持锁-等锁"关系构建锁竞争边。
-4. 结果以 JS 对象返回前端并渲染；可导出为 HTML / PDF。
+4. 结果以 JS 对象返回前端并渲染；可导出为 HTML。
 
 ## License
 

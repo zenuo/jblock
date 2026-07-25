@@ -50,13 +50,13 @@
     },
     {
       "id": "feat-006",
-      "name": "Export HTML / PDF",
-      "description": "Export a self-contained HTML report(same css/js as web app) and a PDF (via pdf-lib, in one page)",
+      "name": "Export HTML",
+      "description": "Export a self-contained HTML report (same css as web app)",
       "dependencies": [
         "feat-004"
       ],
       "status": "done",
-      "evidence": "web/src/export.ts: HTML report embeds the app's own index.css via ?inline and reuses result markup/classes (incl. deadlocks); PDF rendered with pdf-lib on a single A4 page (proportional state bars, deadlocks, contention, threads)"
+      "evidence": "web/src/export.ts: HTML report embeds the app's own index.css via ?inline and reuses result markup/classes (incl. deadlocks); PDF export and pdf-lib dependency removed"
     },
     {
       "id": "feat-007",
@@ -96,7 +96,7 @@
         "feat-007"
       ],
       "status": "done",
-      "evidence": "Implemented with feat-005: src/parser.rs detect_deadlocks + Analysis.deadlocks; visualized in web/src/App.tsx deadlock panel and included in HTML/PDF exports"
+      "evidence": "Implemented with feat-005: src/parser.rs detect_deadlocks + Analysis.deadlocks; visualized in web/src/App.tsx deadlock panel and included in HTML export"
     },
     {
       "id": "feat-011",
@@ -126,7 +126,7 @@
         "feat-012"
       ],
       "status": "done",
-      "evidence": "web/src/Results.tsx findings panel; analysisUi.buildFindings; HTML/PDF export updated"
+      "evidence": "web/src/Results.tsx findings panel; analysisUi.buildFindings; HTML export updated"
     },
     {
       "id": "feat-014",
@@ -213,7 +213,7 @@
     {
       "id": "feat-022",
       "name": "Multi-language UI with browser auto-detect",
-      "description": "Localize the web UI (English + Chinese); auto-detect locale from navigator.languages on first visit; allow manual override persisted in localStorage; HTML export follows locale (PDF stays English due to Helvetica)",
+      "description": "Localize the web UI (English + Chinese); auto-detect locale from navigator.languages on first visit; allow manual override persisted in localStorage; HTML export follows locale",
       "dependencies": [
         "feat-004"
       ],
