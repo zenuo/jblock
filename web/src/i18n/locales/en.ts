@@ -17,7 +17,7 @@ export const en: Messages = {
   "app.wasmLoadFailed": "Failed to load analyzer: {error}",
   "app.language": "Language",
   "home.kicker": "Local thread dump analysis",
-  "home.title": "See what’s stuck — without sending a byte.",
+  "home.title": "See what’s stuck\n— without sending a byte.",
   "home.lead": "Drop a jstack or ThreadMXBean dump here. jblock parses it in your browser and highlights deadlocks, hot locks, pool saturation, and more.",
   "home.privacy": "Nothing is uploaded. Analysis runs on-device via WebAssembly.",
   "home.pointsLabel": "Highlights",

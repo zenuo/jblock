@@ -17,7 +17,7 @@ export const ko: Messages = {
   "app.wasmLoadFailed": "분석기 로드 실패: {error}",
   "app.language": "언어",
   "home.kicker": "로컬 스레드 덤프 분석",
-  "home.title": "어디가 막혔는지 보세요 — 바이트도 보내지 않고.",
+  "home.title": "어디가 막혔는지 보세요\n— 바이트도 보내지 않고.",
   "home.lead": "jstack 또는 ThreadMXBean 덤프를 여기로 끌어오세요. jblock이 브라우저에서 파싱하고 데드락·핫락·풀 포화 등을 표시합니다.",
   "home.privacy": "업로드 없음. 분석은 WebAssembly로 기기에서 실행됩니다.",
   "home.pointsLabel": "하이라이트",
