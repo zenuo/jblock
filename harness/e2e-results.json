@@ -1,43 +1,17 @@
 {
-  "generated_at": "2026-07-24T15:41:41.105Z",
+  "generated_at": "2026-07-25T02:32:14.422Z",
   "root": "/workspace",
   "summary": {
-    "total": 41,
-    "pass": 41,
+    "total": 42,
+    "pass": 42,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 88,
     "cargo_failed": [],
-    "web_ok": true,
+    "web_ok": null,
     "unmapped_checks": []
   },
-  "web_steps": [
-    {
-      "name": "pnpm install",
-      "ok": true,
-      "detail": "ok"
-    },
-    {
-      "name": "pnpm wasm",
-      "ok": true,
-      "detail": "ok"
-    },
-    {
-      "name": "pnpm lint",
-      "ok": true,
-      "detail": "ok"
-    },
-    {
-      "name": "pnpm typecheck",
-      "ok": true,
-      "detail": "ok"
-    },
-    {
-      "name": "pnpm build",
-      "ok": true,
-      "detail": "ok"
-    }
-  ],
+  "web_steps": [],
   "features": [
     {
       "id": "feat-001",
@@ -54,11 +28,6 @@
           "name": "static:init.sh runs cargo test and web typecheck",
           "ok": true,
           "detail": "init.sh runs cargo test and web typecheck"
-        },
-        {
-          "name": "web-gates",
-          "ok": true,
-          "detail": "wasm/lint/typecheck/build ok"
         }
       ]
     },
@@ -128,11 +97,6 @@
           "name": "static:Results rendering present",
           "ok": true,
           "detail": "Results rendering present"
-        },
-        {
-          "name": "web-gates",
-          "ok": true,
-          "detail": "wasm/lint/typecheck/build ok"
         }
       ]
     },
@@ -304,9 +268,9 @@
       "ok": true,
       "checks": [
         {
-          "name": "static:codegen modal entry in App",
+          "name": "static:help modal entry in App (replaces codegen modal)",
           "ok": true,
-          "detail": "codegen modal entry in App"
+          "detail": "help modal entry in App (replaces codegen modal)"
         }
       ]
     },
@@ -431,11 +395,6 @@
           "name": "static:CI runs cargo test + Pages deploy",
           "ok": true,
           "detail": "CI runs cargo test + Pages deploy"
-        },
-        {
-          "name": "web-gates",
-          "ok": true,
-          "detail": "wasm/lint/typecheck/build ok"
         }
       ]
     },
@@ -1319,6 +1278,44 @@
           "name": "static:TS PatternKind thread-leak + livelock",
           "ok": true,
           "detail": "TS PatternKind thread-leak + livelock"
+        }
+      ]
+    },
+    {
+      "id": "feat-042",
+      "name": "Help modal replaces Java codegen entry",
+      "status_in_list": "in_progress",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:HelpModal + HelpButton wired in App",
+          "ok": true,
+          "detail": "HelpModal + HelpButton wired in App"
+        },
+        {
+          "name": "static:security section in help modal",
+          "ok": true,
+          "detail": "security section in help modal"
+        },
+        {
+          "name": "static:animated how-to walkthrough",
+          "ok": true,
+          "detail": "animated how-to walkthrough"
+        },
+        {
+          "name": "static:Java version badges 8/11/17/21",
+          "ok": true,
+          "detail": "Java version badges 8/11/17/21"
+        },
+        {
+          "name": "static:help i18n en+zh",
+          "ok": true,
+          "detail": "help i18n en+zh"
+        },
+        {
+          "name": "static:codegen UI removed from App header",
+          "ok": true,
+          "detail": "codegen UI removed from App header"
         }
       ]
     }
