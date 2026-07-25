@@ -6,6 +6,7 @@ export const nl: Messages = {
   "app.chooseDump": "Dump(s) kiezen…",
   "app.loadSample": "Voorbeeld laden",
   "app.exportHtml": "HTML exporteren",
+  "app.sha256": "SHA-256: {hash}",
   "app.hint": "Selecteer een of meer thread dumps (meervoudige selectie vergelijkt leak/livelock in de tijd), of laad het voorbeeld om de analyzer te verkennen.",
   "app.dropOverlay": "Sleep thread dump(s) hierheen om te analyseren",
   "app.dumpChip": "{name} · {count} thr",

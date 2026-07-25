@@ -684,6 +684,28 @@ FEATURE_CHECKS["feat-043"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-044"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok: fileExists("web/src/sha256.ts") && contains("web/src/sha256.ts", "crypto.subtle.digest"),
+      detail: "sha256 via Web Crypto",
+    }),
+    () => ({
+      ok: contains("web/src/App.tsx", "dump-filename") && contains("web/src/App.tsx", "sha256Hex"),
+      detail: "toolbar dump filename + digest",
+    }),
+    () => ({
+      ok: contains("web/src/export.ts", "contentSha256") && contains("web/src/export.ts", "report-source-name"),
+      detail: "HTML export source hover digest",
+    }),
+    () => ({
+      ok: contains("web/src/i18n/locales/en.ts", "app.sha256") && contains("web/src/i18n/locales/zh.ts", "app.sha256"),
+      detail: "sha256 i18n",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

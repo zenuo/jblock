@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-25T12:10:06.753Z",
+  "generated_at": "2026-07-25T15:27:25.191Z",
   "root": "/workspace",
   "summary": {
-    "total": 43,
-    "pass": 43,
+    "total": 44,
+    "pass": 44,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 88,
@@ -1354,6 +1354,34 @@
           "name": "static:home intro i18n",
           "ok": true,
           "detail": "home intro i18n"
+        }
+      ]
+    },
+    {
+      "id": "feat-044",
+      "name": "Dump filename + SHA-256 hover digest",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:sha256 via Web Crypto",
+          "ok": true,
+          "detail": "sha256 via Web Crypto"
+        },
+        {
+          "name": "static:toolbar dump filename + digest",
+          "ok": true,
+          "detail": "toolbar dump filename + digest"
+        },
+        {
+          "name": "static:HTML export source hover digest",
+          "ok": true,
+          "detail": "HTML export source hover digest"
+        },
+        {
+          "name": "static:sha256 i18n",
+          "ok": true,
+          "detail": "sha256 i18n"
         }
       ]
     }

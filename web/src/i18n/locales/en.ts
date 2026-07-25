@@ -6,6 +6,7 @@ export const en: Messages = {
   "app.chooseDump": "Choose dump(s)…",
   "app.loadSample": "Load sample",
   "app.exportHtml": "Export HTML",
+  "app.sha256": "SHA-256: {hash}",
   "app.hint": "Select one or more thread dumps (multi-select compares leak/livelock over time), or load the sample to explore the analyzer.",
   "app.dropOverlay": "Drop thread dump(s) to analyze",
   "app.dumpChip": "{name} · {count} thr",

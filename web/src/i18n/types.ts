@@ -43,6 +43,7 @@ export type MessageKey =
   | "app.chooseDump"
   | "app.loadSample"
   | "app.exportHtml"
+  | "app.sha256"
   | "app.hint"
   | "app.dropOverlay"
   | "app.dumpSeries"

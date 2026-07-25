@@ -29,6 +29,7 @@ export function buildReportHtml(
   sourceName: string,
   t: TranslateFn,
   locale: Locale,
+  contentSha256 = "",
 ): string {
   const maxState = Math.max(1, ...analysis.state_counts.map((s) => s.count));
   const findings = buildFindings(analysis, t);
@@ -124,6 +125,10 @@ export function buildReportHtml(
     })
     .join("");
 
+  const sourceTitle = contentSha256
+    ? ` title="${escapeHtml(t("app.sha256", { hash: contentSha256 }))}"`
+    : "";
+
   return `<!doctype html>
 <html lang="${htmlLang}">
 <head>
@@ -136,7 +141,9 @@ export function buildReportHtml(
 <div class="app">
   <header class="app-header">
     <h1><span class="logo">jblock</span> ${escapeHtml(t("report.title"))}</h1>
-    <p class="tagline">${escapeHtml(t("report.source", { name: sourceName }))}</p>
+    <p class="tagline"><span class="report-source-name"${sourceTitle}>${escapeHtml(
+      t("report.source", { name: sourceName }),
+    )}</span></p>
   </header>
   ${findingsHtml}
   ${deadlockPanel}
@@ -186,8 +193,9 @@ export function exportHtml(
   sourceName: string,
   t: TranslateFn,
   locale: Locale,
+  contentSha256 = "",
 ): void {
-  const html = buildReportHtml(analysis, sourceName, t, locale);
+  const html = buildReportHtml(analysis, sourceName, t, locale, contentSha256);
   triggerDownload(
     new Blob([html], { type: "text/html" }),
     `jblock-report-${sourceName || "dump"}.html`,

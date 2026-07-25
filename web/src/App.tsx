@@ -7,6 +7,7 @@ import { useI18n } from "./i18n";
 import LanguageMenu from "./LanguageMenu";
 import Results from "./Results";
 import { SAMPLE_DUMP } from "./sampleDump";
+import { sha256Hex } from "./sha256";
 import type { Analysis, MultiDumpAnalysis, PatternHit } from "./types";
 
 type BusyPhase = "wasm" | "analyzing";
@@ -20,6 +21,7 @@ export default function App() {
   const { t, locale } = useI18n();
   const [series, setSeries] = useState<MultiDumpAnalysis | null>(null);
   const [dumpNames, setDumpNames] = useState<string[]>([]);
+  const [dumpDigests, setDumpDigests] = useState<string[]>([]);
   const [selectedDump, setSelectedDump] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [busyPhase, setBusyPhase] = useState<BusyPhase | null>(null);
@@ -43,6 +45,16 @@ export default function App() {
     const idx = Math.min(selectedDump, dumpNames.length - 1);
     return `${dumpNames[idx]} (+${dumpNames.length - 1})`;
   }, [dumpNames, selectedDump]);
+
+  const selectedDumpName = useMemo(() => {
+    if (dumpNames.length === 0) return "";
+    return dumpNames[Math.min(selectedDump, dumpNames.length - 1)] ?? "";
+  }, [dumpNames, selectedDump]);
+
+  const selectedDigest = useMemo(() => {
+    if (dumpDigests.length === 0) return "";
+    return dumpDigests[Math.min(selectedDump, dumpDigests.length - 1)] ?? "";
+  }, [dumpDigests, selectedDump]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,13 +92,16 @@ export default function App() {
           window.setTimeout(resolve, 0);
         });
         const result = await analyzeMany(items.map((i) => i.text));
+        const digests = await Promise.all(items.map((i) => sha256Hex(i.text)));
         setSeries(result);
         setDumpNames(items.map((i) => i.name));
+        setDumpDigests(digests);
         setSelectedDump(result.dumps.length - 1);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
         setSeries(null);
         setDumpNames([]);
+        setDumpDigests([]);
       } finally {
         setBusyPhase(null);
       }
@@ -250,11 +265,26 @@ export default function App() {
           <button
             type="button"
             className="btn"
-            onClick={() => exportHtml(analysis, sourceName, t, locale)}
+            onClick={() =>
+              exportHtml(analysis, sourceName, t, locale, selectedDigest)
+            }
             disabled={busy}
           >
             {t("app.exportHtml")}
           </button>
+          {selectedDumpName && (
+            <span
+              className="dump-filename"
+              data-testid="dump-filename"
+              title={
+                selectedDigest
+                  ? t("app.sha256", { hash: selectedDigest })
+                  : undefined
+              }
+            >
+              {selectedDumpName}
+            </span>
+          )}
         </section>
       )}
 

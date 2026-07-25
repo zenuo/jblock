@@ -2,28 +2,31 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-25 15:20
-**Active Feature:** fix modal scrollbar layout shift (main)
+**Last Updated:** 2026-07-25 15:35
+**Active Feature:** feat-044 (dump filename + SHA-256 hover)
 
 ## Status
 
 ### What's Done
 
-- [x] `lockBodyScroll()` compensates scrollbar width via `padding-right`
-- [x] Wired into PatternLegendModal + HelpModal (same overflow-hidden shift)
+- [x] Chose Web Crypto SHA-256 (option C) over MD5 / Rust
+- [x] Toolbar shows dump filename after results; hover = SHA-256
+- [x] HTML export source line `title` shows SHA-256
+- [x] feat-044 + e2e static checks
 
 ### What's In Progress
 
-- [ ] None
+- [ ] Verification
 
 ### What's Next
 
-1. Optionally: dual CI artifact (`VITE_BASE=/`) + Release zip for zero-toolchain local deploy
+1. Optionally: dual CI artifact (`VITE_BASE=/`) + Release zip
 
 ## Decisions Made
 
-- Root cause: `body { overflow: hidden }` removes the vertical scrollbar and widens the layout. Fix by adding matching `padding-right` while locked.
+- Digest = SHA-256 of dump UTF-8 text (`TextEncoder` + `crypto.subtle`), matching analyzed content.
+- Computed in JS at analyze time; not in WASM.
 
 ## Evidence of Completion
 
-- Pending lint/typecheck
+- Pending `./init.sh` / lint+typecheck+e2e

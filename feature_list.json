@@ -446,6 +446,17 @@
       ],
       "status": "done",
       "evidence": "Installed .cursor/skills/ui-design-brain; Apple-level Minimal shell (Instrument Sans/Serif, warm gray + #0071e3); home-intro with brand/CTA/points collapses via is-collapsed when analysis exists; workspace-toolbar for actions; 8-locale home.*; e2e 43/43"
+    },
+    {
+      "id": "feat-044",
+      "name": "Dump filename + SHA-256 hover digest",
+      "description": "After analysis, show the dump filename to the right of workspace toolbar buttons; hover reveals SHA-256 of dump UTF-8 text (Web Crypto). HTML export source line also exposes the digest via title tooltip.",
+      "dependencies": [
+        "feat-006",
+        "feat-043"
+      ],
+      "status": "done",
+      "evidence": "web/src/sha256.ts (crypto.subtle); App dump-filename + dumpDigests; export.ts report-source-name title; 8-locale app.sha256"
     }
   ]
 }
