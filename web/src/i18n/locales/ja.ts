@@ -17,7 +17,7 @@ export const ja: Messages = {
   "app.wasmLoadFailed": "分析エンジンの読み込みに失敗しました: {error}",
   "app.language": "言語",
   "home.kicker": "ローカル・スレッドダンプ解析",
-  "home.title": "詰まりを見る — 1バイトも送らずに。",
+  "home.title": "詰まりを見る\n— 1バイトも送らずに。",
   "home.lead": "jstack または ThreadMXBean のダンプをここにドロップ。jblock がブラウザ内で解析し、デッドロックやホットロック、プール飽和などを示します。",
   "home.privacy": "アップロードはありません。解析は WebAssembly で端末内実行です。",
   "home.pointsLabel": "ハイライト",

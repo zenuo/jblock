@@ -17,7 +17,7 @@ export const zh: Messages = {
   "app.wasmLoadFailed": "分析引擎加载失败：{error}",
   "app.language": "语言",
   "home.kicker": "本地线程转储分析",
-  "home.title": "看清卡住的地方——数据不出本机。",
+  "home.title": "看清卡住的地方\n——数据不出本机。",
   "home.lead": "把 jstack 或 ThreadMXBean 转储拖到这里。jblock 在浏览器里解析，并标出死锁、热锁、线程池饱和等问题。",
   "home.privacy": "不会上传任何内容。分析通过 WebAssembly 在本机完成。",
   "home.pointsLabel": "要点",

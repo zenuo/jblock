@@ -17,7 +17,7 @@ export const nl: Messages = {
   "app.wasmLoadFailed": "Analyzer laden mislukt: {error}",
   "app.language": "Taal",
   "home.kicker": "Lokale thread-dumpanalyse",
-  "home.title": "Zie wat vastzit — zonder een byte te sturen.",
+  "home.title": "Zie wat vastzit\n— zonder een byte te sturen.",
   "home.lead": "Sleep hier een jstack- of ThreadMXBean-dump. jblock parseert in je browser en markeert deadlocks, hot locks, poolverzadiging en meer.",
   "home.privacy": "Er wordt niets geüpload. Analyse draait on-device via WebAssembly.",
   "home.pointsLabel": "Hoogtepunten",

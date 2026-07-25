@@ -192,7 +192,14 @@ export default function App() {
       <header className="app-header">
         <div className="app-header-row">
           <a className="brand" href="#top" onClick={(e) => e.preventDefault()}>
-            <span className="brand-mark" aria-hidden="true" />
+            <img
+              className="brand-mark"
+              src={`${import.meta.env.BASE_URL}favicon.svg`}
+              width={18}
+              height={18}
+              alt=""
+              aria-hidden="true"
+            />
             <span className="brand-name">jblock</span>
           </a>
           <div className="header-actions">
