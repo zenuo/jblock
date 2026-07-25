@@ -39,6 +39,7 @@ export type MessageKey =
   | "app.title"
   | "app.tagline"
   | "app.help"
+  | "app.github"
   | "app.chooseDump"
   | "app.loadSample"
   | "app.exportHtml"

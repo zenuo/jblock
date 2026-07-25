@@ -99,12 +99,47 @@ Rust 侧：
 cargo test          # 运行 src/parser.rs 中的解析单元测试
 ```
 
+## 本地部署
+
+jblock 是纯静态单页应用（HTML / JS / CSS + WASM），解析在浏览器本地完成，**无需后端**。把 `web/dist/` 用任意静态文件服务器托管即可。
+
+### 从源码构建并预览
+
+先完成上方「环境要求」中的一次性安装，然后：
+
+```bash
+pnpm -C web install
+pnpm -C web run build          # 默认 VITE_BASE=/ ，产物在 web/dist/
+pnpm -C web run preview        # 本地预览生产构建，默认 http://localhost:4173/
+```
+
+也可用其它静态服务器，例如：
+
+```bash
+npx --yes serve web/dist
+# 或将 web/dist/ 挂到 Nginx / Caddy / 内网对象存储的站点根目录
+```
+
+### 子路径部署
+
+若站点不在域名根路径（例如 `https://example.com/jblock/`），构建时设置 `VITE_BASE`（须以 `/` 开头和结尾）：
+
+```bash
+VITE_BASE=/jblock/ pnpm -C web run build
+```
+
+> **注意**：GitHub Actions 发布到 GitHub Pages 的产物使用 `VITE_BASE=/jblock/`。该包适合挂在 `/jblock/` 子路径；若你要挂在站点根路径（`/`），请本地按默认 `VITE_BASE=/` 重新构建，不要直接复用 Pages 产物，否则静态资源会 404。
+
+### 从 CI 产物部署（免本地编译）
+
+每次 PR / push 的 Verify job 会上传 `web-dist` artifact（Pages 用的 `/jblock/` 包）。在 Actions 运行页下载解压后，用静态服务器托管即可；若需要根路径访问，仍建议按上一节在本地构建一份 `VITE_BASE=/` 的包。
+
 ## CI / CD
 
 GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)：
 
 - **CI**（`pull_request` + `push`）：`cargo test`，以及 `pnpm` 的 `wasm` / `lint` / `typecheck` / `build`（与 `./init.sh` 对齐）。
-- **CD**（仅 `main` push）：将 `web/dist` 部署到 GitHub Pages（仓库需在 Settings → Pages 选择 **GitHub Actions** 作为源）。
+- **CD**（仅 `main` push）：将 `web/dist` 部署到 GitHub Pages（仓库需在 Settings → Pages 选择 **GitHub Actions** 作为源；`VITE_BASE=/jblock/`）。
 
 本地验证仍推荐：
 

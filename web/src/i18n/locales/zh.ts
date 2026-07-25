@@ -25,6 +25,7 @@ export const zh: Messages = {
   "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "工作区操作",
   "app.help": "关于 jblock",
+  "app.github": "GitHub 仓库",
   "help.title": "关于 jblock",
   "help.close": "关闭",
   "help.lead": "jblock 在你的浏览器里读取 Java 线程转储，并标出常见并发问题——不用登录，也不上传文件。",

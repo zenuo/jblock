@@ -25,6 +25,7 @@ export const ko: Messages = {
   "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "작업 영역 동작",
   "app.help": "jblock 소개",
+  "app.github": "GitHub 저장소",
   "help.title": "jblock 소개",
   "help.close": "닫기",
   "help.lead": "jblock은 브라우저에서 Java 스레드 덤프를 읽고 흔한 동시성 문제를 짚어 줍니다 — 계정·업로드 없음.",

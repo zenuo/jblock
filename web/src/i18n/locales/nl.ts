@@ -25,6 +25,7 @@ export const nl: Messages = {
   "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "Workspace-acties",
   "app.help": "Over jblock",
+  "app.github": "GitHub-repository",
   "help.title": "Over jblock",
   "help.close": "Sluiten",
   "help.lead": "jblock leest Java thread dumps in je browser en wijst veelvoorkomende concurrency-problemen aan — zonder account of upload.",
