@@ -3566,4 +3566,101 @@ Full thread dump OpenJDK 64-Bit Server VM:
         assert_eq!(series.dumps.len(), 1);
         assert_eq!(series.dumps[0].total_threads, analyze(t0).total_threads);
     }
+
+    /// End-to-end matrix: every pattern fixture must surface its expected `PatternKind`
+    /// through the public `analyze` / `analyze_series` API (harness e2e).
+    #[test]
+    fn e2e_all_pattern_fixtures_detect_expected_kinds() {
+        let cases: &[(&str, PatternKind)] = &[
+            (
+                include_str!("../tests/fixtures/patterns/thread_pool_exhaustion_jstack.txt"),
+                PatternKind::ThreadPoolExhaustion,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/sync_io_hotspot_jstack.txt"),
+                PatternKind::SyncIoHotspot,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/dangerous_hot_lock_jstack.txt"),
+                PatternKind::DangerousHotLockOwner,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/connection_pool_starve_jstack.txt"),
+                PatternKind::ConnectionPoolBorrow,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/future_latch_deadlock_jstack.txt"),
+                PatternKind::FutureLatchWaitTree,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/logging_appender_contention_jstack.txt"),
+                PatternKind::LoggingAppenderContention,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/busy_wait_spin_jstack.txt"),
+                PatternKind::BusyWaitSpinHotspot,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/condition_starvation_jstack.txt"),
+                PatternKind::ConditionParkStarvation,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/lock_order_risk_jstack.txt"),
+                PatternKind::LockOrderInconsistency,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/finalizer_pressure_jstack.txt"),
+                PatternKind::FinalizerPressure,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/sleep_as_scheduler_jstack.txt"),
+                PatternKind::SleepAsScheduler,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/framework_pool_saturation_jstack.txt"),
+                PatternKind::FrameworkPoolSaturation,
+            ),
+            (
+                include_str!("../tests/fixtures/patterns/dns_resolution_stall_jstack.txt"),
+                PatternKind::DnsResolutionStall,
+            ),
+        ];
+
+        for (dump, kind) in cases {
+            let a = analyze(dump);
+            assert!(
+                a.patterns.iter().any(|p| p.kind == *kind),
+                "missing {:?} in patterns={:?}",
+                kind,
+                a.patterns.iter().map(|p| p.kind).collect::<Vec<_>>()
+            );
+            assert!(a.total_threads > 0, "empty dump for {:?}", kind);
+        }
+
+        let leak = analyze_series(&[
+            include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t0.txt"),
+            include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t1.txt"),
+            include_str!("../tests/fixtures/patterns/cross_dump/thread_leak_t2.txt"),
+        ]);
+        assert!(
+            leak.cross_patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::ThreadLeak),
+            "cross={:?}",
+            leak.cross_patterns
+        );
+
+        let live = analyze_series(&[
+            include_str!("../tests/fixtures/patterns/cross_dump/livelock_t0.txt"),
+            include_str!("../tests/fixtures/patterns/cross_dump/livelock_t1.txt"),
+            include_str!("../tests/fixtures/patterns/cross_dump/livelock_t2.txt"),
+        ]);
+        assert!(
+            live.cross_patterns
+                .iter()
+                .any(|p| p.kind == PatternKind::Livelock),
+            "cross={:?}",
+            live.cross_patterns
+        );
+    }
 }

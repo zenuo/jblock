@@ -1,0 +1,1326 @@
+{
+  "generated_at": "2026-07-24T15:41:41.105Z",
+  "root": "/workspace",
+  "summary": {
+    "total": 41,
+    "pass": 41,
+    "fail": 0,
+    "cargo_status": 0,
+    "cargo_passed": 88,
+    "cargo_failed": [],
+    "web_ok": true,
+    "unmapped_checks": []
+  },
+  "web_steps": [
+    {
+      "name": "pnpm install",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "pnpm wasm",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "pnpm lint",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "pnpm typecheck",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "pnpm build",
+      "ok": true,
+      "detail": "ok"
+    }
+  ],
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Project scaffold & verification",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:init.sh + Cargo.toml + web/package.json",
+          "ok": true,
+          "detail": "init.sh + Cargo.toml + web/package.json"
+        },
+        {
+          "name": "static:init.sh runs cargo test and web typecheck",
+          "ok": true,
+          "detail": "init.sh runs cargo test and web typecheck"
+        },
+        {
+          "name": "web-gates",
+          "ok": true,
+          "detail": "wasm/lint/typecheck/build ok"
+        }
+      ]
+    },
+    {
+      "id": "feat-002",
+      "name": "Thread dump parsing (multi-format)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_jstack_format",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_jstack_format"
+        },
+        {
+          "name": "cargo:detects_mxbean_format",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_mxbean_format"
+        },
+        {
+          "name": "cargo:counts_stack_depth",
+          "ok": true,
+          "detail": "passed as parser::tests::counts_stack_depth"
+        },
+        {
+          "name": "static:parser analyze() exists",
+          "ok": true,
+          "detail": "parser analyze() exists"
+        }
+      ]
+    },
+    {
+      "id": "feat-003",
+      "name": "Problem-pattern analysis",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:groups_states",
+          "ok": true,
+          "detail": "passed as parser::tests::groups_states"
+        },
+        {
+          "name": "cargo:detects_lock_contention",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_lock_contention"
+        },
+        {
+          "name": "static:blocked_edges in Analysis",
+          "ok": true,
+          "detail": "blocked_edges in Analysis"
+        }
+      ]
+    },
+    {
+      "id": "feat-004",
+      "name": "In-browser result rendering",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:web analyzer + App wire analyzeDump",
+          "ok": true,
+          "detail": "web analyzer + App wire analyzeDump"
+        },
+        {
+          "name": "static:Results rendering present",
+          "ok": true,
+          "detail": "Results rendering present"
+        },
+        {
+          "name": "web-gates",
+          "ok": true,
+          "detail": "wasm/lint/typecheck/build ok"
+        }
+      ]
+    },
+    {
+      "id": "feat-005",
+      "name": "Format & UX hardening",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_two_thread_deadlock",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_two_thread_deadlock"
+        },
+        {
+          "name": "cargo:no_false_deadlock_on_simple_contention",
+          "ok": true,
+          "detail": "passed as parser::tests::no_false_deadlock_on_simple_contention"
+        },
+        {
+          "name": "cargo:parses_real_world_deadlock_dump",
+          "ok": true,
+          "detail": "passed as parser::tests::parses_real_world_deadlock_dump"
+        },
+        {
+          "name": "static:drag-drop + detect_deadlocks",
+          "ok": true,
+          "detail": "drag-drop + detect_deadlocks"
+        },
+        {
+          "name": "static:real-world deadlock fixture",
+          "ok": true,
+          "detail": "real-world deadlock fixture"
+        }
+      ]
+    },
+    {
+      "id": "feat-006",
+      "name": "Export HTML / PDF",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:exportHtml + exportPdf",
+          "ok": true,
+          "detail": "exportHtml + exportPdf"
+        },
+        {
+          "name": "static:pdf-lib dependency usage",
+          "ok": true,
+          "detail": "pdf-lib dependency usage"
+        }
+      ]
+    },
+    {
+      "id": "feat-007",
+      "name": "java code generation",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:parses_scenario_aliases",
+          "ok": true,
+          "detail": "passed as codegen::java_code_generation::parses_scenario_aliases"
+        },
+        {
+          "name": "static:codegen.rs + gen_java example",
+          "ok": true,
+          "detail": "codegen.rs + gen_java example"
+        },
+        {
+          "name": "static:frontend codegen present",
+          "ok": true,
+          "detail": "frontend codegen present"
+        }
+      ]
+    },
+    {
+      "id": "feat-008",
+      "name": "java version support",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_java_version_support",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_java_version_support"
+        },
+        {
+          "name": "static:java-versions fixtures present",
+          "ok": true,
+          "detail": "java-versions fixtures present"
+        },
+        {
+          "name": "static:FORMAT_DIFFS.md",
+          "ok": true,
+          "detail": "FORMAT_DIFFS.md"
+        }
+      ]
+    },
+    {
+      "id": "feat-009",
+      "name": "ThreadMXBean format lock contentions bug fix",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_mxbean_format_lock_contentions",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_mxbean_format_lock_contentions"
+        },
+        {
+          "name": "cargo:detects_mxbean_format_lock_contentions_real_world",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_mxbean_format_lock_contentions_real_world"
+        },
+        {
+          "name": "static:mxbean real contention fixture",
+          "ok": true,
+          "detail": "mxbean real contention fixture"
+        }
+      ]
+    },
+    {
+      "id": "feat-010",
+      "name": "Deadlock cycle detection",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_two_thread_deadlock",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_two_thread_deadlock"
+        },
+        {
+          "name": "static:deadlocks in parser + UI/export",
+          "ok": true,
+          "detail": "deadlocks in parser + UI/export"
+        }
+      ]
+    },
+    {
+      "id": "feat-011",
+      "name": "Move Java codegen to frontend (shrink WASM)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:TS codegen module",
+          "ok": true,
+          "detail": "TS codegen module"
+        },
+        {
+          "name": "static:Rust codegen gated out of WASM",
+          "ok": true,
+          "detail": "Rust codegen gated out of WASM"
+        },
+        {
+          "name": "static:analyzer does not pull wasm generateJava",
+          "ok": true,
+          "detail": "analyzer does not pull wasm generateJava"
+        }
+      ]
+    },
+    {
+      "id": "feat-012",
+      "name": "Codegen entry as top-right modal",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:codegen modal entry in App",
+          "ok": true,
+          "detail": "codegen modal entry in App"
+        }
+      ]
+    },
+    {
+      "id": "feat-013",
+      "name": "Problem-first findings summary",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:buildFindings",
+          "ok": true,
+          "detail": "buildFindings"
+        },
+        {
+          "name": "static:findings panel in Results",
+          "ok": true,
+          "detail": "findings panel in Results"
+        }
+      ]
+    },
+    {
+      "id": "feat-014",
+      "name": "Aggregate lock contention by lock",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:aggregateContention",
+          "ok": true,
+          "detail": "aggregateContention"
+        }
+      ]
+    },
+    {
+      "id": "feat-015",
+      "name": "Thread table filter and sort",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:thread filter/sort UI",
+          "ok": true,
+          "detail": "thread filter/sort UI"
+        }
+      ]
+    },
+    {
+      "id": "feat-016",
+      "name": "waiting_on column and stack frames",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:captures_top_stack_frames",
+          "ok": true,
+          "detail": "passed as parser::tests::captures_top_stack_frames"
+        },
+        {
+          "name": "static:stack frames + waiting_on UI",
+          "ok": true,
+          "detail": "stack frames + waiting_on UI"
+        }
+      ]
+    },
+    {
+      "id": "feat-017",
+      "name": "Jump to lock owner / thread",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:jump/highlight thread row",
+          "ok": true,
+          "detail": "jump/highlight thread row"
+        }
+      ]
+    },
+    {
+      "id": "feat-018",
+      "name": "Hide JVM noise threads",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:isJvmNoise helper",
+          "ok": true,
+          "detail": "isJvmNoise helper"
+        },
+        {
+          "name": "static:hide JVM noise toggle",
+          "ok": true,
+          "detail": "hide JVM noise toggle"
+        }
+      ]
+    },
+    {
+      "id": "feat-019",
+      "name": "Cluster threads by stack signature",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:clusterByStack",
+          "ok": true,
+          "detail": "clusterByStack"
+        }
+      ]
+    },
+    {
+      "id": "feat-020",
+      "name": "GitHub Actions CI/CD",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:ci.yml present",
+          "ok": true,
+          "detail": "ci.yml present"
+        },
+        {
+          "name": "static:CI runs cargo test + Pages deploy",
+          "ok": true,
+          "detail": "CI runs cargo test + Pages deploy"
+        },
+        {
+          "name": "web-gates",
+          "ok": true,
+          "detail": "wasm/lint/typecheck/build ok"
+        }
+      ]
+    },
+    {
+      "id": "feat-021",
+      "name": "WASM preload + analyze loading UI",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:preloadWasm + isWasmReady",
+          "ok": true,
+          "detail": "preloadWasm + isWasmReady"
+        },
+        {
+          "name": "static:loading UI / preload on mount",
+          "ok": true,
+          "detail": "loading UI / preload on mount"
+        }
+      ]
+    },
+    {
+      "id": "feat-022",
+      "name": "Multi-language UI with browser auto-detect",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:en + zh locales",
+          "ok": true,
+          "detail": "en + zh locales"
+        },
+        {
+          "name": "static:detectBrowserLocale in i18n/index.ts",
+          "ok": true,
+          "detail": "detectBrowserLocale in i18n/index.ts"
+        }
+      ]
+    },
+    {
+      "id": "feat-023",
+      "name": "Pattern legend demo modals",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:PatternLegendModal.tsx",
+          "ok": true,
+          "detail": "PatternLegendModal.tsx"
+        },
+        {
+          "name": "static:legend wired from findings",
+          "ok": true,
+          "detail": "legend wired from findings"
+        }
+      ]
+    },
+    {
+      "id": "feat-024",
+      "name": "Website favicon",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:favicon.svg",
+          "ok": true,
+          "detail": "favicon.svg"
+        },
+        {
+          "name": "static:favicon linked in index.html",
+          "ok": true,
+          "detail": "favicon linked in index.html"
+        }
+      ]
+    },
+    {
+      "id": "feat-025",
+      "name": "Richer Load sample dump",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:parses_web_sample_dump",
+          "ok": true,
+          "detail": "passed as parser::tests::parses_web_sample_dump"
+        },
+        {
+          "name": "static:rich sample.tdump",
+          "ok": true,
+          "detail": "rich sample.tdump"
+        },
+        {
+          "name": "static:sampleDump.ts import",
+          "ok": true,
+          "detail": "sampleDump.ts import"
+        }
+      ]
+    },
+    {
+      "id": "feat-026",
+      "name": "Language icon menu + more locales",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:LanguageMenu.tsx",
+          "ok": true,
+          "detail": "LanguageMenu.tsx"
+        },
+        {
+          "name": "static:8 locale catalogs",
+          "ok": true,
+          "detail": "8 locale catalogs"
+        }
+      ]
+    },
+    {
+      "id": "feat-027",
+      "name": "Pattern reproducer + dump capture harness",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:capture.rs compile_run_jstack",
+          "ok": true,
+          "detail": "capture.rs compile_run_jstack"
+        },
+        {
+          "name": "static:Scenario::ThreadPoolExhaustion",
+          "ok": true,
+          "detail": "Scenario::ThreadPoolExhaustion"
+        },
+        {
+          "name": "static:CI Java setup for live capture",
+          "ok": true,
+          "detail": "CI Java setup for live capture"
+        }
+      ]
+    },
+    {
+      "id": "feat-028",
+      "name": "Detect thread-pool exhaustion (highest benefit)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_thread_pool_exhaustion_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_thread_pool_exhaustion_pattern"
+        },
+        {
+          "name": "cargo:detects_thread_pool_exhaustion_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_thread_pool_exhaustion_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/thread_pool_exhaustion_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/thread_pool_exhaustion_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::ThreadPoolExhaustion",
+          "ok": true,
+          "detail": "PatternKind::ThreadPoolExhaustion"
+        },
+        {
+          "name": "static:Scenario ThreadPoolExhaustion",
+          "ok": true,
+          "detail": "Scenario ThreadPoolExhaustion"
+        },
+        {
+          "name": "static:TS PatternKind thread-pool-exhaustion",
+          "ok": true,
+          "detail": "TS PatternKind thread-pool-exhaustion"
+        },
+        {
+          "name": "static:web codegen covers ThreadPoolExhaustion",
+          "ok": true,
+          "detail": "web codegen covers ThreadPoolExhaustion"
+        },
+        {
+          "name": "static:UI/legend knows thread-pool-exhaustion",
+          "ok": true,
+          "detail": "UI/legend knows thread-pool-exhaustion"
+        }
+      ]
+    },
+    {
+      "id": "feat-029",
+      "name": "Detect sync I/O / RPC hotspot clusters",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_sync_io_hotspot_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_sync_io_hotspot_pattern"
+        },
+        {
+          "name": "cargo:detects_sync_io_hotspot_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_sync_io_hotspot_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/sync_io_hotspot_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/sync_io_hotspot_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::SyncIoHotspot",
+          "ok": true,
+          "detail": "PatternKind::SyncIoHotspot"
+        },
+        {
+          "name": "static:Scenario SyncIoHotspot",
+          "ok": true,
+          "detail": "Scenario SyncIoHotspot"
+        },
+        {
+          "name": "static:TS PatternKind sync-io-hotspot",
+          "ok": true,
+          "detail": "TS PatternKind sync-io-hotspot"
+        },
+        {
+          "name": "static:web codegen covers SyncIoHotspot",
+          "ok": true,
+          "detail": "web codegen covers SyncIoHotspot"
+        },
+        {
+          "name": "static:UI/legend knows sync-io-hotspot",
+          "ok": true,
+          "detail": "UI/legend knows sync-io-hotspot"
+        }
+      ]
+    },
+    {
+      "id": "feat-030",
+      "name": "Detect dangerous hot-lock owner (owner on blocking call)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_dangerous_hot_lock_owner_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_dangerous_hot_lock_owner_pattern"
+        },
+        {
+          "name": "cargo:detects_dangerous_hot_lock_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_dangerous_hot_lock_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/dangerous_hot_lock_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/dangerous_hot_lock_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::DangerousHotLockOwner",
+          "ok": true,
+          "detail": "PatternKind::DangerousHotLockOwner"
+        },
+        {
+          "name": "static:Scenario DangerousHotLock",
+          "ok": true,
+          "detail": "Scenario DangerousHotLock"
+        },
+        {
+          "name": "static:TS PatternKind dangerous-hot-lock-owner",
+          "ok": true,
+          "detail": "TS PatternKind dangerous-hot-lock-owner"
+        },
+        {
+          "name": "static:web codegen covers DangerousHotLock",
+          "ok": true,
+          "detail": "web codegen covers DangerousHotLock"
+        },
+        {
+          "name": "static:UI/legend knows dangerous-hot-lock-owner",
+          "ok": true,
+          "detail": "UI/legend knows dangerous-hot-lock-owner"
+        }
+      ]
+    },
+    {
+      "id": "feat-031",
+      "name": "Detect connection-pool borrow blocking",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_connection_pool_borrow_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_connection_pool_borrow_pattern"
+        },
+        {
+          "name": "cargo:detects_connection_pool_borrow_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_connection_pool_borrow_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/connection_pool_starve_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/connection_pool_starve_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::ConnectionPoolBorrow",
+          "ok": true,
+          "detail": "PatternKind::ConnectionPoolBorrow"
+        },
+        {
+          "name": "static:Scenario ConnectionPoolStarve",
+          "ok": true,
+          "detail": "Scenario ConnectionPoolStarve"
+        },
+        {
+          "name": "static:TS PatternKind connection-pool-borrow",
+          "ok": true,
+          "detail": "TS PatternKind connection-pool-borrow"
+        },
+        {
+          "name": "static:web codegen covers ConnectionPoolStarve",
+          "ok": true,
+          "detail": "web codegen covers ConnectionPoolStarve"
+        },
+        {
+          "name": "static:UI/legend knows connection-pool-borrow",
+          "ok": true,
+          "detail": "UI/legend knows connection-pool-borrow"
+        }
+      ]
+    },
+    {
+      "id": "feat-032",
+      "name": "Detect Future/Latch wait trees",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_future_latch_wait_tree_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_future_latch_wait_tree_pattern"
+        },
+        {
+          "name": "cargo:detects_future_latch_wait_tree_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_future_latch_wait_tree_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/future_latch_deadlock_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/future_latch_deadlock_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::FutureLatchWaitTree",
+          "ok": true,
+          "detail": "PatternKind::FutureLatchWaitTree"
+        },
+        {
+          "name": "static:Scenario FutureLatchDeadlock",
+          "ok": true,
+          "detail": "Scenario FutureLatchDeadlock"
+        },
+        {
+          "name": "static:TS PatternKind future-latch-wait-tree",
+          "ok": true,
+          "detail": "TS PatternKind future-latch-wait-tree"
+        },
+        {
+          "name": "static:web codegen covers FutureLatchDeadlock",
+          "ok": true,
+          "detail": "web codegen covers FutureLatchDeadlock"
+        },
+        {
+          "name": "static:UI/legend knows future-latch-wait-tree",
+          "ok": true,
+          "detail": "UI/legend knows future-latch-wait-tree"
+        }
+      ]
+    },
+    {
+      "id": "feat-033",
+      "name": "Detect logging-appender contention signature",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_logging_appender_contention_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_logging_appender_contention_pattern"
+        },
+        {
+          "name": "cargo:detects_logging_appender_contention_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_logging_appender_contention_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/logging_appender_contention_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/logging_appender_contention_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::LoggingAppenderContention",
+          "ok": true,
+          "detail": "PatternKind::LoggingAppenderContention"
+        },
+        {
+          "name": "static:Scenario LoggingAppenderContention",
+          "ok": true,
+          "detail": "Scenario LoggingAppenderContention"
+        },
+        {
+          "name": "static:TS PatternKind logging-appender-contention",
+          "ok": true,
+          "detail": "TS PatternKind logging-appender-contention"
+        },
+        {
+          "name": "static:web codegen covers LoggingAppenderContention",
+          "ok": true,
+          "detail": "web codegen covers LoggingAppenderContention"
+        },
+        {
+          "name": "static:UI/legend knows logging-appender-contention",
+          "ok": true,
+          "detail": "UI/legend knows logging-appender-contention"
+        }
+      ]
+    },
+    {
+      "id": "feat-034",
+      "name": "Detect busy-wait / CPU spin hotspot",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_busy_wait_spin_hotspot_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_busy_wait_spin_hotspot_pattern"
+        },
+        {
+          "name": "cargo:detects_busy_wait_spin_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_busy_wait_spin_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/busy_wait_spin_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/busy_wait_spin_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::BusyWaitSpinHotspot",
+          "ok": true,
+          "detail": "PatternKind::BusyWaitSpinHotspot"
+        },
+        {
+          "name": "static:Scenario BusyWaitSpin",
+          "ok": true,
+          "detail": "Scenario BusyWaitSpin"
+        },
+        {
+          "name": "static:TS PatternKind busy-wait-spin-hotspot",
+          "ok": true,
+          "detail": "TS PatternKind busy-wait-spin-hotspot"
+        },
+        {
+          "name": "static:web codegen covers BusyWaitSpin",
+          "ok": true,
+          "detail": "web codegen covers BusyWaitSpin"
+        },
+        {
+          "name": "static:UI/legend knows busy-wait-spin-hotspot",
+          "ok": true,
+          "detail": "UI/legend knows busy-wait-spin-hotspot"
+        }
+      ]
+    },
+    {
+      "id": "feat-035",
+      "name": "Detect Condition / park starvation",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_condition_park_starvation_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_condition_park_starvation_pattern"
+        },
+        {
+          "name": "cargo:detects_condition_park_starvation_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_condition_park_starvation_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/condition_starvation_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/condition_starvation_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::ConditionParkStarvation",
+          "ok": true,
+          "detail": "PatternKind::ConditionParkStarvation"
+        },
+        {
+          "name": "static:Scenario ConditionStarvation",
+          "ok": true,
+          "detail": "Scenario ConditionStarvation"
+        },
+        {
+          "name": "static:TS PatternKind condition-park-starvation",
+          "ok": true,
+          "detail": "TS PatternKind condition-park-starvation"
+        },
+        {
+          "name": "static:web codegen covers ConditionStarvation",
+          "ok": true,
+          "detail": "web codegen covers ConditionStarvation"
+        },
+        {
+          "name": "static:UI/legend knows condition-park-starvation",
+          "ok": true,
+          "detail": "UI/legend knows condition-park-starvation"
+        }
+      ]
+    },
+    {
+      "id": "feat-036",
+      "name": "Detect nested lock-order inconsistency risk",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_lock_order_inconsistency_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_lock_order_inconsistency_pattern"
+        },
+        {
+          "name": "cargo:detects_lock_order_inconsistency_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_lock_order_inconsistency_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/lock_order_risk_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/lock_order_risk_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::LockOrderInconsistency",
+          "ok": true,
+          "detail": "PatternKind::LockOrderInconsistency"
+        },
+        {
+          "name": "static:Scenario LockOrderRisk",
+          "ok": true,
+          "detail": "Scenario LockOrderRisk"
+        },
+        {
+          "name": "static:TS PatternKind lock-order-inconsistency",
+          "ok": true,
+          "detail": "TS PatternKind lock-order-inconsistency"
+        },
+        {
+          "name": "static:web codegen covers LockOrderRisk",
+          "ok": true,
+          "detail": "web codegen covers LockOrderRisk"
+        },
+        {
+          "name": "static:UI/legend knows lock-order-inconsistency",
+          "ok": true,
+          "detail": "UI/legend knows lock-order-inconsistency"
+        }
+      ]
+    },
+    {
+      "id": "feat-037",
+      "name": "Detect Finalizer / Reference Handler pressure",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_finalizer_pressure_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_finalizer_pressure_pattern"
+        },
+        {
+          "name": "cargo:detects_finalizer_pressure_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_finalizer_pressure_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/finalizer_pressure_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/finalizer_pressure_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::FinalizerPressure",
+          "ok": true,
+          "detail": "PatternKind::FinalizerPressure"
+        },
+        {
+          "name": "static:Scenario FinalizerPressure",
+          "ok": true,
+          "detail": "Scenario FinalizerPressure"
+        },
+        {
+          "name": "static:TS PatternKind finalizer-pressure",
+          "ok": true,
+          "detail": "TS PatternKind finalizer-pressure"
+        },
+        {
+          "name": "static:web codegen covers FinalizerPressure",
+          "ok": true,
+          "detail": "web codegen covers FinalizerPressure"
+        },
+        {
+          "name": "static:UI/legend knows finalizer-pressure",
+          "ok": true,
+          "detail": "UI/legend knows finalizer-pressure"
+        }
+      ]
+    },
+    {
+      "id": "feat-038",
+      "name": "Detect Thread.sleep-as-scheduler anti-pattern",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_sleep_as_scheduler_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_sleep_as_scheduler_pattern"
+        },
+        {
+          "name": "cargo:detects_sleep_as_scheduler_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_sleep_as_scheduler_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/sleep_as_scheduler_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/sleep_as_scheduler_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::SleepAsScheduler",
+          "ok": true,
+          "detail": "PatternKind::SleepAsScheduler"
+        },
+        {
+          "name": "static:Scenario SleepAsScheduler",
+          "ok": true,
+          "detail": "Scenario SleepAsScheduler"
+        },
+        {
+          "name": "static:TS PatternKind sleep-as-scheduler",
+          "ok": true,
+          "detail": "TS PatternKind sleep-as-scheduler"
+        },
+        {
+          "name": "static:web codegen covers SleepAsScheduler",
+          "ok": true,
+          "detail": "web codegen covers SleepAsScheduler"
+        },
+        {
+          "name": "static:UI/legend knows sleep-as-scheduler",
+          "ok": true,
+          "detail": "UI/legend knows sleep-as-scheduler"
+        }
+      ]
+    },
+    {
+      "id": "feat-039",
+      "name": "Detect framework worker-pool saturation (Tomcat/Jetty/Netty)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_framework_pool_saturation_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_framework_pool_saturation_pattern"
+        },
+        {
+          "name": "cargo:detects_framework_pool_saturation_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_framework_pool_saturation_from_live_fixture"
+        },
+        {
+          "name": "cargo:detects_jetty_and_netty_framework_names",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_jetty_and_netty_framework_names"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/framework_pool_saturation_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/framework_pool_saturation_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::FrameworkPoolSaturation",
+          "ok": true,
+          "detail": "PatternKind::FrameworkPoolSaturation"
+        },
+        {
+          "name": "static:Scenario FrameworkPoolSaturation",
+          "ok": true,
+          "detail": "Scenario FrameworkPoolSaturation"
+        },
+        {
+          "name": "static:TS PatternKind framework-pool-saturation",
+          "ok": true,
+          "detail": "TS PatternKind framework-pool-saturation"
+        },
+        {
+          "name": "static:web codegen covers FrameworkPoolSaturation",
+          "ok": true,
+          "detail": "web codegen covers FrameworkPoolSaturation"
+        },
+        {
+          "name": "static:UI/legend knows framework-pool-saturation",
+          "ok": true,
+          "detail": "UI/legend knows framework-pool-saturation"
+        }
+      ]
+    },
+    {
+      "id": "feat-040",
+      "name": "Detect DNS / name-resolution stall clusters",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_dns_resolution_stall_pattern",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_dns_resolution_stall_pattern"
+        },
+        {
+          "name": "cargo:detects_dns_resolution_stall_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_dns_resolution_stall_from_live_fixture"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:fixture tests/fixtures/patterns/dns_resolution_stall_jstack.txt",
+          "ok": true,
+          "detail": "fixture tests/fixtures/patterns/dns_resolution_stall_jstack.txt"
+        },
+        {
+          "name": "static:PatternKind::DnsResolutionStall",
+          "ok": true,
+          "detail": "PatternKind::DnsResolutionStall"
+        },
+        {
+          "name": "static:Scenario DnsResolutionStall",
+          "ok": true,
+          "detail": "Scenario DnsResolutionStall"
+        },
+        {
+          "name": "static:TS PatternKind dns-resolution-stall",
+          "ok": true,
+          "detail": "TS PatternKind dns-resolution-stall"
+        },
+        {
+          "name": "static:web codegen covers DnsResolutionStall",
+          "ok": true,
+          "detail": "web codegen covers DnsResolutionStall"
+        },
+        {
+          "name": "static:UI/legend knows dns-resolution-stall",
+          "ok": true,
+          "detail": "UI/legend knows dns-resolution-stall"
+        }
+      ]
+    },
+    {
+      "id": "feat-041",
+      "name": "Cross-dump patterns: thread leak and livelock",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_thread_leak_across_dumps",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_thread_leak_across_dumps"
+        },
+        {
+          "name": "cargo:detects_livelock_across_dumps",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_livelock_across_dumps"
+        },
+        {
+          "name": "cargo:e2e_all_pattern_fixtures_detect_expected_kinds",
+          "ok": true,
+          "detail": "passed as parser::tests::e2e_all_pattern_fixtures_detect_expected_kinds"
+        },
+        {
+          "name": "static:analyze_series + ThreadLeak/Livelock",
+          "ok": true,
+          "detail": "analyze_series + ThreadLeak/Livelock"
+        },
+        {
+          "name": "static:WASM analyzeDumps",
+          "ok": true,
+          "detail": "WASM analyzeDumps"
+        },
+        {
+          "name": "static:web analyzeMany",
+          "ok": true,
+          "detail": "web analyzeMany"
+        },
+        {
+          "name": "static:multi-file UI + cross_patterns merge",
+          "ok": true,
+          "detail": "multi-file UI + cross_patterns merge"
+        },
+        {
+          "name": "static:cross_dump fixtures",
+          "ok": true,
+          "detail": "cross_dump fixtures"
+        },
+        {
+          "name": "static:TS PatternKind thread-leak + livelock",
+          "ok": true,
+          "detail": "TS PatternKind thread-leak + livelock"
+        }
+      ]
+    }
+  ]
+}
