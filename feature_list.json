@@ -444,8 +444,8 @@
         "feat-042",
         "feat-025"
       ],
-      "status": "in_progress",
-      "evidence": ""
+      "status": "done",
+      "evidence": "Installed .cursor/skills/ui-design-brain; Apple-level Minimal shell (Instrument Sans/Serif, warm gray + #0071e3); home-intro with brand/CTA/points collapses via is-collapsed when analysis exists; workspace-toolbar for actions; 8-locale home.*; e2e 43/43"
     }
   ]
 }
