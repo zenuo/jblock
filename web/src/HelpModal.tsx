@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useI18n, type MessageKey } from "./i18n";
+import { lockBodyScroll } from "./scrollLock";
 
 type Props = {
   onClose: () => void;
@@ -220,11 +221,10 @@ export default function HelpModal({ onClose }: Props) {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
   }, [onClose]);
 

@@ -2,16 +2,15 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-25 15:15
-**Active Feature:** results vertical spacing rhythm (main)
+**Last Updated:** 2026-07-25 15:20
+**Active Feature:** fix modal scrollbar layout shift (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Unified results workspace vertical gaps via `--space-1..4` tokens
-- [x] Toolbar → findings and panel → panel use the same `--space-3` stack gap
-- [x] Panel padding / list gaps / dump-series / threads-toolbar aligned to tokens
+- [x] `lockBodyScroll()` compensates scrollbar width via `padding-right`
+- [x] Wired into PatternLegendModal + HelpModal (same overflow-hidden shift)
 
 ### What's In Progress
 
@@ -23,9 +22,8 @@
 
 ## Decisions Made
 
-- Single stack rhythm: `--space-3` (16px) between major blocks; `.results` uses flex `gap` so panels no longer rely on unequal `margin-bottom`.
+- Root cause: `body { overflow: hidden }` removes the vertical scrollbar and widens the layout. Fix by adding matching `padding-right` while locked.
 
 ## Evidence of Completion
 
-- lint + typecheck pass (CSS-only)
-- Stack gap: toolbar / dump-series / `.results` panels all use `--space-3` (16px)
+- Pending lint/typecheck

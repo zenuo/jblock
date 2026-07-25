@@ -7,6 +7,7 @@ import {
   type FindingActors,
 } from "./analysisUi";
 import { useI18n } from "./i18n";
+import { lockBodyScroll } from "./scrollLock";
 
 interface Props {
   finding: Finding;
@@ -29,11 +30,10 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      unlock();
     };
   }, [onClose]);
 
