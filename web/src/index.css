@@ -458,7 +458,7 @@ body {
   box-shadow: var(--shadow-soft);
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .panel h2 {
@@ -561,13 +561,47 @@ table {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Allow wide tables to scroll instead of being clipped by the panel. */
+.table-scroll > table {
+  width: max-content;
+  min-width: 100%;
 }
 
 .threads-table {
   table-layout: fixed;
   width: 100%;
   min-width: 0;
+}
+
+/* In export / scroll containers, prefer natural width so overflow can scroll. */
+.table-scroll > .threads-table {
+  table-layout: auto;
+  width: max-content;
+  min-width: 100%;
+}
+
+.table-scroll > .threads-table th:nth-child(1),
+.table-scroll > .threads-table td:nth-child(1),
+.table-scroll > .threads-table th:nth-child(2),
+.table-scroll > .threads-table td:nth-child(2),
+.table-scroll > .threads-table th:nth-child(3),
+.table-scroll > .threads-table td:nth-child(3),
+.table-scroll > .threads-table th:nth-child(4),
+.table-scroll > .threads-table td:nth-child(4),
+.table-scroll > .threads-table th:nth-child(5),
+.table-scroll > .threads-table td:nth-child(5),
+.table-scroll > .threads-table th:nth-child(6),
+.table-scroll > .threads-table td:nth-child(6) {
+  width: auto;
+}
+
+.table-scroll > .threads-table td:nth-child(6) {
+  min-width: 14rem;
 }
 
 .threads-table th:nth-child(1),

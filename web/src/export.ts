@@ -105,18 +105,24 @@ export function buildReportHtml(
           .join("");
 
   const threadRows = analysis.threads
-    .map(
-      (th) =>
-        `<tr><td>${escapeHtml(th.name)}</td><td>${escapeHtml(
-          th.id ?? "",
-        )}</td><td><span class="state-pill" style="background:${
-          STATE_COLORS[th.state] ?? "#64748b"
-        }">${escapeHtml(th.state)}</span></td><td class="mono">${escapeHtml(
-          th.waiting_on ?? "",
-        )}</td><td>${th.stack_depth}</td><td class="mono">${escapeHtml(
-          th.held_locks.join(", "),
-        )}</td></tr>`,
-    )
+    .map((th) => {
+      const locks =
+        th.held_locks.length === 0
+          ? ""
+          : `<ul class="held-locks-list">${th.held_locks
+              .map(
+                (lock) =>
+                  `<li class="mono cell-break">${escapeHtml(lock)}</li>`,
+              )
+              .join("")}</ul>`;
+      return `<tr><td class="cell-break">${escapeHtml(th.name)}</td><td>${escapeHtml(
+        th.id ?? "",
+      )}</td><td><span class="state-pill" style="background:${
+        STATE_COLORS[th.state] ?? "#64748b"
+      }">${escapeHtml(th.state)}</span></td><td class="mono cell-break">${escapeHtml(
+        th.waiting_on ?? "",
+      )}</td><td>${th.stack_depth}</td><td class="held-locks-cell">${locks}</td></tr>`;
+    })
     .join("");
 
   return `<!doctype html>
@@ -141,19 +147,23 @@ export function buildReportHtml(
   </section>
   <section class="panel">
     <h2>${escapeHtml(t("report.contention"))}</h2>
+    <div class="table-scroll">
     <table><thead><tr><th>${escapeHtml(t("report.lock"))}</th><th>${escapeHtml(
       t("report.heldBy"),
     )}</th><th>${escapeHtml(t("report.waiters"))}</th></tr></thead><tbody>${contentionRows}</tbody></table>
+    </div>
   </section>
   <section class="panel">
     <h2>${escapeHtml(t("threads.title", { shown: String(analysis.threads.length) }))}</h2>
-    <table><thead><tr><th>${escapeHtml(t("threads.colName"))}</th><th>${escapeHtml(
+    <div class="table-scroll">
+    <table class="threads-table"><thead><tr><th>${escapeHtml(t("threads.colName"))}</th><th>${escapeHtml(
       t("threads.colId"),
     )}</th><th>${escapeHtml(t("threads.colState"))}</th><th>${escapeHtml(
       t("threads.colWaitingOn"),
     )}</th><th>${escapeHtml(t("threads.colStack"))}</th><th>${escapeHtml(
       t("threads.colHeldLocks"),
     )}</th></tr></thead><tbody>${threadRows}</tbody></table>
+    </div>
   </section>
 </div>
 </body>
