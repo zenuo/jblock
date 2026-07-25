@@ -245,7 +245,6 @@ export default function App() {
           aria-label={t("home.toolbarLabel")}
         >
           {chooseDumpControl}
-          {sampleControl}
           <button
             type="button"
             className="btn"
