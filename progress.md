@@ -27,4 +27,5 @@
 
 ## Evidence of Completion
 
-- Pending lint/typecheck after CSS change
+- lint + typecheck pass (CSS-only)
+- Stack gap: toolbar / dump-series / `.results` panels all use `--space-3` (16px)
