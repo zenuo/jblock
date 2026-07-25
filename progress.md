@@ -2,17 +2,14 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-25 11:40
-**Active Feature:** feat-006 (PDF export removed; HTML-only)
+**Last Updated:** 2026-07-25 12:10
+**Active Feature:** docs — README 本地部署
 
 ## Status
 
 ### What's Done
 
-- [x] Removed PDF export UI button and `exportPdf` from `web/src/export.ts`
-- [x] Removed `pdf-lib` dependency from `web/package.json` / lockfile
-- [x] Removed `app.exportPdf` i18n keys (8 locales + types)
-- [x] Updated README, feature_list, e2e harness for HTML-only export
+- [x] README 增加「本地部署」：源码构建 / preview / 子路径 `VITE_BASE` / CI artifact 注意点
 
 ### What's In Progress
 
@@ -20,14 +17,12 @@
 
 ### What's Next
 
-1. Optionally refine Results panels further under the same visual system
+1. Optionally: dual CI artifact (`VITE_BASE=/`) + Release zip for zero-toolchain local deploy
 
 ## Decisions Made
 
-- Drop PDF export entirely (including `pdf-lib`) rather than keep a stub; HTML report remains the only export path.
+- Document current capabilities only (no Docker / dual-artifact yet); warn that Pages `/jblock/` artifact is not for root-path local hosting.
 
 ## Evidence of Completion
 
-- `./init.sh` green: cargo 88/88, lint/typecheck/build pass, e2e **43/43 PASS**
-- Bundle: `index-*.js` 762→330 kB after removing pdf-lib
-- `harness/e2e-results.json` feat-006 checks assert HTML-only + no pdf-lib
+- Docs-only change; README section added under 常用命令 → before CI/CD
