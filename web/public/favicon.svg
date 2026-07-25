@@ -1,16 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="jblock">
-  <defs>
-    <linearGradient id="bg" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6366f1"/>
-      <stop offset="1" stop-color="#8b5cf6"/>
-    </linearGradient>
-  </defs>
-  <!-- Brand tile -->
-  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
-  <!-- Two interlocking thread blocks (blocked / waiting) -->
-  <rect x="6.5" y="7" width="11" height="8" rx="2" fill="#fff" opacity="0.95"/>
-  <rect x="14.5" y="17" width="11" height="8" rx="2" fill="#fff" opacity="0.78"/>
-  <!-- Wait-for edge between blocks -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Solid fill: Chrome's favicon rasterizer often fails on fill="url(#gradient)". -->
+  <rect width="32" height="32" rx="8" fill="#6366f1"/>
+  <rect x="6.5" y="7" width="11" height="8" rx="2" fill="#ffffff" fill-opacity="0.95"/>
+  <rect x="14.5" y="17" width="11" height="8" rx="2" fill="#ffffff" fill-opacity="0.78"/>
   <path
     d="M12 15v3.5h8"
     fill="none"
