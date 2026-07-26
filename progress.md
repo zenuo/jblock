@@ -15,7 +15,7 @@
 
 ### What's In Progress
 
-- [ ] Post-change lint/typecheck evidence
+- [x] Post-change lint/typecheck evidence
 
 ### What's Next
 
@@ -29,3 +29,4 @@
 ## Evidence of Completion
 
 - Pre-change: `./init.sh` — cargo 88/88; web lint/typecheck/build; e2e 44/44 PASS
+- Post-change: `pnpm -C web run lint` + `typecheck` PASS
