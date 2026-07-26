@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 02:20
+**Last Updated:** 2026-07-27 02:25
 **Active Feature:** feat-045 Non-sticky app header (main)
 
 ## Status
@@ -12,10 +12,11 @@
 - [x] Removed `position: sticky` (+ frosted sticky chrome) from `.app-header`
 - [x] Added `feat-045` to `feature_list.json`
 - [x] Added e2e static checks asserting `.app-header` is not sticky/fixed
+- [x] `./init.sh` green (45/45 features)
 
 ### What's In Progress
 
-- [ ] Full `./init.sh` verification
+- [x] Commit + push to main
 
 ### What's Next
 
@@ -28,4 +29,4 @@
 
 ## Evidence of Completion
 
-- Pending `./init.sh`
+- `./init.sh`: cargo 88/88; web lint/typecheck/build; e2e **45/45 PASS** (incl. feat-045)
