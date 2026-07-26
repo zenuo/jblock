@@ -457,6 +457,16 @@
       ],
       "status": "done",
       "evidence": "web/src/sha256.ts (crypto.subtle); App dump-filename + dumpDigests; export.ts report-source-name title; 8-locale app.sha256"
+    },
+    {
+      "id": "feat-045",
+      "name": "Non-sticky app header",
+      "description": "App header must not use position sticky/fixed so scrolling the page lets the header leave the viewport with the content (including after results load).",
+      "dependencies": [
+        "feat-043"
+      ],
+      "status": "done",
+      "evidence": "web/src/index.css .app-header no longer position:sticky; frosted sticky chrome removed; e2e feat-045 asserts header rule is not sticky/fixed"
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-26T02:10:25.662Z",
+  "generated_at": "2026-07-26T04:09:03.231Z",
   "root": "/workspace",
   "summary": {
-    "total": 44,
-    "pass": 44,
+    "total": 45,
+    "pass": 45,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 88,
@@ -1397,6 +1397,29 @@
           "name": "static:sha256 i18n",
           "ok": true,
           "detail": "sha256 i18n"
+        }
+      ]
+    },
+    {
+      "id": "feat-045",
+      "name": "Non-sticky app header",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:App renders app-header",
+          "ok": true,
+          "detail": "App renders app-header"
+        },
+        {
+          "name": "static:`.app-header` rule is not position sticky/fixed",
+          "ok": true,
+          "detail": "`.app-header` rule is not position sticky/fixed"
+        },
+        {
+          "name": "static:no sticky/fixed pin on live .app-header selectors",
+          "ok": true,
+          "detail": "no sticky/fixed pin on live .app-header selectors"
         }
       ]
     }

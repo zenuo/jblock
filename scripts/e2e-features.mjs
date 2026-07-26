@@ -720,6 +720,37 @@ FEATURE_CHECKS["feat-044"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-045"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok: contains("web/src/App.tsx", 'className="app-header"') || contains("web/src/App.tsx", "app-header"),
+      detail: "App renders app-header",
+    }),
+    () => {
+      const css = readText("web/src/index.css");
+      const m = css.match(/^\.app-header\s*\{([^}]*)\}/m);
+      const body = m ? m[1] : "";
+      const stuck = /position\s*:\s*(sticky|fixed)\b/i.test(body);
+      return {
+        ok: Boolean(m) && !stuck,
+        detail: "`.app-header` rule is not position sticky/fixed",
+      };
+    },
+    () => {
+      const css = readText("web/src/index.css");
+      // No other selector may pin the live app header (exclude .app.report overrides).
+      const pinned = /(?:^|\n)(?!\s*\.app\.report)[^\n]*\.app-header[^\n\{]*\{[^}]*position\s*:\s*(sticky|fixed)\b/i.test(
+        css,
+      );
+      return {
+        ok: !pinned,
+        detail: "no sticky/fixed pin on live .app-header selectors",
+      };
+    },
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

@@ -2,20 +2,20 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-26 02:23
-**Active Feature:** CJK home title first-line comma (main)
+**Last Updated:** 2026-07-27 02:20
+**Active Feature:** feat-045 Non-sticky app header (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Removed leading `—` / `——` from `home.title` in zh / ja / ko
-- [x] Added first-line comma/読点: zh `，` / ja `、` / ko `,`
-- [x] Latin locales keep editorial em dash unchanged
+- [x] Removed `position: sticky` (+ frosted sticky chrome) from `.app-header`
+- [x] Added `feat-045` to `feature_list.json`
+- [x] Added e2e static checks asserting `.app-header` is not sticky/fixed
 
 ### What's In Progress
 
-- [x] Commit + push to main
+- [ ] Full `./init.sh` verification
 
 ### What's Next
 
@@ -23,10 +23,9 @@
 
 ## Decisions Made
 
-- Prefer deleting the leading dash in CJK hero lines over a CSS decorative bar.
-- Connect the two title lines with locale-native commas (zh fullwidth，/ ja 読点、/ ko ASCII ,).
+- Header stays in normal document flow so scroll moves it off-screen with content.
+- Dropped sticky-only backdrop blur / translucent background; kept has-results bottom border.
 
 ## Evidence of Completion
 
-- Pre-change: `./init.sh` — cargo 88/88; web lint/typecheck/build; e2e 44/44 PASS
-- Post dash-removal: `pnpm -C web run lint` + `typecheck` PASS
+- Pending `./init.sh`
