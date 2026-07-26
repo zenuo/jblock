@@ -2,20 +2,20 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-26 02:00
-**Active Feature:** legend HotLockDemo placeholders + color match (main)
+**Last Updated:** 2026-07-26 02:10
+**Active Feature:** CJK home title dash removal (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Removed fake W1/W2/W3 placeholders from HotLockDemo (was why "W2" missing from dump)
-- [x] Waiter nodes use red (`#ef4444` / `#fee2e2`) to match `swatch-waiter` legend key
-- [x] Finalizer actors keep `nodes` for real-name fallback when app waiters absent
+- [x] Removed leading `—` / `——` from `home.title` in zh / ja / ko (serif CJK confuses with 一 / ー)
+- [x] Latin locales keep editorial em dash unchanged
+- [x] Baseline `./init.sh` green before edit (44/44 features)
 
 ### What's In Progress
 
-- [ ] Verification
+- [ ] Post-change lint/typecheck evidence
 
 ### What's Next
 
@@ -23,9 +23,9 @@
 
 ## Decisions Made
 
-- W1/W2/W3 were synthetic fallbacks when `actors.waiters` was empty (common for finalizer-only hits); legend must use dump thread names only.
-- Diagram waiter color aligned to the red legend swatch (not amber).
+- Prefer deleting the leading dash in CJK hero lines over a CSS decorative bar (simpler; no 一/ー ambiguity).
+- Scope limited to zh/ja/ko `home.title`; help/body copy that uses mid-sentence 破折号 is unchanged.
 
 ## Evidence of Completion
 
-- Pending lint/typecheck/e2e
+- Pre-change: `./init.sh` — cargo 88/88; web lint/typecheck/build; e2e 44/44 PASS
