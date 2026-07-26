@@ -311,7 +311,9 @@ export function buildFindings(
         }),
         detail: t("findings.finalizerPressureDetail", { detail: p.detail }),
         actors: {
-          nodes: [],
+          // Keep all pattern threads as nodes so the legend can fall back
+          // when there are no separate app waiters.
+          nodes: actorsForNames(analysis, p.thread_names, 6),
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: "finalize",

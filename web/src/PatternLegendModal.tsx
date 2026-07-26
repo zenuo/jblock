@@ -456,14 +456,14 @@ function DeadlockDemo({ actors }: { actors: FindingActors }) {
 }
 
 function HotLockDemo({ actors }: { actors: FindingActors }) {
+  // Only real dump thread names — never invent W1/W2/W3 placeholders.
+  const ownerThread = actors.owner?.thread;
   const waiters =
     actors.waiters.length > 0
       ? actors.waiters.slice(0, 3)
-      : [
-          { thread: "W1", className: null },
-          { thread: "W2", className: null },
-          { thread: "W3", className: null },
-        ];
+      : actors.nodes
+          .filter((n) => n.thread !== ownerThread)
+          .slice(0, 3);
   const positions = [
     [60, 175],
     [160, 195],
@@ -481,7 +481,7 @@ function HotLockDemo({ actors }: { actors: FindingActors }) {
           refY="3"
           orient="auto"
         >
-          <path d="M0,0 L6,3 L0,6 Z" fill="#f59e0b" />
+          <path d="M0,0 L6,3 L0,6 Z" fill="#ef4444" />
         </marker>
       </defs>
       <g transform="translate(160 115)">
@@ -527,7 +527,7 @@ function HotLockDemo({ actors }: { actors: FindingActors }) {
               style={{ animationDelay: `${i * 0.25}s` }}
               d={`M${x} ${y - 24} L160 137`}
               fill="none"
-              stroke="#f59e0b"
+              stroke="#ef4444"
               strokeWidth="2"
               strokeDasharray="6 5"
               markerEnd="url(#arrow-hot)"
@@ -537,8 +537,8 @@ function HotLockDemo({ actors }: { actors: FindingActors }) {
                 className="legend-node-bounce"
                 style={{ animationDelay: `${i * 0.25}s` }}
               >
-                <circle r="26" fill="#fff7ed" stroke="#f59e0b" strokeWidth="2" />
-                <ActorLabel actor={w} fallback={`W${i + 1}`} />
+                <circle r="26" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
+                <ActorLabel actor={w} fallback={w.thread} />
               </g>
             </g>
           </g>

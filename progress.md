@@ -2,18 +2,20 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-26 01:45
-**Active Feature:** HTML export non-sticky header (main)
+**Last Updated:** 2026-07-26 02:00
+**Active Feature:** legend HotLockDemo placeholders + color match (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Export HTML uses `.app.report`; CSS forces `.app-header` to `position: static` (no sticky overlay)
+- [x] Removed fake W1/W2/W3 placeholders from HotLockDemo (was why "W2" missing from dump)
+- [x] Waiter nodes use red (`#ef4444` / `#fee2e2`) to match `swatch-waiter` legend key
+- [x] Finalizer actors keep `nodes` for real-name fallback when app waiters absent
 
 ### What's In Progress
 
-- [ ] None
+- [ ] Verification
 
 ### What's Next
 
@@ -21,7 +23,8 @@
 
 ## Decisions Made
 
-- Live app keeps sticky header; only exported report opts out via `.report` class so in-app UX is unchanged.
+- W1/W2/W3 were synthetic fallbacks when `actors.waiters` was empty (common for finalizer-only hits); legend must use dump thread names only.
+- Diagram waiter color aligned to the red legend swatch (not amber).
 
 ## Evidence of Completion
 

@@ -351,6 +351,16 @@ const FEATURE_CHECKS = {
         ok: contains("web/src/analysisUi.ts", "actors") || contains("web/src/Results.tsx", "PatternLegendModal"),
         detail: "legend wired from findings",
       }),
+      () => ({
+        ok: !contains('web/src/PatternLegendModal.tsx', 'thread: "W1"') &&
+          !contains('web/src/PatternLegendModal.tsx', 'thread: "W2"'),
+        detail: "no synthetic W1/W2 legend placeholders",
+      }),
+      () => ({
+        ok: contains("web/src/PatternLegendModal.tsx", 'stroke="#ef4444"') &&
+          contains("web/src/index.css", "swatch-waiter"),
+        detail: "waiter diagram color matches legend swatch",
+      }),
     ],
   },
   "feat-024": {

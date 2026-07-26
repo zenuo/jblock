@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T15:41:13.833Z",
+  "generated_at": "2026-07-26T01:55:23.635Z",
   "root": "/workspace",
   "summary": {
     "total": 44,
@@ -454,6 +454,16 @@
           "name": "static:legend wired from findings",
           "ok": true,
           "detail": "legend wired from findings"
+        },
+        {
+          "name": "static:no synthetic W1/W2 legend placeholders",
+          "ok": true,
+          "detail": "no synthetic W1/W2 legend placeholders"
+        },
+        {
+          "name": "static:waiter diagram color matches legend swatch",
+          "ok": true,
+          "detail": "waiter diagram color matches legend swatch"
         }
       ]
     },
