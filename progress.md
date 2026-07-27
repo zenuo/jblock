@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 11:25
-**Active Feature:** feat-053 (exported HTML matches results width)
+**Last Updated:** 2026-07-27 11:30
+**Active Feature:** feat-053 (done)
 
 ## Status
 
@@ -27,4 +27,7 @@
 
 ## Evidence of Completion
 
-(`./init.sh` evidence to follow.)
+```text
+$ ./init.sh
+… Summary: 53/53 features PASS
+```
