@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 09:00
-**Active Feature:** feat-050 (WASM analyze in Web Worker)
+**Last Updated:** 2026-07-27 09:05
+**Active Feature:** feat-050 (done)
 
 ## Status
 
@@ -36,8 +36,8 @@
 ### Verification
 
 ```text
-$ pnpm -C web run typecheck && lint && build
-… dist/assets/analyze.worker-*.js present; main bundle does not embed analyzeDump
+$ ./init.sh
+=== cargo test === … 93 passed
+=== pnpm lint / typecheck / build === ok (analyze.worker-*.js in dist)
+=== e2e feature matrix === Summary: 50/50 features PASS
 ```
-
-(`./init.sh` evidence to follow.)
