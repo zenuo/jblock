@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T02:49:44.245Z",
+  "generated_at": "2026-07-27T02:54:11.961Z",
   "root": "/workspace",
   "summary": {
     "total": 46,
@@ -382,6 +382,11 @@
           "name": "static:clusterByStack",
           "ok": true,
           "detail": "clusterByStack"
+        },
+        {
+          "name": "static:stack/cluster frames wrap (no horizontal overflow)",
+          "ok": true,
+          "detail": "stack/cluster frames wrap (no horizontal overflow)"
         }
       ]
     },

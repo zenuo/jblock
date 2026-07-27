@@ -2,21 +2,19 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 02:55
-**Active Feature:** legend fan-layout node spacing (main)
+**Last Updated:** 2026-07-27 03:00
+**Active Feature:** stack preview horizontal overflow fix (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Shared `FAN` layout (≥140px center spacing for 96px cards)
-- [x] Applied to BusyWait / ConditionStarvation / SyncIo / PoolExhaustion / ConnectionPool demos
-- [x] Slightly larger deadlock ring + hot-lock waiter spread; wider legend modal stage
-- [x] lint / typecheck / e2e 46/46 PASS
+- [x] `.stack-preview` / cluster cards wrap long FQCN frames (`overflow-wrap: anywhere`)
+- [x] Cluster head sample-name line also wraps inside the card
 
 ### What's In Progress
 
-- [x] Commit + push main
+- [ ] Verify + push main
 
 ### What's Next
 
@@ -24,8 +22,8 @@
 
 ## Decisions Made
 
-- Root cause: 96px-wide cards with ~100px center spacing left ~4px gaps. Use 420×260 viewBox and 140px horizontal pitch (~44px edge gap).
+- Prefer wrapping inside the card over horizontal scroll for stack frames (matches thread-table `cell-break` behavior).
 
 ## Evidence of Completion
 
-- `pnpm -C web run lint` + `typecheck` PASS; `node scripts/e2e-features.mjs --skip-web` **46/46 PASS**
+- Pending lint/typecheck

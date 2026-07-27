@@ -299,6 +299,13 @@ const FEATURE_CHECKS = {
         ok: contains("web/src/analysisUi.ts", "clusterByStack"),
         detail: "clusterByStack",
       }),
+      () => ({
+        ok:
+          contains("web/src/index.css", ".stack-preview") &&
+          contains("web/src/index.css", "overflow-wrap: anywhere") &&
+          contains("web/src/index.css", ".cluster-item"),
+        detail: "stack/cluster frames wrap (no horizontal overflow)",
+      }),
     ],
   },
   "feat-020": {
