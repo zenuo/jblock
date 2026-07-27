@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 09:25
-**Active Feature:** feat-052 (legend tip shows thread id)
+**Last Updated:** 2026-07-27 09:30
+**Active Feature:** feat-052 (done)
 
 ## Status
 
@@ -29,4 +29,7 @@
 
 ## Evidence of Completion
 
-(`./init.sh` evidence to follow.)
+```text
+$ ./init.sh
+… Summary: 52/52 features PASS
+```
