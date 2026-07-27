@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 09:15
-**Active Feature:** feat-051 (wider denser results workspace)
+**Last Updated:** 2026-07-27 09:20
+**Active Feature:** feat-051 (done)
 
 ## Status
 
@@ -29,4 +29,7 @@
 
 ## Evidence of Completion
 
-(`./init.sh` evidence to follow.)
+```text
+$ ./init.sh
+… Summary: 51/51 features PASS
+```
