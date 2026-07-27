@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 06:30
+**Last Updated:** 2026-07-27 06:35
 **Active Feature:** feat-048 (done) — next: feat-049
 
 ## Status
@@ -38,12 +38,18 @@
 $ cargo test --lib
 running 89 tests
 … test result: ok. 89 passed; 0 failed; …
+
+$ ./init.sh
+=== cargo test === … 89 passed
+=== pnpm lint / typecheck / build === ok
+=== e2e feature matrix === Summary: 49/49 features PASS
 ```
 
-(`./init.sh` evidence to follow after full gate run.)
+`harness/e2e-results.json`: feat-048 `status_in_list=done`, 6 cargo regression checks + 3 static asserts all `ok: true`.
 
 ### Files touched
 
 - `src/parser.rs` — format-specialized block parsers
 - `scripts/e2e-features.mjs` — `FEATURE_CHECKS["feat-048"]`
 - `feature_list.json` — feat-048 → done
+- `harness/e2e-results.json` — refreshed by `./init.sh`
