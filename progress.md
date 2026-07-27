@@ -12,10 +12,11 @@
 - [x] Shared `FAN` layout (≥140px center spacing for 96px cards)
 - [x] Applied to BusyWait / ConditionStarvation / SyncIo / PoolExhaustion / ConnectionPool demos
 - [x] Slightly larger deadlock ring + hot-lock waiter spread; wider legend modal stage
+- [x] lint / typecheck / e2e 46/46 PASS
 
 ### What's In Progress
 
-- [ ] Verify + push main
+- [x] Commit + push main
 
 ### What's Next
 
@@ -27,4 +28,4 @@
 
 ## Evidence of Completion
 
-- Pending lint/typecheck/e2e
+- `pnpm -C web run lint` + `typecheck` PASS; `node scripts/e2e-features.mjs --skip-web` **46/46 PASS**
