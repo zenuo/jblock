@@ -2,22 +2,21 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 03:15
+**Last Updated:** 2026-07-27 03:20
 **Active Feature:** feat-047 Legend peer sample of 3 + copyable names (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Inventory: peer/fan demos (busy-wait, condition, sync-io, pool, connection waiters, hot-lock waiters, blocked, clean); deadlock cycles excluded
-- [x] Cap peer nodes at 3; `PeerSampleNote` when `peerTotal > 3`
-- [x] Hover tip with `user-select: all` full thread name (foreignObject)
-- [x] `FindingActors.peerTotal` + i18n `legend.peerSample` (8 locales)
-- [x] feat-047 + e2e checks
+- [x] Peer/fan legends capped at 3 equal nodes + total caption when `peerTotal > 3`
+- [x] Hover tip with selectable full thread name
+- [x] Deadlock cycles left as sequential layouts
+- [x] `./init.sh` **47/47 PASS**
 
 ### What's In Progress
 
-- [ ] Full `./init.sh` + push main
+- [x] Commit + push main
 
 ### What's Next
 
@@ -25,9 +24,9 @@
 
 ## Decisions Made
 
-- 4th lower fan card was misread as a special role; equal peers stay in one row of 3.
-- Deadlock/future-latch/lock-order remain cycle layouts (not peer-capped).
+- Peer demos: busy-wait, condition, sync-io, pool, connection waiters, hot-lock waiters, blocked, clean (+ aliases).
+- Not peer-capped: deadlock / future-latch / lock-order cycles.
 
 ## Evidence of Completion
 
-- Pending `./init.sh`
+- `./init.sh`: cargo 89/89; web lint/typecheck/build; e2e **47/47 PASS** (incl. feat-047)
