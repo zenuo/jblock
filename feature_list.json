@@ -525,6 +525,23 @@
         "cargo test --lib green; ./init.sh green; e2e FEATURE_CHECKS map the new cargo test(s) + static checks for DumpFormat/ThreadInfo kind + Scenario + fixture path"
       ],
       "evidence": "DumpFormat::ThreadDumpJson + ThreadKind; parse_thread_dump_json; link_jstack_virtual_carriers; Scenario::VirtualThreadBlock; compile_run_dump_to_file_json + jdk21 skip; fixtures tests/fixtures/virtual-threads/; types.ts synced; e2e FEATURE_CHECKS feat-049"
+    },
+    {
+      "id": "feat-050",
+      "name": "WASM analyze in Web Worker",
+      "description": "Run Rust/WASM analyzeDump/analyzeDumps inside a dedicated Web Worker so large dumps do not freeze the UI thread while the loading overlay is visible. Main-thread analyzer.ts speaks RPC; show loading before file.text() so the overlay appears immediately on file pick.",
+      "dependencies": [
+        "feat-021"
+      ],
+      "status": "done",
+      "acceptance": [
+        "web/src/analyze.worker.ts imports wasm jblock and calls analyzeDump/analyzeDumps",
+        "web/src/analyzer.ts creates a module Worker and does not import ./wasm/jblock on the main thread",
+        "preloadWasm/isWasmReady/analyze/analyzeMany API preserved for App.tsx",
+        "onFiles sets busyPhase and yields a frame before file.text()",
+        "pnpm -C web run lint/typecheck/build green; ./init.sh green; e2e FEATURE_CHECKS for feat-050"
+      ],
+      "evidence": "analyze.worker.ts + analyzer Worker RPC; App requestAnimationFrame before file.text(); e2e FEATURE_CHECKS feat-050"
     }
   ]
 }

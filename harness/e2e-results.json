@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-27T07:07:52.563Z",
+  "generated_at": "2026-07-27T09:00:05.122Z",
   "root": "/workspace",
   "summary": {
-    "total": 49,
-    "pass": 49,
+    "total": 50,
+    "pass": 50,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 93,
@@ -89,9 +89,9 @@
       "ok": true,
       "checks": [
         {
-          "name": "static:web analyzer + App wire analyzeDump",
+          "name": "static:web analyzer + App wire analyzeDump (worker or main)",
           "ok": true,
-          "detail": "web analyzer + App wire analyzeDump"
+          "detail": "web analyzer + App wire analyzeDump (worker or main)"
         },
         {
           "name": "static:Results rendering present",
@@ -1582,6 +1582,34 @@
           "name": "static:offline VT fixtures under tests/fixtures/virtual-threads/",
           "ok": true,
           "detail": "offline VT fixtures under tests/fixtures/virtual-threads/"
+        }
+      ]
+    },
+    {
+      "id": "feat-050",
+      "name": "WASM analyze in Web Worker",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:analyze.worker.ts owns WASM analyzeDump/analyzeDumps",
+          "ok": true,
+          "detail": "analyze.worker.ts owns WASM analyzeDump/analyzeDumps"
+        },
+        {
+          "name": "static:main-thread analyzer RPC via Worker",
+          "ok": true,
+          "detail": "main-thread analyzer RPC via Worker"
+        },
+        {
+          "name": "static:WASM imported only inside the worker",
+          "ok": true,
+          "detail": "WASM imported only inside the worker"
+        },
+        {
+          "name": "static:loading overlay before file.text() for large dumps",
+          "ok": true,
+          "detail": "loading overlay before file.text() for large dumps"
         }
       ]
     }

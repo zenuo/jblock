@@ -88,6 +88,7 @@ export default function App() {
           setWasmReady(true);
         }
         setBusyPhase("analyzing");
+        // Yield so the overlay paints before posting work to the analyze worker.
         await new Promise<void>((resolve) => {
           window.setTimeout(resolve, 0);
         });
@@ -113,15 +114,26 @@ export default function App() {
     async (fileList: FileList | File[]) => {
       const files = Array.from(fileList);
       if (files.length === 0) return;
-      const items = await Promise.all(
-        files.map(async (file) => ({
-          text: await file.text(),
-          name: file.name,
-        })),
-      );
-      await runAnalysisSeries(items);
+      setError(null);
+      // Show loading before reading large files (file.text() can stall the UI).
+      setBusyPhase(isWasmReady() || wasmReady ? "analyzing" : "wasm");
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+      try {
+        const items = await Promise.all(
+          files.map(async (file) => ({
+            text: await file.text(),
+            name: file.name,
+          })),
+        );
+        await runAnalysisSeries(items);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+        setBusyPhase(null);
+      }
     },
-    [runAnalysisSeries],
+    [runAnalysisSeries, wasmReady],
   );
 
   const [dragging, setDragging] = useState(false);

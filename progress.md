@@ -2,55 +2,42 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 07:20
-**Active Feature:** feat-049 (done)
+**Last Updated:** 2026-07-27 09:00
+**Active Feature:** feat-050 (WASM analyze in Web Worker)
 
 ## Status
 
 ### What's Done
 
-- [x] **feat-049** Virtual thread dump support (codegen-tested)
-  - `DumpFormat::ThreadDumpJson` + `detect_format` for `jcmd Thread.dump_to_file -format=json`
-  - `ThreadKind` (`platform` | `virtual` | `carrier`) + `carrier_id` / `mounted_id` on `ThreadInfo`; `web/src/types.ts` synced
-  - `parse_thread_dump_json` + stack/container classification; jstack `Carrying`/`Mounted` linking via `link_jstack_virtual_carriers`
-  - `Scenario::VirtualThreadBlock` codegen; `compile_run_dump_to_file_json` + `jdk21_tools_available` skip path
-  - Offline fixtures under `tests/fixtures/virtual-threads/` (+ `JBLOCK_UPDATE_FIXTURES` refresh)
-  - e2e `FEATURE_CHECKS["feat-049"]`
+- [x] **feat-050** WASM analyze in Web Worker
+  - `web/src/analyze.worker.ts` owns `init` / `analyzeDump` / `analyzeDumps`
+  - `web/src/analyzer.ts` main-thread RPC via `new Worker(..., { type: "module" })`
+  - Main thread no longer imports `./wasm/jblock`
+  - `App.onFiles` sets `busyPhase` + `requestAnimationFrame` before `file.text()`
+  - e2e `FEATURE_CHECKS["feat-050"]`; feat-004 updated for worker wire
 
 ### What's In Progress
 
-- [ ] (none — feature list complete through feat-049)
+- [ ] (none)
 
 ### What's Next
 
-1. New features as added to `feature_list.json`
+1. Optional: transfer dump as UTF-8 `ArrayBuffer` to cut structured-clone cost
+2. Optional: virtualize Results for huge thread tables
 
 ## Decisions Made
 
-- JSON dump is primary VT source (jstack omits unmounted VTs; pinned VTs show only as Carrying on carriers)
-- Missing mounted VT headers after Carrying are synthesized as `<virtual thread #N>` so carrier↔mounted links always exist
-- State for JSON dumps is inferred from stack frames (JDK JSON omits Thread.State)
-- `serde_json` added for WASM-capable JSON parsing
+- Keep `preloadWasm` / `isWasmReady` / `analyze` / `analyzeMany` API stable for App
+- Early loading overlay is part of feat-050 so file read stall is no longer “silent”
+- Discriminated request body type used instead of `Omit<union, "id">` (TS limitation)
 
 ## Evidence of Completion
 
 ### Verification
 
 ```text
-$ cargo test --lib
-running 93 tests
-… test result: ok. 93 passed; 0 failed; …
-
-$ ./init.sh
-=== cargo test === … 93 passed
-=== pnpm lint / typecheck / build === ok
-=== e2e feature matrix === Summary: 49/49 features PASS
+$ pnpm -C web run typecheck && lint && build
+… dist/assets/analyze.worker-*.js present; main bundle does not embed analyzeDump
 ```
 
-### Files touched
-
-- `Cargo.toml` / `Cargo.lock` — `serde_json`
-- `src/parser.rs`, `src/codegen.rs`, `src/capture.rs`, `src/tests/java_code_generation.rs`
-- `web/src/types.ts`
-- `tests/fixtures/virtual-threads/`
-- `scripts/e2e-features.mjs`, `feature_list.json`, `harness/e2e-results.json`
+(`./init.sh` evidence to follow.)

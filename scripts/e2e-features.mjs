@@ -111,8 +111,11 @@ const FEATURE_CHECKS = {
     cargo: [],
     static: [
       () => ({
-        ok: contains("web/src/analyzer.ts", "analyzeDump") && contains("web/src/App.tsx", "analyze"),
-        detail: "web analyzer + App wire analyzeDump",
+        ok:
+          (contains("web/src/analyzer.ts", "analyzeDump") ||
+            contains("web/src/analyze.worker.ts", "analyzeDump")) &&
+          contains("web/src/App.tsx", "analyze"),
+        detail: "web analyzer + App wire analyzeDump (worker or main)",
       }),
       () => ({
         ok: contains("web/src/Results.tsx", "state") || contains("web/src/App.tsx", "Results"),
@@ -331,6 +334,37 @@ const FEATURE_CHECKS = {
       () => ({
         ok: contains("web/src/App.tsx", "loading") || contains("web/src/App.tsx", "preloadWasm"),
         detail: "loading UI / preload on mount",
+      }),
+    ],
+  },
+  "feat-050": {
+    cargo: [],
+    static: [
+      () => ({
+        ok:
+          fileExists("web/src/analyze.worker.ts") &&
+          contains("web/src/analyze.worker.ts", "analyzeDump") &&
+          contains("web/src/analyze.worker.ts", "analyzeDumps"),
+        detail: "analyze.worker.ts owns WASM analyzeDump/analyzeDumps",
+      }),
+      () => ({
+        ok:
+          contains("web/src/analyzer.ts", "new Worker") &&
+          contains("web/src/analyzer.ts", "analyze.worker") &&
+          contains("web/src/analyzer.ts", "postMessage"),
+        detail: "main-thread analyzer RPC via Worker",
+      }),
+      () => ({
+        ok:
+          !contains("web/src/analyzer.ts", 'from "./wasm/jblock"') &&
+          contains("web/src/analyze.worker.ts", 'from "./wasm/jblock"'),
+        detail: "WASM imported only inside the worker",
+      }),
+      () => ({
+        ok:
+          contains("web/src/App.tsx", "setBusyPhase") &&
+          contains("web/src/App.tsx", "requestAnimationFrame"),
+        detail: "loading overlay before file.text() for large dumps",
       }),
     ],
   },
