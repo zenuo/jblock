@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 07:15
+**Last Updated:** 2026-07-27 07:20
 **Active Feature:** feat-049 (done)
 
 ## Status
@@ -40,14 +40,17 @@
 $ cargo test --lib
 running 93 tests
 … test result: ok. 93 passed; 0 failed; …
-```
 
-(`./init.sh` evidence to follow.)
+$ ./init.sh
+=== cargo test === … 93 passed
+=== pnpm lint / typecheck / build === ok
+=== e2e feature matrix === Summary: 49/49 features PASS
+```
 
 ### Files touched
 
-- `Cargo.toml` — `serde_json`
+- `Cargo.toml` / `Cargo.lock` — `serde_json`
 - `src/parser.rs`, `src/codegen.rs`, `src/capture.rs`, `src/tests/java_code_generation.rs`
 - `web/src/types.ts`
 - `tests/fixtures/virtual-threads/`
-- `scripts/e2e-features.mjs`, `feature_list.json`
+- `scripts/e2e-features.mjs`, `feature_list.json`, `harness/e2e-results.json`
