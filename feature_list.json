@@ -513,7 +513,7 @@
         "feat-002",
         "feat-027"
       ],
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "New DumpFormat variant for Thread.dump_to_file JSON (name e.g. thread-dump-json); detect_format classifies a representative JSON dump; web/src/types.ts DumpFormat stays in sync",
         "ThreadInfo (or adjacent fields) expose thread kind platform|virtual|carrier and optional carrier/mounted id links; serde/WASM surface includes them",
@@ -524,7 +524,7 @@
         "Offline fixture under tests/fixtures/ (checked in) so cargo test passes without JDK; optional JBLOCK_UPDATE_FIXTURES refresh path like other pattern fixtures",
         "cargo test --lib green; ./init.sh green; e2e FEATURE_CHECKS map the new cargo test(s) + static checks for DumpFormat/ThreadInfo kind + Scenario + fixture path"
       ],
-      "evidence": ""
+      "evidence": "DumpFormat::ThreadDumpJson + ThreadKind; parse_thread_dump_json; link_jstack_virtual_carriers; Scenario::VirtualThreadBlock; compile_run_dump_to_file_json + jdk21 skip; fixtures tests/fixtures/virtual-threads/; types.ts synced; e2e FEATURE_CHECKS feat-049"
     }
   ]
 }

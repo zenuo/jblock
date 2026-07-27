@@ -25,8 +25,22 @@ pub enum DumpFormat {
     Jstack,
     /// Output of `ThreadMXBean#dumpAllThreads` / `ThreadInfo#toString` (state in the header line).
     ThreadMxBean,
+    /// Output of `jcmd Thread.dump_to_file -format=json` (JDK 21+).
+    ThreadDumpJson,
     /// Could not be confidently classified; parsed on a best-effort basis.
     Unknown,
+}
+
+/// Platform vs virtual vs carrier thread classification (feat-049).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ThreadKind {
+    /// Ordinary platform thread.
+    Platform,
+    /// JDK virtual thread.
+    Virtual,
+    /// Platform carrier currently (or typically) running virtual threads.
+    Carrier,
 }
 
 /// A single parsed thread.
@@ -43,6 +57,12 @@ pub struct ThreadInfo {
     pub stack_depth: usize,
     /// Stack frames (`at …` lines without the leading `at `); full depth (feat-046).
     pub stack: Vec<String>,
+    /// Platform / virtual / carrier (feat-049).
+    pub kind: ThreadKind,
+    /// When `kind == Virtual`, optional carrier thread id.
+    pub carrier_id: Option<String>,
+    /// When `kind == Carrier`, optional mounted virtual thread id.
+    pub mounted_id: Option<String>,
 }
 
 /// Count of threads in a given state.
@@ -142,7 +162,11 @@ pub struct MultiDumpAnalysis {
 }
 
 fn detect_format(input: &str) -> DumpFormat {
-    if input.contains("java.lang.Thread.State:") {
+    let trimmed = input.trim_start();
+    // jcmd Thread.dump_to_file -format=json (JDK 21+): top-level threadDump object.
+    if trimmed.starts_with('{') && trimmed.contains("\"threadDump\"") {
+        DumpFormat::ThreadDumpJson
+    } else if input.contains("java.lang.Thread.State:") {
         DumpFormat::Jstack
     } else if Regex::new(r#""[^"]*"\s+Id=\d+"#).unwrap().is_match(input) {
         DumpFormat::ThreadMxBean
@@ -289,6 +313,9 @@ fn parse_jstack_block(
         held_locks,
         stack_depth: stack.len(),
         stack,
+        kind: ThreadKind::Platform,
+        carrier_id: None,
+        mounted_id: None,
     }
 }
 
@@ -339,6 +366,9 @@ fn parse_mxbean_block(
         held_locks,
         stack_depth: stack.len(),
         stack,
+        kind: ThreadKind::Platform,
+        carrier_id: None,
+        mounted_id: None,
     }
 }
 
@@ -406,6 +436,9 @@ fn parse_unknown_block(
         held_locks,
         stack_depth: stack.len(),
         stack,
+        kind: ThreadKind::Platform,
+        carrier_id: None,
+        mounted_id: None,
     }
 }
 
@@ -430,21 +463,185 @@ fn harvest_mxbean_owned_by(
     }
 }
 
+/// Best-effort state from JSON dump stacks (JDK JSON omits Thread.State).
+fn infer_state_from_stack(stack: &[String]) -> String {
+    let joined = stack.join("\n");
+    if joined.contains("Thread.sleep")
+        || joined.contains("parkNanos")
+        || joined.contains("parkUntil")
+    {
+        return "TIMED_WAITING".to_string();
+    }
+    if joined.contains("LockSupport.park")
+        || joined.contains("VirtualThread.park")
+        || joined.contains("Object.wait")
+        || joined.contains(".park(Native Method)")
+        || joined.contains("Unsafe.park")
+    {
+        return "WAITING".to_string();
+    }
+    if stack.is_empty() {
+        return "RUNNABLE".to_string();
+    }
+    "UNKNOWN".to_string()
+}
+
+/// Classify a `Thread.dump_to_file` JSON thread using stack + container.
+fn classify_json_thread(name: &str, stack: &[String], container: &str) -> ThreadKind {
+    let is_virtual_run = stack.iter().any(|f| {
+        f.contains("java.lang.VirtualThread.run(")
+            || f.contains("/java.lang.VirtualThread.run(")
+    });
+    let is_continuation = stack
+        .iter()
+        .any(|f| f.contains("runContinuation") || f.contains("Continuation.run"));
+    if is_virtual_run && !is_continuation {
+        return ThreadKind::Virtual;
+    }
+    // Virtual-thread scheduler carriers: ForkJoinPool-N (not commonPool).
+    let in_vt_scheduler =
+        container.starts_with("ForkJoinPool-") && !container.contains("commonPool");
+    let is_fjp_worker = name.contains("ForkJoinPool-") && name.contains("worker");
+    if in_vt_scheduler || is_fjp_worker {
+        return ThreadKind::Carrier;
+    }
+    ThreadKind::Platform
+}
+
+/// Parse `jcmd Thread.dump_to_file -format=json` (feat-049).
+fn parse_thread_dump_json(input: &str) -> Vec<ThreadInfo> {
+    let Ok(root) = serde_json::from_str::<serde_json::Value>(input) else {
+        return Vec::new();
+    };
+    let Some(containers) = root
+        .pointer("/threadDump/threadContainers")
+        .and_then(|v| v.as_array())
+    else {
+        return Vec::new();
+    };
+
+    let mut threads = Vec::new();
+    for container in containers {
+        let container_name = container
+            .get("container")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        let Some(arr) = container.get("threads").and_then(|v| v.as_array()) else {
+            continue;
+        };
+        for t in arr {
+            let name = t
+                .get("name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("<unknown>")
+                .to_string();
+            let id = t.get("tid").and_then(|v| {
+                v.as_str()
+                    .map(|s| s.to_string())
+                    .or_else(|| v.as_u64().map(|n| n.to_string()))
+            });
+            let stack: Vec<String> = t
+                .get("stack")
+                .and_then(|v| v.as_array())
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|f| f.as_str().map(|s| s.to_string()))
+                        .collect()
+                })
+                .unwrap_or_default();
+            let kind = classify_json_thread(&name, &stack, container_name);
+            let state = infer_state_from_stack(&stack);
+            threads.push(ThreadInfo {
+                name,
+                id,
+                state,
+                waiting_on: None,
+                held_locks: Vec::new(),
+                stack_depth: stack.len(),
+                stack,
+                kind,
+                carrier_id: None,
+                mounted_id: None,
+            });
+        }
+    }
+    threads
+}
+
+/// Link HotSpot jstack / Thread.print `Carrying` / `Mounted virtual thread #N`
+/// annotations to carrier and virtual [`ThreadInfo`] entries (feat-049).
+fn link_jstack_virtual_carriers(threads: &mut Vec<ThreadInfo>, blocks: &[Vec<&str>]) {
+    let carrying_re = Regex::new(r"(?i)Carrying virtual thread #(\d+)").unwrap();
+    let mounted_re = Regex::new(r"(?i)Mounted virtual thread #(\d+)").unwrap();
+    let jstack_id_re = Regex::new(r#"^"[^"]*"\s+#(\d+)"#).unwrap();
+
+    let mut pairs: Vec<(String, String)> = Vec::new();
+    for block in blocks {
+        let Some(carrier_id) = extract_jstack_id(block[0], &jstack_id_re) else {
+            continue;
+        };
+        for line in &block[1..] {
+            if let Some(cap) = carrying_re.captures(line) {
+                pairs.push((carrier_id.clone(), cap[1].to_string()));
+            }
+            if let Some(cap) = mounted_re.captures(line) {
+                pairs.push((carrier_id.clone(), cap[1].to_string()));
+            }
+        }
+    }
+
+    for (carrier_id, mounted_id) in &pairs {
+        if let Some(carrier) = threads
+            .iter_mut()
+            .find(|t| t.id.as_deref() == Some(carrier_id.as_str()))
+        {
+            carrier.kind = ThreadKind::Carrier;
+            carrier.mounted_id = Some(mounted_id.clone());
+        }
+    }
+
+    for (carrier_id, mounted_id) in &pairs {
+        if let Some(mounted) = threads
+            .iter_mut()
+            .find(|t| t.id.as_deref() == Some(mounted_id.as_str()))
+        {
+            mounted.kind = ThreadKind::Virtual;
+            mounted.carrier_id = Some(carrier_id.clone());
+        } else {
+            // jstack often omits mounted VT headers when pinned; synthesize a linkable entry.
+            threads.push(ThreadInfo {
+                name: format!("<virtual thread #{mounted_id}>"),
+                id: Some(mounted_id.clone()),
+                state: "UNKNOWN".to_string(),
+                waiting_on: None,
+                held_locks: Vec::new(),
+                stack_depth: 0,
+                stack: Vec::new(),
+                kind: ThreadKind::Virtual,
+                carrier_id: Some(carrier_id.clone()),
+                mounted_id: None,
+            });
+        }
+    }
+}
+
 /// Parse and analyze a Java thread dump.
 pub fn analyze(input: &str) -> Analysis {
     let format = detect_format(input);
     let blocks = split_thread_blocks(input);
 
-    // Format-specialized block parsers (feat-048): known formats compile and
-    // invoke only their own dialect regexes; Unknown keeps documented dual-try.
+    // Format-specialized parsers (feat-048/049): known formats use only their dialect.
     let threads: Vec<ThreadInfo> = match format {
+        DumpFormat::ThreadDumpJson => parse_thread_dump_json(input),
         DumpFormat::Jstack => {
             let jstack_lock_re = Regex::new(r"<(0x[0-9a-fA-F]+)>").unwrap();
             let jstack_id_re = Regex::new(r#"^"[^"]*"\s+#(\d+)"#).unwrap();
-            blocks
+            let mut parsed: Vec<ThreadInfo> = blocks
                 .iter()
                 .map(|b| parse_jstack_block(b, &jstack_lock_re, &jstack_id_re))
-                .collect()
+                .collect();
+            link_jstack_virtual_carriers(&mut parsed, &blocks);
+            parsed
         }
         DumpFormat::ThreadMxBean => {
             let mxbean_lock_re = Regex::new(
@@ -535,7 +732,7 @@ pub fn analyze(input: &str) -> Analysis {
                 .or_insert_with(|| t.name.clone());
         }
     }
-    // MXBean-only owned-by header harvest (jstack has no such idiom).
+    // MXBean-only owned-by header harvest (jstack / JSON have no such idiom).
     if matches!(format, DumpFormat::ThreadMxBean | DumpFormat::Unknown) {
         let mxbean_owned_by_re = Regex::new(r#"\bowned by "([^"]+)""#).unwrap();
         harvest_mxbean_owned_by(&threads, &blocks, &mut lock_owner, &mxbean_owned_by_re);
@@ -2060,6 +2257,54 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         let a = analyze(JSTACK_SAMPLE);
         assert_eq!(a.format, DumpFormat::Jstack);
         assert_eq!(a.total_threads, 3);
+    }
+
+    #[test]
+    fn detects_thread_dump_json_format() {
+        let dump = include_str!("../tests/fixtures/virtual-threads/dump_to_file.json");
+        let a = analyze(dump);
+        assert_eq!(a.format, DumpFormat::ThreadDumpJson);
+        let virtuals: Vec<_> = a
+            .threads
+            .iter()
+            .filter(|t| t.kind == ThreadKind::Virtual)
+            .collect();
+        assert!(
+            virtuals.len() >= 3,
+            "expected >=3 virtual threads, got {}",
+            virtuals.len()
+        );
+        assert!(virtuals.iter().all(|t| t.id.is_some()));
+        assert!(virtuals.iter().all(|t| !t.stack.is_empty()));
+        assert!(a.threads.iter().any(|t| t.kind == ThreadKind::Carrier));
+        assert!(a.threads.iter().any(|t| t.name.starts_with("vt-waiter-")));
+    }
+
+    #[test]
+    fn links_jstack_carrying_virtual_threads() {
+        let dump = include_str!("../tests/fixtures/virtual-threads/carrying_jstack.txt");
+        let a = analyze(dump);
+        assert_eq!(a.format, DumpFormat::Jstack);
+        let carriers: Vec<_> = a
+            .threads
+            .iter()
+            .filter(|t| t.kind == ThreadKind::Carrier)
+            .collect();
+        assert!(
+            carriers.len() >= 3,
+            "expected carriers with Carrying annotations, got {}",
+            carriers.len()
+        );
+        for c in &carriers {
+            let mounted = c.mounted_id.as_ref().expect("carrier mounted_id");
+            let vt = a
+                .threads
+                .iter()
+                .find(|t| t.id.as_deref() == Some(mounted.as_str()))
+                .expect("mounted virtual ThreadInfo");
+            assert_eq!(vt.kind, ThreadKind::Virtual);
+            assert_eq!(vt.carrier_id.as_deref(), c.id.as_deref());
+        }
     }
 
     #[test]

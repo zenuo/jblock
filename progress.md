@@ -2,33 +2,35 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 06:35
-**Active Feature:** feat-048 (done) — next: feat-049
+**Last Updated:** 2026-07-27 07:15
+**Active Feature:** feat-049 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] **feat-048** Format-specialized thread block parsing
-  - `analyze()` branches on `DumpFormat` into `parse_jstack_block` / `parse_mxbean_block` / `parse_unknown_block`
-  - Removed dual-try `extract_id` / unified `parse_block`; per-format `extract_jstack_id` / `extract_mxbean_id`
-  - MXBean-only: header `BLOCKED on`, `harvest_mxbean_owned_by`; jstack path uses only `<0x…>` + `java.lang.Thread.State`
-  - Unknown keeps documented MXBean-then-jstack best-effort fallback
-  - e2e `FEATURE_CHECKS["feat-048"]` regression cargo + static asserts
+- [x] **feat-049** Virtual thread dump support (codegen-tested)
+  - `DumpFormat::ThreadDumpJson` + `detect_format` for `jcmd Thread.dump_to_file -format=json`
+  - `ThreadKind` (`platform` | `virtual` | `carrier`) + `carrier_id` / `mounted_id` on `ThreadInfo`; `web/src/types.ts` synced
+  - `parse_thread_dump_json` + stack/container classification; jstack `Carrying`/`Mounted` linking via `link_jstack_virtual_carriers`
+  - `Scenario::VirtualThreadBlock` codegen; `compile_run_dump_to_file_json` + `jdk21_tools_available` skip path
+  - Offline fixtures under `tests/fixtures/virtual-threads/` (+ `JBLOCK_UPDATE_FIXTURES` refresh)
+  - e2e `FEATURE_CHECKS["feat-049"]`
 
 ### What's In Progress
 
-- [ ] (none)
+- [ ] (none — feature list complete through feat-049)
 
 ### What's Next
 
-1. **feat-049**: JSON `Thread.dump_to_file` parser + codegen Scenario + live/fixture cargo tests
+1. New features as added to `feature_list.json`
 
 ## Decisions Made
 
-- Known formats compile/invoke only their dialect regexes inside each `match` arm
-- Unknown dual-try lives solely in `parse_unknown_block` (documented); never used for Jstack/ThreadMxBean
-- Shared helpers remain: `split_thread_blocks`, `extract_name`, `collect_stack_frames`, post-parse analysis
+- JSON dump is primary VT source (jstack omits unmounted VTs; pinned VTs show only as Carrying on carriers)
+- Missing mounted VT headers after Carrying are synthesized as `<virtual thread #N>` so carrier↔mounted links always exist
+- State for JSON dumps is inferred from stack frames (JDK JSON omits Thread.State)
+- `serde_json` added for WASM-capable JSON parsing
 
 ## Evidence of Completion
 
@@ -36,20 +38,16 @@
 
 ```text
 $ cargo test --lib
-running 89 tests
-… test result: ok. 89 passed; 0 failed; …
-
-$ ./init.sh
-=== cargo test === … 89 passed
-=== pnpm lint / typecheck / build === ok
-=== e2e feature matrix === Summary: 49/49 features PASS
+running 93 tests
+… test result: ok. 93 passed; 0 failed; …
 ```
 
-`harness/e2e-results.json`: feat-048 `status_in_list=done`, 6 cargo regression checks + 3 static asserts all `ok: true`.
+(`./init.sh` evidence to follow.)
 
 ### Files touched
 
-- `src/parser.rs` — format-specialized block parsers
-- `scripts/e2e-features.mjs` — `FEATURE_CHECKS["feat-048"]`
-- `feature_list.json` — feat-048 → done
-- `harness/e2e-results.json` — refreshed by `./init.sh`
+- `Cargo.toml` — `serde_json`
+- `src/parser.rs`, `src/codegen.rs`, `src/capture.rs`, `src/tests/java_code_generation.rs`
+- `web/src/types.ts`
+- `tests/fixtures/virtual-threads/`
+- `scripts/e2e-features.mjs`, `feature_list.json`

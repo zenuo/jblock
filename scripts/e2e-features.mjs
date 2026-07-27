@@ -851,6 +851,47 @@ FEATURE_CHECKS["feat-048"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-049"] = {
+  cargo: [
+    "detects_thread_dump_json_format",
+    "links_jstack_carrying_virtual_threads",
+    "live_capture_virtual_thread_block_dump_to_file",
+    "virtual_thread_block_uses_of_virtual",
+  ],
+  static: [
+    () => ({
+      ok:
+        contains("src/parser.rs", "ThreadDumpJson") &&
+        contains("web/src/types.ts", "thread-dump-json"),
+      detail: "DumpFormat ThreadDumpJson / thread-dump-json synced",
+    }),
+    () => ({
+      ok:
+        contains("src/parser.rs", "enum ThreadKind") &&
+        contains("src/parser.rs", "carrier_id") &&
+        contains("src/parser.rs", "mounted_id") &&
+        contains("web/src/types.ts", 'ThreadKind = "platform" | "virtual" | "carrier"') &&
+        contains("web/src/types.ts", "carrier_id") &&
+        contains("web/src/types.ts", "mounted_id"),
+      detail: "ThreadKind + carrier/mounted id fields on Rust + TS",
+    }),
+    () => ({
+      ok:
+        contains("src/codegen.rs", "VirtualThreadBlock") &&
+        contains("src/codegen.rs", "generate_virtual_thread_block") &&
+        contains("src/capture.rs", "compile_run_dump_to_file_json"),
+      detail: "Scenario VirtualThreadBlock + jcmd dump_to_file capture helper",
+    }),
+    () => ({
+      ok:
+        fileExists("tests/fixtures/virtual-threads/dump_to_file.json") &&
+        fileNonEmpty("tests/fixtures/virtual-threads/dump_to_file.json", 100) &&
+        fileExists("tests/fixtures/virtual-threads/carrying_jstack.txt"),
+      detail: "offline VT fixtures under tests/fixtures/virtual-threads/",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

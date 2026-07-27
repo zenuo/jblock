@@ -70,6 +70,11 @@ fn parses_scenario_aliases() {
         Some(Scenario::DnsResolutionStall)
     );
     assert_eq!(parse_scenario("dns-stall"), Some(Scenario::DnsResolutionStall));
+    assert_eq!(
+        parse_scenario("virtual-thread-block"),
+        Some(Scenario::VirtualThreadBlock)
+    );
+    assert_eq!(parse_scenario("vt-block"), Some(Scenario::VirtualThreadBlock));
     assert_eq!(parse_scenario("nonsense"), None);
 }
 
@@ -249,6 +254,19 @@ fn dns_resolution_stall_queries_via_jndi_dns() {
 }
 
 #[test]
+fn virtual_thread_block_uses_of_virtual() {
+    let code = generate(Scenario::VirtualThreadBlock, 4);
+    assert!(code.contains("public class VirtualThreadBlock"));
+    assert!(code.contains("Thread.ofVirtual()"));
+    assert!(code.contains("Thread.ofPlatform()"));
+    assert!(code.contains("vt-waiter-"));
+    assert!(code.contains("name(\"holder\")"));
+    assert!(code.contains("synchronized (LOCK)"));
+    assert!(code.contains("final int workers = 4;"));
+    assert!(code.contains("Thread.dump_to_file"));
+}
+
+#[test]
 fn count_is_clamped_to_sane_range() {
     // Below minimum is bumped to 2.
     let low = generate(Scenario::Deadlock, 0);
@@ -293,5 +311,9 @@ fn class_name_matches_source() {
         "FrameworkPoolSaturation"
     );
     assert_eq!(Scenario::DnsResolutionStall.class_name(), "DnsResolutionStall");
+    assert_eq!(
+        Scenario::VirtualThreadBlock.class_name(),
+        "VirtualThreadBlock"
+    );
     assert!(generate(Scenario::Deadlock, 2).contains("class DeadlockCycle"));
 }

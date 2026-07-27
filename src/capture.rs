@@ -2,13 +2,16 @@
 //!
 //! Used by pattern tests (feat-027+) so each scenario can prove both the
 //! reproducer source and a real JVM thread dump.
+//!
+//! feat-049 also captures `jcmd Thread.dump_to_file -format=json` for JDK 21+
+//! virtual-thread scenarios.
 
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// Location of JDK tools. Prefers explicit `JAVA_HOME`, else PATH.
 fn tool(name: &str) -> PathBuf {
@@ -47,6 +50,79 @@ pub fn jdk_tools_available() -> bool {
     true
 }
 
+/// True when JDK tools include `jcmd` and `java -version` reports major >= 21.
+pub fn jdk21_tools_available() -> bool {
+    if !jdk_tools_available() {
+        return false;
+    }
+    let jcmd_ok = Command::new("sh")
+        .args(["-c", "command -v jcmd"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false);
+    if !jcmd_ok {
+        // Also try JAVA_HOME/bin/jcmd.
+        if !tool("jcmd").exists() && tool("jcmd") == PathBuf::from("jcmd") {
+            return false;
+        }
+    }
+    let out = Command::new(tool("java"))
+        .args(["-XshowSettings:properties", "-version"])
+        .output();
+    let Ok(out) = out else {
+        return false;
+    };
+    // Properties land on stderr for -version.
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    for line in text.lines() {
+        let line = line.trim();
+        if let Some(rest) = line.strip_prefix("java.version = ") {
+            let major = rest
+                .split(|c: char| !c.is_ascii_digit())
+                .next()
+                .and_then(|s| s.parse::<u32>().ok())
+                .unwrap_or(0);
+            return major >= 21;
+        }
+        // Older "java version \"21.x\"" form on some builds.
+        if let Some(idx) = line.find("version \"") {
+            let after = &line[idx + "version \"".len()..];
+            let major = after
+                .split(|c: char| !c.is_ascii_digit())
+                .next()
+                .and_then(|s| s.parse::<u32>().ok())
+                .unwrap_or(0);
+            if major >= 21 {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn wait_until_attachable(pid: u32, timeout: Duration) -> bool {
+    let start = Instant::now();
+    let needle = format!("{pid} ");
+    while start.elapsed() < timeout {
+        if let Ok(out) = Command::new(tool("jcmd")).arg("-l").output() {
+            let text = String::from_utf8_lossy(&out.stdout);
+            if text.lines().any(|l| l.starts_with(&needle)) {
+                // Brief settle so the attach socket is ready.
+                thread::sleep(Duration::from_millis(400));
+                return true;
+            }
+        }
+        thread::sleep(Duration::from_millis(200));
+    }
+    false
+}
+
 /// Compile `ClassName.java` containing `source`, run it, wait, jstack, then kill.
 ///
 /// Returns the jstack text. The process is always terminated.
@@ -72,7 +148,7 @@ pub fn compile_run_jstack(
 
     let mut child = Command::new(tool("java"))
         .current_dir(&dir)
-        .arg(class_name)
+        .args(["-cp", ".", class_name])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()?;
@@ -99,6 +175,80 @@ pub fn compile_run_jstack(
     if !dump.contains("Full thread dump") && !dump.contains("\n\"") {
         return Err(io::Error::other(
             "jstack output did not look like a thread dump",
+        ));
+    }
+    Ok(dump)
+}
+
+/// Compile/run `source`, then `jcmd Thread.dump_to_file -format=json` (feat-049).
+///
+/// Requires JDK 21+. Waits until the JVM is listed by `jcmd -l` before attaching.
+pub fn compile_run_dump_to_file_json(
+    source: &str,
+    class_name: &str,
+    warmup: Duration,
+) -> io::Result<String> {
+    let dir = tempfile_dir()?;
+    let java_path = dir.join(format!("{class_name}.java"));
+    fs::write(&java_path, source)?;
+
+    let javac = Command::new(tool("javac"))
+        .current_dir(&dir)
+        .arg(java_path.file_name().unwrap())
+        .output()?;
+    if !javac.status.success() {
+        return Err(io::Error::other(format!(
+            "javac failed:\n{}",
+            String::from_utf8_lossy(&javac.stderr)
+        )));
+    }
+
+    let mut child = Command::new(tool("java"))
+        .current_dir(&dir)
+        .args(["-cp", ".", class_name])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()?;
+
+    thread::sleep(warmup);
+    let pid = child.id();
+    if !wait_until_attachable(pid, Duration::from_secs(20)) {
+        let _ = child.kill();
+        let _ = child.wait();
+        return Err(io::Error::other(format!(
+            "JVM pid {pid} never became attachable via jcmd -l"
+        )));
+    }
+
+    let out_path = dir.join("thread_dump.json");
+    let jcmd = Command::new(tool("jcmd"))
+        .arg(pid.to_string())
+        .args([
+            "Thread.dump_to_file",
+            "-format=json",
+            out_path.to_str().unwrap_or("thread_dump.json"),
+        ])
+        .output();
+
+    let _ = child.kill();
+    let _ = child.wait();
+
+    let jcmd = jcmd?;
+    if !jcmd.status.success() {
+        return Err(io::Error::other(format!(
+            "jcmd dump_to_file failed for pid {pid}:\n{}",
+            String::from_utf8_lossy(&jcmd.stderr)
+        )));
+    }
+    if !out_path.exists() {
+        return Err(io::Error::other(
+            "jcmd reported success but dump file is missing",
+        ));
+    }
+    let dump = fs::read_to_string(&out_path)?;
+    if !dump.contains("\"threadDump\"") {
+        return Err(io::Error::other(
+            "dump_to_file JSON missing threadDump object",
         ));
     }
     Ok(dump)
@@ -715,6 +865,49 @@ mod tests {
                 >= 3,
             "expected dns-resolver-* threads, got {:?}",
             hit.thread_names
+        );
+    }
+
+    #[test]
+    fn live_capture_virtual_thread_block_dump_to_file() {
+        if !jdk21_tools_available() {
+            eprintln!("skip live VT capture: JDK 21+ / jcmd not available");
+            return;
+        }
+        let source = generate(Scenario::VirtualThreadBlock, 3);
+        let dump = compile_run_dump_to_file_json(
+            &source,
+            "VirtualThreadBlock",
+            Duration::from_millis(1200),
+        )
+        .expect("compile/run/dump_to_file json");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/virtual-threads/dump_to_file.json");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = analyze(&dump);
+        assert_eq!(a.format, crate::parser::DumpFormat::ThreadDumpJson);
+        let virtuals: Vec<_> = a
+            .threads
+            .iter()
+            .filter(|t| t.kind == crate::parser::ThreadKind::Virtual)
+            .collect();
+        assert!(
+            virtuals.len() >= 3,
+            "expected >=3 virtual threads, got {}; dump head:\n{}",
+            virtuals.len(),
+            dump.chars().take(800).collect::<String>()
+        );
+        assert!(
+            virtuals.iter().any(|t| t.name.starts_with("vt-waiter-")),
+            "expected vt-waiter-* names, got {:?}",
+            virtuals.iter().map(|t| &t.name).collect::<Vec<_>>()
         );
     }
 }

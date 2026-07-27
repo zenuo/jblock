@@ -1,7 +1,13 @@
 // Mirror of the Rust `Analysis` struct serialized from the WASM module.
 // Keep this in sync with `src/parser.rs`.
 
-export type DumpFormat = "jstack" | "thread-mx-bean" | "unknown";
+export type DumpFormat =
+  | "jstack"
+  | "thread-mx-bean"
+  | "thread-dump-json"
+  | "unknown";
+
+export type ThreadKind = "platform" | "virtual" | "carrier";
 
 export interface ThreadInfo {
   name: string;
@@ -12,6 +18,12 @@ export interface ThreadInfo {
   stack_depth: number;
   /** Full stack frames without the leading `at ` (feat-046). */
   stack: string[];
+  /** Platform / virtual / carrier (feat-049). */
+  kind: ThreadKind;
+  /** When kind is virtual, optional carrier thread id. */
+  carrier_id: string | null;
+  /** When kind is carrier, optional mounted virtual thread id. */
+  mounted_id: string | null;
 }
 
 export interface StateCount {
