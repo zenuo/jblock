@@ -2,17 +2,16 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 03:20
-**Active Feature:** feat-047 Legend peer sample of 3 + copyable names (main)
+**Last Updated:** 2026-07-27 03:25
+**Active Feature:** fix blank legend hover tip (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Peer/fan legends capped at 3 equal nodes + total caption when `peerTotal > 3`
-- [x] Hover tip with selectable full thread name
-- [x] Deadlock cycles left as sequential layouts
-- [x] `./init.sh` **47/47 PASS**
+- [x] Root cause: tip inside `foreignObject` was clipped to a blank white box
+- [x] Tip moved to HTML `legend-hover-tip` under the SVG via `LegendTipContext`
+- [x] Browser verified on hot-lock legend: hover shows `http-worker-1/2/3` (non-empty)
 
 ### What's In Progress
 
@@ -24,9 +23,10 @@
 
 ## Decisions Made
 
-- Peer demos: busy-wait, condition, sync-io, pool, connection waiters, hot-lock waiters, blocked, clean (+ aliases).
-- Not peer-capped: deadlock / future-latch / lock-order cycles.
+- Do not put copyable tips inside SVG `foreignObject`; browsers clip overflow even with `overflow: visible`.
 
 ## Evidence of Completion
 
-- `./init.sh`: cargo 89/89; web lint/typecheck/build; e2e **47/47 PASS** (incl. feat-047)
+- Browser: Load sample → Hottest lock Legend → hover red nodes → tip text `http-worker-*`
+- Artifact: `/opt/cursor/artifacts/screenshots/legend-hover-tip-ok.webp`
+- `pnpm lint` + `typecheck` + e2e 47/47 PASS
