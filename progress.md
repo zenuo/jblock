@@ -11,10 +11,11 @@
 
 - [x] `.stack-preview` / cluster cards wrap long FQCN frames (`overflow-wrap: anywhere`)
 - [x] Cluster head sample-name line also wraps inside the card
+- [x] e2e feat-019 asserts wrap styles; lint/typecheck/e2e 46/46 PASS
 
 ### What's In Progress
 
-- [ ] Verify + push main
+- [x] Commit + push main
 
 ### What's Next
 
@@ -26,4 +27,4 @@
 
 ## Evidence of Completion
 
-- Pending lint/typecheck
+- `pnpm -C web run lint` + `typecheck` PASS; `node scripts/e2e-features.mjs --skip-web` **46/46 PASS**
