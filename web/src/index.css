@@ -1248,7 +1248,7 @@ th {
 }
 
 .legend-modal {
-  max-width: 520px;
+  max-width: 560px;
 }
 
 .legend-body {
@@ -1261,7 +1261,7 @@ th {
   border: 1px solid var(--border);
   border-radius: 12px;
   background: linear-gradient(180deg, #f8fafc 0%, #f5f5f7 100%);
-  padding: 0.5rem;
+  padding: 0.65rem 0.75rem;
   margin-bottom: 0.85rem;
   overflow: hidden;
 }
@@ -1270,7 +1270,7 @@ th {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 240px;
+  max-height: 280px;
 }
 
 .legend-key {

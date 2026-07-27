@@ -19,6 +19,23 @@ function shortLock(lock: string | null, max = 18): string {
   return shortLabel(lock, max);
 }
 
+/**
+ * Shared fan layout for 96×44 thread cards (feat legend demos).
+ * Centers are ≥140px apart so card edges keep ~44px of air instead of nearly touching.
+ */
+const FAN = {
+  viewBox: "0 0 420 260",
+  cx: 210,
+  /** Top trio + lower hub (x, y of card centers). */
+  nodes: [
+    [70, 58],
+    [210, 42],
+    [350, 58],
+    [210, 148],
+  ] as const,
+  hubY: 210,
+} as const;
+
 export default function PatternLegendModal({ finding, onClose }: Props) {
   const { t } = useI18n();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -395,7 +412,7 @@ function DeadlockDemo({ actors }: { actors: FindingActors }) {
   const n = Math.max(nodes.length, 2);
   const cx = 160;
   const cy = 105;
-  const r = 68;
+  const r = 82;
   const points = nodes.map((_, i) => {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / n;
     return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
@@ -465,13 +482,13 @@ function HotLockDemo({ actors }: { actors: FindingActors }) {
           .filter((n) => n.thread !== ownerThread)
           .slice(0, 3);
   const positions = [
-    [60, 175],
-    [160, 195],
-    [260, 175],
+    [55, 185],
+    [160, 210],
+    [265, 185],
   ] as const;
 
   return (
-    <svg viewBox="0 0 320 230" className="legend-svg" aria-hidden="true">
+    <svg viewBox="0 0 320 250" className="legend-svg" aria-hidden="true">
       <defs>
         <marker
           id="arrow-hot"
@@ -653,12 +670,13 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
         ];
   const waiters = nodes.slice(0, 3);
   const holder = nodes[3] ?? { thread: "pool-holder", className: null };
+  const waiterXs = [70, 210, 350] as const;
 
   return (
-    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+    <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
       <rect
-        x="110"
-        y="30"
+        x="160"
+        y="28"
         width="100"
         height="40"
         rx="8"
@@ -667,8 +685,8 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
         strokeWidth="1.5"
       />
       <text
-        x="160"
-        y="55"
+        x={FAN.cx}
+        y="53"
         textAnchor="middle"
         fontSize="10"
         fontWeight="700"
@@ -676,7 +694,7 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
       >
         ConnPool(1)
       </text>
-      <g transform="translate(160 120)">
+      <g transform={`translate(${FAN.cx} 120)`}>
         <g className="legend-float">
           <rect
             x="-48"
@@ -692,28 +710,28 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
         </g>
       </g>
       {waiters.map((a, i) => {
-        const x = 55 + i * 105;
+        const x = waiterXs[i] ?? FAN.cx;
         return (
           <g key={`${a.thread}-${i}`}>
             <line
               x1={x}
-              y1="175"
-              x2="160"
-              y2="70"
+              y1="200"
+              x2={FAN.cx}
+              y2="68"
               className="legend-edge-wait"
               stroke="#f59e0b"
               strokeWidth="2"
               strokeDasharray="5 4"
             />
-            <g transform={`translate(${x} 185)`}>
+            <g transform={`translate(${x} 215)`}>
               <g
                 className="legend-pulse"
                 style={{ animationDelay: `${i * 0.2}s` }}
               >
                 <rect
-                  x="-42"
+                  x="-48"
                   y="-18"
-                  width="84"
+                  width="96"
                   height="36"
                   rx="8"
                   fill="#fee2e2"
@@ -740,18 +758,12 @@ function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
           { thread: "cond-waiter-2", className: "ConditionObject" },
           { thread: "cond-waiter-3", className: "ConditionObject" },
         ];
-  const positions = [
-    [55, 70],
-    [160, 45],
-    [265, 70],
-    [160, 130],
-  ] as const;
 
   return (
-    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+    <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
       <rect
-        x="105"
-        y="155"
+        x="155"
+        y="185"
         width="110"
         height="40"
         rx="8"
@@ -761,8 +773,8 @@ function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
         className="legend-lock-pulse"
       />
       <text
-        x="160"
-        y="180"
+        x={FAN.cx}
+        y="210"
         textAnchor="middle"
         fontSize="10"
         fontWeight="700"
@@ -771,14 +783,14 @@ function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
         {shortLock(actors.lock ?? "Condition", 14)}
       </text>
       {nodes.map((a, i) => {
-        const [x, y] = positions[i] ?? [160, 90];
+        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 90];
         return (
           <g key={`${a.thread}-${i}`}>
             <line
               x1={x}
               y1={y + 22}
-              x2="160"
-              y2="155"
+              x2={FAN.cx}
+              y2="185"
               className="legend-edge-wait"
               stroke="#f59e0b"
               strokeWidth="2"
@@ -819,18 +831,12 @@ function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
           { thread: "spin-worker-2", className: "BusyWaitSpin" },
           { thread: "spin-worker-3", className: "BusyWaitSpin" },
         ];
-  const positions = [
-    [60, 70],
-    [160, 50],
-    [260, 70],
-    [160, 140],
-  ] as const;
 
   return (
-    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+    <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
       <circle
-        cx="160"
-        cy="170"
+        cx={FAN.cx}
+        cy={FAN.hubY}
         r="22"
         fill="#ffedd5"
         stroke="#f59e0b"
@@ -838,8 +844,8 @@ function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
         className="legend-lock-pulse"
       />
       <text
-        x="160"
-        y="174"
+        x={FAN.cx}
+        y={FAN.hubY + 4}
         textAnchor="middle"
         fontSize="9"
         fontWeight="700"
@@ -848,14 +854,14 @@ function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
         CPU spin
       </text>
       {nodes.map((a, i) => {
-        const [x, y] = positions[i] ?? [160, 90];
+        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 90];
         return (
           <g key={`${a.thread}-${i}`}>
             <line
               x1={x}
               y1={y + 22}
-              x2="160"
-              y2="150"
+              x2={FAN.cx}
+              y2={FAN.hubY - 22}
               className="legend-edge-wait"
               stroke="#f59e0b"
               strokeWidth="2"
@@ -896,18 +902,12 @@ function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
           { thread: "rpc-client-2", className: "SocketInputStream" },
           { thread: "rpc-client-3", className: "SocketInputStream" },
         ];
-  const positions = [
-    [60, 70],
-    [160, 50],
-    [260, 70],
-    [160, 130],
-  ] as const;
 
   return (
-    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+    <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
       <rect
-        x="110"
-        y="155"
+        x="160"
+        y="185"
         width="100"
         height="36"
         rx="8"
@@ -916,8 +916,8 @@ function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
         strokeWidth="1.5"
       />
       <text
-        x="160"
-        y="177"
+        x={FAN.cx}
+        y="207"
         textAnchor="middle"
         fontSize="10"
         fontWeight="700"
@@ -926,14 +926,14 @@ function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
         remote I/O
       </text>
       {nodes.map((a, i) => {
-        const [x, y] = positions[i] ?? [160, 90];
+        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 90];
         return (
           <g key={`${a.thread}-${i}`}>
             <line
               x1={x}
               y1={y + 22}
-              x2="160"
-              y2="155"
+              x2={FAN.cx}
+              y2="185"
               className="legend-edge-wait"
               stroke="#f59e0b"
               strokeWidth="2"
@@ -974,20 +974,14 @@ function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
           { thread: "pool-1-thread-3", className: null },
           { thread: "pool-1-thread-4", className: null },
         ];
-  const positions = [
-    [70, 90],
-    [160, 55],
-    [250, 90],
-    [160, 140],
-  ] as const;
 
   return (
-    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+    <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
       <rect
         x="40"
-        y="30"
-        width="240"
-        height="150"
+        y="28"
+        width="340"
+        height="200"
         rx="12"
         fill="#eef2ff"
         stroke="#6366f1"
@@ -995,7 +989,7 @@ function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
         strokeDasharray="4 3"
       />
       <text
-        x="160"
+        x={FAN.cx}
         y="48"
         textAnchor="middle"
         fontSize="10"
@@ -1005,10 +999,10 @@ function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
         FixedThreadPool
       </text>
       {nodes.map((a, i) => {
-        const [x, y] = positions[i] ?? [160, 110];
+        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 110];
         const blocked = i > 0;
         return (
-          <g key={`${a.thread}-${i}`} transform={`translate(${x} ${y})`}>
+          <g key={`${a.thread}-${i}`} transform={`translate(${x} ${y + 20})`}>
             <g
               className={blocked ? "legend-pulse" : "legend-float"}
               style={{ animationDelay: `${i * 0.2}s` }}
