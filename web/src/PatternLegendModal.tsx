@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   shortClassName,
   shortLabel,
@@ -13,6 +13,9 @@ interface Props {
   finding: Finding;
   onClose: () => void;
 }
+
+type TipSetter = (name: string | null) => void;
+const LegendTipContext = createContext<TipSetter>(() => {});
 
 function shortLock(lock: string | null, max = 18): string {
   if (!lock) return "Lock";
@@ -58,6 +61,7 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
   const { t } = useI18n();
   const closeRef = useRef<HTMLButtonElement>(null);
   const { kind, actors } = finding;
+  const [hoverThread, setHoverThread] = useState<string | null>(null);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -71,6 +75,10 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
       unlock();
     };
   }, [onClose]);
+
+  useEffect(() => {
+    setHoverThread(null);
+  }, [kind]);
 
   const titleKey =
     kind === "deadlock"
@@ -176,7 +184,12 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           </button>
         </div>
         <p className="legend-body">{t(bodyKey)}</p>
-        <div className="legend-stage" data-testid={`legend-demo-${kind}`}>
+        <div
+          className="legend-stage"
+          data-testid={`legend-demo-${kind}`}
+          onMouseLeave={() => setHoverThread(null)}
+        >
+          <LegendTipContext.Provider value={setHoverThread}>
           {kind === "deadlock" && <DeadlockDemo actors={actors} />}
           {kind === "hot-lock" && <HotLockDemo actors={actors} />}
           {kind === "blocked" && <BlockedDemo actors={actors} />}
@@ -218,6 +231,12 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "thread-leak" && <PoolExhaustionDemo actors={actors} />}
           {kind === "livelock" && <BusyWaitSpinDemo actors={actors} />}
           {kind === "clean" && <CleanDemo actors={actors} />}
+          </LegendTipContext.Provider>
+          {hoverThread ? (
+            <div className="legend-hover-tip" data-testid="legend-thread-fullname">
+              <code className="legend-actor-fullname">{hoverThread}</code>
+            </div>
+          ) : null}
         </div>
         <ul className="legend-key">
           {(kind === "deadlock" ||
@@ -397,6 +416,7 @@ function ActorLabel({
   width?: number;
   height?: number;
 }) {
+  const setTip = useContext(LegendTipContext);
   const thread = actor?.thread ?? fallback;
   const cls = shortClassName(actor?.className ?? null, classMax);
   return (
@@ -407,12 +427,18 @@ function ActorLabel({
       height={height}
       className="legend-actor-fo"
     >
-      <div className="legend-actor" data-testid="legend-actor">
+      <div
+        className="legend-actor"
+        data-testid="legend-actor"
+        data-thread={thread}
+        tabIndex={0}
+        onMouseEnter={() => setTip(thread)}
+        onFocus={() => setTip(thread)}
+        onMouseLeave={() => setTip(null)}
+        onBlur={() => setTip(null)}
+      >
         <div className="legend-actor-short">{shortLabel(thread, threadMax)}</div>
         {cls ? <div className="legend-actor-class">{cls}</div> : null}
-        <div className="legend-actor-tip" data-testid="legend-thread-fullname">
-          <code className="legend-actor-fullname">{thread}</code>
-        </div>
       </div>
     </foreignObject>
   );

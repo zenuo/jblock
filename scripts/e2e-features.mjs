@@ -802,9 +802,11 @@ FEATURE_CHECKS["feat-047"] = {
     () => ({
       ok:
         contains("web/src/PatternLegendModal.tsx", "legend-thread-fullname") &&
-        contains("web/src/PatternLegendModal.tsx", "foreignObject") &&
-        contains("web/src/index.css", "user-select: all"),
-      detail: "hover tip with selectable full thread name",
+        contains("web/src/PatternLegendModal.tsx", "legend-hover-tip") &&
+        contains("web/src/PatternLegendModal.tsx", "LegendTipContext") &&
+        contains("web/src/index.css", "user-select: all") &&
+        !contains("web/src/PatternLegendModal.tsx", "legend-actor-tip"),
+      detail: "HTML hover tip outside foreignObject (copyable full name)",
     }),
     () => ({
       ok:
