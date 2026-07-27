@@ -10,7 +10,7 @@ export interface ThreadInfo {
   waiting_on: string | null;
   held_locks: string[];
   stack_depth: number;
-  /** Top stack frames without the leading `at ` (feat-016). */
+  /** Full stack frames without the leading `at ` (feat-046). */
   stack: string[];
 }
 

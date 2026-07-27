@@ -1614,6 +1614,21 @@ th {
   color: #94a3b8;
 }
 
+.stack-preview .stack-more {
+  list-style: none;
+  margin-left: -1.25rem;
+}
+
+.stack-more-btn {
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.stack-more-btn:hover {
+  color: #e2e8f0;
+}
+
 .cluster-list {
   list-style: none;
   margin: var(--space-2) 0 0;

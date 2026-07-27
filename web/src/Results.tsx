@@ -24,6 +24,9 @@ const STATE_COLORS: Record<string, string> = {
 
 type StateFilter = "ALL" | string;
 
+/** Initial frames shown when a stack row is expanded; remainder via "show all". */
+const STACK_PREVIEW_FRAMES = 12;
+
 interface Props {
   analysis: Analysis;
 }
@@ -46,6 +49,7 @@ export default function Results({ analysis }: Props) {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [expandedLocks, setExpandedLocks] = useState<Set<string>>(new Set());
   const [expandedStacks, setExpandedStacks] = useState<Set<number>>(new Set());
+  const [fullStacks, setFullStacks] = useState<Set<number>>(new Set());
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
   const [legendFinding, setLegendFinding] = useState<Finding | null>(null);
 
@@ -53,6 +57,7 @@ export default function Results({ analysis }: Props) {
     setStateFilter(hasBlocked ? "BLOCKED" : "ALL");
     setExpandedLocks(new Set());
     setExpandedStacks(new Set());
+    setFullStacks(new Set());
     setFocusIndex(null);
   }, [analysis, hasBlocked]);
 
@@ -114,8 +119,26 @@ export default function Results({ analysis }: Props) {
   const toggleStack = (index: number) => {
     setExpandedStacks((prev) => {
       const next = new Set(prev);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
+      if (next.has(index)) {
+        next.delete(index);
+        setFullStacks((full) => {
+          if (!full.has(index)) return full;
+          const cleared = new Set(full);
+          cleared.delete(index);
+          return cleared;
+        });
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  const showFullStack = (index: number) => {
+    setFullStacks((prev) => {
+      if (prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.add(index);
       return next;
     });
   };
@@ -435,7 +458,9 @@ export default function Results({ analysis }: Props) {
                   index={index}
                   focused={focusIndex === index}
                   expanded={expandedStacks.has(index)}
+                  showFullStack={fullStacks.has(index)}
                   onToggleStack={() => toggleStack(index)}
+                  onShowFullStack={() => showFullStack(index)}
                   translate={t}
                 />
               ))}
@@ -453,16 +478,25 @@ function ThreadRow({
   index,
   focused,
   expanded,
+  showFullStack,
   onToggleStack,
+  onShowFullStack,
   translate: tr,
 }: {
   thread: ThreadInfo;
   index: number;
   focused: boolean;
   expanded: boolean;
+  showFullStack: boolean;
   onToggleStack: () => void;
+  onShowFullStack: () => void;
   translate: TranslateFn;
 }) {
+  const previewCap = STACK_PREVIEW_FRAMES;
+  const truncated = !showFullStack && th.stack.length > previewCap;
+  const visibleFrames = truncated ? th.stack.slice(0, previewCap) : th.stack;
+  const hiddenCount = truncated ? th.stack.length - previewCap : 0;
+
   return (
     <>
       <tr
@@ -507,17 +541,22 @@ function ThreadRow({
       {expanded && th.stack.length > 0 && (
         <tr className="stack-row">
           <td colSpan={6}>
-            <ol className="stack-preview">
-              {th.stack.map((f, i) => (
+            <ol className="stack-preview" data-testid="stack-preview">
+              {visibleFrames.map((f, i) => (
                 <li key={i} className="mono">
                   {f}
                 </li>
               ))}
-              {th.stack_depth > th.stack.length && (
-                <li className="empty">
-                  {tr("threads.moreFrames", {
-                    count: th.stack_depth - th.stack.length,
-                  })}
+              {hiddenCount > 0 && (
+                <li className="stack-more">
+                  <button
+                    type="button"
+                    className="linkish stack-more-btn"
+                    data-testid="stack-show-all"
+                    onClick={onShowFullStack}
+                  >
+                    {tr("threads.moreFrames", { count: hiddenCount })}
+                  </button>
                 </li>
               )}
             </ol>

@@ -41,7 +41,7 @@ pub struct ThreadInfo {
     pub held_locks: Vec<String>,
     /// Number of stack frames captured for this thread.
     pub stack_depth: usize,
-    /// Top stack frames (`at …` lines without the leading `at `), capped for size.
+    /// Stack frames (`at …` lines without the leading `at `); full depth (feat-046).
     pub stack: Vec<String>,
 }
 
@@ -216,9 +216,6 @@ fn extract_id(header: &str, mxbean_id_re: &Regex, jstack_id_re: &Regex) -> Optio
         })
 }
 
-/// Max stack frames retained per thread (full depth still counted in `stack_depth`).
-const MAX_STACK_FRAMES: usize = 12;
-
 fn parse_block(
     block: &[&str],
     // jstack: `- waiting to lock <0x…>` / `- locked <0x…>`
@@ -258,16 +255,12 @@ fn parse_block(
 
     let mut waiting_on: Option<String> = None;
     let mut held_locks: Vec<String> = Vec::new();
-    let mut stack_depth = 0usize;
     let mut stack: Vec<String> = Vec::new();
 
     for line in &block[1..] {
         let trimmed = line.trim_start();
         if let Some(rest) = trimmed.strip_prefix("at ") {
-            stack_depth += 1;
-            if stack.len() < MAX_STACK_FRAMES {
-                stack.push(rest.to_string());
-            }
+            stack.push(rest.to_string());
         }
         // jstack monitor lines use angle-bracket hex identities.
         if let Some(cap) = jstack_lock_re.captures(line) {
@@ -305,7 +298,7 @@ fn parse_block(
         state,
         waiting_on,
         held_locks,
-        stack_depth,
+        stack_depth: stack.len(),
         stack,
     }
 }
@@ -1994,6 +1987,25 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         assert_eq!(worker.stack_depth, 1);
         assert!(!worker.stack.is_empty());
         assert!(worker.stack[0].contains("com.example.Worker.work"));
+    }
+
+    // feat-046: retain every `at` frame (not just a top-N preview).
+    #[test]
+    fn captures_full_stack_frames() {
+        let mut dump = String::from(
+            "\"deep\" #1 prio=5 os_prio=0 tid=0x1 nid=0x1 waiting on condition [0x1]\n\
+   java.lang.Thread.State: WAITING (on object monitor)\n",
+        );
+        for i in 0..19 {
+            dump.push_str(&format!("\tat com.example.Deep.frame{i}(Deep.java:{})\n", i + 1));
+        }
+        let a = analyze(&dump);
+        let deep = a.threads.iter().find(|t| t.name == "deep").unwrap();
+        assert_eq!(deep.stack_depth, 19);
+        assert_eq!(deep.stack.len(), 19);
+        assert!(deep.stack[0].contains("frame0"));
+        assert!(deep.stack[18].contains("frame18"));
+        assert!(deep.stack[18].contains("Deep.java:19"));
     }
 
     // Simple contention (main blocked by worker) is NOT a deadlock: worker is

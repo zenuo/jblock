@@ -751,6 +751,27 @@ FEATURE_CHECKS["feat-045"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-046"] = {
+  cargo: ["captures_full_stack_frames"],
+  static: [
+    () => ({
+      ok: !contains("src/parser.rs", "MAX_STACK_FRAMES"),
+      detail: "parser no longer caps stack with MAX_STACK_FRAMES",
+    }),
+    () => ({
+      ok:
+        contains("web/src/Results.tsx", "STACK_PREVIEW_FRAMES") &&
+        contains("web/src/Results.tsx", "stack-show-all") &&
+        contains("web/src/Results.tsx", "onShowFullStack"),
+      detail: "UI preview + show-all control for full stack",
+    }),
+    () => ({
+      ok: contains("web/src/types.ts", "feat-046") || contains("web/src/types.ts", "Full stack"),
+      detail: "ThreadInfo.stack typed as full stack",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

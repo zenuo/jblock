@@ -2,21 +2,20 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 02:25
-**Active Feature:** feat-045 Non-sticky app header (main)
+**Last Updated:** 2026-07-27 02:45
+**Active Feature:** feat-046 Full thread stack frames (main)
 
 ## Status
 
 ### What's Done
 
-- [x] Removed `position: sticky` (+ frosted sticky chrome) from `.app-header`
-- [x] Added `feat-045` to `feature_list.json`
-- [x] Added e2e static checks asserting `.app-header` is not sticky/fixed
-- [x] `./init.sh` green (45/45 features)
+- [x] Parser retains full stack (removed `MAX_STACK_FRAMES`)
+- [x] UI preview (12) + clickable "… N more" to reveal entire stack
+- [x] `feat-046` + e2e checks + `captures_full_stack_frames` cargo test
 
 ### What's In Progress
 
-- [x] Commit + push to main
+- [ ] Full `./init.sh` verification
 
 ### What's Next
 
@@ -24,9 +23,8 @@
 
 ## Decisions Made
 
-- Header stays in normal document flow so scroll moves it off-screen with content.
-- Dropped sticky-only backdrop blur / translucent background; kept has-results bottom border.
+- Keep a 12-frame preview when expanded so deep stacks stay scannable; "show all" reveals the rest (frames are now available from the parser).
 
 ## Evidence of Completion
 
-- `./init.sh`: cargo 88/88; web lint/typecheck/build; e2e **45/45 PASS** (incl. feat-045)
+- Pending `./init.sh`

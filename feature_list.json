@@ -467,6 +467,16 @@
       ],
       "status": "done",
       "evidence": "web/src/index.css .app-header no longer position:sticky; frosted sticky chrome removed; e2e feat-045 asserts header rule is not sticky/fixed"
+    },
+    {
+      "id": "feat-046",
+      "name": "Full thread stack frames",
+      "description": "Parser retains every stack frame (not only top 12). Thread table stack expand shows a short preview then a control to reveal the remaining frames so users can inspect the full stack.",
+      "dependencies": [
+        "feat-016"
+      ],
+      "status": "done",
+      "evidence": "parser drops MAX_STACK_FRAMES cap; cargo captures_full_stack_frames; Results stack-show-all expands beyond STACK_PREVIEW_FRAMES; e2e feat-046"
     }
   ]
 }

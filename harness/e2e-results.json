@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-07-26T04:09:03.231Z",
+  "generated_at": "2026-07-27T02:42:45.261Z",
   "root": "/workspace",
   "summary": {
-    "total": 45,
-    "pass": 45,
+    "total": 46,
+    "pass": 46,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 88,
+    "cargo_passed": 89,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -1420,6 +1420,34 @@
           "name": "static:no sticky/fixed pin on live .app-header selectors",
           "ok": true,
           "detail": "no sticky/fixed pin on live .app-header selectors"
+        }
+      ]
+    },
+    {
+      "id": "feat-046",
+      "name": "Full thread stack frames",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:captures_full_stack_frames",
+          "ok": true,
+          "detail": "passed as parser::tests::captures_full_stack_frames"
+        },
+        {
+          "name": "static:parser no longer caps stack with MAX_STACK_FRAMES",
+          "ok": true,
+          "detail": "parser no longer caps stack with MAX_STACK_FRAMES"
+        },
+        {
+          "name": "static:UI preview + show-all control for full stack",
+          "ok": true,
+          "detail": "UI preview + show-all control for full stack"
+        },
+        {
+          "name": "static:ThreadInfo.stack typed as full stack",
+          "ok": true,
+          "detail": "ThreadInfo.stack typed as full stack"
         }
       ]
     }
