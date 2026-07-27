@@ -542,6 +542,22 @@
         "pnpm -C web run lint/typecheck/build green; ./init.sh green; e2e FEATURE_CHECKS for feat-050"
       ],
       "evidence": "analyze.worker.ts + analyzer Worker RPC; App requestAnimationFrame before file.text(); e2e FEATURE_CHECKS feat-050"
+    },
+    {
+      "id": "feat-051",
+      "name": "Wider denser results workspace",
+      "description": "When analysis results are showing, widen the app shell and tighten vertical/horizontal gutters so the workspace uses more of the viewport. Keep the empty home intro at the Apple-level Minimal 980px column.",
+      "dependencies": [
+        "feat-043"
+      ],
+      "status": "done",
+      "acceptance": [
+        ".app stays max-width 980px on the home/empty state",
+        ".app.has-results widens (e.g. min(1440px, 100%)) with reduced padding",
+        "Results stack/panel spacing is tighter under has-results",
+        "./init.sh green; e2e FEATURE_CHECKS for feat-051"
+      ],
+      "evidence": "index.css .app.has-results max-width 1440px + tighter padding/gaps; home remains 980px; e2e feat-051"
     }
   ]
 }

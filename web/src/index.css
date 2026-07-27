@@ -43,8 +43,39 @@ body {
   position: relative;
 }
 
+/* Results workspace: use more of the viewport (less side gutter than the home shell). */
 .app.has-results {
-  padding-top: 1rem;
+  max-width: min(1440px, 100%);
+  padding: 0.75rem clamp(0.75rem, 1.5vw, 1.25rem) 2.25rem;
+}
+
+.app.has-results .app-header {
+  margin-bottom: var(--space-2);
+  padding-top: 0.4rem;
+  padding-bottom: 0.45rem;
+  border-bottom-color: var(--border);
+}
+
+.app.has-results .workspace-toolbar {
+  margin-bottom: var(--space-2);
+  padding: 0.55rem 0.85rem;
+}
+
+.app.has-results .results {
+  gap: var(--space-2);
+}
+
+.app.has-results .panel {
+  padding: var(--space-3);
+  border-radius: 14px;
+}
+
+.app.has-results .panel h2 {
+  margin-bottom: var(--space-2);
+}
+
+.app.has-results .dump-series {
+  margin-bottom: var(--space-2);
 }
 
 /* Header scrolls with the page (not sticky / fixed). */
@@ -53,10 +84,6 @@ body {
   padding: 0.65rem 0.25rem;
   border-bottom: 1px solid transparent;
   transition: border-color 200ms var(--ease-out);
-}
-
-.app.has-results .app-header {
-  border-bottom-color: var(--border);
 }
 
 /* HTML export: quieter chrome; header already scrolls with content. */

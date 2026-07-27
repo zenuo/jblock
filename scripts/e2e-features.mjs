@@ -926,6 +926,25 @@ FEATURE_CHECKS["feat-049"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-051"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains("web/src/index.css", ".app.has-results") &&
+        contains("web/src/index.css", "1440px") &&
+        contains("web/src/index.css", "max-width: 980px"),
+      detail: "home shell 980px; results workspace widens to 1440px",
+    }),
+    () => ({
+      ok:
+        contains("web/src/index.css", ".app.has-results .results") &&
+        contains("web/src/index.css", ".app.has-results .panel"),
+      detail: "tighter results stack + panel padding under has-results",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,
