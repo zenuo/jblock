@@ -805,8 +805,10 @@ FEATURE_CHECKS["feat-047"] = {
         contains("web/src/PatternLegendModal.tsx", "legend-hover-tip") &&
         contains("web/src/PatternLegendModal.tsx", "LegendTipContext") &&
         contains("web/src/index.css", "user-select: all") &&
-        !contains("web/src/PatternLegendModal.tsx", "legend-actor-tip"),
-      detail: "HTML hover tip outside foreignObject (copyable full name)",
+        !contains("web/src/PatternLegendModal.tsx", "legend-actor-tip") &&
+        !contains("web/src/PatternLegendModal.tsx", "onMouseLeave={() => setTip(null)}") &&
+        !contains("web/src/PatternLegendModal.tsx", "onMouseLeave={() => setHoverThread(null)}"),
+      detail: "Sticky HTML tip outside foreignObject (copyable full name)",
     }),
     () => ({
       ok:

@@ -1317,7 +1317,8 @@ th {
   text-align: center;
 }
 
-/* Tip lives outside SVG/foreignObject so it is not clipped blank. */
+/* Tip lives outside SVG/foreignObject so it is not clipped blank.
+   Stays visible after hover so the full name can be selected/copied. */
 .legend-hover-tip {
   margin-top: 0.55rem;
   padding: 0.45rem 0.6rem;
@@ -1325,6 +1326,7 @@ th {
   border: 1px solid var(--border);
   background: #fff;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  cursor: text;
 }
 
 .legend-actor-fullname {

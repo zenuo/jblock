@@ -187,7 +187,6 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
         <div
           className="legend-stage"
           data-testid={`legend-demo-${kind}`}
-          onMouseLeave={() => setHoverThread(null)}
         >
           <LegendTipContext.Provider value={setHoverThread}>
           {kind === "deadlock" && <DeadlockDemo actors={actors} />}
@@ -232,6 +231,7 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "livelock" && <BusyWaitSpinDemo actors={actors} />}
           {kind === "clean" && <CleanDemo actors={actors} />}
           </LegendTipContext.Provider>
+          {/* Sticky after hover/focus so the full name stays selectable for copy. */}
           {hoverThread ? (
             <div className="legend-hover-tip" data-testid="legend-thread-fullname">
               <code className="legend-actor-fullname">{hoverThread}</code>
@@ -434,8 +434,7 @@ function ActorLabel({
         tabIndex={0}
         onMouseEnter={() => setTip(thread)}
         onFocus={() => setTip(thread)}
-        onMouseLeave={() => setTip(null)}
-        onBlur={() => setTip(null)}
+        onClick={() => setTip(thread)}
       >
         <div className="legend-actor-short">{shortLabel(thread, threadMax)}</div>
         {cls ? <div className="legend-actor-class">{cls}</div> : null}

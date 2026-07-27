@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T03:12:56.911Z",
+  "generated_at": "2026-07-27T03:39:14.173Z",
   "root": "/workspace",
   "summary": {
     "total": 47,
@@ -1473,9 +1473,9 @@
           "detail": "FAN peer layout has 3 slots (want 3)"
         },
         {
-          "name": "static:HTML hover tip outside foreignObject (copyable full name)",
+          "name": "static:Sticky HTML tip outside foreignObject (copyable full name)",
           "ok": true,
-          "detail": "HTML hover tip outside foreignObject (copyable full name)"
+          "detail": "Sticky HTML tip outside foreignObject (copyable full name)"
         },
         {
           "name": "static:peerTotal + peerSample i18n",
