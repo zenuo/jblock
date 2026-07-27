@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-27T06:15:46.882Z",
-  "root": "/home/wx/Documents/src/jblock",
+  "generated_at": "2026-07-27T06:29:38.203Z",
+  "root": "/workspace",
   "summary": {
     "total": 49,
     "pass": 49,
@@ -1487,13 +1487,53 @@
     {
       "id": "feat-048",
       "name": "Format-specialized thread block parsing",
-      "status_in_list": "pending",
+      "status_in_list": "done",
       "ok": true,
       "checks": [
         {
-          "name": "pending",
+          "name": "cargo:detects_jstack_format",
           "ok": true,
-          "detail": "skipped (status=pending); 5 acceptance criteria recorded"
+          "detail": "passed as parser::tests::detects_jstack_format"
+        },
+        {
+          "name": "cargo:detects_mxbean_format",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_mxbean_format"
+        },
+        {
+          "name": "cargo:detects_mxbean_format_lock_contentions",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_mxbean_format_lock_contentions"
+        },
+        {
+          "name": "cargo:detects_mxbean_format_lock_contentions_real_world",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_mxbean_format_lock_contentions_real_world"
+        },
+        {
+          "name": "cargo:detects_java_version_support",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_java_version_support"
+        },
+        {
+          "name": "cargo:parses_real_world_deadlock_dump",
+          "ok": true,
+          "detail": "passed as parser::tests::parses_real_world_deadlock_dump"
+        },
+        {
+          "name": "static:format-specific parse_jstack_block / parse_mxbean_block / parse_unknown_block",
+          "ok": true,
+          "detail": "format-specific parse_jstack_block / parse_mxbean_block / parse_unknown_block"
+        },
+        {
+          "name": "static:dual-try extract_id / parse_block removed",
+          "ok": true,
+          "detail": "dual-try extract_id / parse_block removed"
+        },
+        {
+          "name": "static:per-format id extractors + MXBean-only owned-by harvest",
+          "ok": true,
+          "detail": "per-format id extractors + MXBean-only owned-by harvest"
         }
       ]
     },
