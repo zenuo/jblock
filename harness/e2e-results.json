@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-07-27T06:29:38.203Z",
+  "generated_at": "2026-07-27T07:07:52.563Z",
   "root": "/workspace",
   "summary": {
     "total": 49,
     "pass": 49,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 89,
+    "cargo_passed": 93,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -1540,13 +1540,48 @@
     {
       "id": "feat-049",
       "name": "Virtual thread dump support (codegen-tested)",
-      "status_in_list": "pending",
+      "status_in_list": "done",
       "ok": true,
       "checks": [
         {
-          "name": "pending",
+          "name": "cargo:detects_thread_dump_json_format",
           "ok": true,
-          "detail": "skipped (status=pending); 8 acceptance criteria recorded"
+          "detail": "passed as parser::tests::detects_thread_dump_json_format"
+        },
+        {
+          "name": "cargo:links_jstack_carrying_virtual_threads",
+          "ok": true,
+          "detail": "passed as parser::tests::links_jstack_carrying_virtual_threads"
+        },
+        {
+          "name": "cargo:live_capture_virtual_thread_block_dump_to_file",
+          "ok": true,
+          "detail": "passed as capture::tests::live_capture_virtual_thread_block_dump_to_file"
+        },
+        {
+          "name": "cargo:virtual_thread_block_uses_of_virtual",
+          "ok": true,
+          "detail": "passed as codegen::java_code_generation::virtual_thread_block_uses_of_virtual"
+        },
+        {
+          "name": "static:DumpFormat ThreadDumpJson / thread-dump-json synced",
+          "ok": true,
+          "detail": "DumpFormat ThreadDumpJson / thread-dump-json synced"
+        },
+        {
+          "name": "static:ThreadKind + carrier/mounted id fields on Rust + TS",
+          "ok": true,
+          "detail": "ThreadKind + carrier/mounted id fields on Rust + TS"
+        },
+        {
+          "name": "static:Scenario VirtualThreadBlock + jcmd dump_to_file capture helper",
+          "ok": true,
+          "detail": "Scenario VirtualThreadBlock + jcmd dump_to_file capture helper"
+        },
+        {
+          "name": "static:offline VT fixtures under tests/fixtures/virtual-threads/",
+          "ok": true,
+          "detail": "offline VT fixtures under tests/fixtures/virtual-threads/"
         }
       ]
     }
