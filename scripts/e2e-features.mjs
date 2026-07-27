@@ -945,6 +945,27 @@ FEATURE_CHECKS["feat-051"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-052"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains("web/src/analysisUi.ts", "id: string | null") &&
+        contains("web/src/analysisUi.ts", "used.has") &&
+        contains("web/src/analysisUi.ts", "th.id"),
+      detail: "FindingActor.id + actorsForNames avoids reusing same ThreadInfo",
+    }),
+    () => ({
+      ok:
+        contains("web/src/PatternLegendModal.tsx", "legend-actor-id") &&
+        contains("web/src/PatternLegendModal.tsx", "legend-thread-id") &&
+        contains("web/src/PatternLegendModal.tsx", "Id=") &&
+        contains("web/src/index.css", ".legend-actor-id"),
+      detail: "legend hover tip shows Id={id}",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

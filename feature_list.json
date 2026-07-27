@@ -558,6 +558,22 @@
         "./init.sh green; e2e FEATURE_CHECKS for feat-051"
       ],
       "evidence": "index.css .app.has-results max-width 1440px + tighter padding/gaps; home remains 980px; e2e feat-051"
+    },
+    {
+      "id": "feat-052",
+      "name": "Legend tip shows thread id",
+      "description": "When hovering/focusing a legend actor, the sticky full-name tip also shows the dump thread id (Id=N / #N) so peers that share identical names (e.g. Flink OutputFlusher) can be distinguished. actorsForNames must not reuse the same ThreadInfo for duplicate names.",
+      "dependencies": [
+        "feat-047"
+      ],
+      "status": "done",
+      "acceptance": [
+        "FindingActor includes id: string | null populated from ThreadInfo.id",
+        "actorsForNames assigns distinct ThreadInfo entries when names collide",
+        "legend-hover-tip renders thread name plus Id={id} when id is present",
+        "pnpm lint/typecheck/build green; ./init.sh green; e2e FEATURE_CHECKS for feat-052"
+      ],
+      "evidence": "FindingActor.id; actorsForNames used-index set; legend-actor-id in PatternLegendModal tip; e2e feat-052"
     }
   ]
 }

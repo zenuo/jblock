@@ -1371,6 +1371,18 @@ th {
   -webkit-user-select: all;
 }
 
+.legend-actor-id {
+  display: block;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--muted);
+  user-select: all;
+  -webkit-user-select: all;
+}
+
 .legend-key {
   list-style: none;
   margin: 0;

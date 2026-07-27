@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-27T09:12:30.573Z",
+  "generated_at": "2026-07-27T09:19:12.770Z",
   "root": "/workspace",
   "summary": {
-    "total": 51,
-    "pass": 51,
+    "total": 52,
+    "pass": 52,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 93,
@@ -1628,6 +1628,24 @@
           "name": "static:tighter results stack + panel padding under has-results",
           "ok": true,
           "detail": "tighter results stack + panel padding under has-results"
+        }
+      ]
+    },
+    {
+      "id": "feat-052",
+      "name": "Legend tip shows thread id",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:FindingActor.id + actorsForNames avoids reusing same ThreadInfo",
+          "ok": true,
+          "detail": "FindingActor.id + actorsForNames avoids reusing same ThreadInfo"
+        },
+        {
+          "name": "static:legend hover tip shows Id={id}",
+          "ok": true,
+          "detail": "legend hover tip shows Id={id}"
         }
       ]
     }

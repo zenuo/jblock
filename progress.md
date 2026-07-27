@@ -2,17 +2,17 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 09:20
-**Active Feature:** feat-051 (done)
+**Last Updated:** 2026-07-27 09:25
+**Active Feature:** feat-052 (legend tip shows thread id)
 
 ## Status
 
 ### What's Done
 
-- [x] **feat-051** Results workspace uses more viewport width
-  - Home/empty `.app` stays `max-width: 980px` (Apple-level Minimal)
-  - `.app.has-results` → `min(1440px, 100%)` + tighter padding
-  - Tighter toolbar / results gap / panel padding under `has-results`
+- [x] **feat-052** Legend hover tip includes thread id
+  - `FindingActor.id` from `ThreadInfo.id`
+  - `actorsForNames` skips already-used ThreadInfo when names collide
+  - Tip shows `Id={id}` under the full thread name
 
 ### What's In Progress
 
@@ -20,16 +20,13 @@
 
 ### What's Next
 
-1. Further density tweaks only if user asks (full-bleed / >1440px)
+1. User feedback on denser results / legend tips
 
 ## Decisions Made
 
-- Split density by state: marketing-like home keeps generous gutters; tool workspace widens
-- Cap at 1440px so ultra-wide monitors do not stretch tables endlessly
+- Display as `Id=N` for both jstack `#N` and MXBean `Id=N` dumps (same numeric string)
+- Duplicate-name peers get distinct ids by consuming analysis.threads in order
 
 ## Evidence of Completion
 
-```text
-$ ./init.sh
-… Summary: 51/51 features PASS
-```
+(`./init.sh` evidence to follow.)

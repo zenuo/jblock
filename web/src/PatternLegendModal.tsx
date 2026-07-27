@@ -14,7 +14,8 @@ interface Props {
   onClose: () => void;
 }
 
-type TipSetter = (name: string | null) => void;
+type LegendTip = { thread: string; id: string | null } | null;
+type TipSetter = (tip: LegendTip) => void;
 const LegendTipContext = createContext<TipSetter>(() => {});
 
 function shortLock(lock: string | null, max = 18): string {
@@ -61,7 +62,7 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
   const { t } = useI18n();
   const closeRef = useRef<HTMLButtonElement>(null);
   const { kind, actors } = finding;
-  const [hoverThread, setHoverThread] = useState<string | null>(null);
+  const [hoverTip, setHoverTip] = useState<LegendTip>(null);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -77,7 +78,7 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
   }, [onClose]);
 
   useEffect(() => {
-    setHoverThread(null);
+    setHoverTip(null);
   }, [kind]);
 
   const titleKey =
@@ -188,7 +189,7 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           className="legend-stage"
           data-testid={`legend-demo-${kind}`}
         >
-          <LegendTipContext.Provider value={setHoverThread}>
+          <LegendTipContext.Provider value={setHoverTip}>
           {kind === "deadlock" && <DeadlockDemo actors={actors} />}
           {kind === "hot-lock" && <HotLockDemo actors={actors} />}
           {kind === "blocked" && <BlockedDemo actors={actors} />}
@@ -232,9 +233,17 @@ export default function PatternLegendModal({ finding, onClose }: Props) {
           {kind === "clean" && <CleanDemo actors={actors} />}
           </LegendTipContext.Provider>
           {/* Sticky after hover/focus so the full name stays selectable for copy. */}
-          {hoverThread ? (
+          {hoverTip ? (
             <div className="legend-hover-tip" data-testid="legend-thread-fullname">
-              <code className="legend-actor-fullname">{hoverThread}</code>
+              <code className="legend-actor-fullname">{hoverTip.thread}</code>
+              {hoverTip.id ? (
+                <code
+                  className="legend-actor-id"
+                  data-testid="legend-thread-id"
+                >
+                  Id={hoverTip.id}
+                </code>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -419,6 +428,7 @@ function ActorLabel({
   const setTip = useContext(LegendTipContext);
   const thread = actor?.thread ?? fallback;
   const cls = shortClassName(actor?.className ?? null, classMax);
+  const tip: LegendTip = { thread, id: actor?.id ?? null };
   return (
     <foreignObject
       x={-width / 2}
@@ -431,10 +441,11 @@ function ActorLabel({
         className="legend-actor"
         data-testid="legend-actor"
         data-thread={thread}
+        data-thread-id={actor?.id ?? undefined}
         tabIndex={0}
-        onMouseEnter={() => setTip(thread)}
-        onFocus={() => setTip(thread)}
-        onClick={() => setTip(thread)}
+        onMouseEnter={() => setTip(tip)}
+        onFocus={() => setTip(tip)}
+        onClick={() => setTip(tip)}
       >
         <div className="legend-actor-short">{shortLabel(thread, threadMax)}</div>
         {cls ? <div className="legend-actor-class">{cls}</div> : null}
@@ -476,9 +487,9 @@ function DeadlockDemo({ actors }: { actors: FindingActors }) {
     actors.nodes.length > 0
       ? actors.nodes.slice(0, 6)
       : [
-          { thread: "T1", className: null },
-          { thread: "T2", className: null },
-          { thread: "T3", className: null },
+          { thread: "T1", id: null, className: null },
+          { thread: "T2", id: null, className: null },
+          { thread: "T3", id: null, className: null },
         ];
   const n = Math.max(nodes.length, 2);
   const cx = 160;
@@ -661,9 +672,9 @@ function BlockedDemo({ actors }: { actors: FindingActors }) {
       : {
           ...actors,
           nodes: [
-            { thread: "blocked-1", className: null },
-            { thread: "blocked-2", className: null },
-            { thread: "blocked-3", className: null },
+            { thread: "blocked-1", id: null, className: null },
+            { thread: "blocked-2", id: null, className: null },
+            { thread: "blocked-3", id: null, className: null },
           ],
           peerTotal: Math.max(actors.peerTotal, 3),
         };
@@ -770,15 +781,15 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
     actors.nodes.length > 0
       ? actors.nodes
       : [
-          { thread: "db-borrower-0", className: "HikariDataSource" },
-          { thread: "db-borrower-1", className: "HikariDataSource" },
-          { thread: "db-borrower-2", className: "HikariDataSource" },
-          { thread: "pool-holder", className: null },
+          { thread: "db-borrower-0", id: null, className: "HikariDataSource" },
+          { thread: "db-borrower-1", id: null, className: "HikariDataSource" },
+          { thread: "db-borrower-2", id: null, className: "HikariDataSource" },
+          { thread: "pool-holder", id: null, className: null },
         ];
   const holder =
     nodes.find((n) => /holder|pool/i.test(n.thread) && !/borrow/i.test(n.thread)) ??
     nodes[nodes.length - 1] ??
-    { thread: "pool-holder", className: null };
+    { thread: "pool-holder", id: null, className: null };
   const waiterActors = nodes.filter((n) => n.thread !== holder.thread);
   const source: FindingActors = {
     ...actors,
@@ -877,9 +888,9 @@ function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
       : {
           ...actors,
           nodes: [
-            { thread: "cond-waiter-0", className: "ConditionObject" },
-            { thread: "cond-waiter-1", className: "ConditionObject" },
-            { thread: "cond-waiter-2", className: "ConditionObject" },
+            { thread: "cond-waiter-0", id: null, className: "ConditionObject" },
+            { thread: "cond-waiter-1", id: null, className: "ConditionObject" },
+            { thread: "cond-waiter-2", id: null, className: "ConditionObject" },
           ],
           peerTotal: Math.max(actors.peerTotal, 3),
         };
@@ -955,9 +966,9 @@ function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
       : {
           ...actors,
           nodes: [
-            { thread: "spin-worker-0", className: "BusyWaitSpin" },
-            { thread: "spin-worker-1", className: "BusyWaitSpin" },
-            { thread: "spin-worker-2", className: "BusyWaitSpin" },
+            { thread: "spin-worker-0", id: null, className: "BusyWaitSpin" },
+            { thread: "spin-worker-1", id: null, className: "BusyWaitSpin" },
+            { thread: "spin-worker-2", id: null, className: "BusyWaitSpin" },
           ],
           peerTotal: Math.max(actors.peerTotal, 3),
         };
@@ -1031,9 +1042,9 @@ function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
       : {
           ...actors,
           nodes: [
-            { thread: "rpc-client-0", className: "SocketInputStream" },
-            { thread: "rpc-client-1", className: "SocketInputStream" },
-            { thread: "rpc-client-2", className: "SocketInputStream" },
+            { thread: "rpc-client-0", id: null, className: "SocketInputStream" },
+            { thread: "rpc-client-1", id: null, className: "SocketInputStream" },
+            { thread: "rpc-client-2", id: null, className: "SocketInputStream" },
           ],
           peerTotal: Math.max(actors.peerTotal, 3),
         };
@@ -1108,9 +1119,9 @@ function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
       : {
           ...actors,
           nodes: [
-            { thread: "pool-1-thread-1", className: null },
-            { thread: "pool-1-thread-2", className: null },
-            { thread: "pool-1-thread-3", className: null },
+            { thread: "pool-1-thread-1", id: null, className: null },
+            { thread: "pool-1-thread-2", id: null, className: null },
+            { thread: "pool-1-thread-3", id: null, className: null },
           ],
           peerTotal: Math.max(actors.peerTotal, 3),
         };
@@ -1175,9 +1186,9 @@ function CleanDemo({ actors }: { actors: FindingActors }) {
       : {
           ...actors,
           nodes: [
-            { thread: "T1", className: null },
-            { thread: "T2", className: null },
-            { thread: "T3", className: null },
+            { thread: "T1", id: null, className: null },
+            { thread: "T2", id: null, className: null },
+            { thread: "T3", id: null, className: null },
           ],
           peerTotal: Math.max(actors.peerTotal, 3),
         };

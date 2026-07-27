@@ -28,6 +28,8 @@ export type FindingKind =
 export interface FindingActor {
   /** Thread name from the dump. */
   thread: string;
+  /** Dump thread id (`#N` / `Id=N` ordinal) when known (feat-052). */
+  id: string | null;
   /** Top-of-stack Java class name when available. */
   className: string | null;
 }
@@ -75,18 +77,38 @@ function actorFor(
   if (!threadName) return null;
   const th = analysis.threads.find((t) => t.name === threadName);
   const className = th?.stack[0] ? classNameFromFrame(th.stack[0]) : null;
-  return { thread: threadName, className };
+  return { thread: threadName, id: th?.id ?? null, className };
 }
 
+/**
+ * Map pattern thread names to legend actors.
+ *
+ * When many threads share one name (e.g. Flink `OutputFlusher for …`), walk
+ * `analysis.threads` in order and do not reuse the same ThreadInfo so each
+ * peer can carry a distinct id for the hover tip (feat-052).
+ */
 function actorsForNames(
   analysis: Analysis,
   names: string[],
   limit = 6,
 ): FindingActor[] {
+  const used = new Set<number>();
   const out: FindingActor[] = [];
   for (const name of names) {
-    const a = actorFor(analysis, name);
-    if (a) out.push(a);
+    const idx = analysis.threads.findIndex(
+      (t, i) => t.name === name && !used.has(i),
+    );
+    if (idx < 0) {
+      out.push({ thread: name, id: null, className: null });
+    } else {
+      used.add(idx);
+      const th = analysis.threads[idx];
+      out.push({
+        thread: name,
+        id: th.id,
+        className: th.stack[0] ? classNameFromFrame(th.stack[0]) : null,
+      });
+    }
     if (out.length >= limit) break;
   }
   return out;
