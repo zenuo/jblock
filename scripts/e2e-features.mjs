@@ -820,6 +820,37 @@ FEATURE_CHECKS["feat-047"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-048"] = {
+  cargo: [
+    "detects_jstack_format",
+    "detects_mxbean_format",
+    "detects_mxbean_format_lock_contentions",
+    "detects_mxbean_format_lock_contentions_real_world",
+    "detects_java_version_support",
+    "parses_real_world_deadlock_dump",
+  ],
+  static: [
+    () => ({
+      ok:
+        contains("src/parser.rs", "fn parse_jstack_block") &&
+        contains("src/parser.rs", "fn parse_mxbean_block") &&
+        contains("src/parser.rs", "fn parse_unknown_block"),
+      detail: "format-specific parse_jstack_block / parse_mxbean_block / parse_unknown_block",
+    }),
+    () => ({
+      ok: !contains("src/parser.rs", "fn extract_id") && !contains("src/parser.rs", "fn parse_block("),
+      detail: "dual-try extract_id / parse_block removed",
+    }),
+    () => ({
+      ok:
+        contains("src/parser.rs", "fn extract_jstack_id") &&
+        contains("src/parser.rs", "fn extract_mxbean_id") &&
+        contains("src/parser.rs", "fn harvest_mxbean_owned_by"),
+      detail: "per-format id extractors + MXBean-only owned-by harvest",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

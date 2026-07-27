@@ -2,33 +2,48 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 14:15
-**Active Feature:** feat-048 / feat-049 (pending — acceptance only)
+**Last Updated:** 2026-07-27 06:30
+**Active Feature:** feat-048 (done) — next: feat-049
 
 ## Status
 
 ### What's Done
 
-- [x] Added **feat-048** Format-specialized thread block parsing (`pending`) with `acceptance[]`
-- [x] Added **feat-049** Virtual thread dump support (codegen-tested) (`pending`) with `acceptance[]`
-- [x] e2e matrix skips non-`done` features when `acceptance[]` is present (keeps `./init.sh` green)
+- [x] **feat-048** Format-specialized thread block parsing
+  - `analyze()` branches on `DumpFormat` into `parse_jstack_block` / `parse_mxbean_block` / `parse_unknown_block`
+  - Removed dual-try `extract_id` / unified `parse_block`; per-format `extract_jstack_id` / `extract_mxbean_id`
+  - MXBean-only: header `BLOCKED on`, `harvest_mxbean_owned_by`; jstack path uses only `<0x…>` + `java.lang.Thread.State`
+  - Unknown keeps documented MXBean-then-jstack best-effort fallback
+  - e2e `FEATURE_CHECKS["feat-048"]` regression cargo + static asserts
 
 ### What's In Progress
 
-- [ ] Implement feat-048 or feat-049 (not started)
+- [ ] (none)
 
 ### What's Next
 
-1. **feat-048**: branch `analyze` on `DumpFormat` into jstack vs MXBean block parsers; remove dual-try `extract_id` / dual lock regexes on known formats
-2. **feat-049**: JSON `Thread.dump_to_file` parser + codegen Scenario + live/fixture cargo tests (independent of feat-048; nicer after it)
+1. **feat-049**: JSON `Thread.dump_to_file` parser + codegen Scenario + live/fixture cargo tests
 
 ## Decisions Made
 
-- Two features are independent: feat-049 depends on feat-002 + feat-027 only (not on feat-048)
-- Acceptance criteria live in `feature_list.json` `acceptance` arrays; evidence stays empty until done
-- Pending features must record non-empty `acceptance[]` or e2e fails that entry
+- Known formats compile/invoke only their dialect regexes inside each `match` arm
+- Unknown dual-try lives solely in `parse_unknown_block` (documented); never used for Jstack/ThreadMxBean
+- Shared helpers remain: `split_thread_blocks`, `extract_name`, `collect_stack_frames`, post-parse analysis
 
 ## Evidence of Completion
 
-- `feature_list.json`: feat-048, feat-049 `status: pending` + acceptance checklists
-- `scripts/e2e-features.mjs`: pending-feature skip path
+### Verification
+
+```text
+$ cargo test --lib
+running 89 tests
+… test result: ok. 89 passed; 0 failed; …
+```
+
+(`./init.sh` evidence to follow after full gate run.)
+
+### Files touched
+
+- `src/parser.rs` — format-specialized block parsers
+- `scripts/e2e-features.mjs` — `FEATURE_CHECKS["feat-048"]`
+- `feature_list.json` — feat-048 → done

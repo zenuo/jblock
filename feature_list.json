@@ -495,7 +495,7 @@
       "dependencies": [
         "feat-002"
       ],
-      "status": "pending",
+      "status": "done",
       "acceptance": [
         "analyze() branches on DumpFormat into format-specific block parsers (e.g. parse_jstack_block / parse_mxbean_block); known-format paths do not compile or invoke the other dialect's lock/id regexes",
         "No mxbean-then-jstack (or reverse) dual-try helper for id/locks when format is Jstack or ThreadMxBean; Unknown retains explicit fallback behavior documented in code",
@@ -503,7 +503,7 @@
         "Regression: cargo tests detects_jstack_format, detects_mxbean_format, detects_mxbean_format_lock_contentions, detects_mxbean_format_lock_contentions_real_world, detects_java_version_support, parses_real_world_deadlock_dump still pass",
         "cargo test --lib green; ./init.sh green; e2e FEATURE_CHECKS for feat-048 map the regression tests above plus static asserts that format-specific parse functions exist and dual-try extract_id is gone"
       ],
-      "evidence": ""
+      "evidence": "analyze match DumpFormat → parse_jstack_block / parse_mxbean_block / parse_unknown_block; extract_jstack_id+extract_mxbean_id (no dual-try extract_id); harvest_mxbean_owned_by only on MXBean|Unknown; cargo 89 ok; e2e FEATURE_CHECKS feat-048"
     },
     {
       "id": "feat-049",

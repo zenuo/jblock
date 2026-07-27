@@ -202,66 +202,72 @@ fn extract_name(header: &str) -> Option<String> {
     Some(rest[..end].to_string())
 }
 
-/// Thread id from an MXBean `Id=N` header, or the jstack `#N` ordinal.
-fn extract_id(header: &str, mxbean_id_re: &Regex, jstack_id_re: &Regex) -> Option<String> {
-    mxbean_id_re
-        .captures(header)
-        .and_then(|c| c.get(1))
-        .map(|m| m.as_str().to_string())
-        .or_else(|| {
-            jstack_id_re
-                .captures(header)
-                .and_then(|c| c.get(1))
-                .map(|m| m.as_str().to_string())
-        })
-}
-
-fn parse_block(
-    block: &[&str],
-    // jstack: `- waiting to lock <0x…>` / `- locked <0x…>`
-    jstack_lock_re: &Regex,
-    // MXBean: `-  blocked on Class@hash` / `-  locked Class@hash` / `-  waiting to lock Class@hash`
-    mxbean_lock_re: &Regex,
-    // Header fallback: `BLOCKED on Class@hash owned by "owner"`
-    mxbean_header_blocked_re: &Regex,
-    mxbean_id_re: &Regex,
-    jstack_id_re: &Regex,
-    state_re: &Regex,
-) -> ThreadInfo {
-    let header = block[0];
-    let name = extract_name(header).unwrap_or_else(|| "<unknown>".to_string());
-
-    let id = extract_id(header, mxbean_id_re, jstack_id_re);
-
-    // State: prefer the explicit jstack line, fall back to a token in the header.
-    let mut state = String::new();
-    for line in block {
-        if let Some(idx) = line.find("java.lang.Thread.State:") {
-            let after = &line[idx + "java.lang.Thread.State:".len()..];
-            if let Some(tok) = after.split_whitespace().next() {
-                state = tok.to_string();
-            }
-            break;
-        }
-    }
-    if state.is_empty() {
-        if let Some(c) = state_re.captures(header) {
-            state = c.get(1).map(|m| m.as_str().to_string()).unwrap_or_default();
-        }
-    }
-    if state.is_empty() {
-        state = "UNKNOWN".to_string();
-    }
-
-    let mut waiting_on: Option<String> = None;
-    let mut held_locks: Vec<String> = Vec::new();
-    let mut stack: Vec<String> = Vec::new();
-
+/// Collect `at …` stack frames from a thread block (shared across formats).
+fn collect_stack_frames(block: &[&str]) -> Vec<String> {
+    let mut stack = Vec::new();
     for line in &block[1..] {
         let trimmed = line.trim_start();
         if let Some(rest) = trimmed.strip_prefix("at ") {
             stack.push(rest.to_string());
         }
+    }
+    stack
+}
+
+/// jstack: state from the dedicated `java.lang.Thread.State:` line only.
+fn parse_jstack_state(block: &[&str]) -> String {
+    for line in block {
+        if let Some(idx) = line.find("java.lang.Thread.State:") {
+            let after = &line[idx + "java.lang.Thread.State:".len()..];
+            if let Some(tok) = after.split_whitespace().next() {
+                return tok.to_string();
+            }
+        }
+    }
+    "UNKNOWN".to_string()
+}
+
+/// MXBean: state token lives in the header (`"name" Id=N WAITING …`).
+fn parse_mxbean_state(header: &str, state_re: &Regex) -> String {
+    if let Some(c) = state_re.captures(header) {
+        if let Some(m) = c.get(1) {
+            return m.as_str().to_string();
+        }
+    }
+    "UNKNOWN".to_string()
+}
+
+/// jstack thread id: `"name" #19 …` (Java 21 may insert `[os_tid]` after `#N`).
+fn extract_jstack_id(header: &str, jstack_id_re: &Regex) -> Option<String> {
+    jstack_id_re
+        .captures(header)
+        .and_then(|c| c.get(1))
+        .map(|m| m.as_str().to_string())
+}
+
+/// MXBean thread id: `"name" Id=13 …` (Java 8) or `"name" prio=5 Id=13 …` (11+).
+fn extract_mxbean_id(header: &str, mxbean_id_re: &Regex) -> Option<String> {
+    mxbean_id_re
+        .captures(header)
+        .and_then(|c| c.get(1))
+        .map(|m| m.as_str().to_string())
+}
+
+/// Parse one jstack thread block: `#N` id, `java.lang.Thread.State`, `<0x…>` monitors.
+fn parse_jstack_block(
+    block: &[&str],
+    jstack_lock_re: &Regex,
+    jstack_id_re: &Regex,
+) -> ThreadInfo {
+    let header = block[0];
+    let name = extract_name(header).unwrap_or_else(|| "<unknown>".to_string());
+    let id = extract_jstack_id(header, jstack_id_re);
+    let state = parse_jstack_state(block);
+
+    let mut waiting_on: Option<String> = None;
+    let mut held_locks: Vec<String> = Vec::new();
+    for line in &block[1..] {
+        let trimmed = line.trim_start();
         // jstack monitor lines use angle-bracket hex identities.
         if let Some(cap) = jstack_lock_re.captures(line) {
             let lock_id = cap[1].to_string();
@@ -272,6 +278,38 @@ fn parse_block(
             }
             // Note: `- waiting on <0x…>` is Object.wait / park, not lock acquisition.
         }
+    }
+
+    let stack = collect_stack_frames(block);
+    ThreadInfo {
+        name,
+        id,
+        state,
+        waiting_on,
+        held_locks,
+        stack_depth: stack.len(),
+        stack,
+    }
+}
+
+/// Parse one ThreadMXBean / ThreadInfo#toString block: `Id=N`, header state,
+/// `Class@hash` lock lines, and header `BLOCKED on …` fallback.
+fn parse_mxbean_block(
+    block: &[&str],
+    mxbean_lock_re: &Regex,
+    mxbean_header_blocked_re: &Regex,
+    mxbean_id_re: &Regex,
+    state_re: &Regex,
+) -> ThreadInfo {
+    let header = block[0];
+    let name = extract_name(header).unwrap_or_else(|| "<unknown>".to_string());
+    let id = extract_mxbean_id(header, mxbean_id_re);
+    let state = parse_mxbean_state(header, state_re);
+
+    let mut waiting_on: Option<String> = None;
+    let mut held_locks: Vec<String> = Vec::new();
+    for line in &block[1..] {
+        let trimmed = line.trim_start();
         // ThreadMXBean / ThreadInfo#toString uses `Class@identityHash`.
         if let Some(cap) = mxbean_lock_re.captures(trimmed) {
             let kind = cap.get(1).map(|m| m.as_str()).unwrap_or("");
@@ -292,6 +330,7 @@ fn parse_block(
         }
     }
 
+    let stack = collect_stack_frames(block);
     ThreadInfo {
         name,
         id,
@@ -303,44 +342,165 @@ fn parse_block(
     }
 }
 
+/// Best-effort fallback when [`DumpFormat::Unknown`] (feat-048).
+///
+/// Tries MXBean idioms first (`Id=`, header state, `Class@hash`, `BLOCKED on`),
+/// then fills gaps from jstack idioms (`#N`, `java.lang.Thread.State`, `<0x…>`).
+/// Known formats never enter this dual-try path.
+fn parse_unknown_block(
+    block: &[&str],
+    jstack_lock_re: &Regex,
+    mxbean_lock_re: &Regex,
+    mxbean_header_blocked_re: &Regex,
+    mxbean_id_re: &Regex,
+    jstack_id_re: &Regex,
+    state_re: &Regex,
+) -> ThreadInfo {
+    let header = block[0];
+    let name = extract_name(header).unwrap_or_else(|| "<unknown>".to_string());
+
+    let id = extract_mxbean_id(header, mxbean_id_re)
+        .or_else(|| extract_jstack_id(header, jstack_id_re));
+
+    // Prefer explicit jstack State line, then MXBean header token (legacy order).
+    let mut state = parse_jstack_state(block);
+    if state == "UNKNOWN" {
+        state = parse_mxbean_state(header, state_re);
+    }
+
+    let mut waiting_on: Option<String> = None;
+    let mut held_locks: Vec<String> = Vec::new();
+    for line in &block[1..] {
+        let trimmed = line.trim_start();
+        if let Some(cap) = mxbean_lock_re.captures(trimmed) {
+            let kind = cap.get(1).map(|m| m.as_str()).unwrap_or("");
+            let lock_id = cap[2].to_string();
+            match kind {
+                "blocked on" | "waiting to lock" => waiting_on = Some(lock_id),
+                "locked" => held_locks.push(lock_id),
+                _ => {}
+            }
+        }
+        if let Some(cap) = jstack_lock_re.captures(line) {
+            let lock_id = cap[1].to_string();
+            if trimmed.contains("waiting to lock") {
+                waiting_on = waiting_on.or(Some(lock_id.clone()));
+            } else if trimmed.contains("locked") && !held_locks.contains(&lock_id) {
+                held_locks.push(lock_id);
+            }
+        }
+    }
+
+    if waiting_on.is_none() {
+        if let Some(cap) = mxbean_header_blocked_re.captures(header) {
+            waiting_on = Some(cap[1].to_string());
+        }
+    }
+
+    let stack = collect_stack_frames(block);
+    ThreadInfo {
+        name,
+        id,
+        state,
+        waiting_on,
+        held_locks,
+        stack_depth: stack.len(),
+        stack,
+    }
+}
+
+/// Harvest `owned by "…"` from MXBean BLOCKED headers when the owner's
+/// `-  locked` line is absent (still enough to attribute the edge).
+/// Only used on ThreadMxBean / Unknown paths — never on jstack.
+fn harvest_mxbean_owned_by(
+    threads: &[ThreadInfo],
+    blocks: &[Vec<&str>],
+    lock_owner: &mut BTreeMap<String, String>,
+    mxbean_owned_by_re: &Regex,
+) {
+    for (t, block) in threads.iter().zip(blocks.iter()) {
+        if let Some(lock) = &t.waiting_on {
+            if lock_owner.contains_key(lock) {
+                continue;
+            }
+            if let Some(cap) = mxbean_owned_by_re.captures(block[0]) {
+                lock_owner.insert(lock.clone(), cap[1].to_string());
+            }
+        }
+    }
+}
+
 /// Parse and analyze a Java thread dump.
 pub fn analyze(input: &str) -> Analysis {
     let format = detect_format(input);
-    let jstack_lock_re = Regex::new(r"<(0x[0-9a-fA-F]+)>").unwrap();
-    // MXBean lock lines: kind in group 1, `Class@hash` in group 2.
-    // Do not match `-  waiting on …` (Condition/park), only acquisition/contention.
-    let mxbean_lock_re = Regex::new(
-        r"-\s+(blocked on|waiting to lock|locked)\s+([\w.$]+@[0-9a-fA-F]+)",
-    )
-    .unwrap();
-    let mxbean_header_blocked_re =
-        Regex::new(r"\bBLOCKED on ([\w.$]+@[0-9a-fA-F]+)").unwrap();
-    // Optional owner name from the same header (`owned by "name"`).
-    let mxbean_owned_by_re = Regex::new(r#"\bowned by "([^"]+)""#).unwrap();
-    // MXBean headers: `"name" Id=13 …` (Java 8) or `"name" prio=5 Id=13 …` (11+).
-    let mxbean_id_re = Regex::new(r"\bId=(\d+)").unwrap();
-    // jstack headers: `"name" #19 …` (Java 21 may insert `[os_tid]` after `#N`).
-    let jstack_id_re = Regex::new(r#"^"[^"]*"\s+#(\d+)"#).unwrap();
-    let state_re = Regex::new(
-        r"\b(NEW|RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|TERMINATED)\b",
-    )
-    .unwrap();
-
     let blocks = split_thread_blocks(input);
-    let threads: Vec<ThreadInfo> = blocks
-        .iter()
-        .map(|b| {
-            parse_block(
-                b,
-                &jstack_lock_re,
-                &mxbean_lock_re,
-                &mxbean_header_blocked_re,
-                &mxbean_id_re,
-                &jstack_id_re,
-                &state_re,
+
+    // Format-specialized block parsers (feat-048): known formats compile and
+    // invoke only their own dialect regexes; Unknown keeps documented dual-try.
+    let threads: Vec<ThreadInfo> = match format {
+        DumpFormat::Jstack => {
+            let jstack_lock_re = Regex::new(r"<(0x[0-9a-fA-F]+)>").unwrap();
+            let jstack_id_re = Regex::new(r#"^"[^"]*"\s+#(\d+)"#).unwrap();
+            blocks
+                .iter()
+                .map(|b| parse_jstack_block(b, &jstack_lock_re, &jstack_id_re))
+                .collect()
+        }
+        DumpFormat::ThreadMxBean => {
+            let mxbean_lock_re = Regex::new(
+                r"-\s+(blocked on|waiting to lock|locked)\s+([\w.$]+@[0-9a-fA-F]+)",
             )
-        })
-        .collect();
+            .unwrap();
+            let mxbean_header_blocked_re =
+                Regex::new(r"\bBLOCKED on ([\w.$]+@[0-9a-fA-F]+)").unwrap();
+            let mxbean_id_re = Regex::new(r"\bId=(\d+)").unwrap();
+            let state_re = Regex::new(
+                r"\b(NEW|RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|TERMINATED)\b",
+            )
+            .unwrap();
+            blocks
+                .iter()
+                .map(|b| {
+                    parse_mxbean_block(
+                        b,
+                        &mxbean_lock_re,
+                        &mxbean_header_blocked_re,
+                        &mxbean_id_re,
+                        &state_re,
+                    )
+                })
+                .collect()
+        }
+        DumpFormat::Unknown => {
+            let jstack_lock_re = Regex::new(r"<(0x[0-9a-fA-F]+)>").unwrap();
+            let mxbean_lock_re = Regex::new(
+                r"-\s+(blocked on|waiting to lock|locked)\s+([\w.$]+@[0-9a-fA-F]+)",
+            )
+            .unwrap();
+            let mxbean_header_blocked_re =
+                Regex::new(r"\bBLOCKED on ([\w.$]+@[0-9a-fA-F]+)").unwrap();
+            let mxbean_id_re = Regex::new(r"\bId=(\d+)").unwrap();
+            let jstack_id_re = Regex::new(r#"^"[^"]*"\s+#(\d+)"#).unwrap();
+            let state_re = Regex::new(
+                r"\b(NEW|RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|TERMINATED)\b",
+            )
+            .unwrap();
+            blocks
+                .iter()
+                .map(|b| {
+                    parse_unknown_block(
+                        b,
+                        &jstack_lock_re,
+                        &mxbean_lock_re,
+                        &mxbean_header_blocked_re,
+                        &mxbean_id_re,
+                        &jstack_id_re,
+                        &state_re,
+                    )
+                })
+                .collect()
+        }
+    };
 
     // State grouping counts.
     let mut counts: BTreeMap<String, usize> = BTreeMap::new();
@@ -375,17 +535,10 @@ pub fn analyze(input: &str) -> Analysis {
                 .or_insert_with(|| t.name.clone());
         }
     }
-    // Harvest `owned by "…"` from MXBean BLOCKED headers when the owner's
-    // `-  locked` line is absent (still enough to attribute the edge).
-    for (t, block) in threads.iter().zip(blocks.iter()) {
-        if let Some(lock) = &t.waiting_on {
-            if lock_owner.contains_key(lock) {
-                continue;
-            }
-            if let Some(cap) = mxbean_owned_by_re.captures(block[0]) {
-                lock_owner.insert(lock.clone(), cap[1].to_string());
-            }
-        }
+    // MXBean-only owned-by header harvest (jstack has no such idiom).
+    if matches!(format, DumpFormat::ThreadMxBean | DumpFormat::Unknown) {
+        let mxbean_owned_by_re = Regex::new(r#"\bowned by "([^"]+)""#).unwrap();
+        harvest_mxbean_owned_by(&threads, &blocks, &mut lock_owner, &mxbean_owned_by_re);
     }
     let mut blocked_edges: Vec<BlockedEdge> = Vec::new();
     for t in &threads {
