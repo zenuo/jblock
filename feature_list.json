@@ -481,12 +481,12 @@
     {
       "id": "feat-047",
       "name": "Legend peer sample of 3 + copyable names",
-      "description": "For peer/fan legend layouts (equal waiters/spinners/etc.), show at most 3 nodes so a closer 4th card is not misread as special; when peerTotal > 3 show a total caption. Hover a node to reveal the full thread name in a selectable tip for copy. Deadlock cycles stay sequential (not capped as peers).",
+      "description": "For peer/fan legend layouts (equal waiters/spinners/etc.), show at most 3 nodes so a closer 4th card is not misread as special; when peerTotal > 3 show a total caption. Hover/focus/click a node to reveal the full thread name in a sticky selectable tip for copy (does not clear on mouse leave). Deadlock cycles stay sequential (not capped as peers).",
       "dependencies": [
         "feat-023"
       ],
       "status": "done",
-      "evidence": "PEER_SHOW=3 + peerSample/PeerSampleNote; FindingActors.peerTotal; ActorLabel foreignObject tip with user-select:all; e2e feat-047"
+      "evidence": "PEER_SHOW=3 + peerSample/PeerSampleNote; FindingActors.peerTotal; sticky HTML tip (no mouseLeave clear) + user-select:all; e2e feat-047"
     }
   ]
 }
