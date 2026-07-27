@@ -107,6 +107,7 @@ export const ja: Messages = {
   "findings.threadLeakTitle": "ダンプ間のスレッドリーク（新規/サンプル {count}）",
   "findings.legendBtn": "凡例",
   "legend.close": "閉じる",
+  "legend.peerSample": "{shown} / {total} 件を表示",
   "legend.deadlockTitle": "デッドロック環 — 凡例",
   "legend.deadlockBody": "各スレッドが次のスレッドが保持するロックを待ち、待機エッジが閉ループになるため誰も進めません。",
   "legend.hotLockTitle": "最熱ロック — 凡例",

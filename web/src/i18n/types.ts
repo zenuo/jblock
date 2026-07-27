@@ -142,6 +142,7 @@ export type MessageKey =
   | "findings.livelockDetail"
   | "findings.legendBtn"
   | "legend.close"
+  | "legend.peerSample"
   | "legend.deadlockTitle"
   | "legend.deadlockBody"
   | "legend.hotLockTitle"

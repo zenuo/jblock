@@ -41,6 +41,11 @@ export interface FindingActors {
   waiters: FindingActor[];
   /** Contended lock id (short form for display). */
   lock: string | null;
+  /**
+   * Total peer threads represented by the finding (feat-047).
+   * Legend demos may sample ≤3 nodes but must show this total when larger.
+   */
+  peerTotal: number;
 }
 
 export interface Finding {
@@ -141,6 +146,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: d.edges[0]?.lock ?? null,
+          peerTotal: d.threads.length,
         },
       });
     }
@@ -160,6 +166,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "sync-io-hotspot") {
@@ -175,6 +182,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "dangerous-hot-lock-owner") {
@@ -193,6 +201,7 @@ export function buildFindings(
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: lockMatch?.[1] ?? null,
+          peerTotal: waiters.length,
         },
       });
     } else if (p.kind === "connection-pool-borrow") {
@@ -208,6 +217,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "future-latch-wait-tree") {
@@ -223,6 +233,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "logging-appender-contention") {
@@ -243,6 +254,7 @@ export function buildFindings(
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: "Appender",
+          peerTotal: waiters.length,
         },
       });
     } else if (p.kind === "busy-wait-spin-hotspot") {
@@ -258,6 +270,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "condition-park-starvation") {
@@ -273,6 +286,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: "Condition",
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "lock-order-inconsistency") {
@@ -288,6 +302,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "finalizer-pressure") {
@@ -317,6 +332,7 @@ export function buildFindings(
           owner: actorFor(analysis, ownerName),
           waiters: actorsForNames(analysis, waiters, 5),
           lock: "finalize",
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "sleep-as-scheduler") {
@@ -332,6 +348,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "framework-pool-saturation") {
@@ -347,6 +364,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "dns-resolution-stall") {
@@ -362,6 +380,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "thread-leak") {
@@ -377,6 +396,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     } else if (p.kind === "livelock") {
@@ -392,6 +412,7 @@ export function buildFindings(
           owner: null,
           waiters: [],
           lock: null,
+          peerTotal: p.thread_names.length,
         },
       });
     }
@@ -413,6 +434,7 @@ export function buildFindings(
         owner: actorFor(analysis, hot.owner_thread),
         waiters: actorsForNames(analysis, hot.waiters, 5),
         lock: hot.lock,
+        peerTotal: hot.waiters.length,
       },
     });
   }
@@ -435,6 +457,7 @@ export function buildFindings(
         owner: actorFor(analysis, firstOwner),
         waiters: [],
         lock: firstLock,
+        peerTotal: blockedNames.length,
       },
     });
   } else if (
@@ -463,6 +486,7 @@ export function buildFindings(
         owner: null,
         waiters: [],
         lock: null,
+        peerTotal: fallback.length,
       },
     });
   }

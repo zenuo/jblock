@@ -107,6 +107,7 @@ export const es: Messages = {
   "findings.threadLeakTitle": "Fuga de hilos entre dumps ({count} nuevos/muestra)",
   "findings.legendBtn": "Leyenda",
   "legend.close": "Cerrar",
+  "legend.peerSample": "Mostrando {shown} de {total}",
   "legend.deadlockTitle": "Ciclo de deadlock — leyenda",
   "legend.deadlockBody": "Cada hilo espera un lock sostenido por el siguiente. Las aristas de espera forman un ciclo cerrado, así que nadie puede avanzar.",
   "legend.hotLockTitle": "Lock más caliente — leyenda",

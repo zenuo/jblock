@@ -107,6 +107,7 @@ export const fr: Messages = {
   "findings.threadLeakTitle": "Fuite de threads entre dumps ({count} nouveaux/échantillon)",
   "findings.legendBtn": "Légende",
   "legend.close": "Fermer",
+  "legend.peerSample": "Affiche {shown} sur {total}",
   "legend.deadlockTitle": "Cycle de deadlock — légende",
   "legend.deadlockBody": "Chaque thread attend un verrou détenu par le suivant. Les arêtes d’attente forment un cycle fermé, personne ne peut avancer.",
   "legend.hotLockTitle": "Verrou le plus chaud — légende",

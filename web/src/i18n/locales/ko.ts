@@ -107,6 +107,7 @@ export const ko: Messages = {
   "findings.threadLeakTitle": "덤프 간 스레드 누수 (신규/샘플 {count})",
   "findings.legendBtn": "범례",
   "legend.close": "닫기",
+  "legend.peerSample": "{shown} / {total}개 표시",
   "legend.deadlockTitle": "데드락 사이클 — 범례",
   "legend.deadlockBody": "각 스레드가 다음 스레드가 보유한 락을 기다리며 대기 간선이 닫힌 사이클을 이뤄 아무도 진행할 수 없습니다.",
   "legend.hotLockTitle": "가장 뜨거운 락 — 범례",

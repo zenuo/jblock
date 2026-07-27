@@ -107,6 +107,7 @@ export const en: Messages = {
   "findings.threadLeakTitle": "Thread leak across dumps ({count} new/sample threads)",
   "findings.legendBtn": "Legend",
   "legend.close": "Close",
+  "legend.peerSample": "Showing {shown} of {total}",
   "legend.deadlockTitle": "Deadlock cycle — legend",
   "legend.deadlockBody": "Each thread waits for a lock held by the next. The wait-for edges form a closed cycle, so nobody can proceed.",
   "legend.hotLockTitle": "Hottest lock — legend",

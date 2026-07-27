@@ -1263,7 +1263,7 @@ th {
   background: linear-gradient(180deg, #f8fafc 0%, #f5f5f7 100%);
   padding: 0.65rem 0.75rem;
   margin-bottom: 0.85rem;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .legend-svg {
@@ -1271,6 +1271,86 @@ th {
   width: 100%;
   height: auto;
   max-height: 280px;
+  overflow: visible;
+}
+
+.legend-actor-fo {
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.legend-actor {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.25rem;
+  font-family: var(--font-sans, "Instrument Sans", system-ui, sans-serif);
+  line-height: 1.15;
+  cursor: default;
+}
+
+.legend-actor-short {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0f172a;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.legend-actor-class {
+  font-size: 8px;
+  font-weight: 600;
+  color: #64748b;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.legend-actor-tip {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  z-index: 20;
+  min-width: 12rem;
+  max-width: 22rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  text-align: left;
+}
+
+.legend-actor:hover .legend-actor-tip,
+.legend-actor:focus-within .legend-actor-tip {
+  display: block;
+}
+
+.legend-actor-fullname {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #0f172a;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  user-select: all;
+  -webkit-user-select: all;
 }
 
 .legend-key {

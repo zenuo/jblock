@@ -20,21 +20,39 @@ function shortLock(lock: string | null, max = 18): string {
 }
 
 /**
- * Shared fan layout for 96×44 thread cards (feat legend demos).
- * Centers are ≥140px apart so card edges keep ~44px of air instead of nearly touching.
+ * Peer / fan legend layouts (feat-047): show at most 3 equal peer nodes so a
+ * 4th lower card is not misread as a special role. Cycle layouts (deadlock)
+ * are excluded — those are sequential wait-for edges, not parallel peers.
+ *
+ * Peer demos: busy-wait, condition starvation, sync-I/O, pool exhaustion,
+ * connection-pool waiters, hot-lock waiters, blocked, clean (+ aliases that
+ * reuse those demos).
  */
+const PEER_SHOW = 3;
+
 const FAN = {
-  viewBox: "0 0 420 260",
+  viewBox: "0 0 420 240",
   cx: 210,
-  /** Top trio + lower hub (x, y of card centers). */
+  /** Three equal peer cards in one row (no closer “special” node). */
   nodes: [
-    [70, 58],
-    [210, 42],
-    [350, 58],
-    [210, 148],
+    [70, 70],
+    [210, 55],
+    [350, 70],
   ] as const,
-  hubY: 210,
+  hubY: 185,
 } as const;
+
+function peerSample(
+  actors: FindingActors,
+  from: "nodes" | "waiters" = "nodes",
+): { shown: FindingActor[]; total: number } {
+  const list =
+    from === "waiters" && actors.waiters.length > 0
+      ? actors.waiters
+      : actors.nodes;
+  const total = Math.max(actors.peerTotal || 0, list.length);
+  return { shown: list.slice(0, PEER_SHOW), total };
+}
 
 export default function PatternLegendModal({ finding, onClose }: Props) {
   const { t } = useI18n();
@@ -369,34 +387,62 @@ function ActorLabel({
   fallback,
   threadMax = 12,
   classMax = 14,
+  width = 96,
+  height = 44,
 }: {
   actor: FindingActor | null;
   fallback: string;
   threadMax?: number;
   classMax?: number;
+  width?: number;
+  height?: number;
 }) {
   const thread = actor?.thread ?? fallback;
   const cls = shortClassName(actor?.className ?? null, classMax);
-  const tip = [thread, actor?.className].filter(Boolean).join(" · ");
   return (
-    <>
-      <title>{tip}</title>
-      <text textAnchor="middle" dy="-2" fontSize="10" fontWeight="700">
-        {shortLabel(thread, threadMax)}
-      </text>
-      {cls ? (
-        <text
-          textAnchor="middle"
-          dy="11"
-          fontSize="8"
-          fontWeight="600"
-          fill="#64748b"
-          className="legend-class-label"
-        >
-          {cls}
-        </text>
-      ) : null}
-    </>
+    <foreignObject
+      x={-width / 2}
+      y={-height / 2}
+      width={width}
+      height={height}
+      className="legend-actor-fo"
+    >
+      <div className="legend-actor" data-testid="legend-actor">
+        <div className="legend-actor-short">{shortLabel(thread, threadMax)}</div>
+        {cls ? <div className="legend-actor-class">{cls}</div> : null}
+        <div className="legend-actor-tip" data-testid="legend-thread-fullname">
+          <code className="legend-actor-fullname">{thread}</code>
+        </div>
+      </div>
+    </foreignObject>
+  );
+}
+
+function PeerSampleNote({
+  shown,
+  total,
+  x,
+  y,
+}: {
+  shown: number;
+  total: number;
+  x: number;
+  y: number;
+}) {
+  const { t } = useI18n();
+  if (total <= PEER_SHOW || total <= shown) return null;
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      fontSize="10"
+      fontWeight="600"
+      fill="#64748b"
+      data-testid="legend-peer-total"
+    >
+      {t("legend.peerSample", { shown: Math.min(shown, PEER_SHOW), total })}
+    </text>
   );
 }
 
@@ -452,7 +498,12 @@ function DeadlockDemo({ actors }: { actors: FindingActors }) {
             style={{ animationDelay: `${i * 0.35}s` }}
           >
             <circle r="26" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
-            <ActorLabel actor={nodes[i]!} fallback={`T${i + 1}`} />
+            <ActorLabel
+              actor={nodes[i]!}
+              fallback={`T${i + 1}`}
+              width={52}
+              height={52}
+            />
           </g>
         </g>
       ))}
@@ -475,12 +526,17 @@ function DeadlockDemo({ actors }: { actors: FindingActors }) {
 function HotLockDemo({ actors }: { actors: FindingActors }) {
   // Only real dump thread names — never invent W1/W2/W3 placeholders.
   const ownerThread = actors.owner?.thread;
-  const waiters =
-    actors.waiters.length > 0
-      ? actors.waiters.slice(0, 3)
-      : actors.nodes
-          .filter((n) => n.thread !== ownerThread)
-          .slice(0, 3);
+  const fallbackWaiters = actors.nodes.filter((n) => n.thread !== ownerThread);
+  const source: FindingActors = {
+    ...actors,
+    waiters:
+      actors.waiters.length > 0 ? actors.waiters : fallbackWaiters,
+    peerTotal:
+      actors.waiters.length > 0
+        ? actors.peerTotal
+        : Math.max(actors.peerTotal, fallbackWaiters.length),
+  };
+  const { shown: waiters, total } = peerSample(source, "waiters");
   const positions = [
     [55, 185],
     [160, 210],
@@ -525,6 +581,8 @@ function HotLockDemo({ actors }: { actors: FindingActors }) {
           fallback="Owner"
           threadMax={11}
           classMax={13}
+          width={56}
+          height={56}
         />
       </g>
       <line
@@ -555,29 +613,40 @@ function HotLockDemo({ actors }: { actors: FindingActors }) {
                 style={{ animationDelay: `${i * 0.25}s` }}
               >
                 <circle r="26" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
-                <ActorLabel actor={w} fallback={w.thread} />
+                <ActorLabel
+                  actor={w}
+                  fallback={w.thread}
+                  width={52}
+                  height={52}
+                />
               </g>
             </g>
           </g>
         );
       })}
+      <PeerSampleNote shown={waiters.length} total={total} x={160} y={244} />
     </svg>
   );
 }
 
 function BlockedDemo({ actors }: { actors: FindingActors }) {
-  const blocked =
+  const source =
     actors.nodes.length > 0
-      ? actors.nodes.slice(0, 3)
-      : [
-          { thread: "blocked-1", className: null },
-          { thread: "blocked-2", className: null },
-          { thread: "blocked-3", className: null },
-        ];
+      ? actors
+      : {
+          ...actors,
+          nodes: [
+            { thread: "blocked-1", className: null },
+            { thread: "blocked-2", className: null },
+            { thread: "blocked-3", className: null },
+          ],
+          peerTotal: Math.max(actors.peerTotal, 3),
+        };
+  const { shown: blocked, total } = peerSample(source);
   const ys = [48, 105, 162];
 
   return (
-    <svg viewBox="0 0 340 220" className="legend-svg" aria-hidden="true">
+    <svg viewBox="0 0 340 240" className="legend-svg" aria-hidden="true">
       <defs>
         <marker
           id="arrow-blk"
@@ -609,7 +678,13 @@ function BlockedDemo({ actors }: { actors: FindingActors }) {
       </g>
       <g transform="translate(250 42)">
         <circle r="26" fill="#dcfce7" stroke="#22c55e" strokeWidth="2" />
-        <ActorLabel actor={actors.owner} fallback="Owner" threadMax={11} />
+        <ActorLabel
+          actor={actors.owner}
+          fallback="Owner"
+          threadMax={11}
+          width={52}
+          height={52}
+        />
       </g>
       <line
         x1="250"
@@ -648,12 +723,19 @@ function BlockedDemo({ actors }: { actors: FindingActors }) {
                   stroke="#ef4444"
                   strokeWidth="2"
                 />
-                <ActorLabel actor={b} fallback={`B${i + 1}`} threadMax={14} />
+                <ActorLabel
+                  actor={b}
+                  fallback={`B${i + 1}`}
+                  threadMax={14}
+                  width={116}
+                  height={44}
+                />
               </g>
             </g>
           </g>
         );
       })}
+      <PeerSampleNote shown={blocked.length} total={total} x={170} y={230} />
     </svg>
   );
 }
@@ -661,15 +743,24 @@ function BlockedDemo({ actors }: { actors: FindingActors }) {
 function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
   const nodes =
     actors.nodes.length > 0
-      ? actors.nodes.slice(0, 4)
+      ? actors.nodes
       : [
           { thread: "db-borrower-0", className: "HikariDataSource" },
           { thread: "db-borrower-1", className: "HikariDataSource" },
           { thread: "db-borrower-2", className: "HikariDataSource" },
           { thread: "pool-holder", className: null },
         ];
-  const waiters = nodes.slice(0, 3);
-  const holder = nodes[3] ?? { thread: "pool-holder", className: null };
+  const holder =
+    nodes.find((n) => /holder|pool/i.test(n.thread) && !/borrow/i.test(n.thread)) ??
+    nodes[nodes.length - 1] ??
+    { thread: "pool-holder", className: null };
+  const waiterActors = nodes.filter((n) => n.thread !== holder.thread);
+  const source: FindingActors = {
+    ...actors,
+    waiters: waiterActors,
+    peerTotal: Math.max(actors.peerTotal, waiterActors.length),
+  };
+  const { shown: waiters, total } = peerSample(source, "waiters");
   const waiterXs = [70, 210, 350] as const;
 
   return (
@@ -694,7 +785,7 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
       >
         ConnPool(1)
       </text>
-      <g transform={`translate(${FAN.cx} 120)`}>
+      <g transform={`translate(${FAN.cx} 110)`}>
         <g className="legend-float">
           <rect
             x="-48"
@@ -715,7 +806,7 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
           <g key={`${a.thread}-${i}`}>
             <line
               x1={x}
-              y1="200"
+              y1="185"
               x2={FAN.cx}
               y2="68"
               className="legend-edge-wait"
@@ -723,7 +814,7 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
               strokeWidth="2"
               strokeDasharray="5 4"
             />
-            <g transform={`translate(${x} 215)`}>
+            <g transform={`translate(${x} 200)`}>
               <g
                 className="legend-pulse"
                 style={{ animationDelay: `${i * 0.2}s` }}
@@ -738,32 +829,42 @@ function ConnectionPoolDemo({ actors }: { actors: FindingActors }) {
                   stroke="#ef4444"
                   strokeWidth="2"
                 />
-                <ActorLabel actor={a} fallback={`B${i}`} threadMax={10} />
+                <ActorLabel
+                  actor={a}
+                  fallback={`B${i}`}
+                  threadMax={10}
+                  height={36}
+                />
               </g>
             </g>
           </g>
         );
       })}
+      <PeerSampleNote shown={waiters.length} total={total} x={FAN.cx} y={232} />
     </svg>
   );
 }
 
 function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
-  const nodes =
+  const source =
     actors.nodes.length > 0
-      ? actors.nodes.slice(0, 4)
-      : [
-          { thread: "cond-waiter-0", className: "ConditionObject" },
-          { thread: "cond-waiter-1", className: "ConditionObject" },
-          { thread: "cond-waiter-2", className: "ConditionObject" },
-          { thread: "cond-waiter-3", className: "ConditionObject" },
-        ];
+      ? actors
+      : {
+          ...actors,
+          nodes: [
+            { thread: "cond-waiter-0", className: "ConditionObject" },
+            { thread: "cond-waiter-1", className: "ConditionObject" },
+            { thread: "cond-waiter-2", className: "ConditionObject" },
+          ],
+          peerTotal: Math.max(actors.peerTotal, 3),
+        };
+  const { shown: nodes, total } = peerSample(source);
 
   return (
     <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
       <rect
         x="155"
-        y="185"
+        y="160"
         width="110"
         height="40"
         rx="8"
@@ -774,7 +875,7 @@ function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
       />
       <text
         x={FAN.cx}
-        y="210"
+        y="185"
         textAnchor="middle"
         fontSize="10"
         fontWeight="700"
@@ -783,14 +884,14 @@ function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
         {shortLock(actors.lock ?? "Condition", 14)}
       </text>
       {nodes.map((a, i) => {
-        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 90];
+        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 70];
         return (
           <g key={`${a.thread}-${i}`}>
             <line
               x1={x}
               y1={y + 22}
               x2={FAN.cx}
-              y2="185"
+              y2="160"
               className="legend-edge-wait"
               stroke="#f59e0b"
               strokeWidth="2"
@@ -817,20 +918,25 @@ function ConditionStarvationDemo({ actors }: { actors: FindingActors }) {
           </g>
         );
       })}
+      <PeerSampleNote shown={nodes.length} total={total} x={FAN.cx} y={228} />
     </svg>
   );
 }
 
 function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
-  const nodes =
+  const source =
     actors.nodes.length > 0
-      ? actors.nodes.slice(0, 4)
-      : [
-          { thread: "spin-worker-0", className: "BusyWaitSpin" },
-          { thread: "spin-worker-1", className: "BusyWaitSpin" },
-          { thread: "spin-worker-2", className: "BusyWaitSpin" },
-          { thread: "spin-worker-3", className: "BusyWaitSpin" },
-        ];
+      ? actors
+      : {
+          ...actors,
+          nodes: [
+            { thread: "spin-worker-0", className: "BusyWaitSpin" },
+            { thread: "spin-worker-1", className: "BusyWaitSpin" },
+            { thread: "spin-worker-2", className: "BusyWaitSpin" },
+          ],
+          peerTotal: Math.max(actors.peerTotal, 3),
+        };
+  const { shown: nodes, total } = peerSample(source);
 
   return (
     <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
@@ -854,7 +960,7 @@ function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
         CPU spin
       </text>
       {nodes.map((a, i) => {
-        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 90];
+        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 70];
         return (
           <g key={`${a.thread}-${i}`}>
             <line
@@ -888,26 +994,31 @@ function BusyWaitSpinDemo({ actors }: { actors: FindingActors }) {
           </g>
         );
       })}
+      <PeerSampleNote shown={nodes.length} total={total} x={FAN.cx} y={228} />
     </svg>
   );
 }
 
 function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
-  const nodes =
+  const source =
     actors.nodes.length > 0
-      ? actors.nodes.slice(0, 4)
-      : [
-          { thread: "rpc-client-0", className: "SocketInputStream" },
-          { thread: "rpc-client-1", className: "SocketInputStream" },
-          { thread: "rpc-client-2", className: "SocketInputStream" },
-          { thread: "rpc-client-3", className: "SocketInputStream" },
-        ];
+      ? actors
+      : {
+          ...actors,
+          nodes: [
+            { thread: "rpc-client-0", className: "SocketInputStream" },
+            { thread: "rpc-client-1", className: "SocketInputStream" },
+            { thread: "rpc-client-2", className: "SocketInputStream" },
+          ],
+          peerTotal: Math.max(actors.peerTotal, 3),
+        };
+  const { shown: nodes, total } = peerSample(source);
 
   return (
     <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
       <rect
         x="160"
-        y="185"
+        y="160"
         width="100"
         height="36"
         rx="8"
@@ -917,7 +1028,7 @@ function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
       />
       <text
         x={FAN.cx}
-        y="207"
+        y="182"
         textAnchor="middle"
         fontSize="10"
         fontWeight="700"
@@ -926,14 +1037,14 @@ function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
         remote I/O
       </text>
       {nodes.map((a, i) => {
-        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 90];
+        const [x, y] = FAN.nodes[i] ?? [FAN.cx, 70];
         return (
           <g key={`${a.thread}-${i}`}>
             <line
               x1={x}
               y1={y + 22}
               x2={FAN.cx}
-              y2="185"
+              y2="160"
               className="legend-edge-wait"
               stroke="#f59e0b"
               strokeWidth="2"
@@ -960,20 +1071,25 @@ function SyncIoHotspotDemo({ actors }: { actors: FindingActors }) {
           </g>
         );
       })}
+      <PeerSampleNote shown={nodes.length} total={total} x={FAN.cx} y={228} />
     </svg>
   );
 }
 
 function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
-  const nodes =
+  const source =
     actors.nodes.length > 0
-      ? actors.nodes.slice(0, 4)
-      : [
-          { thread: "pool-1-thread-1", className: null },
-          { thread: "pool-1-thread-2", className: null },
-          { thread: "pool-1-thread-3", className: null },
-          { thread: "pool-1-thread-4", className: null },
-        ];
+      ? actors
+      : {
+          ...actors,
+          nodes: [
+            { thread: "pool-1-thread-1", className: null },
+            { thread: "pool-1-thread-2", className: null },
+            { thread: "pool-1-thread-3", className: null },
+          ],
+          peerTotal: Math.max(actors.peerTotal, 3),
+        };
+  const { shown: nodes, total } = peerSample(source);
 
   return (
     <svg viewBox={FAN.viewBox} className="legend-svg" aria-hidden="true">
@@ -981,7 +1097,7 @@ function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
         x="40"
         y="28"
         width="340"
-        height="200"
+        height="175"
         rx="12"
         fill="#eef2ff"
         stroke="#6366f1"
@@ -1002,7 +1118,7 @@ function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
         const [x, y] = FAN.nodes[i] ?? [FAN.cx, 110];
         const blocked = i > 0;
         return (
-          <g key={`${a.thread}-${i}`} transform={`translate(${x} ${y + 20})`}>
+          <g key={`${a.thread}-${i}`} transform={`translate(${x} ${y + 35})`}>
             <g
               className={blocked ? "legend-pulse" : "legend-float"}
               style={{ animationDelay: `${i * 0.2}s` }}
@@ -1022,19 +1138,25 @@ function PoolExhaustionDemo({ actors }: { actors: FindingActors }) {
           </g>
         );
       })}
+      <PeerSampleNote shown={nodes.length} total={total} x={FAN.cx} y={228} />
     </svg>
   );
 }
 
 function CleanDemo({ actors }: { actors: FindingActors }) {
-  const nodes =
+  const source =
     actors.nodes.length > 0
-      ? actors.nodes.slice(0, 3)
-      : [
-          { thread: "T1", className: null },
-          { thread: "T2", className: null },
-          { thread: "T3", className: null },
-        ];
+      ? actors
+      : {
+          ...actors,
+          nodes: [
+            { thread: "T1", className: null },
+            { thread: "T2", className: null },
+            { thread: "T3", className: null },
+          ],
+          peerTotal: Math.max(actors.peerTotal, 3),
+        };
+  const { shown: nodes, total } = peerSample(source);
   const positions = [
     [80, 100],
     [160, 65],
@@ -1042,7 +1164,7 @@ function CleanDemo({ actors }: { actors: FindingActors }) {
   ] as const;
 
   return (
-    <svg viewBox="0 0 320 220" className="legend-svg" aria-hidden="true">
+    <svg viewBox="0 0 320 230" className="legend-svg" aria-hidden="true">
       {nodes.map((a, i) => {
         const [x, y] = positions[i] ?? [160, 100];
         return (
@@ -1052,7 +1174,12 @@ function CleanDemo({ actors }: { actors: FindingActors }) {
               style={{ animationDelay: `${i * 0.35}s` }}
             >
               <circle r="30" fill="#dcfce7" stroke="#22c55e" strokeWidth="2" />
-              <ActorLabel actor={a} fallback={`T${i + 1}`} />
+              <ActorLabel
+                actor={a}
+                fallback={`T${i + 1}`}
+                width={60}
+                height={60}
+              />
             </g>
           </g>
         );
@@ -1070,6 +1197,8 @@ function CleanDemo({ actors }: { actors: FindingActors }) {
           />
         </g>
       </g>
+      <PeerSampleNote shown={nodes.length} total={total} x={160} y={218} />
     </svg>
   );
 }
+

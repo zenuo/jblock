@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-27T02:54:11.961Z",
+  "generated_at": "2026-07-27T03:06:38.148Z",
   "root": "/workspace",
   "summary": {
-    "total": 46,
-    "pass": 46,
+    "total": 47,
+    "pass": 47,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 89,
@@ -1453,6 +1453,34 @@
           "name": "static:ThreadInfo.stack typed as full stack",
           "ok": true,
           "detail": "ThreadInfo.stack typed as full stack"
+        }
+      ]
+    },
+    {
+      "id": "feat-047",
+      "name": "Legend peer sample of 3 + copyable names",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:peer legends capped + total caption",
+          "ok": true,
+          "detail": "peer legends capped + total caption"
+        },
+        {
+          "name": "static:FAN peer layout has 3 slots (want 3)",
+          "ok": true,
+          "detail": "FAN peer layout has 3 slots (want 3)"
+        },
+        {
+          "name": "static:hover tip with selectable full thread name",
+          "ok": true,
+          "detail": "hover tip with selectable full thread name"
+        },
+        {
+          "name": "static:peerTotal + peerSample i18n",
+          "ok": true,
+          "detail": "peerTotal + peerSample i18n"
         }
       ]
     }

@@ -779,6 +779,43 @@ FEATURE_CHECKS["feat-046"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-047"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains("web/src/PatternLegendModal.tsx", "PEER_SHOW") &&
+        contains("web/src/PatternLegendModal.tsx", "peerSample") &&
+        contains("web/src/PatternLegendModal.tsx", "legend-peer-total"),
+      detail: "peer legends capped + total caption",
+    }),
+    () => {
+      const text = readText("web/src/PatternLegendModal.tsx");
+      const fan = text.match(/const FAN = \{[\s\S]*?nodes:\s*\[([\s\S]*?)\]\s*as const/);
+      const coords = fan ? fan[1] : "";
+      const points = (coords.match(/\[[0-9]+,\s*[0-9]+\]/g) || []).length;
+      return {
+        ok: points === 3,
+        detail: `FAN peer layout has ${points} slots (want 3)`,
+      };
+    },
+    () => ({
+      ok:
+        contains("web/src/PatternLegendModal.tsx", "legend-thread-fullname") &&
+        contains("web/src/PatternLegendModal.tsx", "foreignObject") &&
+        contains("web/src/index.css", "user-select: all"),
+      detail: "hover tip with selectable full thread name",
+    }),
+    () => ({
+      ok:
+        contains("web/src/analysisUi.ts", "peerTotal") &&
+        contains("web/src/i18n/locales/en.ts", "legend.peerSample") &&
+        contains("web/src/i18n/locales/zh.ts", "legend.peerSample"),
+      detail: "peerTotal + peerSample i18n",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

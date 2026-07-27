@@ -107,6 +107,7 @@ export const pt: Messages = {
   "findings.threadLeakTitle": "Vazamento de threads entre dumps ({count} novas/amostra)",
   "findings.legendBtn": "Legenda",
   "legend.close": "Fechar",
+  "legend.peerSample": "Mostrando {shown} de {total}",
   "legend.deadlockTitle": "Ciclo de deadlock — legenda",
   "legend.deadlockBody": "Cada thread espera por um lock mantido pela próxima. As arestas de espera formam um ciclo fechado, então ninguém pode avançar.",
   "legend.hotLockTitle": "Lock mais quente — legenda",

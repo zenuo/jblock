@@ -2,20 +2,22 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 03:00
-**Active Feature:** stack preview horizontal overflow fix (main)
+**Last Updated:** 2026-07-27 03:15
+**Active Feature:** feat-047 Legend peer sample of 3 + copyable names (main)
 
 ## Status
 
 ### What's Done
 
-- [x] `.stack-preview` / cluster cards wrap long FQCN frames (`overflow-wrap: anywhere`)
-- [x] Cluster head sample-name line also wraps inside the card
-- [x] e2e feat-019 asserts wrap styles; lint/typecheck/e2e 46/46 PASS
+- [x] Inventory: peer/fan demos (busy-wait, condition, sync-io, pool, connection waiters, hot-lock waiters, blocked, clean); deadlock cycles excluded
+- [x] Cap peer nodes at 3; `PeerSampleNote` when `peerTotal > 3`
+- [x] Hover tip with `user-select: all` full thread name (foreignObject)
+- [x] `FindingActors.peerTotal` + i18n `legend.peerSample` (8 locales)
+- [x] feat-047 + e2e checks
 
 ### What's In Progress
 
-- [x] Commit + push main
+- [ ] Full `./init.sh` + push main
 
 ### What's Next
 
@@ -23,8 +25,9 @@
 
 ## Decisions Made
 
-- Prefer wrapping inside the card over horizontal scroll for stack frames (matches thread-table `cell-break` behavior).
+- 4th lower fan card was misread as a special role; equal peers stay in one row of 3.
+- Deadlock/future-latch/lock-order remain cycle layouts (not peer-capped).
 
 ## Evidence of Completion
 
-- `pnpm -C web run lint` + `typecheck` PASS; `node scripts/e2e-features.mjs --skip-web` **46/46 PASS**
+- Pending `./init.sh`

@@ -107,6 +107,7 @@ export const nl: Messages = {
   "findings.threadLeakTitle": "Thread leak over dumps ({count} nieuw/sample)",
   "findings.legendBtn": "Legenda",
   "legend.close": "Sluiten",
+  "legend.peerSample": "{shown} van {total} getoond",
   "legend.deadlockTitle": "Deadlock-cyclus — legenda",
   "legend.deadlockBody": "Elke thread wacht op een lock die de volgende vasthoudt. De wait-for-randen vormen een gesloten cyclus, dus niemand kan verder.",
   "legend.hotLockTitle": "Heetste lock — legenda",

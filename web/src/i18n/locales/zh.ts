@@ -107,6 +107,7 @@ export const zh: Messages = {
   "findings.threadLeakTitle": "跨转储线程泄漏（{count} 个新/样例线程）",
   "findings.legendBtn": "图例",
   "legend.close": "关闭",
+  "legend.peerSample": "显示 {shown} / {total} 个",
   "legend.deadlockTitle": "死锁环 — 图例演示",
   "legend.deadlockBody": "每个线程都在等待下一线程持有的锁，等待关系首尾相连形成闭环，因此谁也无法继续执行。",
   "legend.hotLockTitle": "最热锁 — 图例演示",

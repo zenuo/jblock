@@ -477,6 +477,16 @@
       ],
       "status": "done",
       "evidence": "parser drops MAX_STACK_FRAMES cap; cargo captures_full_stack_frames; Results stack-show-all expands beyond STACK_PREVIEW_FRAMES; e2e feat-046"
+    },
+    {
+      "id": "feat-047",
+      "name": "Legend peer sample of 3 + copyable names",
+      "description": "For peer/fan legend layouts (equal waiters/spinners/etc.), show at most 3 nodes so a closer 4th card is not misread as special; when peerTotal > 3 show a total caption. Hover a node to reveal the full thread name in a selectable tip for copy. Deadlock cycles stay sequential (not capped as peers).",
+      "dependencies": [
+        "feat-023"
+      ],
+      "status": "done",
+      "evidence": "PEER_SHOW=3 + peerSample/PeerSampleNote; FindingActors.peerTotal; ActorLabel foreignObject tip with user-select:all; e2e feat-047"
     }
   ]
 }
