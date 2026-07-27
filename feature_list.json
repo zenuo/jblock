@@ -574,6 +574,22 @@
         "pnpm lint/typecheck/build green; ./init.sh green; e2e FEATURE_CHECKS for feat-052"
       ],
       "evidence": "FindingActor.id; actorsForNames used-index set; legend-actor-id in PatternLegendModal tip; e2e feat-052"
+    },
+    {
+      "id": "feat-053",
+      "name": "Exported HTML report matches results width",
+      "description": "HTML export (.app.report) uses the same wider denser shell as the on-screen results workspace (.app.has-results): max-width 1440px and tighter horizontal padding, so exported pages are not stuck at the 980px home column.",
+      "dependencies": [
+        "feat-006",
+        "feat-051"
+      ],
+      "status": "done",
+      "acceptance": [
+        ".app.report shares max-width/padding with .app.has-results (1440px denser shell)",
+        "Export keeps class=\"app report\"; home empty state remains 980px",
+        "./init.sh green; e2e FEATURE_CHECKS for feat-053"
+      ],
+      "evidence": "index.css .app.report grouped with .app.has-results width/padding + panel density; e2e feat-053"
     }
   ]
 }

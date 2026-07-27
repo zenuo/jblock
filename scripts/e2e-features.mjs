@@ -966,6 +966,26 @@ FEATURE_CHECKS["feat-052"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-053"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains("web/src/index.css", ".app.has-results,") &&
+        contains("web/src/index.css", ".app.report") &&
+        contains("web/src/index.css", "1440px") &&
+        contains("web/src/export.ts", 'class="app report"'),
+      detail: "export .app.report shares 1440px denser shell with has-results",
+    }),
+    () => ({
+      ok:
+        contains("web/src/index.css", ".app.report .panel") &&
+        contains("web/src/index.css", "max-width: 980px"),
+      detail: "report panels denser; home shell stays 980px",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

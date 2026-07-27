@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-27T09:19:12.770Z",
+  "generated_at": "2026-07-27T09:53:54.847Z",
   "root": "/workspace",
   "summary": {
-    "total": 52,
-    "pass": 52,
+    "total": 53,
+    "pass": 53,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 93,
@@ -1646,6 +1646,24 @@
           "name": "static:legend hover tip shows Id={id}",
           "ok": true,
           "detail": "legend hover tip shows Id={id}"
+        }
+      ]
+    },
+    {
+      "id": "feat-053",
+      "name": "Exported HTML report matches results width",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:export .app.report shares 1440px denser shell with has-results",
+          "ok": true,
+          "detail": "export .app.report shares 1440px denser shell with has-results"
+        },
+        {
+          "name": "static:report panels denser; home shell stays 980px",
+          "ok": true,
+          "detail": "report panels denser; home shell stays 980px"
         }
       ]
     }
