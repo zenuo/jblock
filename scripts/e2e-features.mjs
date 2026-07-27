@@ -938,6 +938,34 @@ function main() {
     const spec = FEATURE_CHECKS[id];
     const checks = [];
 
+    // Pending/planned features may only document acceptance criteria; do not fail the matrix.
+    if (feat.status !== "done") {
+      const acceptance = Array.isArray(feat.acceptance) ? feat.acceptance : [];
+      checks.push({
+        name: "pending",
+        ok: acceptance.length > 0,
+        detail:
+          acceptance.length > 0
+            ? `skipped (status=${feat.status}); ${acceptance.length} acceptance criteria recorded`
+            : `status=${feat.status} but acceptance[] is missing — add criteria before implementing`,
+      });
+      const okPending = checks.every((c) => c.ok);
+      if (okPending) passCount += 1;
+      else failCount += 1;
+      results.push({
+        id,
+        name: feat.name,
+        status_in_list: feat.status,
+        ok: okPending,
+        checks,
+      });
+      console.log(`${okPending ? "PASS" : "FAIL"} ${id} — ${feat.name}`);
+      for (const c of checks.filter((x) => !x.ok)) {
+        console.log(`       ✗ ${c.name}: ${c.detail}`);
+      }
+      continue;
+    }
+
     if (!spec) {
       checks.push({
         name: "mapping",

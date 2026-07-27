@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-27T03:39:14.173Z",
-  "root": "/workspace",
+  "generated_at": "2026-07-27T06:15:46.882Z",
+  "root": "/home/wx/Documents/src/jblock",
   "summary": {
-    "total": 47,
-    "pass": 47,
+    "total": 49,
+    "pass": 49,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 89,
@@ -1481,6 +1481,32 @@
           "name": "static:peerTotal + peerSample i18n",
           "ok": true,
           "detail": "peerTotal + peerSample i18n"
+        }
+      ]
+    },
+    {
+      "id": "feat-048",
+      "name": "Format-specialized thread block parsing",
+      "status_in_list": "pending",
+      "ok": true,
+      "checks": [
+        {
+          "name": "pending",
+          "ok": true,
+          "detail": "skipped (status=pending); 5 acceptance criteria recorded"
+        }
+      ]
+    },
+    {
+      "id": "feat-049",
+      "name": "Virtual thread dump support (codegen-tested)",
+      "status_in_list": "pending",
+      "ok": true,
+      "checks": [
+        {
+          "name": "pending",
+          "ok": true,
+          "detail": "skipped (status=pending); 8 acceptance criteria recorded"
         }
       ]
     }

@@ -487,6 +487,44 @@
       ],
       "status": "done",
       "evidence": "PEER_SHOW=3 + peerSample/PeerSampleNote; FindingActors.peerTotal; sticky HTML tip (no mouseLeave clear) + user-select:all; e2e feat-047"
+    },
+    {
+      "id": "feat-048",
+      "name": "Format-specialized thread block parsing",
+      "description": "After detect_format, parse jstack vs ThreadMXBean dumps on separate code paths instead of dual-trying both dialects in extract_id / parse_block (regexes, id, state, locks, owned-by). Shared split_thread_blocks / extract_name / post-parse analysis stay common. Unknown keeps a documented best-effort fallback.",
+      "dependencies": [
+        "feat-002"
+      ],
+      "status": "pending",
+      "acceptance": [
+        "analyze() branches on DumpFormat into format-specific block parsers (e.g. parse_jstack_block / parse_mxbean_block); known-format paths do not compile or invoke the other dialect's lock/id regexes",
+        "No mxbean-then-jstack (or reverse) dual-try helper for id/locks when format is Jstack or ThreadMxBean; Unknown retains explicit fallback behavior documented in code",
+        "MXBean-only concerns (header BLOCKED on, owned by) live only on the MXBean path; jstack path only uses <0x…> monitor lines + java.lang.Thread.State",
+        "Regression: cargo tests detects_jstack_format, detects_mxbean_format, detects_mxbean_format_lock_contentions, detects_mxbean_format_lock_contentions_real_world, detects_java_version_support, parses_real_world_deadlock_dump still pass",
+        "cargo test --lib green; ./init.sh green; e2e FEATURE_CHECKS for feat-048 map the regression tests above plus static asserts that format-specific parse functions exist and dual-try extract_id is gone"
+      ],
+      "evidence": ""
+    },
+    {
+      "id": "feat-049",
+      "name": "Virtual thread dump support (codegen-tested)",
+      "description": "Support JDK 21+ virtual threads: parse jcmd Thread.dump_to_file JSON (primary) into ThreadInfo with platform/virtual/carrier kind; optionally link HotSpot Thread.print Carrying/Mounted virtual thread sections. Prove parsing with a codegen Scenario that creates virtual threads, live capture (JDK 21+) unit tests, and an offline fixture for CI without a local JDK.",
+      "dependencies": [
+        "feat-002",
+        "feat-027"
+      ],
+      "status": "pending",
+      "acceptance": [
+        "New DumpFormat variant for Thread.dump_to_file JSON (name e.g. thread-dump-json); detect_format classifies a representative JSON dump; web/src/types.ts DumpFormat stays in sync",
+        "ThreadInfo (or adjacent fields) expose thread kind platform|virtual|carrier and optional carrier/mounted id links; serde/WASM surface includes them",
+        "Parser accepts dump_to_file JSON: extracts name, id, state, stack for both platform and virtual threads; analyze() returns format + non-zero virtual threads on the fixture",
+        "Optional but preferred: HotSpot jstack/Thread.print text with Carrying virtual thread #N / Mounted virtual thread #N yields linked carrier + mounted ThreadInfo entries",
+        "codegen Scenario (e.g. VirtualThreadPin or VirtualThreadBlock) generates Java that starts multiple virtual threads in a stable blocked/mounted state suitable for dumping",
+        "Unit test via capture harness: if JDK 21+ tools available, generate → jcmd Thread.dump_to_file -format=json (or documented capture helper) → analyze asserts DumpFormat + at least one virtual thread; skip cleanly when JDK unavailable",
+        "Offline fixture under tests/fixtures/ (checked in) so cargo test passes without JDK; optional JBLOCK_UPDATE_FIXTURES refresh path like other pattern fixtures",
+        "cargo test --lib green; ./init.sh green; e2e FEATURE_CHECKS map the new cargo test(s) + static checks for DumpFormat/ThreadInfo kind + Scenario + fixture path"
+      ],
+      "evidence": ""
     }
   ]
 }

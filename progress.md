@@ -2,31 +2,33 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 13:20
-**Active Feature:** docs — work directly on `main` (branching policy)
+**Last Updated:** 2026-07-27 14:15
+**Active Feature:** feat-048 / feat-049 (pending — acceptance only)
 
 ## Status
 
 ### What's Done
 
-- [x] Diagnosed why “直接在 main 上改” never took effect: AGENTS.md had trunk-based + short-lived PR wording, and explicitly told Cloud agents to keep using `cursor/...` branches
-- [x] Rewrote `AGENTS.md` Branching Model: default commit/push on `main`; no auto-branch / no default PR unless human asks
+- [x] Added **feat-048** Format-specialized thread block parsing (`pending`) with `acceptance[]`
+- [x] Added **feat-049** Virtual thread dump support (codegen-tested) (`pending`) with `acceptance[]`
+- [x] e2e matrix skips non-`done` features when `acceptance[]` is present (keeps `./init.sh` green)
 
 ### What's In Progress
 
-- [ ] Confirm `./init.sh` still green after docs-only change
+- [ ] Implement feat-048 or feat-049 (not started)
 
 ### What's Next
 
-1. Commit when asked (docs-only)
-2. Note: Cursor Cloud system defaults may still try to open `cursor/...` branches; AGENTS.md now explicitly overrides that habit for this repo
+1. **feat-048**: branch `analyze` on `DumpFormat` into jstack vs MXBean block parsers; remove dual-try `extract_id` / dual lock regexes on known formats
+2. **feat-049**: JSON `Thread.dump_to_file` parser + codegen Scenario + live/fixture cargo tests (independent of feat-048; nicer after it)
 
 ## Decisions Made
 
-- Prefer direct-on-`main` over short-lived feature branches for this solo/trunk workflow.
-- Branches/PRs only when the human explicitly requests them.
+- Two features are independent: feat-049 depends on feat-002 + feat-027 only (not on feat-048)
+- Acceptance criteria live in `feature_list.json` `acceptance` arrays; evidence stays empty until done
+- Pending features must record non-empty `acceptance[]` or e2e fails that entry
 
 ## Evidence of Completion
 
-- `AGENTS.md` Branching Model section replaced (Work on `main`)
-- Baseline: `./init.sh` (running / pending)
+- `feature_list.json`: feat-048, feat-049 `status: pending` + acceptance checklists
+- `scripts/e2e-features.mjs`: pending-feature skip path
