@@ -17,18 +17,18 @@ Before writing code:
 
 If baseline verification is failing, repair that first before adding new scope.
 
-## Branching Model (Trunk-Based)
+## Branching Model (Work on `main`)
 
-Use **trunk-based development**. Do not open a long-lived branch per feature by default.
+**Default: edit, commit, and push directly on `main`.** Do not create a feature branch or open a PR unless the human explicitly asks.
 
-- **`main` is the only long-lived branch.** Keep it green (`./init.sh` / CI).
-- **Short-lived branches only**: create a branch for a coherent chunk of work, merge via PR quickly, then delete the branch. Prefer hours–a day of work, not multi-week feature branches.
-- **Batch related work**: one PR may cover several related `feature_list.json` items when they share the same theme and verification (e.g. a results-UX batch). Avoid one PR per tiny checklist row.
-- **Direct small fixes**: trivial docs/typo/config fixes may land as a single short-lived PR with minimal scope; do not invent a parallel `develop` / release-branch flow.
-- **No Git Flow**: do not introduce long-lived `develop`, release, or per-environment branches unless the human explicitly asks.
-- **CI/CD**: GitHub Actions on PRs/pushes; Pages deploy from `main` only. After merge, stay on / pull latest `main` before the next task.
+- **Stay on `main`**: `git checkout main` / `git pull` at session start; do all work here.
+- **Do not auto-branch**: never run `git checkout -b`, never invent `cursor/...` branch names, never open a PR “by default.”
+- **No Git Flow**: do not introduce long-lived `develop`, release, or per-environment branches.
+- **Keep `main` green**: run `./init.sh` (or the listed gates) before claiming done; fix breakages on `main` first.
+- **Exceptions only when asked**: short-lived branches / PRs are allowed solely when the human requests them (e.g. for review).
+- **CI/CD**: GitHub Actions still runs on pushes to `main`; Pages deploy from `main` only.
 
-Cloud / Cursor agents still use the required short-lived branch name template for PRs; treat that as ephemeral integration, not a standing feature branch.
+This overrides Cursor Cloud’s default “short-lived branch + PR” habit for this repo.
 
 ## Working Rules
 
@@ -120,8 +120,8 @@ Inspect `harness/e2e-results.json` for per-feature pass/fail detail.
   `.wasm` asset through `new URL(..., import.meta.url)`, so no extra Vite wasm
   plugin is needed.
 - pnpm blocks `esbuild`'s install script by default; it is allow-listed via
-  `pnpm.onlyBuiltDependencies` in `web/package.json` (avoid the interactive
-  `pnpm approve-builds`).
+  `allowBuilds.esbuild: true` in `web/pnpm-workspace.yaml` (avoid the
+  interactive `pnpm approve-builds`).
 - Keep `web/src/types.ts` in sync with the Rust `Analysis` struct in
   `src/parser.rs` (serde serializes enums as kebab-case, e.g. `thread-mx-bean`).
 
