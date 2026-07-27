@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27 02:45
+**Last Updated:** 2026-07-27 02:50
 **Active Feature:** feat-046 Full thread stack frames (main)
 
 ## Status
@@ -12,10 +12,11 @@
 - [x] Parser retains full stack (removed `MAX_STACK_FRAMES`)
 - [x] UI preview (12) + clickable "… N more" to reveal entire stack
 - [x] `feat-046` + e2e checks + `captures_full_stack_frames` cargo test
+- [x] `./init.sh` green (46/46 features, 89 cargo tests)
 
 ### What's In Progress
 
-- [ ] Full `./init.sh` verification
+- [x] Commit + push to main
 
 ### What's Next
 
@@ -27,4 +28,4 @@
 
 ## Evidence of Completion
 
-- Pending `./init.sh`
+- `./init.sh`: cargo 89/89; web lint/typecheck/build; e2e **46/46 PASS** (incl. feat-046)
