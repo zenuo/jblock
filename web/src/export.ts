@@ -40,14 +40,41 @@ export function buildReportHtml(
     <section class="panel findings">
       <div class="findings-header">
         <h2>${escapeHtml(t("findings.title"))}</h2>
-        <span class="meta mono">${escapeHtml(
-          t("findings.meta", {
-            count: analysis.total_threads,
-            format: analysis.format,
-          }),
-        )}</span>
+        <div class="findings-header-meta">
+          <span class="meta mono">${escapeHtml(
+            t("findings.meta", {
+              count: analysis.total_threads,
+              format: analysis.format,
+            }),
+          )}</span>
+          ${
+            analysis.java_version
+              ? `<span class="java-version-badge">${escapeHtml(
+                  t("findings.javaVersion", {
+                    version: analysis.java_version,
+                  }),
+                )}</span>`
+              : ""
+          }
+        </div>
       </div>
-      <ul class="findings-list">
+      ${
+        findings.length === 0
+          ? `<div class="finding finding-ok"><div class="finding-row"><strong><span class="finding-ok-mark" aria-hidden="true">✅</span>${escapeHtml(
+              t("findings.okTitle"),
+            )}</strong></div><span class="mono">${escapeHtml(
+              analysis.java_version
+                ? t("findings.okDetailWithJava", {
+                    version: analysis.java_version,
+                    count: analysis.total_threads,
+                    format: analysis.format,
+                  })
+                : t("findings.okDetail", {
+                    count: analysis.total_threads,
+                    format: analysis.format,
+                  }),
+            )}</span></div>`
+          : `<ul class="findings-list">
         ${findings
           .map(
             (f) =>
@@ -56,7 +83,8 @@ export function buildReportHtml(
               )}</strong><span class="mono">${escapeHtml(f.detail)}</span></li>`,
           )
           .join("")}
-      </ul>
+      </ul>`
+      }
     </section>`;
 
   const deadlockPanel =

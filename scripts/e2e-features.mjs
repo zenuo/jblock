@@ -1004,6 +1004,43 @@ FEATURE_CHECKS["feat-054"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-055"] = {
+  cargo: ["detects_java_version_field", "detects_java_version_support"],
+  static: [
+    () => ({
+      ok:
+        contains("src/parser.rs", "fn detect_java_version") &&
+        contains("src/parser.rs", "java_version") &&
+        contains("web/src/types.ts", "java_version"),
+      detail: "Analysis.java_version on Rust + TS",
+    }),
+    () => ({
+      ok:
+        contains("web/src/Results.tsx", "findings-java-version") &&
+        contains("web/src/Results.tsx", "java-version-badge") &&
+        contains("web/src/index.css", ".java-version-badge"),
+      detail: "Findings header Java version badge",
+    }),
+    () => ({
+      ok:
+        contains("web/src/Results.tsx", "findings-ok") &&
+        contains("web/src/Results.tsx", "finding-ok") &&
+        contains("web/src/Results.tsx", "✅") &&
+        contains("web/src/Results.tsx", "findings.okTitle") &&
+        contains("web/src/index.css", ".finding-ok"),
+      detail: "green ✅ empty state when no problem findings",
+    }),
+    () => ({
+      ok:
+        contains("web/src/export.ts", "java-version-badge") &&
+        contains("web/src/export.ts", "finding-ok") &&
+        contains("web/src/i18n/locales/en.ts", "findings.javaVersion") &&
+        contains("web/src/i18n/locales/zh.ts", "findings.okTitle"),
+      detail: "HTML export + i18n for version/ok state",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

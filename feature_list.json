@@ -606,6 +606,24 @@
         "./init.sh green; e2e FEATURE_CHECKS for feat-054"
       ],
       "evidence": "analysisUi.buildFindings omits clean placeholder; e2e feat-054"
+    },
+    {
+      "id": "feat-055",
+      "name": "Findings Java version + green OK empty state",
+      "description": "Parse Java/JDK version from dumps (jstack header, module frames, JSON runtimeVersion) into Analysis.java_version. Findings header shows a compact Java version badge. When there are no problem findings, show a green ✅ empty-state row (Apple-level Minimal + Badge/Empty state patterns).",
+      "dependencies": [
+        "feat-054",
+        "feat-008"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Analysis.java_version on Rust + web/src/types.ts; detect_java_version recovers 8/11/17/21 fixtures and JSON runtimeVersion",
+        "Findings header renders java-version-badge when version is known",
+        "When findings.length === 0, Results shows finding-ok with ✅ and okTitle (not the old cleanTitle placeholder)",
+        "HTML export mirrors badge + OK empty state; 8-locale i18n keys findings.javaVersion/okTitle/okDetail*",
+        "./init.sh green; e2e FEATURE_CHECKS for feat-055"
+      ],
+      "evidence": "parser detect_java_version + Analysis.java_version; Results/export badge + finding-ok; e2e feat-055"
     }
   ]
 }

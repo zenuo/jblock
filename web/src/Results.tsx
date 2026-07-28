@@ -161,31 +161,66 @@ export default function Results({ analysis }: Props) {
       <section className="panel findings" data-testid="findings">
         <div className="findings-header">
           <h2>{t("findings.title")}</h2>
-          <span className="meta mono">
-            {t("findings.meta", {
-              count: analysis.total_threads,
-              format: analysis.format,
-            })}
-          </span>
+          <div className="findings-header-meta">
+            <span className="meta mono">
+              {t("findings.meta", {
+                count: analysis.total_threads,
+                format: analysis.format,
+              })}
+            </span>
+            {analysis.java_version && (
+              <span
+                className="java-version-badge"
+                data-testid="findings-java-version"
+              >
+                {t("findings.javaVersion", { version: analysis.java_version })}
+              </span>
+            )}
+          </div>
         </div>
-        <ul className="findings-list">
-          {findings.map((f, i) => (
-            <li key={i} className={`finding finding-${f.severity}`}>
-              <div className="finding-row">
-                <strong>{f.title}</strong>
-                <button
-                  type="button"
-                  className="btn finding-legend-btn"
-                  data-testid={`legend-btn-${f.kind}`}
-                  onClick={() => setLegendFinding(f)}
-                >
-                  {t("findings.legendBtn")}
-                </button>
-              </div>
-              <span className="mono">{f.detail}</span>
-            </li>
-          ))}
-        </ul>
+        {findings.length === 0 ? (
+          <div className="finding finding-ok" data-testid="findings-ok">
+            <div className="finding-row">
+              <strong>
+                <span className="finding-ok-mark" aria-hidden="true">
+                  ✅
+                </span>
+                {t("findings.okTitle")}
+              </strong>
+            </div>
+            <span className="mono">
+              {analysis.java_version
+                ? t("findings.okDetailWithJava", {
+                    version: analysis.java_version,
+                    count: analysis.total_threads,
+                    format: analysis.format,
+                  })
+                : t("findings.okDetail", {
+                    count: analysis.total_threads,
+                    format: analysis.format,
+                  })}
+            </span>
+          </div>
+        ) : (
+          <ul className="findings-list">
+            {findings.map((f, i) => (
+              <li key={i} className={`finding finding-${f.severity}`}>
+                <div className="finding-row">
+                  <strong>{f.title}</strong>
+                  <button
+                    type="button"
+                    className="btn finding-legend-btn"
+                    data-testid={`legend-btn-${f.kind}`}
+                    onClick={() => setLegendFinding(f)}
+                  >
+                    {t("findings.legendBtn")}
+                  </button>
+                </div>
+                <span className="mono">{f.detail}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {legendFinding && (

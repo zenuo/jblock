@@ -1185,9 +1185,50 @@ th {
   margin: 0;
 }
 
+.findings-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .findings .meta {
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+/* Badge: compact version label (ui-design-brain Badge — not a pill cluster). */
+.java-version-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1d1d1f;
+  background: rgba(0, 113, 227, 0.08);
+  border: 1px solid rgba(0, 113, 227, 0.16);
+}
+
+/* Empty state when dump has no problem findings (feat-055). */
+.finding-ok {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.finding-ok strong {
+  color: #166534;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.finding-ok-mark {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .dump-series {

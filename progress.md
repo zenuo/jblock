@@ -2,17 +2,18 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-28 05:50
-**Active Feature:** feat-054 (done)
+**Last Updated:** 2026-07-28 06:55
+**Active Feature:** feat-055 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] **feat-054** Hide clean Findings placeholder
-  - `buildFindings` no longer pushes `kind: "clean"` / "No lock contention or deadlock detected"
-  - Findings header meta (thread count · format) still shown; list empty when dump is clean
-  - Problem findings unchanged
+- [x] **feat-055** Findings Java version + green OK empty state
+  - Parser `detect_java_version` → `Analysis.java_version` (jstack header, module frames, JSON `runtimeVersion`; HotSpot 25.x → Java 8)
+  - Findings header: compact `java-version-badge` (Badge pattern)
+  - No problem findings: green `finding-ok` empty state with ✅ (Empty state pattern, Apple-level Minimal greens)
+  - HTML export + 8-locale i18n
 
 ### What's In Progress
 
@@ -24,14 +25,16 @@
 
 ## Decisions Made
 
-- Keep Findings panel shell + meta even when the list is empty (meta already replaces cleanDetail)
-- Leave `FindingKind` `"clean"` and legend `CleanDemo` in place for PatternLegendModal; only stop emitting the finding
+- Store full short version string (`21.0.11`, `8`) rather than major-only
+- Keep version badge in header even when problem findings exist (metadata, not status)
+- Green tint reserved for the OK empty state only
+- Classic HotSpot `25.xxx` minors ≥100 map to Java 8
 
 ## Evidence of Completion
 
 ```text
 $ ./init.sh
-cargo test: 93 passed
+cargo test: 94 passed
 pnpm lint/typecheck/build: green
-e2e: Summary: 54/54 features PASS
+e2e: Summary: 55/55 features PASS
 ```

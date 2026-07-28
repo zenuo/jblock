@@ -150,6 +150,9 @@ pub struct Analysis {
     pub deadlocks: Vec<Deadlock>,
     /// Higher-level patterns (pool exhaustion, I/O hotspots, …).
     pub patterns: Vec<PatternHit>,
+    /// Parsed JDK/JRE version when recoverable from the dump (feat-055).
+    /// Examples: `"21.0.11"`, `"11.0.31"`, `"8"`. `None` when unknown.
+    pub java_version: Option<String>,
 }
 
 /// Result of analyzing an ordered series of dumps (feat-041).
@@ -173,6 +176,83 @@ fn detect_format(input: &str) -> DumpFormat {
     } else {
         DumpFormat::Unknown
     }
+}
+
+/// Extract a displayable Java version from dump text (feat-055).
+///
+/// Prefer explicit signals in this order:
+/// 1. JSON `runtimeVersion` (`Thread.dump_to_file -format=json`)
+/// 2. jstack `Full thread dump … VM (VERSION …)` header
+/// 3. Module frame tags such as `java.base@21.0.2/`
+///
+/// Classic HotSpot builds (`25.492-b09`) map to Java 8 (VM major 25).
+fn detect_java_version(input: &str) -> Option<String> {
+    if let Some(v) = extract_json_runtime_version(input) {
+        return Some(v);
+    }
+    if let Some(v) = extract_jstack_header_version(input) {
+        return Some(v);
+    }
+    extract_module_frame_version(input)
+}
+
+fn extract_json_runtime_version(input: &str) -> Option<String> {
+    let re = Regex::new(r#""runtimeVersion"\s*:\s*"([^"]+)""#).ok()?;
+    let caps = re.captures(input)?;
+    normalize_version_token(caps.get(1)?.as_str())
+}
+
+fn extract_jstack_header_version(input: &str) -> Option<String> {
+    // Full thread dump OpenJDK 64-Bit Server VM (21.0.11+10-LTS mixed mode, sharing):
+    // Full thread dump OpenJDK 64-Bit Server VM (25.492-b09 mixed mode):
+    let re = Regex::new(r"Full thread dump[^\n]*\(([^\s)]+)").ok()?;
+    let caps = re.captures(input)?;
+    normalize_version_token(caps.get(1)?.as_str())
+}
+
+fn extract_module_frame_version(input: &str) -> Option<String> {
+    // java.base@11.0.31/…  or  java.management@11.0.31/…
+    let re = Regex::new(r"\b(?:java|jdk)\.[\w.]+@(\d+(?:\.\d+){0,3})\b").ok()?;
+    let caps = re.captures(input)?;
+    normalize_version_token(caps.get(1)?.as_str())
+}
+
+/// Normalize a raw version token into a short display string.
+fn normalize_version_token(raw: &str) -> Option<String> {
+    let trimmed = raw.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    // Drop build metadata: "21.0.11+10-LTS" → "21.0.11", "25.492-b09" → "25.492"
+    let base = trimmed
+        .split_once('+')
+        .map(|(a, _)| a)
+        .unwrap_or(trimmed);
+    let base = base.split_once('-').map(|(a, _)| a).unwrap_or(base);
+    let parts: Vec<&str> = base.split('.').collect();
+    if parts.is_empty() {
+        return None;
+    }
+    let major: u32 = parts[0].parse().ok()?;
+    // Classic HotSpot VM majors 23–25 used large minor build numbers (Java 6–8).
+    if (23..=25).contains(&major) {
+        if let Some(minor_s) = parts.get(1) {
+            if let Ok(minor) = minor_s.parse::<u32>() {
+                if minor >= 100 {
+                    let java = match major {
+                        25 => 8,
+                        24 => 7,
+                        23 => 6,
+                        _ => unreachable!(),
+                    };
+                    return Some(java.to_string());
+                }
+            }
+        }
+    }
+    // Prefer major.minor.patch when present; otherwise major.minor or major.
+    let keep = parts.len().min(3);
+    Some(parts[..keep].join("."))
 }
 
 /// Decide whether a line begins a real thread stack entry.
@@ -750,6 +830,7 @@ pub fn analyze(input: &str) -> Analysis {
 
     let deadlocks = detect_deadlocks(&threads, &lock_owner);
     let patterns = detect_patterns(&threads);
+    let java_version = detect_java_version(input);
 
     Analysis {
         format,
@@ -759,6 +840,7 @@ pub fn analyze(input: &str) -> Analysis {
         blocked_edges,
         deadlocks,
         patterns,
+        java_version,
     }
 }
 
@@ -2490,6 +2572,15 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
             // --- jstack lock contention ---
             let a = analyze(JV_JSTACK_CONTENTION[i]);
             assert_eq!(a.format, DumpFormat::Jstack, "java{label} jstack format");
+            // feat-055: version recovered from header / module frames
+            let ver = a
+                .java_version
+                .as_deref()
+                .unwrap_or_else(|| panic!("java{label} jstack: missing java_version"));
+            assert!(
+                ver.starts_with(label) || ver == *label,
+                "java{label} jstack: unexpected java_version {ver}"
+            );
             let holder = a
                 .threads
                 .iter()
@@ -2584,7 +2675,39 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
             for edge in edges {
                 assert_eq!(edge.owner_thread.as_deref(), Some("holder"));
             }
+            // Java 8 MXBean dumps lack module/@version frames; 11+ should recover.
+            if *label != "8" {
+                let ver = m
+                    .java_version
+                    .as_deref()
+                    .unwrap_or_else(|| panic!("java{label} mxbean: missing java_version"));
+                assert!(
+                    ver.starts_with(label) || ver == *label,
+                    "java{label} mxbean: unexpected java_version {ver}"
+                );
+            }
         }
+    }
+
+    #[test]
+    fn detects_java_version_field() {
+        let j21 = analyze(include_str!(
+            "../tests/fixtures/java-versions/java21-jstack-contention.txt"
+        ));
+        assert_eq!(j21.java_version.as_deref(), Some("21.0.11"));
+
+        let j8 = analyze(include_str!(
+            "../tests/fixtures/java-versions/java8-jstack-contention.txt"
+        ));
+        assert_eq!(j8.java_version.as_deref(), Some("8"));
+
+        let json = analyze(include_str!(
+            "../tests/fixtures/virtual-threads/dump_to_file.json"
+        ));
+        assert_eq!(json.java_version.as_deref(), Some("21.0.10"));
+
+        let sample = analyze(include_str!("../web/src/sample.tdump"));
+        assert_eq!(sample.java_version.as_deref(), Some("21.0.2"));
     }
 
     // feat-009: excerpt from a real Flink/Kafka ThreadMXBean dump (tdump_15c7).

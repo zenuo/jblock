@@ -74,6 +74,8 @@ export interface Analysis {
   blocked_edges: BlockedEdge[];
   deadlocks: Deadlock[];
   patterns: PatternHit[];
+  /** Parsed JDK version when recoverable (feat-055), e.g. "21.0.2" or "8". */
+  java_version: string | null;
 }
 
 /** Ordered multi-dump analysis with cross-dump patterns (feat-041). */

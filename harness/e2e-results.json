@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-07-28T05:51:57.266Z",
+  "generated_at": "2026-07-28T06:57:59.503Z",
   "root": "/workspace",
   "summary": {
-    "total": 54,
-    "pass": 54,
+    "total": 55,
+    "pass": 55,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 93,
+    "cargo_passed": 94,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -1682,6 +1682,44 @@
           "name": "static:feat-054 note + Findings list still rendered",
           "ok": true,
           "detail": "feat-054 note + Findings list still rendered"
+        }
+      ]
+    },
+    {
+      "id": "feat-055",
+      "name": "Findings Java version + green OK empty state",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:detects_java_version_field",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_java_version_field"
+        },
+        {
+          "name": "cargo:detects_java_version_support",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_java_version_support"
+        },
+        {
+          "name": "static:Analysis.java_version on Rust + TS",
+          "ok": true,
+          "detail": "Analysis.java_version on Rust + TS"
+        },
+        {
+          "name": "static:Findings header Java version badge",
+          "ok": true,
+          "detail": "Findings header Java version badge"
+        },
+        {
+          "name": "static:green ✅ empty state when no problem findings",
+          "ok": true,
+          "detail": "green ✅ empty state when no problem findings"
+        },
+        {
+          "name": "static:HTML export + i18n for version/ok state",
+          "ok": true,
+          "detail": "HTML export + i18n for version/ok state"
         }
       ]
     }
