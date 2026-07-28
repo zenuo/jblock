@@ -986,6 +986,24 @@ FEATURE_CHECKS["feat-053"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-054"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        !contains("web/src/analysisUi.ts", 'kind: "clean"') &&
+        !contains("web/src/analysisUi.ts", "findings.cleanTitle"),
+      detail: "buildFindings no longer emits clean finding",
+    }),
+    () => ({
+      ok:
+        contains("web/src/analysisUi.ts", "feat-054") &&
+        contains("web/src/Results.tsx", "findings-list"),
+      detail: "feat-054 note + Findings list still rendered",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

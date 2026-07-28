@@ -482,36 +482,9 @@ export function buildFindings(
         peerTotal: blockedNames.length,
       },
     });
-  } else if (
-    analysis.deadlocks.length === 0 &&
-    groups.length === 0 &&
-    (analysis.patterns?.length ?? 0) === 0
-  ) {
-    const sample = analysis.threads
-      .filter((th) => !isJvmNoise(th.name))
-      .slice(0, 3)
-      .map((th) => th.name);
-    const fallback =
-      sample.length > 0
-        ? sample
-        : analysis.threads.slice(0, 3).map((th) => th.name);
-    findings.push({
-      severity: "info",
-      kind: "clean",
-      title: t("findings.cleanTitle"),
-      detail: t("findings.cleanDetail", {
-        count: analysis.total_threads,
-        format: analysis.format,
-      }),
-      actors: {
-        nodes: actorsForNames(analysis, fallback, 3),
-        owner: null,
-        waiters: [],
-        lock: null,
-        peerTotal: fallback.length,
-      },
-    });
   }
+  // feat-054: do not emit a "clean" / "No lock contention or deadlock detected"
+  // placeholder when nothing is wrong — Findings stays empty (header meta remains).
 
   return findings;
 }

@@ -590,6 +590,22 @@
         "./init.sh green; e2e FEATURE_CHECKS for feat-053"
       ],
       "evidence": "index.css .app.report grouped with .app.has-results width/padding + panel density; e2e feat-053"
+    },
+    {
+      "id": "feat-054",
+      "name": "Hide clean finding when no issues",
+      "description": "On the analysis results Findings panel, do not show the placeholder 'No lock contention or deadlock detected' (kind=clean) when the dump has no deadlocks, contention, or other patterns. Keep the Findings header meta (thread count · format).",
+      "dependencies": [
+        "feat-013"
+      ],
+      "status": "done",
+      "acceptance": [
+        "buildFindings does not push a finding with kind \"clean\" / findings.cleanTitle",
+        "When dump has no deadlocks/contention/patterns, Findings list is empty (header meta still shown)",
+        "Real problem findings (deadlock, hot-lock, blocked, patterns) still appear",
+        "./init.sh green; e2e FEATURE_CHECKS for feat-054"
+      ],
+      "evidence": "analysisUi.buildFindings omits clean placeholder; e2e feat-054"
     }
   ]
 }

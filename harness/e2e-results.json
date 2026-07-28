@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-27T09:53:54.847Z",
+  "generated_at": "2026-07-28T05:51:57.266Z",
   "root": "/workspace",
   "summary": {
-    "total": 53,
-    "pass": 53,
+    "total": 54,
+    "pass": 54,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 93,
@@ -1664,6 +1664,24 @@
           "name": "static:report panels denser; home shell stays 980px",
           "ok": true,
           "detail": "report panels denser; home shell stays 980px"
+        }
+      ]
+    },
+    {
+      "id": "feat-054",
+      "name": "Hide clean finding when no issues",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:buildFindings no longer emits clean finding",
+          "ok": true,
+          "detail": "buildFindings no longer emits clean finding"
+        },
+        {
+          "name": "static:feat-054 note + Findings list still rendered",
+          "ok": true,
+          "detail": "feat-054 note + Findings list still rendered"
         }
       ]
     }
