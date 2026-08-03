@@ -646,6 +646,23 @@
         "e2e FEATURE_CHECKS for feat-056"
       ],
       "evidence": "src/cli + src/bin/jblock.rs (clap feature cli); file/stdin/clipboard(via pbpaste|wl-paste|xclip|xsel); text Findings-first + JSON; exit 0/1/2/3; cargo test --features cli 105 ok; ./init.sh green; e2e 56/56 incl. feat-056"
+    },
+    {
+      "id": "feat-057",
+      "name": "CI cross-platform CLI artifacts",
+      "description": "GitHub Actions builds the jblock CLI (release, --features cli) on Linux x86_64, Windows x86_64, and macOS aarch64, and uploads each binary as a downloadable workflow artifact.",
+      "dependencies": [
+        "feat-056",
+        "feat-020"
+      ],
+      "status": "in_progress",
+      "acceptance": [
+        "ci.yml has a `cli` job matrix covering ubuntu-latest, windows-latest, macos-latest",
+        "Each matrix entry runs `cargo build --release --features cli --bin jblock` for the host target",
+        "Artifacts uploaded: jblock-cli-linux-x86_64, jblock-cli-windows-x86_64, jblock-cli-macos-aarch64",
+        "verify/deploy jobs remain intact; e2e FEATURE_CHECKS for feat-057"
+      ],
+      "evidence": ""
     }
   ]
 }

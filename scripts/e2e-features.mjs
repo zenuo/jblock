@@ -1084,6 +1084,34 @@ FEATURE_CHECKS["feat-056"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-057"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains(".github/workflows/ci.yml", "feat-057") &&
+        contains(".github/workflows/ci.yml", "ubuntu-latest") &&
+        contains(".github/workflows/ci.yml", "windows-latest") &&
+        contains(".github/workflows/ci.yml", "macos-latest"),
+      detail: "cli job matrix covers linux/windows/macos runners",
+    }),
+    () => ({
+      ok:
+        contains(".github/workflows/ci.yml", "cargo build --release --features cli --bin jblock") &&
+        contains(".github/workflows/ci.yml", "jblock-cli-linux-x86_64") &&
+        contains(".github/workflows/ci.yml", "jblock-cli-windows-x86_64") &&
+        contains(".github/workflows/ci.yml", "jblock-cli-macos-aarch64"),
+      detail: "release CLI build + three platform artifact names",
+    }),
+    () => ({
+      ok:
+        contains(".github/workflows/ci.yml", "upload-artifact") &&
+        contains(".github/workflows/ci.yml", "actions/upload-artifact@v4"),
+      detail: "CLI binaries uploaded via upload-artifact",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

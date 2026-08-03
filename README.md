@@ -149,8 +149,14 @@ VITE_BASE=/jblock/ pnpm -C web run build
 
 GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)：
 
-- **CI**（`pull_request` + `push`）：`cargo test`，以及 `pnpm` 的 `wasm` / `lint` / `typecheck` / `build`（与 `./init.sh` 对齐）。
+- **CI**（`pull_request` + `push`）：`cargo test --features cli`，以及 `pnpm` 的 `wasm` / `lint` / `typecheck` / `build`（与 `./init.sh` 对齐）。
+- **CLI artifacts**（feat-057）：并行 `cli` job 在 Linux x86_64 / Windows x86_64 / macOS aarch64 上 `cargo build --release --features cli --bin jblock`，并上传：
+  - `jblock-cli-linux-x86_64`
+  - `jblock-cli-windows-x86_64`
+  - `jblock-cli-macos-aarch64`
 - **CD**（仅 `main` push）：将 `web/dist` 部署到 GitHub Pages（仓库需在 Settings → Pages 选择 **GitHub Actions** 作为源；`VITE_BASE=/jblock/`）。
+
+在 Actions 运行页的 Artifacts 中可下载对应平台的 `jblock` / `jblock.exe`。
 
 本地验证仍推荐：
 

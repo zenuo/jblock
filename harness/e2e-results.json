@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-03T01:59:42.712Z",
+  "generated_at": "2026-08-03T02:08:18.954Z",
   "root": "/workspace",
   "summary": {
-    "total": 56,
-    "pass": 56,
+    "total": 57,
+    "pass": 57,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 105,
@@ -1726,13 +1726,91 @@
     {
       "id": "feat-056",
       "name": "CLI shell (file / stdin / clipboard)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:text_output_includes_findings_and_summary",
+          "ok": true,
+          "detail": "passed as cli::tests::text_output_includes_findings_and_summary"
+        },
+        {
+          "name": "cargo:json_roundtrip_via_run",
+          "ok": true,
+          "detail": "passed as cli::tests::json_roundtrip_via_run"
+        },
+        {
+          "name": "cargo:bad_dump_exit_code",
+          "ok": true,
+          "detail": "passed as cli::tests::bad_dump_exit_code"
+        },
+        {
+          "name": "cargo:section_threads_lists_names",
+          "ok": true,
+          "detail": "passed as cli::tests::section_threads_lists_names"
+        },
+        {
+          "name": "cargo:clipboard_with_files_is_usage_error",
+          "ok": true,
+          "detail": "passed as cli::tests::clipboard_with_files_is_usage_error"
+        },
+        {
+          "name": "cargo:deadlock_fixture_emits_deadlock_finding",
+          "ok": true,
+          "detail": "passed as cli::findings::tests::deadlock_fixture_emits_deadlock_finding"
+        },
+        {
+          "name": "cargo:aggregate_groups_by_lock",
+          "ok": true,
+          "detail": "passed as cli::findings::tests::aggregate_groups_by_lock"
+        },
+        {
+          "name": "cargo:jvm_noise_detects_finalizer",
+          "ok": true,
+          "detail": "passed as cli::findings::tests::jvm_noise_detects_finalizer"
+        },
+        {
+          "name": "cargo:read_file_loads_fixture",
+          "ok": true,
+          "detail": "passed as cli::input::tests::read_file_loads_fixture"
+        },
+        {
+          "name": "cargo:parse_section_and_severity",
+          "ok": true,
+          "detail": "passed as cli::render::tests::parse_section_and_severity"
+        },
+        {
+          "name": "cargo:ok_empty_findings_when_clean",
+          "ok": true,
+          "detail": "passed as cli::render::tests::ok_empty_findings_when_clean"
+        },
+        {
+          "name": "static:optional cli feature + bin jblock",
+          "ok": true,
+          "detail": "optional cli feature + bin jblock"
+        },
+        {
+          "name": "static:file/stdin/clipboard input + Findings-first render",
+          "ok": true,
+          "detail": "file/stdin/clipboard input + Findings-first render"
+        },
+        {
+          "name": "static:init/CI/e2e enable cli feature for cargo tests",
+          "ok": true,
+          "detail": "init/CI/e2e enable cli feature for cargo tests"
+        }
+      ]
+    },
+    {
+      "id": "feat-057",
+      "name": "CI cross-platform CLI artifacts",
       "status_in_list": "in_progress",
       "ok": true,
       "checks": [
         {
           "name": "pending",
           "ok": true,
-          "detail": "skipped (status=in_progress); 7 acceptance criteria recorded"
+          "detail": "skipped (status=in_progress); 4 acceptance criteria recorded"
         }
       ]
     }
