@@ -624,6 +624,28 @@
         "./init.sh green; e2e FEATURE_CHECKS for feat-055"
       ],
       "evidence": "parser detect_java_version + Analysis.java_version; Results/export badge + finding-ok; e2e feat-055"
+    },
+    {
+      "id": "feat-056",
+      "name": "CLI shell (file / stdin / clipboard)",
+      "description": "Host CLI binary wrapping the existing Rust parser: read dumps from files, stdin pipes, or clipboard; Findings-first text report or JSON; section/state/severity filters; meaningful exit codes for CI.",
+      "dependencies": [
+        "feat-003",
+        "feat-010",
+        "feat-041",
+        "feat-055"
+      ],
+      "status": "done",
+      "acceptance": [
+        "`cargo run --features cli --bin jblock -- dump.txt` prints Findings/Summary/Contention/Deadlocks",
+        "stdin pipe and `--clipboard` / `-c` input paths work; `--clipboard` + FILE is a usage error",
+        "`-j` / `--output json` emits Analysis (or MultiDumpAnalysis for multiple files)",
+        "`--section`, `--state`, `--severity`, `--hide-jvm`, `-v`, `-n/--limit`, `--color`, `-q` behave as documented",
+        "Exit codes: 0 clean/info, 1 warning/critical/deadlock, 2 usage/IO, 3 unrecognized dump",
+        "cli feature is optional (wasm-pack default build unchanged); `./init.sh` runs `cargo test --features cli`",
+        "e2e FEATURE_CHECKS for feat-056"
+      ],
+      "evidence": "src/cli + src/bin/jblock.rs (clap feature cli); file/stdin/clipboard(via pbpaste|wl-paste|xclip|xsel); text Findings-first + JSON; exit 0/1/2/3; cargo test --features cli 105 ok; ./init.sh green; e2e 56/56 incl. feat-056"
     }
   ]
 }

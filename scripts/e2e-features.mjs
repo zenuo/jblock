@@ -1041,6 +1041,49 @@ FEATURE_CHECKS["feat-055"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-056"] = {
+  cargo: [
+    "text_output_includes_findings_and_summary",
+    "json_roundtrip_via_run",
+    "bad_dump_exit_code",
+    "section_threads_lists_names",
+    "clipboard_with_files_is_usage_error",
+    "deadlock_fixture_emits_deadlock_finding",
+    "aggregate_groups_by_lock",
+    "jvm_noise_detects_finalizer",
+    "read_file_loads_fixture",
+    "parse_section_and_severity",
+    "ok_empty_findings_when_clean",
+  ],
+  static: [
+    () => ({
+      ok:
+        contains("Cargo.toml", 'name = "jblock"') &&
+        contains("Cargo.toml", "required-features") &&
+        contains("Cargo.toml", 'cli = ["dep:clap"') &&
+        contains("src/bin/jblock.rs", "clipboard") &&
+        contains("src/cli/mod.rs", "feat-056"),
+      detail: "optional cli feature + bin jblock",
+    }),
+    () => ({
+      ok:
+        contains("src/cli/input.rs", "read_clipboard") &&
+        contains("src/cli/input.rs", "is_terminal") &&
+        contains("src/cli/render.rs", "FINDINGS") &&
+        contains("src/cli/render.rs", "OutputFormat") &&
+        contains("src/cli/findings.rs", "build_cli_findings"),
+      detail: "file/stdin/clipboard input + Findings-first render",
+    }),
+    () => ({
+      ok:
+        contains("init.sh", "cargo test --features cli") &&
+        contains(".github/workflows/ci.yml", "cargo test --features cli") &&
+        contains("scripts/e2e-features.mjs", '--features", "cli"'),
+      detail: "init/CI/e2e enable cli feature for cargo tests",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,
@@ -1057,7 +1100,7 @@ function run(cmd, cmdArgs, opts = {}) {
 
 function collectCargoTestNames() {
   // List tests without running (fast discovery).
-  const listed = run("cargo", ["test", "--lib", "--", "--list"]);
+  const listed = run("cargo", ["test", "--lib", "--features", "cli", "--", "--list"]);
   const names = new Set();
   for (const line of `${listed.stdout}\n${listed.stderr}`.split("\n")) {
     // e.g. "parser::tests::detects_jstack_format: test"
@@ -1073,7 +1116,7 @@ function runCargoTests(testNames) {
   }
   // Run selected tests in one cargo invocation via multiple --exact filters is awkward;
   // run the whole lib suite once and parse results — more reliable for e2e recording.
-  const res = run("cargo", ["test", "--lib", "--", "--test-threads=8"]);
+  const res = run("cargo", ["test", "--lib", "--features", "cli", "--", "--test-threads=8"]);
   const passed = new Set();
   const failed = [];
   for (const line of `${res.stdout}\n${res.stderr}`.split("\n")) {

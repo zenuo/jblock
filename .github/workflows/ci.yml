@@ -52,7 +52,7 @@ jobs:
           java-version: "21"
 
       - name: cargo test
-        run: cargo test
+        run: cargo test --features cli
 
       - name: pnpm install
         run: pnpm -C web install --frozen-lockfile

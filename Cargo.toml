@@ -9,6 +9,11 @@ repository = "https://github.com/zenuo/jblock"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "jblock"
+path = "src/bin/jblock.rs"
+required-features = ["cli"]
+
 [dependencies]
 wasm-bindgen = "0.2"
 serde = { version = "1", features = ["derive"] }
@@ -16,9 +21,13 @@ serde-wasm-bindgen = "0.6"
 serde_json = "1"
 regex = "1"
 console_error_panic_hook = { version = "0.1", optional = true }
+# Host CLI only (feat-056); keep off the default/wasm feature set.
+# Pin for toolchain MSRV (rustc 1.83 in CI/cloud); clap 4.6+ needs 1.85.
+clap = { version = "=4.5.41", features = ["derive"], optional = true }
 
 [features]
 default = ["console_error_panic_hook"]
+cli = ["dep:clap"]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

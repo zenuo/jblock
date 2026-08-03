@@ -1,14 +1,19 @@
 //! `jblock` — a Java thread dump parser/analyzer exposed to JavaScript via WebAssembly.
 //!
-//! The heavy lifting lives in [`parser`], which is a plain-Rust module so it can
-//! be unit-tested with `cargo test`. This file only provides the wasm bindings.
+//! The heavy lifting lives in [`parser`], which is a plain-Rust module so that
+//! it can be unit-tested with `cargo test`. This file only provides the wasm bindings.
 //!
 //! Java reproducer generation (feat-007) lives in [`codegen`] on the host target
 //! for tests/`examples/gen_java`, and in `web/src/codegen.ts` for the page
 //! (feat-011) so it is not shipped inside the WASM binary.
+//!
+//! The optional host CLI (`cargo run --features cli --bin jblock`, feat-056)
+//! wraps the same parser for file / stdin / clipboard input.
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod capture;
+#[cfg(all(not(target_arch = "wasm32"), feature = "cli"))]
+pub mod cli;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod codegen;
 mod parser;

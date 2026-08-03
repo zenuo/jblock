@@ -73,7 +73,7 @@ Before ending a session:
 ```
 
 Required checks:
-- `cargo test`
+- `cargo test --features cli` (lib + CLI shell; wasm build stays on default features)
 - `pnpm -C web install`
 - `pnpm -C web run wasm` (regenerates `web/src/wasm/`; must run before typecheck/lint)
 - `pnpm -C web run lint`
@@ -127,6 +127,7 @@ Inspect `harness/e2e-results.json` for per-feature pass/fail detail.
 
 ### Verify quickly
 
-- Parser: `cargo test`
+- Parser: `cargo test --features cli`
+- CLI: `cargo run --features cli --bin jblock -- --help` (then pass a dump file / pipe)
 - Frontend: from `web/` run `pnpm run typecheck`, `pnpm run lint`,
   `pnpm run build`, and `pnpm run dev` (then load the "Load sample" button).

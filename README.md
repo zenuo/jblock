@@ -37,22 +37,13 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
 
 ```
 jblock/
-├── Cargo.toml           # Rust WASM crate 清单
+├── Cargo.toml           # Rust WASM crate + optional `cli` feature / bin
 ├── src/
 │   ├── lib.rs           # wasm-bindgen 绑定层（analyzeDump 导出）
-│   └── parser.rs        # 纯 Rust 解析/分析逻辑（含单元测试）
+│   ├── parser.rs        # 纯 Rust 解析/分析逻辑（含单元测试）
+│   ├── cli/             # 主机 CLI（feat-056，`--features cli`）
+│   └── bin/jblock.rs    # `jblock` 二进制入口
 └── web/                 # React + Vite 前端
-    ├── package.json
-    ├── vite.config.ts
-    ├── eslint.config.js
-    └── src/
-        ├── main.tsx
-        ├── App.tsx      # 页面 UI 与交互
-        ├── analyzer.ts  # 加载并调用 WASM（analyzeDump）
-        ├── codegen.ts   # 前端生成 Java reproducer（不进 WASM）
-        ├── export.ts    # HTML 导出
-        ├── types.ts     # 与 Rust Analysis 结构对应的 TS 类型
-        └── wasm/        # wasm-pack 生成产物（构建生成，已 gitignore）
 ```
 
 ## 环境要求
@@ -96,8 +87,28 @@ pnpm run dev        # 先用 wasm-pack 构建 WASM（dev 模式），再启动 V
 Rust 侧：
 
 ```bash
-cargo test          # 运行 src/parser.rs 中的解析单元测试
+cargo test --features cli   # 解析单元测试 + CLI（feat-056）
+cargo run --features cli --bin jblock -- --help
+cargo run --features cli --bin jblock -- tests/fixtures/deadlock_real_jstack.txt
+jstack <pid> | cargo run --features cli --bin jblock
 ```
+
+## CLI（feat-056）
+
+主机端二进制包装同一套 `parser::analyze` / `analyze_series`：
+
+| 输入 | 示例 |
+| --- | --- |
+| 文件 | `jblock dump.txt` |
+| 管道 | `jstack $PID \| jblock` |
+| 剪贴板 | `jblock -c` / `jblock --clipboard` |
+| 多文件（跨 dump） | `jblock t1.txt t2.txt` |
+
+常用参数：`-j` / `--output json`、`-s/--section`、`--state`、`--severity`、`--hide-jvm`、`-v`、`-n/--limit`、`-q`、`--color`。
+
+退出码：`0` 干净或仅 info；`1` 有 warning/critical/死锁；`2` 用法/读入错误；`3` 无法识别为 dump。
+
+> CLI 依赖可选 feature `cli`（`clap`；剪贴板通过 `pbpaste` / `wl-paste` / `xclip` / `xsel`），默认不编进 WASM。
 
 ## 本地部署
 

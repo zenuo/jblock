@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-07-28T06:57:59.503Z",
+  "generated_at": "2026-08-03T01:59:42.712Z",
   "root": "/workspace",
   "summary": {
-    "total": 55,
-    "pass": 55,
+    "total": 56,
+    "pass": 56,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 94,
+    "cargo_passed": 105,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -1720,6 +1720,19 @@
           "name": "static:HTML export + i18n for version/ok state",
           "ok": true,
           "detail": "HTML export + i18n for version/ok state"
+        }
+      ]
+    },
+    {
+      "id": "feat-056",
+      "name": "CLI shell (file / stdin / clipboard)",
+      "status_in_list": "in_progress",
+      "ok": true,
+      "checks": [
+        {
+          "name": "pending",
+          "ok": true,
+          "detail": "skipped (status=in_progress); 7 acceptance criteria recorded"
         }
       ]
     }

@@ -3,8 +3,8 @@ set -e
 
 echo "=== Harness Initialization ==="
 
-echo "=== cargo test ==="
-cargo test
+echo "=== cargo test (lib + cli feature) ==="
+cargo test --features cli
 
 echo "=== pnpm -C web install ==="
 pnpm -C web install
