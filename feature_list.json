@@ -675,7 +675,7 @@
         "Java 8u45-style header (25.45-b02) still parses as jstack and does not emit 25.45 in Analysis JSON",
         "Green OK empty state from feat-055 remains; ./init.sh green; e2e FEATURE_CHECKS for feat-058"
       ],
-      "evidence": "parser/types/Results/export/CLI/i18n drop java_version; cargo does_not_identify_hotspot_vm_token_as_java_product_version"
+      "evidence": "parser/types/Results/export/CLI/i18n drop java_version; cargo does_not_identify_hotspot_vm_token_as_java_product_version; ./init.sh 105 cargo + 58/58 e2e; CLI JSON on Java 8u45 dump has no java_version; Findings header 656 个线程 · jstack without Java 25.45 badge"
     }
   ]
 }
