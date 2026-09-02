@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-02T09:45:09.272Z",
+  "generated_at": "2026-09-02T10:16:46.311Z",
   "root": "/workspace",
   "summary": {
-    "total": 60,
-    "pass": 60,
+    "total": 62,
+    "pass": 62,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 111,
@@ -1900,6 +1900,57 @@
           "name": "static:fixtures contain holder plus waiting-to-lock / blocked-on",
           "ok": true,
           "detail": "fixtures contain holder plus waiting-to-lock / blocked-on"
+        }
+      ]
+    },
+    {
+      "id": "feat-061",
+      "name": "Thread-dump flame graph (page + HTML export)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:flamegraph unit tests",
+          "ok": true,
+          "detail": "flamegraph unit tests"
+        },
+        {
+          "name": "static:flamegraph section is last in Results",
+          "ok": true,
+          "detail": "flamegraph section is last in Results"
+        },
+        {
+          "name": "static:HTML export renders flame graph after threads",
+          "ok": true,
+          "detail": "HTML export renders flame graph after threads"
+        },
+        {
+          "name": "static:buildFlameTree + interactive FlameGraph SVG",
+          "ok": true,
+          "detail": "buildFlameTree + interactive FlameGraph SVG"
+        }
+      ]
+    },
+    {
+      "id": "feat-062",
+      "name": "Collapsible left report section nav",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:live results sidebar + section ids + collapse class",
+          "ok": true,
+          "detail": "live results sidebar + section ids + collapse class"
+        },
+        {
+          "name": "static:HTML export sidebar with checkbox collapse",
+          "ok": true,
+          "detail": "HTML export sidebar with checkbox collapse"
+        },
+        {
+          "name": "static:shared reportSections + collapse styles",
+          "ok": true,
+          "detail": "shared reportSections + collapse styles"
         }
       ]
     }

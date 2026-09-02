@@ -730,7 +730,7 @@
         "Live graph supports hover tooltip and click-to-zoom; export is a static SVG with titles",
         "./init.sh green; e2e FEATURE_CHECKS for feat-061"
       ],
-      "evidence": "web/src/flamegraph.ts buildFlameTree/layoutFlame/renderFlameSvg; FlameGraph.tsx at end of Results; export.ts section-flamegraph; scripts/test-flamegraph.mjs"
+      "evidence": "web/src/flamegraph.ts buildFlameTree/layoutFlame/renderFlameSvg; FlameGraph.tsx at end of Results; export.ts section-flamegraph; scripts/test-flamegraph.mjs; e2e 62/62 feat-061"
     },
     {
       "id": "feat-062",
@@ -747,7 +747,7 @@
         "Bottom control collapses the sidebar; click again expands; HTML export uses a checkbox/label so collapse works without React",
         "./init.sh green; e2e FEATURE_CHECKS for feat-062"
       ],
-      "evidence": "web/src/ReportNav.tsx + reportNav.ts; Results results-shell; export.ts report-nav + #report-nav-collapsed; index.css sticky nav + is-nav-collapsed"
+      "evidence": "web/src/ReportNav.tsx + reportNav.ts; Results results-shell; export.ts report-nav + #report-nav-collapsed; index.css sticky nav + is-nav-collapsed; e2e 62/62 feat-062"
     }
   ]
 }

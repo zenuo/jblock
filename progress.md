@@ -49,7 +49,7 @@ $ node --experimental-strip-types --no-warnings scripts/test-flamegraph.mjs
 flamegraph unit tests ok
 
 $ cargo test --features cli
-(lib + cli)
+test result: ok. 111 passed
 
 $ pnpm -C web run lint && pnpm -C web run typecheck && pnpm -C web run build
 ✓ lint / typecheck / vite build
