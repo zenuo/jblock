@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-02T08:27:23.062Z",
+  "generated_at": "2026-09-02T09:45:09.272Z",
   "root": "/workspace",
   "summary": {
-    "total": 59,
-    "pass": 59,
+    "total": 60,
+    "pass": 60,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 107,
+    "cargo_passed": 111,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -1852,6 +1852,54 @@
           "name": "static:push_unique_held_lock used when collecting held locks",
           "ok": true,
           "detail": "push_unique_held_lock used when collecting held locks"
+        }
+      ]
+    },
+    {
+      "id": "feat-060",
+      "name": "Live monitor-contention dumps from generated Java",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:lock_contention_has_expected_structure",
+          "ok": true,
+          "detail": "passed as codegen::java_code_generation::lock_contention_has_expected_structure"
+        },
+        {
+          "name": "cargo:live_capture_lock_contention_detects_edges",
+          "ok": true,
+          "detail": "passed as capture::tests::live_capture_lock_contention_detects_edges"
+        },
+        {
+          "name": "cargo:live_capture_lock_contention_mxbean_detects_edges",
+          "ok": true,
+          "detail": "passed as capture::tests::live_capture_lock_contention_mxbean_detects_edges"
+        },
+        {
+          "name": "cargo:detects_lock_contention_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_lock_contention_from_live_fixture"
+        },
+        {
+          "name": "cargo:detects_mxbean_lock_contention_from_live_fixture",
+          "ok": true,
+          "detail": "passed as parser::tests::detects_mxbean_lock_contention_from_live_fixture"
+        },
+        {
+          "name": "static:jstack + MXBean lock contention fixtures",
+          "ok": true,
+          "detail": "jstack + MXBean lock contention fixtures"
+        },
+        {
+          "name": "static:LockContention holder/waiters + MXBean dump capture",
+          "ok": true,
+          "detail": "LockContention holder/waiters + MXBean dump capture"
+        },
+        {
+          "name": "static:fixtures contain holder plus waiting-to-lock / blocked-on",
+          "ok": true,
+          "detail": "fixtures contain holder plus waiting-to-lock / blocked-on"
         }
       ]
     }

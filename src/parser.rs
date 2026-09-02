@@ -2431,6 +2431,50 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
         assert_eq!(edge.owner_thread.as_deref(), Some("worker"));
     }
 
+    fn assert_holder_waiter_edges(dump: &str, format: DumpFormat) {
+        let a = analyze(dump);
+        assert_eq!(a.format, format);
+        let holder = a.threads.iter().find(|t| t.name == "holder").unwrap();
+        assert!(!holder.held_locks.is_empty());
+        let lock = &holder.held_locks[0];
+        let waiters: Vec<_> = a
+            .threads
+            .iter()
+            .filter(|t| t.name.starts_with("waiter-"))
+            .collect();
+        assert!(waiters.len() >= 2, "waiters={}", waiters.len());
+        for w in &waiters {
+            assert_eq!(w.state, "BLOCKED");
+            assert_eq!(w.waiting_on.as_ref(), Some(lock));
+        }
+        let edges: Vec<_> = a
+            .blocked_edges
+            .iter()
+            .filter(|e| e.lock == *lock)
+            .collect();
+        assert!(edges.len() >= 2);
+        for e in edges {
+            assert_eq!(e.owner_thread.as_deref(), Some("holder"));
+            assert!(e.blocked_thread.starts_with("waiter-"));
+        }
+    }
+
+    #[test]
+    fn detects_lock_contention_from_live_fixture() {
+        assert_holder_waiter_edges(
+            include_str!("../tests/fixtures/patterns/lock_contention_jstack.txt"),
+            DumpFormat::Jstack,
+        );
+    }
+
+    #[test]
+    fn detects_mxbean_lock_contention_from_live_fixture() {
+        assert_holder_waiter_edges(
+            include_str!("../tests/fixtures/patterns/lock_contention_mxbean.txt"),
+            DumpFormat::ThreadMxBean,
+        );
+    }
+
     #[test]
     fn counts_stack_depth() {
         let a = analyze(JSTACK_SAMPLE);

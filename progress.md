@@ -3,23 +3,20 @@
 ## Current State
 
 **Last Updated:** 2026-09-02
-**Active Feature:** feat-059 (done)
+**Active Feature:** feat-060 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] **feat-059** Dedupe reentrant held locks
-  - ThreadMXBean / jstack emit one `- locked` annotation per nested `synchronized` frame
-  - `held_locks` now keeps each unique monitor once (innermost-first dump order)
-  - Screenshot of Dubbo MXBean dump repeating `JDBC4Connection@…` 2–3 times was a display of reentrant entries, not N distinct locks
+- [x] **feat-060** Live monitor-contention dumps from generated Java
+  - LockContention now starts a named `holder`, then `waiter-*` (CountDownLatch)
+  - Optional `-Djblock.mxbean.dump` writes ThreadMXBean.dumpAllThreads(true, true)
+  - Live tests capture jstack + MXBean; fixtures under `tests/fixtures/patterns/`
+  - Parser asserts waiter → same lock → owner `holder`
 
-- [x] **feat-058** Remove unreliable Java version detection (prior session)
-  - Root cause: jstack header `Full thread dump … VM (25.45-b02 mixed mode)` is the HotSpot VM token for Java 8u45, not Java 25
-  - Withdrawn: `detect_java_version`, `Analysis.java_version`, Findings/HTML/CLI badges
-
-- [x] **feat-057** CI cross-platform CLI artifacts (prior session)
-- [x] **feat-056** CLI shell (prior session)
+- [x] **feat-059** Dedupe reentrant held locks (prior)
+- [x] **feat-058** Remove unreliable Java version detection (prior)
 
 ### What's In Progress
 
@@ -27,30 +24,26 @@
 
 ### What's Next
 
-1. Optional: show reentrancy count (`×2`) next to a unique lock if operators want hold-count
-
-### Unresolved Risks
-
-- None for feat-059. Distinct locks on the same thread still list separately.
+1. Optional: click a held-lock id in the threads table to jump to that lock's contention group
 
 ## Decisions Made
 
-- Deduplicate at parse time (all three block parsers), not only in the threads table, so CLI JSON / HTML export / lock-order analysis stay consistent
-- Keep first-seen (innermost) order; `lock_acquisition_order` still reverses to outermost-first
-- Do not add a reentrancy counter in this batch
-- Do not guess a Java product version from dump text (feat-058)
+- No new PatternKind: monitor contention is `blocked_edges` (UI 锁竞争 already consumes it)
+- 1 holder + N-1 waiters (count=3 → 2 waiters), matching java-versions contention dumps
+- MXBean dump is written by the Java process itself so the fixture is true ThreadInfo#toString format
 
 ## Evidence of Completion
 
 ```text
-$ cargo test --features cli --lib dedupes_reentrant_held_locks
-test parser::tests::jstack_dedupes_reentrant_held_locks ... ok
-test parser::tests::mxbean_dedupes_reentrant_held_locks ... ok
+$ cargo test --features cli --lib
+111 passed  (incl. live_capture_lock_contention_{,mxbean_}detects_edges)
 
-$ cargo run --features cli --bin jblock -- -j --section threads Dubbo_JStack.log
-# Id=664 held_locks = [ReadAheadInputStream@3ee52c67, JDBC4Connection@3022c5cb]  (was 3 lines)
-# Id=663 held_locks = [ReadAheadInputStream@341d4717, JDBC4Connection@711fcff0]  (was 4 lines)
+$ cargo run --features cli --bin jblock -- tests/fixtures/patterns/lock_contention_jstack.txt
+CONTENTION
+  lock 0x0000000715614fa0  owner=holder  waiters=2
+    <- waiter-0
+    <- waiter-1
 
-$ node scripts/e2e-features.mjs --skip-web
-Summary: 59/59 features PASS (incl. feat-059)
+$ ./init.sh
+e2e: 60/60 PASS (feat-060)
 ```

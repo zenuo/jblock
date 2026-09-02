@@ -1142,6 +1142,40 @@ FEATURE_CHECKS["feat-059"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-060"] = {
+  cargo: [
+    "lock_contention_has_expected_structure",
+    "live_capture_lock_contention_detects_edges",
+    "live_capture_lock_contention_mxbean_detects_edges",
+    "detects_lock_contention_from_live_fixture",
+    "detects_mxbean_lock_contention_from_live_fixture",
+  ],
+  static: [
+    () => ({
+      ok:
+        fileNonEmpty("tests/fixtures/patterns/lock_contention_jstack.txt", 200) &&
+        fileNonEmpty("tests/fixtures/patterns/lock_contention_mxbean.txt", 200),
+      detail: "jstack + MXBean lock contention fixtures",
+    }),
+    () => ({
+      ok:
+        contains("src/codegen.rs", "\"holder\"") &&
+        contains("src/codegen.rs", "jblock.mxbean.dump") &&
+        contains("web/src/codegen.ts", "jblock.mxbean.dump") &&
+        contains("src/capture.rs", "fn compile_run_mxbean_dump"),
+      detail: "LockContention holder/waiters + MXBean dump capture",
+    }),
+    () => ({
+      ok:
+        contains("tests/fixtures/patterns/lock_contention_jstack.txt", "waiting to lock") &&
+        contains("tests/fixtures/patterns/lock_contention_mxbean.txt", "blocked on") &&
+        contains("tests/fixtures/patterns/lock_contention_jstack.txt", "\"holder\"") &&
+        contains("tests/fixtures/patterns/lock_contention_mxbean.txt", "\"holder\""),
+      detail: "fixtures contain holder plus waiting-to-lock / blocked-on",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

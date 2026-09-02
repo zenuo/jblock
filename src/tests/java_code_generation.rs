@@ -84,10 +84,11 @@ fn lock_contention_has_expected_structure() {
     assert!(code.contains("public class LockContention"));
     assert!(code.contains("private static final Object LOCK"));
     assert!(code.contains("synchronized (LOCK)"));
-    // Requested worker count is embedded.
-    assert!(code.contains("final int workers = 4;"));
-    // Threads are named so a dump groups them clearly.
-    assert!(code.contains("\"worker-\" + i"));
+    assert!(code.contains("final int waiters = 3;"));
+    assert!(code.contains("CountDownLatch"));
+    assert!(code.contains("\"holder\""));
+    assert!(code.contains("\"waiter-\" + i"));
+    assert!(code.contains("jblock.mxbean.dump"));
 }
 
 #[test]
@@ -273,7 +274,7 @@ fn count_is_clamped_to_sane_range() {
     assert!(low.contains("final int n = 2;"));
     // Above maximum is capped at 64.
     let high = generate(Scenario::LockContention, 9999);
-    assert!(high.contains("final int workers = 64;"));
+    assert!(high.contains("final int waiters = 63;"));
 }
 
 #[test]

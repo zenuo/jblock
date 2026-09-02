@@ -693,6 +693,26 @@
         "e2e FEATURE_CHECKS for feat-059"
       ],
       "evidence": "src/parser.rs push_unique_held_lock in jstack/MXBean/unknown parsers; tests mxbean_dedupes_reentrant_held_locks + jstack_dedupes_reentrant_held_locks; Dubbo MXBean dump Id=664/663 each 2 unique locks (was 3/4 lines); e2e 59/59 feat-059"
+    },
+    {
+      "id": "feat-060",
+      "name": "Live monitor-contention dumps from generated Java",
+      "description": "Deterministic LockContention Java (holder then waiter-* on one synchronized monitor). Tests compile/run it, capture jstack and ThreadMXBean dumpAllThreads, and assert blocked_edges waiter→lock→holder. Fixtures committed under tests/fixtures/patterns/.",
+      "dependencies": [
+        "feat-003",
+        "feat-007",
+        "feat-009",
+        "feat-027"
+      ],
+      "status": "done",
+      "acceptance": [
+        "LockContention Java names holder + waiter-* with CountDownLatch so holder acquires first",
+        "live_capture_lock_contention_detects_edges captures jstack and asserts blocked_edges owner=holder",
+        "live_capture_lock_contention_mxbean_detects_edges captures ThreadMXBean dumpAllThreads(true,true) and asserts the same edges",
+        "Offline fixtures lock_contention_jstack.txt and lock_contention_mxbean.txt parse with the same asserts",
+        "e2e FEATURE_CHECKS for feat-060"
+      ],
+      "evidence": "codegen LockContention holder/waiter-* + compile_run_mxbean_dump; live jstack/MXBean tests; fixtures lock_contention_{jstack,mxbean}.txt; parser detects_*_from_live_fixture; ./init.sh 111 cargo + 60/60 e2e"
     }
   ]
 }

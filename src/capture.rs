@@ -180,6 +180,69 @@ pub fn compile_run_jstack(
     Ok(dump)
 }
 
+/// Compile/run `source` with `-Djblock.mxbean.dump=<file>` and return that file.
+///
+/// The Java program (LockContention) writes `ThreadMXBean.dumpAllThreads(true, true)`
+/// once waiters are BLOCKED. The process is always terminated.
+pub fn compile_run_mxbean_dump(
+    source: &str,
+    class_name: &str,
+    warmup: Duration,
+) -> io::Result<String> {
+    let dir = tempfile_dir()?;
+    let java_path = dir.join(format!("{class_name}.java"));
+    fs::write(&java_path, source)?;
+
+    let javac = Command::new(tool("javac"))
+        .current_dir(&dir)
+        .arg(java_path.file_name().unwrap())
+        .output()?;
+    if !javac.status.success() {
+        return Err(io::Error::other(format!(
+            "javac failed:\n{}",
+            String::from_utf8_lossy(&javac.stderr)
+        )));
+    }
+
+    let mx_path = dir.join("mxbean.txt");
+    let dash_d = format!("-Djblock.mxbean.dump={}", mx_path.display());
+    let mut child = Command::new(tool("java"))
+        .current_dir(&dir)
+        .args([&dash_d, "-cp", ".", class_name])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()?;
+
+    thread::sleep(warmup);
+
+    let start = Instant::now();
+    let mut dump = String::new();
+    while start.elapsed() < Duration::from_secs(15) {
+        if let Ok(text) = fs::read_to_string(&mx_path) {
+            if text.contains("BLOCKED")
+                && (text.contains("blocked on") || text.contains("waiting to lock"))
+            {
+                dump = text;
+                break;
+            }
+        }
+        thread::sleep(Duration::from_millis(150));
+    }
+
+    let _ = child.kill();
+    let _ = child.wait();
+
+    if dump.is_empty() {
+        let preview = fs::read_to_string(&mx_path).unwrap_or_default();
+        return Err(io::Error::other(format!(
+            "MXBean dump file missing BLOCKED waiters ({} bytes):\n{}",
+            preview.len(),
+            preview.lines().take(40).collect::<Vec<_>>().join("\n")
+        )));
+    }
+    Ok(dump)
+}
+
 /// Compile/run `source`, then `jcmd Thread.dump_to_file -format=json` (feat-049).
 ///
 /// Requires JDK 21+. Waits until the JVM is listed by `jcmd -l` before attaching.
@@ -271,8 +334,102 @@ fn tempfile_dir() -> io::Result<PathBuf> {
 mod tests {
     use super::*;
     use crate::codegen::{generate, Scenario};
-    use crate::parser::{analyze, PatternKind};
+    use crate::parser::{analyze, DumpFormat, PatternKind};
     use std::time::Duration;
+
+    fn assert_holder_waiter_contention(dump: &str, min_waiters: usize) -> crate::parser::Analysis {
+        let a = analyze(dump);
+        let holder = a
+            .threads
+            .iter()
+            .find(|t| t.name == "holder")
+            .expect("holder thread");
+        assert!(
+            !holder.held_locks.is_empty(),
+            "holder should own the monitor; dump head:\n{}",
+            dump.lines().take(80).collect::<Vec<_>>().join("\n")
+        );
+        let lock = holder.held_locks[0].clone();
+        let waiters: Vec<_> = a
+            .threads
+            .iter()
+            .filter(|t| t.name.starts_with("waiter-"))
+            .collect();
+        assert!(
+            waiters.len() >= min_waiters,
+            "expected >= {min_waiters} waiter-* threads, got {:?}",
+            waiters.iter().map(|t| &t.name).collect::<Vec<_>>()
+        );
+        for w in &waiters {
+            assert_eq!(w.state, "BLOCKED", "{}", w.name);
+            assert_eq!(w.waiting_on.as_ref(), Some(&lock), "{}", w.name);
+        }
+        let edges: Vec<_> = a
+            .blocked_edges
+            .iter()
+            .filter(|e| e.lock == lock)
+            .collect();
+        assert!(
+            edges.len() >= min_waiters,
+            "blocked_edges={:?}",
+            a.blocked_edges
+        );
+        for e in &edges {
+            assert_eq!(e.owner_thread.as_deref(), Some("holder"));
+            assert!(e.blocked_thread.starts_with("waiter-"), "{}", e.blocked_thread);
+        }
+        a
+    }
+
+    #[test]
+    fn live_capture_lock_contention_detects_edges() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::LockContention, 3);
+        let dump = compile_run_jstack(&source, "LockContention", Duration::from_millis(900))
+            .expect("compile/run/jstack");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/lock_contention_jstack.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = assert_holder_waiter_contention(&dump, 2);
+        assert_eq!(a.format, DumpFormat::Jstack);
+    }
+
+    #[test]
+    fn live_capture_lock_contention_mxbean_detects_edges() {
+        if !jdk_tools_available() {
+            eprintln!("skip live capture: JDK tools not available");
+            return;
+        }
+        let source = generate(Scenario::LockContention, 3);
+        let dump = compile_run_mxbean_dump(
+            &source,
+            "LockContention",
+            Duration::from_millis(900),
+        )
+        .expect("compile/run/mxbean dump");
+
+        if std::env::var_os("JBLOCK_UPDATE_FIXTURES").is_some() {
+            let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/patterns/lock_contention_mxbean.txt");
+            if let Some(parent) = fixture.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&fixture, &dump);
+        }
+
+        let a = assert_holder_waiter_contention(&dump, 2);
+        assert_eq!(a.format, DumpFormat::ThreadMxBean);
+    }
 
     #[test]
     fn live_capture_thread_pool_exhaustion_detects_pattern() {
