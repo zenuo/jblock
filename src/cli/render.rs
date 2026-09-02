@@ -204,14 +204,11 @@ pub fn render_multi_text(
 
 fn header_line(analysis: &Analysis, source: &str, style: &Style) -> String {
     let fmt = format_label(analysis.format);
-    let mut parts = vec![
+    let parts = [
         "jblock".to_string(),
         fmt.to_string(),
         format!("{} threads", analysis.total_threads),
     ];
-    if let Some(ref v) = analysis.java_version {
-        parts.push(format!("Java {v}"));
-    }
     let head = style.bold(&parts.join(" · "));
     format!("{head}\nsource: {source}\n")
 }
@@ -236,11 +233,7 @@ fn render_findings(analysis: &Analysis, opts: &CliOptions, style: &Style) -> Str
     out.push_str(&style.bold("FINDINGS"));
     out.push('\n');
     if findings.is_empty() {
-        let ok = match &analysis.java_version {
-            Some(v) => format!("  OK  no problem findings (Java {v})"),
-            None => "  OK  no problem findings".to_string(),
-        };
-        out.push_str(&style.paint("32", &ok));
+        out.push_str(&style.paint("32", "  OK  no problem findings"));
         out.push('\n');
         return out;
     }

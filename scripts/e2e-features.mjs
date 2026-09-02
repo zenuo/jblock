@@ -1005,22 +1005,8 @@ FEATURE_CHECKS["feat-054"] = {
 };
 
 FEATURE_CHECKS["feat-055"] = {
-  cargo: ["detects_java_version_field", "detects_java_version_support"],
+  cargo: [],
   static: [
-    () => ({
-      ok:
-        contains("src/parser.rs", "fn detect_java_version") &&
-        contains("src/parser.rs", "java_version") &&
-        contains("web/src/types.ts", "java_version"),
-      detail: "Analysis.java_version on Rust + TS",
-    }),
-    () => ({
-      ok:
-        contains("web/src/Results.tsx", "findings-java-version") &&
-        contains("web/src/Results.tsx", "java-version-badge") &&
-        contains("web/src/index.css", ".java-version-badge"),
-      detail: "Findings header Java version badge",
-    }),
     () => ({
       ok:
         contains("web/src/Results.tsx", "findings-ok") &&
@@ -1032,11 +1018,10 @@ FEATURE_CHECKS["feat-055"] = {
     }),
     () => ({
       ok:
-        contains("web/src/export.ts", "java-version-badge") &&
         contains("web/src/export.ts", "finding-ok") &&
-        contains("web/src/i18n/locales/en.ts", "findings.javaVersion") &&
+        contains("web/src/i18n/locales/en.ts", "findings.okTitle") &&
         contains("web/src/i18n/locales/zh.ts", "findings.okTitle"),
-      detail: "HTML export + i18n for version/ok state",
+      detail: "HTML export + i18n for OK empty state",
     }),
   ],
 };
@@ -1108,6 +1093,36 @@ FEATURE_CHECKS["feat-057"] = {
         contains(".github/workflows/ci.yml", "upload-artifact") &&
         contains(".github/workflows/ci.yml", "actions/upload-artifact@v4"),
       detail: "CLI binaries uploaded via upload-artifact",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-058"] = {
+  cargo: ["does_not_identify_hotspot_vm_token_as_java_product_version"],
+  static: [
+    () => ({
+      ok:
+        !contains("src/parser.rs", "fn detect_java_version") &&
+        !contains("src/parser.rs", "pub java_version") &&
+        !contains("web/src/types.ts", "java_version"),
+      detail: "detect_java_version and Analysis.java_version removed",
+    }),
+    () => ({
+      ok:
+        !contains("web/src/Results.tsx", "java-version-badge") &&
+        !contains("web/src/Results.tsx", "findings-java-version") &&
+        !contains("web/src/export.ts", "java-version-badge") &&
+        !contains("web/src/index.css", ".java-version-badge") &&
+        !contains("src/cli/render.rs", "java_version"),
+      detail: "Findings/export/CLI Java version badge gone",
+    }),
+    () => ({
+      ok:
+        !contains("web/src/i18n/locales/en.ts", "findings.javaVersion") &&
+        !contains("web/src/i18n/locales/en.ts", "okDetailWithJava") &&
+        !contains("web/src/i18n/types.ts", "findings.javaVersion") &&
+        !contains("web/src/i18n/types.ts", "okDetailWithJava"),
+      detail: "i18n version keys removed",
     }),
   ],
 };

@@ -168,14 +168,6 @@ export default function Results({ analysis }: Props) {
                 format: analysis.format,
               })}
             </span>
-            {analysis.java_version && (
-              <span
-                className="java-version-badge"
-                data-testid="findings-java-version"
-              >
-                {t("findings.javaVersion", { version: analysis.java_version })}
-              </span>
-            )}
           </div>
         </div>
         {findings.length === 0 ? (
@@ -189,16 +181,10 @@ export default function Results({ analysis }: Props) {
               </strong>
             </div>
             <span className="mono">
-              {analysis.java_version
-                ? t("findings.okDetailWithJava", {
-                    version: analysis.java_version,
-                    count: analysis.total_threads,
-                    format: analysis.format,
-                  })
-                : t("findings.okDetail", {
-                    count: analysis.total_threads,
-                    format: analysis.format,
-                  })}
+              {t("findings.okDetail", {
+                count: analysis.total_threads,
+                format: analysis.format,
+              })}
             </span>
           </div>
         ) : (

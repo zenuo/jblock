@@ -609,21 +609,18 @@
     },
     {
       "id": "feat-055",
-      "name": "Findings Java version + green OK empty state",
-      "description": "Parse Java/JDK version from dumps (jstack header, module frames, JSON runtimeVersion) into Analysis.java_version. Findings header shows a compact Java version badge. When there are no problem findings, show a green ✅ empty-state row (Apple-level Minimal + Badge/Empty state patterns).",
+      "name": "Findings green OK empty state",
+      "description": "When there are no problem findings, show a green ✅ empty-state row (Apple-level Minimal Empty state). Dump Java-version detection/badge was withdrawn in feat-058 (HotSpot VM 25.x is not Java 25).",
       "dependencies": [
-        "feat-054",
-        "feat-008"
+        "feat-054"
       ],
       "status": "done",
       "acceptance": [
-        "Analysis.java_version on Rust + web/src/types.ts; detect_java_version recovers 8/11/17/21 fixtures and JSON runtimeVersion",
-        "Findings header renders java-version-badge when version is known",
         "When findings.length === 0, Results shows finding-ok with ✅ and okTitle (not the old cleanTitle placeholder)",
-        "HTML export mirrors badge + OK empty state; 8-locale i18n keys findings.javaVersion/okTitle/okDetail*",
+        "HTML export mirrors the OK empty state; 8-locale i18n keys findings.okTitle/okDetail",
         "./init.sh green; e2e FEATURE_CHECKS for feat-055"
       ],
-      "evidence": "parser detect_java_version + Analysis.java_version; Results/export badge + finding-ok; e2e feat-055"
+      "evidence": "Results/export finding-ok; version badge removed in feat-058; e2e feat-055"
     },
     {
       "id": "feat-056",
@@ -663,6 +660,22 @@
         "verify/deploy jobs remain intact; e2e FEATURE_CHECKS for feat-057"
       ],
       "evidence": "ci.yml cli matrix (ubuntu/windows/macos) release build --features cli; artifacts jblock-cli-{linux-x86_64,windows-x86_64,macos-aarch64}; local cargo build --release --features cli ok; e2e 57/57 feat-057"
+    },
+    {
+      "id": "feat-058",
+      "name": "Remove unreliable Java version detection",
+      "description": "Do not infer or display a Java product version from thread dumps. Classic HotSpot jstack headers use VM tokens like 25.45-b02 for Java 8u45, which collides with JEP 223 Java 25; MXBean dumps often have no version signal. Remove detect_java_version, Analysis.java_version, and Findings/CLI/HTML badges.",
+      "dependencies": [
+        "feat-055"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Analysis has no java_version field on Rust or web/src/types.ts; detect_java_version is gone",
+        "Findings header, HTML export, and CLI do not render a Java version badge or 'Java {version}' meta",
+        "Java 8u45-style header (25.45-b02) still parses as jstack and does not emit 25.45 in Analysis JSON",
+        "Green OK empty state from feat-055 remains; ./init.sh green; e2e FEATURE_CHECKS for feat-058"
+      ],
+      "evidence": "parser/types/Results/export/CLI/i18n drop java_version; cargo does_not_identify_hotspot_vm_token_as_java_product_version"
     }
   ]
 }
