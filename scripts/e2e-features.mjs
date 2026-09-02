@@ -1176,6 +1176,83 @@ FEATURE_CHECKS["feat-060"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-061"] = {
+  cargo: [],
+  static: [
+    () => {
+      const r = run("node", [
+        "--experimental-strip-types",
+        "--no-warnings",
+        "scripts/test-flamegraph.mjs",
+      ]);
+      return {
+        ok: r.status === 0,
+        detail:
+          r.status === 0
+            ? "flamegraph unit tests"
+            : `flamegraph unit tests failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
+      };
+    },
+    () => {
+      const results = readText("web/src/Results.tsx");
+      const threads = results.indexOf('data-testid="threads"');
+      const flame = results.indexOf('data-testid="flamegraph"');
+      return {
+        ok: threads >= 0 && flame > threads,
+        detail: "flamegraph section is last in Results",
+      };
+    },
+    () => {
+      const exp = readText("web/src/export.ts");
+      const threadsSection = exp.indexOf('id="${sectionDomId("threads")}"');
+      const flameInsert = exp.indexOf("${flameHtml}");
+      return {
+        ok:
+          contains("web/src/export.ts", "renderFlameSvg") &&
+          contains("web/src/export.ts", 'sectionDomId("flamegraph")') &&
+          threadsSection >= 0 &&
+          flameInsert > threadsSection,
+        detail: "HTML export renders flame graph after threads",
+      };
+    },
+    () => ({
+      ok:
+        contains("web/src/flamegraph.ts", "export function buildFlameTree") &&
+        contains("web/src/FlameGraph.tsx", 'data-testid="flamegraph-svg"'),
+      detail: "buildFlameTree + interactive FlameGraph SVG",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-062"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains("web/src/ReportNav.tsx", 'data-testid="report-nav"') &&
+        contains("web/src/ReportNav.tsx", 'data-testid="report-nav-toggle"') &&
+        contains("web/src/Results.tsx", "is-nav-collapsed") &&
+        contains("web/src/Results.tsx", 'sectionDomId("findings")'),
+      detail: "live results sidebar + section ids + collapse class",
+    }),
+    () => ({
+      ok:
+        contains("web/src/export.ts", 'data-testid="report-nav"') &&
+        contains("web/src/export.ts", "report-nav-toggle") &&
+        contains("web/src/export.ts", 'id="report-nav-collapsed"') &&
+        contains("web/src/index.css", ".report-nav-toggle"),
+      detail: "HTML export sidebar with checkbox collapse",
+    }),
+    () => ({
+      ok:
+        contains("web/src/reportNav.ts", "export function reportSections") &&
+        contains("web/src/ReportNav.tsx", "nav.expand") &&
+        contains("web/src/index.css", ".results-shell.is-nav-collapsed"),
+      detail: "shared reportSections + collapse styles",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

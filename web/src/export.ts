@@ -1,6 +1,8 @@
 import { aggregateContention, buildFindings } from "./analysisUi";
+import { buildFlameTree, renderFlameSvg } from "./flamegraph";
 import { htmlLangFor, type Locale, type TranslateFn } from "./i18n";
 import appCss from "./index.css?inline";
+import { NAV_LABEL_KEYS, reportSections, sectionDomId } from "./reportNav";
 import type { Analysis } from "./types";
 
 const STATE_COLORS: Record<string, string> = {
@@ -37,7 +39,7 @@ export function buildReportHtml(
   const htmlLang = htmlLangFor(locale);
 
   const findingsHtml = `
-    <section class="panel findings">
+    <section class="panel findings" id="${sectionDomId("findings")}">
       <div class="findings-header">
         <h2>${escapeHtml(t("findings.title"))}</h2>
         <div class="findings-header-meta">
@@ -76,7 +78,7 @@ export function buildReportHtml(
     analysis.deadlocks.length === 0
       ? ""
       : `
-    <section class="panel">
+    <section class="panel" id="${sectionDomId("deadlocks")}">
       <h2>${escapeHtml(t("report.deadlocks", { count: analysis.deadlocks.length }))}</h2>
       ${analysis.deadlocks
         .map(
@@ -142,6 +144,46 @@ export function buildReportHtml(
     ? ` title="${escapeHtml(t("app.sha256", { hash: contentSha256 }))}"`
     : "";
 
+  const flameTree = buildFlameTree(analysis.threads, t("flame.noStack"));
+  const flameSvg = renderFlameSvg(flameTree, 1100, STATE_COLORS);
+  const flameHtml = `
+    <section class="panel flame-panel" id="${sectionDomId("flamegraph")}" data-testid="flamegraph">
+      <h2>${escapeHtml(t("flame.title"))}</h2>
+      <p class="empty">${escapeHtml(t("flame.blurb"))}</p>
+      <div class="flame-toolbar"><span class="meta mono">${escapeHtml(
+        t("flame.samples", { count: analysis.threads.length }),
+      )}</span></div>
+      ${
+        flameSvg
+          ? `<div class="flame-wrap">${flameSvg}</div>`
+          : `<p class="empty">${escapeHtml(t("flame.empty"))}</p>`
+      }
+    </section>`;
+
+  const navSections = reportSections({
+    hasDeadlocks: analysis.deadlocks.length > 0,
+    hasClusters: false,
+  });
+  const navHtml = `
+    <input type="checkbox" id="report-nav-collapsed" class="report-nav-state" hidden />
+    <nav class="report-nav" data-testid="report-nav" aria-label="${escapeHtml(t("nav.title"))}">
+      <p class="report-nav-heading">${escapeHtml(t("nav.title"))}</p>
+      <ul class="report-nav-list">
+        ${navSections
+          .map(
+            (s) =>
+              `<li><a class="report-nav-link" href="#${sectionDomId(s.id)}">${escapeHtml(
+                t(NAV_LABEL_KEYS[s.id]),
+              )}</a></li>`,
+          )
+          .join("")}
+      </ul>
+      <label class="report-nav-toggle" data-testid="report-nav-toggle" for="report-nav-collapsed">
+        <span class="nav-collapse-label">${escapeHtml(t("nav.collapse"))}</span>
+        <span class="nav-expand-label">${escapeHtml(t("nav.expand"))}</span>
+      </label>
+    </nav>`;
+
   return `<!doctype html>
 <html lang="${htmlLang}">
 <head>
@@ -158,13 +200,12 @@ export function buildReportHtml(
       t("report.source", { name: sourceName }),
     )}</span></p>
   </header>
+  <div class="results-shell">
+  ${navHtml}
+  <div class="results">
   ${findingsHtml}
   ${deadlockPanel}
-  <section class="panel">
-    <h2>${escapeHtml(t("states.title"))}</h2>
-    <ul class="states">${states}</ul>
-  </section>
-  <section class="panel">
+  <section class="panel" id="${sectionDomId("contention")}">
     <h2>${escapeHtml(t("report.contention"))}</h2>
     <div class="table-scroll">
     <table><thead><tr><th>${escapeHtml(t("report.lock"))}</th><th>${escapeHtml(
@@ -172,7 +213,11 @@ export function buildReportHtml(
     )}</th><th>${escapeHtml(t("report.waiters"))}</th></tr></thead><tbody>${contentionRows}</tbody></table>
     </div>
   </section>
-  <section class="panel">
+  <section class="panel" id="${sectionDomId("states")}">
+    <h2>${escapeHtml(t("states.title"))}</h2>
+    <ul class="states">${states}</ul>
+  </section>
+  <section class="panel" id="${sectionDomId("threads")}">
     <h2>${escapeHtml(t("threads.title", { shown: String(analysis.threads.length) }))}</h2>
     <div class="table-scroll">
     <table class="threads-table"><thead><tr><th>${escapeHtml(t("threads.colName"))}</th><th>${escapeHtml(
@@ -184,6 +229,9 @@ export function buildReportHtml(
     )}</th></tr></thead><tbody>${threadRows}</tbody></table>
     </div>
   </section>
+  ${flameHtml}
+  </div>
+  </div>
 </div>
 </body>
 </html>`;

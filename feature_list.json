@@ -713,6 +713,41 @@
         "e2e FEATURE_CHECKS for feat-060"
       ],
       "evidence": "codegen LockContention holder/waiter-* + compile_run_mxbean_dump; live jstack/MXBean tests; fixtures lock_contention_{jstack,mxbean}.txt; parser detects_*_from_live_fixture; ./init.sh 111 cargo + 60/60 e2e"
+    },
+    {
+      "id": "feat-061",
+      "name": "Thread-dump flame graph (page + HTML export)",
+      "description": "Show a thread-dump flame graph at the end of the analysis results and in the exported HTML report. Each thread is one sample; width is thread count; oldest frames sit at the bottom.",
+      "dependencies": [
+        "feat-046",
+        "feat-006"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Results page has a flamegraph section after the threads table (data-testid=flamegraph)",
+        "HTML export includes the same flame graph SVG at the end of the report",
+        "Width is proportional to folded thread count; stacks are reversed (oldest at bottom)",
+        "Live graph supports hover tooltip and click-to-zoom; export is a static SVG with titles",
+        "./init.sh green; e2e FEATURE_CHECKS for feat-061"
+      ],
+      "evidence": "web/src/flamegraph.ts buildFlameTree/layoutFlame/renderFlameSvg; FlameGraph.tsx at end of Results; export.ts section-flamegraph; scripts/test-flamegraph.mjs"
+    },
+    {
+      "id": "feat-062",
+      "name": "Collapsible left report section nav",
+      "description": "Left sidebar indexes report sections (findings, deadlocks, contention, states, clusters, threads, flame graph). Click jumps to the section. A bottom button collapses/expands the sidebar (persisted).",
+      "dependencies": [
+        "feat-013",
+        "feat-061"
+      ],
+      "status": "done",
+      "acceptance": [
+        "When results are showing, a left nav lists the visible report sections",
+        "Clicking a nav item scrolls to that section (id=section-*)",
+        "Bottom control collapses the sidebar; click again expands; HTML export uses a checkbox/label so collapse works without React",
+        "./init.sh green; e2e FEATURE_CHECKS for feat-062"
+      ],
+      "evidence": "web/src/ReportNav.tsx + reportNav.ts; Results results-shell; export.ts report-nav + #report-nav-collapsed; index.css sticky nav + is-nav-collapsed"
     }
   ]
 }

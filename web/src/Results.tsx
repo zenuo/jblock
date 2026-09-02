@@ -9,8 +9,18 @@ import {
   type Finding,
   type ThreadSortKey,
 } from "./analysisUi";
+import FlameGraph from "./FlameGraph";
 import { useI18n, type TranslateFn } from "./i18n";
 import PatternLegendModal from "./PatternLegendModal";
+import ReportNav from "./ReportNav";
+import {
+  parseSectionId,
+  readNavCollapsed,
+  reportSections,
+  sectionDomId,
+  storeNavCollapsed,
+  type ReportSectionId,
+} from "./reportNav";
 import type { Analysis, ThreadInfo } from "./types";
 
 const STATE_COLORS: Record<string, string> = {
@@ -52,6 +62,8 @@ export default function Results({ analysis }: Props) {
   const [fullStacks, setFullStacks] = useState<Set<number>>(new Set());
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
   const [legendFinding, setLegendFinding] = useState<Finding | null>(null);
+  const [navCollapsed, setNavCollapsed] = useState(() => readNavCollapsed());
+  const [activeSection, setActiveSection] = useState<ReportSectionId>("findings");
 
   useEffect(() => {
     setStateFilter(hasBlocked ? "BLOCKED" : "ALL");
@@ -86,6 +98,70 @@ export default function Results({ analysis }: Props) {
       stateFilter === "ALL" ? base : base.filter((th) => th.state === stateFilter);
     return clusterByStack(scoped, 2).slice(0, 12);
   }, [analysis.threads, hideNoise, stateFilter]);
+
+  const flameThreads = useMemo(
+    () =>
+      hideNoise
+        ? analysis.threads.filter((th) => !isJvmNoise(th.name))
+        : analysis.threads,
+    [analysis.threads, hideNoise],
+  );
+
+  const sections = useMemo(
+    () =>
+      reportSections({
+        hasDeadlocks: analysis.deadlocks.length > 0,
+        hasClusters: clusters.length > 0,
+      }),
+    [analysis.deadlocks.length, clusters.length],
+  );
+
+  useEffect(() => {
+    const els = sections
+      .map((s) => document.getElementById(sectionDomId(s.id)))
+      .filter((el): el is HTMLElement => el !== null);
+    if (els.length === 0) return;
+    const ratios = new Map<string, number>();
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        }
+        let bestId: string | null = null;
+        let best = 0;
+        for (const [id, ratio] of ratios) {
+          if (ratio > best) {
+            best = ratio;
+            bestId = id;
+          }
+        }
+        if (!bestId) return;
+        const parsed = parseSectionId(bestId);
+        if (parsed) setActiveSection(parsed);
+      },
+      { rootMargin: "-12% 0px -55% 0px", threshold: [0, 0.15, 0.35, 0.6, 1] },
+    );
+    for (const el of els) obs.observe(el);
+    return () => obs.disconnect();
+  }, [sections, analysis]);
+
+  const toggleNav = () => {
+    setNavCollapsed((prev) => {
+      const next = !prev;
+      storeNavCollapsed(next);
+      return next;
+    });
+  };
+
+  const jumpToSection = (domId: string) => {
+    const parsed = parseSectionId(domId);
+    if (parsed) setActiveSection(parsed);
+    const el = document.getElementById(domId);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (typeof history !== "undefined" && history.replaceState) {
+      history.replaceState(null, "", `#${domId}`);
+    }
+  };
 
   const maxState = Math.max(1, ...analysis.state_counts.map((s) => s.count));
   const noiseHidden = hideNoise
@@ -157,8 +233,23 @@ export default function Results({ analysis }: Props) {
       : String(filteredThreads.length);
 
   return (
-    <main className="results" data-testid="results">
-      <section className="panel findings" data-testid="findings">
+    <div
+      className={`results-shell${navCollapsed ? " is-nav-collapsed" : ""}`}
+      data-testid="results-shell"
+    >
+      <ReportNav
+        sections={sections}
+        collapsed={navCollapsed}
+        onToggle={toggleNav}
+        activeId={activeSection}
+        onNavigate={jumpToSection}
+      />
+      <main className="results" data-testid="results">
+      <section
+        className="panel findings"
+        data-testid="findings"
+        id={sectionDomId("findings")}
+      >
         <div className="findings-header">
           <h2>{t("findings.title")}</h2>
           <div className="findings-header-meta">
@@ -217,7 +308,11 @@ export default function Results({ analysis }: Props) {
       )}
 
       {analysis.deadlocks.length > 0 && (
-        <section className="panel deadlock-panel" data-testid="deadlocks">
+        <section
+          className="panel deadlock-panel"
+          data-testid="deadlocks"
+          id={sectionDomId("deadlocks")}
+        >
           <h2>{t("deadlocks.title", { count: analysis.deadlocks.length })}</h2>
           {analysis.deadlocks.map((d, i) => (
             <div key={i} className="deadlock-cycle">
@@ -274,7 +369,11 @@ export default function Results({ analysis }: Props) {
         </section>
       )}
 
-      <section className="panel" data-testid="contention">
+      <section
+        className="panel"
+        data-testid="contention"
+        id={sectionDomId("contention")}
+      >
         <h2>
           {t("contention.title", { count: contentionGroups.length })}
         </h2>
@@ -334,7 +433,11 @@ export default function Results({ analysis }: Props) {
         )}
       </section>
 
-      <section className="panel states-panel" data-testid="thread-states">
+      <section
+        className="panel states-panel"
+        data-testid="thread-states"
+        id={sectionDomId("states")}
+      >
         <h2>{t("states.title")}</h2>
         <ul className="states">
           {analysis.state_counts.map((s) => (
@@ -365,7 +468,11 @@ export default function Results({ analysis }: Props) {
       </section>
 
       {clusters.length > 0 && (
-        <section className="panel" data-testid="clusters">
+        <section
+          className="panel"
+          data-testid="clusters"
+          id={sectionDomId("clusters")}
+        >
           <h2>{t("clusters.title", { count: clusters.length })}</h2>
           <p className="empty">{t("clusters.blurb")}</p>
           <ul className="cluster-list">
@@ -397,7 +504,7 @@ export default function Results({ analysis }: Props) {
         </section>
       )}
 
-      <section className="panel" data-testid="threads">
+      <section className="panel" data-testid="threads" id={sectionDomId("threads")}>
         <div className="threads-toolbar">
           <h2>{t("threads.title", { shown: shownLabel })}</h2>
           <label className="toolbar-check">
@@ -490,7 +597,18 @@ export default function Results({ analysis }: Props) {
           </div>
         )}
       </section>
+
+      <section
+        className="panel flame-panel"
+        data-testid="flamegraph"
+        id={sectionDomId("flamegraph")}
+      >
+        <h2>{t("flame.title")}</h2>
+        <p className="empty">{t("flame.blurb")}</p>
+        <FlameGraph threads={flameThreads} />
+      </section>
     </main>
+    </div>
   );
 }
 
