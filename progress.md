@@ -50,4 +50,7 @@ test parser::tests::mxbean_dedupes_reentrant_held_locks ... ok
 $ cargo run --features cli --bin jblock -- -j --section threads Dubbo_JStack.log
 # Id=664 held_locks = [ReadAheadInputStream@3ee52c67, JDBC4Connection@3022c5cb]  (was 3 lines)
 # Id=663 held_locks = [ReadAheadInputStream@341d4717, JDBC4Connection@711fcff0]  (was 4 lines)
+
+$ node scripts/e2e-features.mjs --skip-web
+Summary: 59/59 features PASS (incl. feat-059)
 ```

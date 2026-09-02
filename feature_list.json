@@ -692,7 +692,7 @@
         "Distinct monitors on the same thread are still listed separately, innermost first",
         "e2e FEATURE_CHECKS for feat-059"
       ],
-      "evidence": "src/parser.rs push_unique_held_lock in jstack/MXBean/unknown parsers; tests mxbean_dedupes_reentrant_held_locks + jstack_dedupes_reentrant_held_locks; Dubbo MXBean dump Id=664/663 each 2 unique locks (was 3/4 lines)"
+      "evidence": "src/parser.rs push_unique_held_lock in jstack/MXBean/unknown parsers; tests mxbean_dedupes_reentrant_held_locks + jstack_dedupes_reentrant_held_locks; Dubbo MXBean dump Id=664/663 each 2 unique locks (was 3/4 lines); e2e 59/59 feat-059"
     }
   ]
 }
