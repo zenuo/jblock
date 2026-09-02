@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-03T02:08:18.954Z",
+  "generated_at": "2026-09-02T07:39:44.361Z",
   "root": "/workspace",
   "summary": {
-    "total": 57,
-    "pass": 57,
+    "total": 58,
+    "pass": 58,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 105,
@@ -1687,39 +1687,19 @@
     },
     {
       "id": "feat-055",
-      "name": "Findings Java version + green OK empty state",
+      "name": "Findings green OK empty state",
       "status_in_list": "done",
       "ok": true,
       "checks": [
-        {
-          "name": "cargo:detects_java_version_field",
-          "ok": true,
-          "detail": "passed as parser::tests::detects_java_version_field"
-        },
-        {
-          "name": "cargo:detects_java_version_support",
-          "ok": true,
-          "detail": "passed as parser::tests::detects_java_version_support"
-        },
-        {
-          "name": "static:Analysis.java_version on Rust + TS",
-          "ok": true,
-          "detail": "Analysis.java_version on Rust + TS"
-        },
-        {
-          "name": "static:Findings header Java version badge",
-          "ok": true,
-          "detail": "Findings header Java version badge"
-        },
         {
           "name": "static:green ✅ empty state when no problem findings",
           "ok": true,
           "detail": "green ✅ empty state when no problem findings"
         },
         {
-          "name": "static:HTML export + i18n for version/ok state",
+          "name": "static:HTML export + i18n for OK empty state",
           "ok": true,
-          "detail": "HTML export + i18n for version/ok state"
+          "detail": "HTML export + i18n for OK empty state"
         }
       ]
     },
@@ -1804,13 +1784,51 @@
     {
       "id": "feat-057",
       "name": "CI cross-platform CLI artifacts",
-      "status_in_list": "in_progress",
+      "status_in_list": "done",
       "ok": true,
       "checks": [
         {
-          "name": "pending",
+          "name": "static:cli job matrix covers linux/windows/macos runners",
           "ok": true,
-          "detail": "skipped (status=in_progress); 4 acceptance criteria recorded"
+          "detail": "cli job matrix covers linux/windows/macos runners"
+        },
+        {
+          "name": "static:release CLI build + three platform artifact names",
+          "ok": true,
+          "detail": "release CLI build + three platform artifact names"
+        },
+        {
+          "name": "static:CLI binaries uploaded via upload-artifact",
+          "ok": true,
+          "detail": "CLI binaries uploaded via upload-artifact"
+        }
+      ]
+    },
+    {
+      "id": "feat-058",
+      "name": "Remove unreliable Java version detection",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:does_not_identify_hotspot_vm_token_as_java_product_version",
+          "ok": true,
+          "detail": "passed as parser::tests::does_not_identify_hotspot_vm_token_as_java_product_version"
+        },
+        {
+          "name": "static:detect_java_version and Analysis.java_version removed",
+          "ok": true,
+          "detail": "detect_java_version and Analysis.java_version removed"
+        },
+        {
+          "name": "static:Findings/export/CLI Java version badge gone",
+          "ok": true,
+          "detail": "Findings/export/CLI Java version badge gone"
+        },
+        {
+          "name": "static:i18n version keys removed",
+          "ok": true,
+          "detail": "i18n version keys removed"
         }
       ]
     }

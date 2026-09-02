@@ -47,15 +47,6 @@ export function buildReportHtml(
               format: analysis.format,
             }),
           )}</span>
-          ${
-            analysis.java_version
-              ? `<span class="java-version-badge">${escapeHtml(
-                  t("findings.javaVersion", {
-                    version: analysis.java_version,
-                  }),
-                )}</span>`
-              : ""
-          }
         </div>
       </div>
       ${
@@ -63,16 +54,10 @@ export function buildReportHtml(
           ? `<div class="finding finding-ok"><div class="finding-row"><strong><span class="finding-ok-mark" aria-hidden="true">✅</span>${escapeHtml(
               t("findings.okTitle"),
             )}</strong></div><span class="mono">${escapeHtml(
-              analysis.java_version
-                ? t("findings.okDetailWithJava", {
-                    version: analysis.java_version,
-                    count: analysis.total_threads,
-                    format: analysis.format,
-                  })
-                : t("findings.okDetail", {
-                    count: analysis.total_threads,
-                    format: analysis.format,
-                  }),
+              t("findings.okDetail", {
+                count: analysis.total_threads,
+                format: analysis.format,
+              }),
             )}</span></div>`
           : `<ul class="findings-list">
         ${findings
