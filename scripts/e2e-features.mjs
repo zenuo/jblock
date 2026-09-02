@@ -1127,6 +1127,21 @@ FEATURE_CHECKS["feat-058"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-059"] = {
+  cargo: [
+    "mxbean_dedupes_reentrant_held_locks",
+    "jstack_dedupes_reentrant_held_locks",
+  ],
+  static: [
+    () => ({
+      ok:
+        contains("src/parser.rs", "fn push_unique_held_lock") &&
+        contains("src/parser.rs", "push_unique_held_lock(&mut held_locks"),
+      detail: "push_unique_held_lock used when collecting held locks",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

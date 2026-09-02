@@ -676,6 +676,23 @@
         "Green OK empty state from feat-055 remains; ./init.sh green; e2e FEATURE_CHECKS for feat-058"
       ],
       "evidence": "parser/types/Results/export/CLI/i18n drop java_version; cargo does_not_identify_hotspot_vm_token_as_java_product_version; ./init.sh 105 cargo + 58/58 e2e; CLI JSON on Java 8u45 dump has no java_version; Findings header 656 个线程 · jstack without Java 25.45 badge"
+    },
+    {
+      "id": "feat-059",
+      "name": "Dedupe reentrant held locks",
+      "description": "ThreadMXBean/jstack emit one `- locked` line per nested synchronized entry. held_locks lists each unique monitor once (innermost-first), so the threads table does not repeat the same Class@hash / 0x identity.",
+      "dependencies": [
+        "feat-002",
+        "feat-009"
+      ],
+      "status": "done",
+      "acceptance": [
+        "MXBean dump with the same Class@hash locked on multiple frames yields one held_locks entry for that identity",
+        "jstack dump with the same <0x…> locked twice yields one held_locks entry",
+        "Distinct monitors on the same thread are still listed separately, innermost first",
+        "e2e FEATURE_CHECKS for feat-059"
+      ],
+      "evidence": "src/parser.rs push_unique_held_lock in jstack/MXBean/unknown parsers; tests mxbean_dedupes_reentrant_held_locks + jstack_dedupes_reentrant_held_locks; Dubbo MXBean dump Id=664/663 each 2 unique locks (was 3/4 lines)"
     }
   ]
 }

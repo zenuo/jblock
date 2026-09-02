@@ -3,17 +3,23 @@
 ## Current State
 
 **Last Updated:** 2026-09-02
-**Active Feature:** feat-058 (done)
+**Active Feature:** feat-059 (done)
 
 ## Status
 
 ### What's Done
 
-- [x] **feat-058** Remove unreliable Java version detection
-  - Root cause: jstack header `Full thread dump … VM (25.45-b02 mixed mode)` is the **HotSpot VM** token for **Java 8u45**, not Java 25. `normalize_version_token` only mapped majors 23–25 to Java 6–8 when minor ≥ 100 (Temurin 8 fixture is `25.492-b09`), so 8u0–8u99 displayed as `25.xx`.
-  - Java 25 uses JEP 223 (`25` / `25.0.x+build`); that collides with HotSpot 25. MXBean dumps often have no version signal.
-  - Withdrawn: `detect_java_version`, `Analysis.java_version`, Findings/HTML/CLI badges.
-  - Kept: feat-055 green ✅ empty state; feat-008 format support across Java 8/11/17/21.
+- [x] **feat-059** Dedupe reentrant held locks
+  - ThreadMXBean / jstack emit one `- locked` annotation per nested `synchronized` frame
+  - `held_locks` now keeps each unique monitor once (innermost-first dump order)
+  - Screenshot of Dubbo MXBean dump repeating `JDBC4Connection@…` 2–3 times was a display of reentrant entries, not N distinct locks
+
+- [x] **feat-058** Remove unreliable Java version detection (prior session)
+  - Root cause: jstack header `Full thread dump … VM (25.45-b02 mixed mode)` is the HotSpot VM token for Java 8u45, not Java 25
+  - Withdrawn: `detect_java_version`, `Analysis.java_version`, Findings/HTML/CLI badges
+
+- [x] **feat-057** CI cross-platform CLI artifacts (prior session)
+- [x] **feat-056** CLI shell (prior session)
 
 ### What's In Progress
 
@@ -21,26 +27,27 @@
 
 ### What's Next
 
-1. (none for this batch)
+1. Optional: show reentrancy count (`×2`) next to a unique lock if operators want hold-count
+
+### Unresolved Risks
+
+- None for feat-059. Distinct locks on the same thread still list separately.
 
 ## Decisions Made
 
-- Do not guess a Java product version from dump text. A wrong badge is worse than no badge; HotSpot VM majors and JEP 223 cannot be disambiguated reliably across jstack / MXBean / JSON / other VMs.
+- Deduplicate at parse time (all three block parsers), not only in the threads table, so CLI JSON / HTML export / lock-order analysis stay consistent
+- Keep first-seen (innermost) order; `lock_acquisition_order` still reverses to outermost-first
+- Do not add a reentrancy counter in this batch
+- Do not guess a Java product version from dump text (feat-058)
 
-## Verification Evidence
-
-User dump `ms82668.txt` (Java 8u45, 656 threads) **before**: `java_version=25.45`.
+## Evidence of Completion
 
 ```text
-$ ./init.sh
-cargo test --features cli  → 105 passed
-pnpm -C web run wasm/lint/typecheck/build → ok
-node scripts/e2e-features.mjs --skip-web → Summary: 58/58 features PASS (incl. feat-058)
+$ cargo test --features cli --lib dedupes_reentrant_held_locks
+test parser::tests::jstack_dedupes_reentrant_held_locks ... ok
+test parser::tests::mxbean_dedupes_reentrant_held_locks ... ok
 
-$ cargo run --features cli --bin jblock -- -j ms82668.txt
-# JSON keys: blocked_edges, deadlocks, format, patterns, state_counts, threads, total_threads
-# java_version absent; format=jstack; total_threads=656
-# text header: "jblock · jstack · 656 threads" (no Java 25.45)
+$ cargo run --features cli --bin jblock -- -j --section threads Dubbo_JStack.log
+# Id=664 held_locks = [ReadAheadInputStream@3ee52c67, JDBC4Connection@3022c5cb]  (was 3 lines)
+# Id=663 held_locks = [ReadAheadInputStream@341d4717, JDBC4Connection@711fcff0]  (was 4 lines)
 ```
-
-Browser: sample Findings meta `17 个线程 · jstack`; ms82668 Findings meta `656 个线程 · jstack`; no Java version badge.

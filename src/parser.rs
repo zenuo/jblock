@@ -277,6 +277,17 @@ fn extract_mxbean_id(header: &str, mxbean_id_re: &Regex) -> Option<String> {
         .map(|m| m.as_str().to_string())
 }
 
+/// Append a held monitor if this thread does not already own it.
+///
+/// HotSpot / ThreadMXBean emit one `- locked` annotation per nested
+/// `synchronized` entry. Reentrant acquires of the same object are one
+/// held lock, not N distinct locks.
+fn push_unique_held_lock(held_locks: &mut Vec<String>, lock_id: String) {
+    if !held_locks.contains(&lock_id) {
+        held_locks.push(lock_id);
+    }
+}
+
 /// Parse one jstack thread block: `#N` id, `java.lang.Thread.State`, `<0x…>` monitors.
 fn parse_jstack_block(
     block: &[&str],
@@ -298,7 +309,7 @@ fn parse_jstack_block(
             if trimmed.contains("waiting to lock") {
                 waiting_on = Some(lock_id);
             } else if trimmed.contains("locked") {
-                held_locks.push(lock_id);
+                push_unique_held_lock(&mut held_locks, lock_id);
             }
             // Note: `- waiting on <0x…>` is Object.wait / park, not lock acquisition.
         }
@@ -343,7 +354,7 @@ fn parse_mxbean_block(
             let lock_id = cap[2].to_string();
             match kind {
                 "blocked on" | "waiting to lock" => waiting_on = Some(lock_id),
-                "locked" => held_locks.push(lock_id),
+                "locked" => push_unique_held_lock(&mut held_locks, lock_id),
                 _ => {}
             }
         }
@@ -407,7 +418,7 @@ fn parse_unknown_block(
             let lock_id = cap[2].to_string();
             match kind {
                 "blocked on" | "waiting to lock" => waiting_on = Some(lock_id),
-                "locked" => held_locks.push(lock_id),
+                "locked" => push_unique_held_lock(&mut held_locks, lock_id),
                 _ => {}
             }
         }
@@ -415,8 +426,8 @@ fn parse_unknown_block(
             let lock_id = cap[1].to_string();
             if trimmed.contains("waiting to lock") {
                 waiting_on = waiting_on.or(Some(lock_id.clone()));
-            } else if trimmed.contains("locked") && !held_locks.contains(&lock_id) {
-                held_locks.push(lock_id);
+            } else if trimmed.contains("locked") {
+                push_unique_held_lock(&mut held_locks, lock_id);
             }
         }
     }
@@ -2344,6 +2355,61 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM:
             assert_eq!(edge.lock, "java.lang.Object@53d8d10a");
             assert_eq!(edge.owner_thread.as_deref(), Some("holder"));
         }
+    }
+
+    /// ThreadMXBean emits one `- locked Class@hash` per nested `synchronized`
+    /// frame. Reentrant acquires of the same monitor are one held lock, not N.
+    #[test]
+    fn mxbean_dedupes_reentrant_held_locks() {
+        let dump = r#""DubboServerHandler-thread-498" Id=664 RUNNABLE
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at com.mysql.jdbc.util.ReadAheadInputStream.read(ReadAheadInputStream.java:174)
+	-  locked com.mysql.jdbc.util.ReadAheadInputStream@3ee52c67
+	at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2465)
+	-  locked com.mysql.jdbc.JDBC4Connection@3022c5cb
+	at com.mysql.jdbc.ConnectionImpl.setAutoCommit(ConnectionImpl.java:4776)
+	-  locked com.mysql.jdbc.JDBC4Connection@3022c5cb
+"#;
+        let a = analyze(dump);
+        assert_eq!(a.format, DumpFormat::ThreadMxBean);
+        let t = a
+            .threads
+            .iter()
+            .find(|t| t.name == "DubboServerHandler-thread-498")
+            .unwrap();
+        assert_eq!(
+            t.held_locks,
+            vec![
+                "com.mysql.jdbc.util.ReadAheadInputStream@3ee52c67".to_string(),
+                "com.mysql.jdbc.JDBC4Connection@3022c5cb".to_string(),
+            ]
+        );
+    }
+
+    /// jstack likewise annotates every nested monitor entry; same identity
+    /// must appear once in `held_locks` (innermost-first dump order).
+    #[test]
+    fn jstack_dedupes_reentrant_held_locks() {
+        let dump = r#"Full thread dump Java HotSpot(TM) 64-Bit Server VM:
+
+"worker" #2 prio=5 os_prio=0 tid=0x00007f0003 nid=0x2 runnable [0x00007f0004]
+   java.lang.Thread.State: RUNNABLE
+        at com.example.Inner.run(Inner.java:20)
+        - locked <0x000000076ab00000> (a java.lang.Object)
+        at com.example.Outer.run(Outer.java:10)
+        - locked <0x000000076ab00000> (a java.lang.Object)
+        - locked <0x000000076ab11111> (a java.lang.Object)
+"#;
+        let a = analyze(dump);
+        assert_eq!(a.format, DumpFormat::Jstack);
+        let t = a.threads.iter().find(|t| t.name == "worker").unwrap();
+        assert_eq!(
+            t.held_locks,
+            vec![
+                "0x000000076ab00000".to_string(),
+                "0x000000076ab11111".to_string(),
+            ]
+        );
     }
 
     #[test]

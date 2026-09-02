@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-02T07:39:44.361Z",
+  "generated_at": "2026-09-02T08:27:23.062Z",
   "root": "/workspace",
   "summary": {
-    "total": 58,
-    "pass": 58,
+    "total": 59,
+    "pass": 59,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 105,
+    "cargo_passed": 107,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -1829,6 +1829,29 @@
           "name": "static:i18n version keys removed",
           "ok": true,
           "detail": "i18n version keys removed"
+        }
+      ]
+    },
+    {
+      "id": "feat-059",
+      "name": "Dedupe reentrant held locks",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:mxbean_dedupes_reentrant_held_locks",
+          "ok": true,
+          "detail": "passed as parser::tests::mxbean_dedupes_reentrant_held_locks"
+        },
+        {
+          "name": "cargo:jstack_dedupes_reentrant_held_locks",
+          "ok": true,
+          "detail": "passed as parser::tests::jstack_dedupes_reentrant_held_locks"
+        },
+        {
+          "name": "static:push_unique_held_lock used when collecting held locks",
+          "ok": true,
+          "detail": "push_unique_held_lock used when collecting held locks"
         }
       ]
     }
