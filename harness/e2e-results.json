@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T02:26:00.480Z",
+  "generated_at": "2026-09-04T07:47:26.876Z",
   "root": "/workspace",
   "summary": {
     "total": 62,
@@ -1475,9 +1475,19 @@
           "detail": "parser no longer caps stack with MAX_STACK_FRAMES"
         },
         {
-          "name": "static:UI preview + show-all control for full stack",
+          "name": "static:expanded stack shows every frame with highlighting",
           "ok": true,
-          "detail": "UI preview + show-all control for full stack"
+          "detail": "expanded stack shows every frame with highlighting"
+        },
+        {
+          "name": "static:stack frame tokenizer + token colors",
+          "ok": true,
+          "detail": "stack frame tokenizer + token colors"
+        },
+        {
+          "name": "static:stackFrame tokenizer tests",
+          "ok": true,
+          "detail": "stackFrame tokenizer tests"
         },
         {
           "name": "static:ThreadInfo.stack typed as full stack",

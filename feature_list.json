@@ -471,12 +471,12 @@
     {
       "id": "feat-046",
       "name": "Full thread stack frames",
-      "description": "Parser retains every stack frame (not only top 12). Thread table stack expand shows a short preview then a control to reveal the remaining frames so users can inspect the full stack.",
+      "description": "Parser retains every stack frame. Expanding a thread in the table shows the full stack immediately, with syntax highlighting on package/class/method/file/line.",
       "dependencies": [
         "feat-016"
       ],
       "status": "done",
-      "evidence": "parser drops MAX_STACK_FRAMES cap; cargo captures_full_stack_frames; Results stack-show-all expands beyond STACK_PREVIEW_FRAMES; e2e feat-046"
+      "evidence": "parser keeps full stacks; Results renders every frame on expand with stackFrame.ts highlighting; no 12-frame preview; scripts/test-stack-frame.mjs; e2e feat-046"
     },
     {
       "id": "feat-047",

@@ -3,16 +3,16 @@
 ## Current State
 
 **Last Updated:** 2026-09-04
-**Active Feature:** feat-015/016 thread table hide empty waiting_on + multi-sort
+**Active Feature:** feat-046 full stack + syntax highlighting
 
 ## Status
 
 ### What's Done
 
-- [x] Hide **Waiting on** when every visible row is blank (live table + HTML export)
-- [x] Multi-column sort: click replaces, Shift-click adds/toggles; headers show ↑/↓ and rank
-- [x] Home intro Java version line removed (prior)
-- [x] Home CTA hairline removed (prior)
+- [x] Expanding a thread shows **every** stack frame (no 12-frame preview / "more frames")
+- [x] Stack frames highlighted: package, class, method, file, line, Native Method
+- [x] Same highlighting on stack clusters
+- [x] Hide empty waiting_on + multi-column sort (prior)
 
 ### What's In Progress
 
@@ -31,13 +31,12 @@
 ## Decisions Made
 
 - Stayed on `main` per AGENTS.md.
-- Hide waiting_on based on the currently filtered rows, not the whole dump.
-- Shift-click is the additive sort gesture (spreadsheet convention).
+- Tokenize frames locally (no highlighter library). Dark stack-row uses cyan method + yellow line; clusters use accent method on light background.
 
 ## Evidence of Completion
 
 ```text
-$ node --experimental-strip-types --no-warnings scripts/test-sort-threads.mjs
+$ node --experimental-strip-types --no-warnings scripts/test-stack-frame.mjs
 $ pnpm -C web run lint && pnpm -C web run typecheck
 $ node scripts/e2e-features.mjs --skip-web
 ```

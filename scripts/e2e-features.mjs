@@ -859,11 +859,32 @@ FEATURE_CHECKS["feat-046"] = {
     }),
     () => ({
       ok:
-        contains("web/src/Results.tsx", "STACK_PREVIEW_FRAMES") &&
-        contains("web/src/Results.tsx", "stack-show-all") &&
-        contains("web/src/Results.tsx", "onShowFullStack"),
-      detail: "UI preview + show-all control for full stack",
+        !contains("web/src/Results.tsx", "STACK_PREVIEW_FRAMES") &&
+        !contains("web/src/Results.tsx", "stack-show-all") &&
+        contains("web/src/Results.tsx", "th.stack.map") &&
+        contains("web/src/Results.tsx", "StackFrameView"),
+      detail: "expanded stack shows every frame with highlighting",
     }),
+    () => ({
+      ok:
+        contains("web/src/stackFrame.ts", "tokenizeStackFrame") &&
+        contains("web/src/index.css", ".sf-method"),
+      detail: "stack frame tokenizer + token colors",
+    }),
+    () => {
+      const r = run("node", [
+        "--experimental-strip-types",
+        "--no-warnings",
+        "scripts/test-stack-frame.mjs",
+      ]);
+      return {
+        ok: r.status === 0,
+        detail:
+          r.status === 0
+            ? "stackFrame tokenizer tests"
+            : `stackFrame tests failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
+      };
+    },
     () => ({
       ok: contains("web/src/types.ts", "feat-046") || contains("web/src/types.ts", "Full stack"),
       detail: "ThreadInfo.stack typed as full stack",
