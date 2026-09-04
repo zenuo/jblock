@@ -2094,12 +2094,16 @@ th {
   z-index: 50;
   background: var(--bg-elevated);
   padding: 1rem clamp(1rem, 3vw, 2rem) 1.25rem;
-  box-shadow: var(--shadow-soft);
+}
+
+.flame-shell.is-fullscreen .flame-toolbar {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .flame-shell.is-fullscreen .flame-wrap {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  max-height: calc(100vh - 5.5rem);
   overflow: auto;
 }
 

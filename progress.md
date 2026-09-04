@@ -15,7 +15,7 @@
 
 ### What's In Progress
 
-- [ ] Browser walkthrough of fullscreen enter/exit
+- [ ] (none)
 
 ### What's Next
 
@@ -40,3 +40,5 @@ $ pnpm -C web run lint && pnpm -C web run typecheck
 $ node scripts/e2e-features.mjs --skip-web
 Summary: 63/63 features PASS
 ```
+
+Browser: sample dump → Flame graph → Fullscreen covers the viewport (heading + Exit fullscreen); Exit button and Escape both restore the inline panel.
