@@ -188,6 +188,7 @@ export const fr: Messages = {
   "threads.colStack": "Pile",
   "threads.colHeldLocks": "Verrous détenus",
   "threads.moreFrames": "… {count} frame(s) de plus",
+  "threads.sortHint": "Maj+clic sur un en-tête pour ajouter une colonne de tri",
   "nav.title": "Sur cette page",
   "nav.collapse": "Réduire",
   "nav.expand": "Développer",

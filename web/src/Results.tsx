@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   aggregateContention,
+  applySortClick,
   buildFindings,
   clusterByStack,
   isJvmNoise,
   sortThreads,
   threadDomId,
+  threadHasWaitingOn,
   type Finding,
   type ThreadSortKey,
+  type ThreadSortSpec,
 } from "./analysisUi";
 import FlameGraph from "./FlameGraph";
 import { useI18n, type TranslateFn } from "./i18n";
@@ -55,8 +58,9 @@ export default function Results({ analysis }: Props) {
     hasBlocked ? "BLOCKED" : "ALL",
   );
   const [hideNoise, setHideNoise] = useState(true);
-  const [sortKey, setSortKey] = useState<ThreadSortKey>("name");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [sorts, setSorts] = useState<ThreadSortSpec[]>([
+    { key: "name", dir: "asc" },
+  ]);
   const [expandedLocks, setExpandedLocks] = useState<Set<string>>(new Set());
   const [expandedStacks, setExpandedStacks] = useState<Set<number>>(new Set());
   const [fullStacks, setFullStacks] = useState<Set<number>>(new Set());
@@ -73,22 +77,37 @@ export default function Results({ analysis }: Props) {
     setFocusIndex(null);
   }, [analysis, hasBlocked]);
 
-  const filteredThreads = useMemo(() => {
+  const visibleThreads = useMemo(() => {
     let list = analysis.threads.map((th, index) => ({ t: th, index }));
     if (hideNoise) list = list.filter(({ t: th }) => !isJvmNoise(th.name));
     if (stateFilter !== "ALL") {
       list = list.filter(({ t: th }) => th.state === stateFilter);
     }
+    return list;
+  }, [analysis.threads, hideNoise, stateFilter]);
+
+  const showWaitingOn = useMemo(
+    () => visibleThreads.some(({ t }) => threadHasWaitingOn(t)),
+    [visibleThreads],
+  );
+
+  const activeSorts = useMemo(() => {
+    const next = showWaitingOn
+      ? sorts
+      : sorts.filter((s) => s.key !== "waiting");
+    return next.length > 0 ? next : [{ key: "name" as const, dir: "asc" as const }];
+  }, [sorts, showWaitingOn]);
+
+  const filteredThreads = useMemo(() => {
     const sorted = sortThreads(
-      list.map(({ t: th }) => th),
-      sortKey,
-      sortDir,
+      visibleThreads.map(({ t }) => t),
+      activeSorts,
     );
     return sorted.map((th) => {
       const index = analysis.threads.indexOf(th);
       return { t: th, index };
     });
-  }, [analysis.threads, hideNoise, stateFilter, sortKey, sortDir]);
+  }, [visibleThreads, activeSorts, analysis.threads]);
 
   const clusters = useMemo(() => {
     const base = hideNoise
@@ -219,12 +238,8 @@ export default function Results({ analysis }: Props) {
     });
   };
 
-  const onSort = (key: ThreadSortKey) => {
-    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
+  const onSort = (key: ThreadSortKey, additive: boolean) => {
+    setSorts((prev) => applySortClick(prev, key, additive));
   };
 
   const shownLabel =
@@ -530,61 +545,67 @@ export default function Results({ analysis }: Props) {
               ))}
             </select>
           </label>
+          <span className="threads-sort-hint">{t("threads.sortHint")}</span>
         </div>
         {filteredThreads.length === 0 ? (
           <p className="empty">{t("threads.empty")}</p>
         ) : (
           <div className="table-scroll">
-            <table className="threads-table">
+            <table
+              className="threads-table"
+              data-testid="threads-table"
+              data-has-waiting={showWaitingOn ? "true" : "false"}
+            >
             <thead>
               <tr>
-                <th>
-                  <button
-                    type="button"
-                    className="th-btn"
-                    onClick={() => onSort("name")}
-                  >
-                    {t("threads.colName")}
-                  </button>
-                </th>
-                <th>
-                  <button
-                    type="button"
-                    className="th-btn"
-                    data-testid="sort-id"
-                    onClick={() => onSort("id")}
-                  >
-                    {t("threads.colId")}
-                  </button>
-                </th>
-                <th>
-                  <button
-                    type="button"
-                    className="th-btn"
-                    onClick={() => onSort("state")}
-                  >
-                    {t("threads.colState")}
-                  </button>
-                </th>
-                <th>{t("threads.colWaitingOn")}</th>
-                <th>
-                  <button
-                    type="button"
-                    className="th-btn"
-                    onClick={() => onSort("stack")}
-                  >
-                    {t("threads.colStack")}
-                  </button>
-                </th>
-                <th>
-                  <button
-                    type="button"
-                    className="th-btn"
-                    onClick={() => onSort("locks")}
-                  >
-                    {t("threads.colHeldLocks")}
-                  </button>
-                </th>
+                <SortHeader
+                  label={t("threads.colName")}
+                  column="name"
+                  sorts={activeSorts}
+                  hint={t("threads.sortHint")}
+                  testId="sort-name"
+                  onSort={onSort}
+                />
+                <SortHeader
+                  label={t("threads.colId")}
+                  column="id"
+                  sorts={activeSorts}
+                  hint={t("threads.sortHint")}
+                  testId="sort-id"
+                  onSort={onSort}
+                />
+                <SortHeader
+                  label={t("threads.colState")}
+                  column="state"
+                  sorts={activeSorts}
+                  hint={t("threads.sortHint")}
+                  testId="sort-state"
+                  onSort={onSort}
+                />
+                {showWaitingOn ? (
+                  <SortHeader
+                    label={t("threads.colWaitingOn")}
+                    column="waiting"
+                    sorts={activeSorts}
+                    hint={t("threads.sortHint")}
+                    testId="sort-waiting"
+                    onSort={onSort}
+                  />
+                ) : null}
+                <SortHeader
+                  label={t("threads.colStack")}
+                  column="stack"
+                  sorts={activeSorts}
+                  hint={t("threads.sortHint")}
+                  onSort={onSort}
+                />
+                <SortHeader
+                  label={t("threads.colHeldLocks")}
+                  column="locks"
+                  sorts={activeSorts}
+                  hint={t("threads.sortHint")}
+                  onSort={onSort}
+                />
               </tr>
             </thead>
             <tbody>
@@ -596,6 +617,7 @@ export default function Results({ analysis }: Props) {
                   focused={focusIndex === index}
                   expanded={expandedStacks.has(index)}
                   showFullStack={fullStacks.has(index)}
+                  showWaitingOn={showWaitingOn}
                   onToggleStack={() => toggleStack(index)}
                   onShowFullStack={() => showFullStack(index)}
                   translate={t}
@@ -621,12 +643,76 @@ export default function Results({ analysis }: Props) {
   );
 }
 
+function colClass(column: ThreadSortKey): string {
+  switch (column) {
+    case "name":
+      return "col-name";
+    case "id":
+      return "col-id";
+    case "state":
+      return "col-state";
+    case "waiting":
+      return "col-waiting";
+    case "stack":
+      return "col-stack";
+    case "locks":
+      return "col-locks";
+  }
+}
+
+function SortHeader({
+  label,
+  column,
+  sorts,
+  hint,
+  testId,
+  onSort,
+}: {
+  label: string;
+  column: ThreadSortKey;
+  sorts: ThreadSortSpec[];
+  hint: string;
+  testId?: string;
+  onSort: (key: ThreadSortKey, additive: boolean) => void;
+}) {
+  const rank = sorts.findIndex((s) => s.key === column);
+  const spec = rank >= 0 ? sorts[rank] : undefined;
+  const ariaSort =
+    rank !== 0 || !spec
+      ? "none"
+      : spec.dir === "asc"
+        ? "ascending"
+        : "descending";
+  return (
+    <th className={colClass(column)} aria-sort={ariaSort}>
+      <button
+        type="button"
+        className={`th-btn${spec ? " is-active" : ""}`}
+        data-testid={testId}
+        data-sort-rank={rank >= 0 ? String(rank + 1) : undefined}
+        data-sort-dir={spec?.dir}
+        title={hint}
+        onClick={(e) => onSort(column, e.shiftKey)}
+      >
+        {label}
+        {spec ? (
+          <span className="th-sort-mark" aria-hidden="true">
+            {spec.dir === "asc" ? "↑" : "↓"}
+            {sorts.length > 1 ? rank + 1 : ""}
+          </span>
+        ) : null}
+      </button>
+    </th>
+  );
+}
+
 function ThreadRow({
   thread: th,
   index,
   focused,
   expanded,
   showFullStack,
+  showWaitingOn,
   onToggleStack,
   onShowFullStack,
   translate: tr,
@@ -636,6 +722,7 @@ function ThreadRow({
   focused: boolean;
   expanded: boolean;
   showFullStack: boolean;
+  showWaitingOn: boolean;
   onToggleStack: () => void;
   onShowFullStack: () => void;
   translate: TranslateFn;
@@ -651,9 +738,9 @@ function ThreadRow({
         id={threadDomId(index)}
         className={focused ? "thread-row focus" : "thread-row"}
       >
-        <td className="cell-break">{th.name}</td>
-        <td data-testid="thread-id">{th.id ?? ""}</td>
-        <td>
+        <td className="cell-break col-name" data-testid="thread-name">{th.name}</td>
+        <td className="col-id" data-testid="thread-id">{th.id ?? ""}</td>
+        <td className="col-state" data-testid="thread-state">
           <span
             className="state-pill"
             style={{ background: STATE_COLORS[th.state] ?? "#64748b" }}
@@ -661,8 +748,10 @@ function ThreadRow({
             {th.state}
           </span>
         </td>
-        <td className="mono cell-break">{th.waiting_on ?? ""}</td>
-        <td>
+        {showWaitingOn ? (
+          <td className="mono cell-break col-waiting">{th.waiting_on ?? ""}</td>
+        ) : null}
+        <td className="col-stack">
           {th.stack_depth > 0 ? (
             <button type="button" className="linkish" onClick={onToggleStack}>
               {th.stack_depth}
@@ -672,7 +761,7 @@ function ThreadRow({
             0
           )}
         </td>
-        <td className="held-locks-cell">
+        <td className="held-locks-cell col-locks">
           {th.held_locks.length === 0 ? (
             ""
           ) : (
@@ -688,7 +777,7 @@ function ThreadRow({
       </tr>
       {expanded && th.stack.length > 0 && (
         <tr className="stack-row">
-          <td colSpan={6}>
+          <td colSpan={showWaitingOn ? 6 : 5}>
             <ol className="stack-preview" data-testid="stack-preview">
               {visibleFrames.map((f, i) => (
                 <li key={i} className="mono">

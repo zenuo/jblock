@@ -188,6 +188,7 @@ export const nl: Messages = {
   "threads.colStack": "Stack",
   "threads.colHeldLocks": "Vastgehouden locks",
   "threads.moreFrames": "… nog {count} frame(s)",
+  "threads.sortHint": "Shift-klik op een kop om een sorteerkolom toe te voegen",
   "nav.title": "Op deze pagina",
   "nav.collapse": "Inklappen",
   "nav.expand": "Uitklappen",

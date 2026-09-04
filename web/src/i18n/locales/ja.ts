@@ -188,6 +188,7 @@ export const ja: Messages = {
   "threads.colStack": "スタック",
   "threads.colHeldLocks": "保持ロック",
   "threads.moreFrames": "… 他 {count} フレーム",
+  "threads.sortHint": "Shift+クリックでソート列を追加",
   "nav.title": "このページ",
   "nav.collapse": "折りたたむ",
   "nav.expand": "展開",

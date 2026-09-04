@@ -264,10 +264,10 @@ const FEATURE_CHECKS = {
       }),
       () => ({
         ok:
-          contains("web/src/analysisUi.ts", '"id"') &&
-          contains("web/src/Results.tsx", 'onSort("id")') &&
-          contains("web/src/Results.tsx", 'data-testid="sort-id"'),
-        detail: "thread table sorts by id",
+          contains("web/src/analysisUi.ts", "applySortClick") &&
+          contains("web/src/Results.tsx", "e.shiftKey") &&
+          contains("web/src/Results.tsx", "threads.sortHint"),
+        detail: "thread table multi-column sort via Shift-click",
       }),
       () => {
         const r = run("node", [
@@ -279,7 +279,7 @@ const FEATURE_CHECKS = {
           ok: r.status === 0,
           detail:
             r.status === 0
-              ? "sortThreads id numeric order"
+              ? "sortThreads id + multi-column order"
               : `sortThreads tests failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
         };
       },
@@ -291,6 +291,13 @@ const FEATURE_CHECKS = {
       () => ({
         ok: contains("src/parser.rs", "stack") && contains("web/src/Results.tsx", "waiting"),
         detail: "stack frames + waiting_on UI",
+      }),
+      () => ({
+        ok:
+          contains("web/src/Results.tsx", "showWaitingOn") &&
+          contains("web/src/export.ts", "showWaitingOn") &&
+          contains("web/src/analysisUi.ts", "threadHasWaitingOn"),
+        detail: "hide waiting_on column when every visible row is blank",
       }),
     ],
   },

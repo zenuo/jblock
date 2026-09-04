@@ -141,12 +141,12 @@
     {
       "id": "feat-015",
       "name": "Thread table filter and sort",
-      "description": "Filter threads by state (click state bar or dropdown), sort by name/id/state/stack/locks; default emphasis on BLOCKED when present",
+      "description": "Filter threads by state (click state bar or dropdown), sort by name/id/state/waiting/stack/locks (Shift-click adds a column); default emphasis on BLOCKED when present",
       "dependencies": [
         "feat-013"
       ],
       "status": "done",
-      "evidence": "Results state filter (bar click + dropdown) and sortable columns including numeric Id; default BLOCKED when present; scripts/test-sort-threads.mjs"
+      "evidence": "Results state filter; sortable columns incl. numeric Id; Shift-click multi-sort; applySortClick + scripts/test-sort-threads.mjs"
     },
     {
       "id": "feat-016",
@@ -156,7 +156,7 @@
         "feat-002"
       ],
       "status": "done",
-      "evidence": "parser ThreadInfo.stack (top 12); waiting_on column + expandable stack rows; cargo test captures_top_stack_frames"
+      "evidence": "parser ThreadInfo.stack; waiting_on column + expandable stacks; column hidden when all visible waiting_on values are blank; cargo test captures_top_stack_frames"
     },
     {
       "id": "feat-017",

@@ -580,7 +580,19 @@ export function threadDomId(index: number): string {
   return `thread-row-${index}`;
 }
 
-export type ThreadSortKey = "name" | "id" | "state" | "stack" | "locks";
+export type ThreadSortKey =
+  | "name"
+  | "id"
+  | "state"
+  | "waiting"
+  | "stack"
+  | "locks";
+
+export type ThreadSortSpec = { key: ThreadSortKey; dir: "asc" | "desc" };
+
+export function threadHasWaitingOn(thread: ThreadInfo): boolean {
+  return Boolean(thread.waiting_on && thread.waiting_on.trim() !== "");
+}
 
 function isMissingId(id: string | null): boolean {
   return id == null || id === "";
@@ -598,14 +610,17 @@ function comparePresentThreadId(a: string, b: string): number {
   return a.localeCompare(b, undefined, { numeric: true });
 }
 
-export function sortThreads(
-  threads: ThreadInfo[],
+function compareByKey(
+  a: ThreadInfo,
+  b: ThreadInfo,
   key: ThreadSortKey,
   dir: "asc" | "desc",
-): ThreadInfo[] {
+): number {
   const mul = dir === "asc" ? 1 : -1;
-  return [...threads].sort((a, b) => {
-    if (key === "id") {
+  switch (key) {
+    case "name":
+      return a.name.localeCompare(b.name) * mul;
+    case "id": {
       const aMissing = isMissingId(a.id);
       const bMissing = isMissingId(b.id);
       if (aMissing !== bMissing) return aMissing ? 1 : -1;
@@ -613,23 +628,54 @@ export function sortThreads(
         const idCmp = comparePresentThreadId(a.id, b.id);
         if (idCmp !== 0) return idCmp * mul;
       }
-      return a.name.localeCompare(b.name) * mul;
+      return 0;
     }
-    let cmp = 0;
-    switch (key) {
-      case "name":
-        cmp = a.name.localeCompare(b.name);
-        break;
-      case "state":
-        cmp = a.state.localeCompare(b.state) || a.name.localeCompare(b.name);
-        break;
-      case "stack":
-        cmp = a.stack_depth - b.stack_depth;
-        break;
-      case "locks":
-        cmp = a.held_locks.length - b.held_locks.length;
-        break;
+    case "state":
+      return a.state.localeCompare(b.state) * mul;
+    case "waiting": {
+      const aw = a.waiting_on?.trim() ?? "";
+      const bw = b.waiting_on?.trim() ?? "";
+      if ((aw === "") !== (bw === "")) return aw ? -1 : 1;
+      return aw.localeCompare(bw) * mul;
     }
-    return cmp * mul;
+    case "stack":
+      return (a.stack_depth - b.stack_depth) * mul;
+    case "locks":
+      return (a.held_locks.length - b.held_locks.length) * mul;
+  }
+}
+
+/** Click a header: replace the sort, or Shift-click to add/toggle another key. */
+export function applySortClick(
+  specs: ThreadSortSpec[],
+  key: ThreadSortKey,
+  additive: boolean,
+): ThreadSortSpec[] {
+  const idx = specs.findIndex((s) => s.key === key);
+  if (additive) {
+    if (idx >= 0) {
+      const next = specs.slice();
+      next[idx] = { key, dir: specs[idx].dir === "asc" ? "desc" : "asc" };
+      return next;
+    }
+    return [...specs, { key, dir: "asc" }];
+  }
+  if (specs.length === 1 && idx === 0) {
+    return [{ key, dir: specs[0].dir === "asc" ? "desc" : "asc" }];
+  }
+  return [{ key, dir: "asc" }];
+}
+
+export function sortThreads(
+  threads: ThreadInfo[],
+  specs: ThreadSortSpec[],
+): ThreadInfo[] {
+  const keys = specs.length > 0 ? specs : [{ key: "name" as const, dir: "asc" as const }];
+  return [...threads].sort((a, b) => {
+    for (const spec of keys) {
+      const cmp = compareByKey(a, b, spec.key, spec.dir);
+      if (cmp !== 0) return cmp;
+    }
+    return a.name.localeCompare(b.name);
   });
 }

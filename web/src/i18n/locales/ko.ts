@@ -188,6 +188,7 @@ export const ko: Messages = {
   "threads.colStack": "스택",
   "threads.colHeldLocks": "보유 락",
   "threads.moreFrames": "… {count}개 프레임 더",
+  "threads.sortHint": "Shift+클릭으로 정렬 열 추가",
   "nav.title": "이 페이지",
   "nav.collapse": "접기",
   "nav.expand": "펼치기",

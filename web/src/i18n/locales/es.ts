@@ -188,6 +188,7 @@ export const es: Messages = {
   "threads.colStack": "Stack",
   "threads.colHeldLocks": "Locks sostenidos",
   "threads.moreFrames": "… {count} frame(s) más",
+  "threads.sortHint": "Mayús+clic en un encabezado para añadir otra columna de orden",
   "nav.title": "En esta página",
   "nav.collapse": "Contraer",
   "nav.expand": "Expandir",

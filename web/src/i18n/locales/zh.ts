@@ -188,6 +188,7 @@ export const zh: Messages = {
   "threads.colStack": "堆栈",
   "threads.colHeldLocks": "持有锁",
   "threads.moreFrames": "… 另有 {count} 帧",
+  "threads.sortHint": "按住 Shift 再点表头可叠加排序",
   "nav.title": "本页目录",
   "nav.collapse": "折叠",
   "nav.expand": "展开",

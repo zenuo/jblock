@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T02:15:03.314Z",
+  "generated_at": "2026-09-04T02:26:00.480Z",
   "root": "/workspace",
   "summary": {
     "total": 62,
@@ -322,14 +322,14 @@
           "detail": "thread filter/sort UI"
         },
         {
-          "name": "static:thread table sorts by id",
+          "name": "static:thread table multi-column sort via Shift-click",
           "ok": true,
-          "detail": "thread table sorts by id"
+          "detail": "thread table multi-column sort via Shift-click"
         },
         {
-          "name": "static:sortThreads id numeric order",
+          "name": "static:sortThreads id + multi-column order",
           "ok": true,
-          "detail": "sortThreads id numeric order"
+          "detail": "sortThreads id + multi-column order"
         }
       ]
     },
@@ -348,6 +348,11 @@
           "name": "static:stack frames + waiting_on UI",
           "ok": true,
           "detail": "stack frames + waiting_on UI"
+        },
+        {
+          "name": "static:hide waiting_on column when every visible row is blank",
+          "ok": true,
+          "detail": "hide waiting_on column when every visible row is blank"
         }
       ]
     },

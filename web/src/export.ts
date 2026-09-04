@@ -1,4 +1,4 @@
-import { aggregateContention, buildFindings } from "./analysisUi";
+import { aggregateContention, buildFindings, threadHasWaitingOn } from "./analysisUi";
 import { buildFlameTree, renderFlameSvg } from "./flamegraph";
 import { htmlLangFor, type Locale, type TranslateFn } from "./i18n";
 import appCss from "./index.css?inline";
@@ -119,6 +119,8 @@ export function buildReportHtml(
           )
           .join("");
 
+  const showWaitingOn = analysis.threads.some(threadHasWaitingOn);
+
   const threadRows = analysis.threads
     .map((th) => {
       const locks =
@@ -130,13 +132,16 @@ export function buildReportHtml(
                   `<li class="mono cell-break">${escapeHtml(lock)}</li>`,
               )
               .join("")}</ul>`;
-      return `<tr><td class="cell-break">${escapeHtml(th.name)}</td><td>${escapeHtml(
+      const waitingCell = showWaitingOn
+        ? `<td class="mono cell-break col-waiting">${escapeHtml(
+            th.waiting_on ?? "",
+          )}</td>`
+        : "";
+      return `<tr><td class="cell-break col-name">${escapeHtml(th.name)}</td><td class="col-id">${escapeHtml(
         th.id ?? "",
-      )}</td><td><span class="state-pill" style="background:${
+      )}</td><td class="col-state"><span class="state-pill" style="background:${
         STATE_COLORS[th.state] ?? "#64748b"
-      }">${escapeHtml(th.state)}</span></td><td class="mono cell-break">${escapeHtml(
-        th.waiting_on ?? "",
-      )}</td><td>${th.stack_depth}</td><td class="held-locks-cell">${locks}</td></tr>`;
+      }">${escapeHtml(th.state)}</span></td>${waitingCell}<td class="col-stack">${th.stack_depth}</td><td class="held-locks-cell col-locks">${locks}</td></tr>`;
     })
     .join("");
 
@@ -220,11 +225,15 @@ export function buildReportHtml(
   <section class="panel" id="${sectionDomId("threads")}">
     <h2>${escapeHtml(t("threads.title", { shown: String(analysis.threads.length) }))}</h2>
     <div class="table-scroll">
-    <table class="threads-table"><thead><tr><th>${escapeHtml(t("threads.colName"))}</th><th>${escapeHtml(
+    <table class="threads-table" data-has-waiting="${showWaitingOn ? "true" : "false"}"><thead><tr><th class="col-name">${escapeHtml(t("threads.colName"))}</th><th class="col-id">${escapeHtml(
       t("threads.colId"),
-    )}</th><th>${escapeHtml(t("threads.colState"))}</th><th>${escapeHtml(
-      t("threads.colWaitingOn"),
-    )}</th><th>${escapeHtml(t("threads.colStack"))}</th><th>${escapeHtml(
+    )}</th><th class="col-state">${escapeHtml(t("threads.colState"))}</th>${
+      showWaitingOn
+        ? `<th class="col-waiting">${escapeHtml(t("threads.colWaitingOn"))}</th>`
+        : ""
+    }<th class="col-stack">${escapeHtml(
+      t("threads.colStack"),
+    )}</th><th class="col-locks">${escapeHtml(
       t("threads.colHeldLocks"),
     )}</th></tr></thead><tbody>${threadRows}</tbody></table>
     </div>

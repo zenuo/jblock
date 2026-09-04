@@ -223,6 +223,7 @@ export type MessageKey =
   | "threads.colStack"
   | "threads.colHeldLocks"
   | "threads.moreFrames"
+  | "threads.sortHint"
   | "nav.title"
   | "nav.collapse"
   | "nav.expand"

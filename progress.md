@@ -3,17 +3,16 @@
 ## Current State
 
 **Last Updated:** 2026-09-04
-**Active Feature:** feat-043 home points omit Java versions (done)
+**Active Feature:** feat-015/016 thread table hide empty waiting_on + multi-sort
 
 ## Status
 
 ### What's Done
 
-- [x] **Home intro: drop "Java 8 · 11 · 17 · 21"**
-  - Removed `home.pointVersions` from App, MessageKey, and all 8 locales
-  - Help modal still documents Java 8/11/17/21
+- [x] Hide **Waiting on** when every visible row is blank (live table + HTML export)
+- [x] Multi-column sort: click replaces, Shift-click adds/toggles; headers show ↑/↓ and rank
+- [x] Home intro Java version line removed (prior)
 - [x] Home CTA hairline removed (prior)
-- [x] Thread table Id column sort (prior)
 
 ### What's In Progress
 
@@ -23,7 +22,6 @@
 
 1. Optional: click a held-lock id in the threads table to jump to that lock's contention group
 2. Optional: show reentrancy count (`×2`) next to a unique lock
-3. Optional: flame-graph color-by-package or export click-to-zoom
 
 ### Unresolved Risks
 
@@ -33,12 +31,13 @@
 ## Decisions Made
 
 - Stayed on `main` per AGENTS.md.
-- Homepage highlights stay at two facts: on-device + supported dump formats. Version coverage remains in Help.
+- Hide waiting_on based on the currently filtered rows, not the whole dump.
+- Shift-click is the additive sort gesture (spreadsheet convention).
 
 ## Evidence of Completion
 
 ```text
+$ node --experimental-strip-types --no-warnings scripts/test-sort-threads.mjs
 $ pnpm -C web run lint && pnpm -C web run typecheck
 $ node scripts/e2e-features.mjs --skip-web
-feat-043: home intro omits Java version highlight
 ```
