@@ -1393,6 +1393,23 @@ FEATURE_CHECKS["feat-064"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-065"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        !contains("web/src/FlameGraph.tsx", "<title>") &&
+        contains("web/src/FlameGraph.tsx", "flame-tip") &&
+        contains("web/src/FlameGraph.tsx", "aria-label={tipText}"),
+      detail: "live flame SVG has no native <title>; custom tip + aria-label",
+    }),
+    () => ({
+      ok: contains("web/src/flamegraph.ts", "<title>${title}</title>"),
+      detail: "HTML export SVG still uses <title> for hover",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

@@ -782,6 +782,21 @@
         "scripts/test-flamegraph.mjs covers both modes; e2e FEATURE_CHECKS for feat-064"
       ],
       "evidence": "flamegraph.ts FlameGroupBy; FlameGraph.tsx flame-seg; test-flamegraph frames default + state; e2e feat-064"
+    },
+    {
+      "id": "feat-065",
+      "name": "Flame graph live tooltip without native SVG title",
+      "description": "The interactive flame graph shows only the custom hover tip. SVG <title> is omitted on the live chart so the browser does not pop a second native tooltip after a delay. HTML export still uses <title> for hover.",
+      "dependencies": [
+        "feat-061"
+      ],
+      "status": "done",
+      "acceptance": [
+        "web/src/FlameGraph.tsx has no <title> inside the live SVG; hover uses .flame-tip",
+        "renderFlameSvg / HTML export still emits <title> on frames",
+        "e2e FEATURE_CHECKS for feat-065"
+      ],
+      "evidence": "removed SVG title from FlameGraph.tsx; export renderFlameSvg keeps <title>; e2e feat-065"
     }
   ]
 }

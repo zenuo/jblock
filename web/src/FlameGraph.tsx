@@ -228,6 +228,7 @@ export default function FlameGraph({ threads }: Props) {
         <p className="empty">{t("flame.empty")}</p>
       ) : (
         <div className="flame-wrap" ref={wrapRef} data-testid="flame-wrap">
+          {/* Native SVG titles would pop a second browser tooltip after a delay. */}
           <svg
             className="flame-svg"
             data-testid="flamegraph-svg"
@@ -249,22 +250,20 @@ export default function FlameGraph({ threads }: Props) {
                 label = `${label.slice(0, maxChars - 1)}…`;
               }
               const key = `${rect.path.join("\0")}:${rect.x}`;
+              const tipText = t("flame.tooltip", {
+                name: rect.name,
+                count: rect.value,
+                pct:
+                  layout.total > 0
+                    ? ((rect.value / layout.total) * 100).toFixed(1)
+                    : "0",
+              });
               return (
                 <g
                   key={key}
                   onClick={() => onRectClick(rect)}
                   onMouseMove={(e) => onRectMove(e, rect)}
                 >
-                  <title>
-                    {t("flame.tooltip", {
-                      name: rect.name,
-                      count: rect.value,
-                      pct:
-                        layout.total > 0
-                          ? ((rect.value / layout.total) * 100).toFixed(1)
-                          : "0",
-                    })}
-                  </title>
                   <rect
                     x={rect.x + 0.4}
                     y={rect.y + 0.4}
@@ -272,6 +271,7 @@ export default function FlameGraph({ threads }: Props) {
                     height={h}
                     rx={1.5}
                     fill={fill}
+                    aria-label={tipText}
                   />
                   {showLabel && (
                     <text

@@ -3,19 +3,19 @@
 ## Current State
 
 **Last Updated:** 2026-09-04
-**Active Feature:** feat-064 flame graph group by stack or state
+**Active Feature:** feat-065 flame live tooltip (no native SVG title)
 
 ## Status
 
 ### What's Done
 
-- [x] Flame graph defaults to stack grouping (no Thread.State row)
-- [x] Toolbar Stack / State segmented control; preference persisted
-- [x] Flame graph fullscreen (prior)
+- [x] Live flame graph hover uses only `.flame-tip` (removed duplicate SVG `<title>`)
+- [x] HTML export still uses `<title>` for static hover
+- [x] Flame group-by stack/state and fullscreen (prior)
 
 ### What's In Progress
 
-- [ ] (none)
+- [ ] Browser verify hover stays a single tooltip after several seconds
 
 ### What's Next
 
@@ -26,17 +26,15 @@
 
 - Very deep stacks are capped at 40 frames from the root (oldest side) so SVG height stays bounded.
 - HTML export sidebar collapse uses `:has(+ checkbox)` and needs a reasonably modern browser.
-- Flame fullscreen is live-page only; exported HTML stays a static SVG (stack grouping).
 
 ## Decisions Made
 
 - Stayed on `main` per AGENTS.md.
-- Default grouping is classic stack merge; dump-style state split is opt-in.
+- Keep SVG `<title>` only on the exported static SVG.
 
 ## Evidence of Completion
 
 ```text
-$ node --experimental-strip-types --no-warnings scripts/test-flamegraph.mjs
-flamegraph unit tests ok
 $ pnpm -C web run lint && pnpm -C web run typecheck
-Browser: sample dump flame graph defaults to Stack (`all` then `Thread.run`); State inserts BLOCKED/RUNNABLE/WAITING/TIMED_WAITING above `all`; switching back merges stacks again.
+$ node scripts/e2e-features.mjs --skip-web
+```

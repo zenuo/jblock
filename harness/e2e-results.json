@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-04T08:48:32.093Z",
+  "generated_at": "2026-09-04T09:02:41.998Z",
   "root": "/workspace",
   "summary": {
-    "total": 64,
-    "pass": 64,
+    "total": 65,
+    "pass": 65,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 111,
@@ -2037,6 +2037,24 @@
           "name": "static:HTML export keeps default stack grouping",
           "ok": true,
           "detail": "HTML export keeps default stack grouping"
+        }
+      ]
+    },
+    {
+      "id": "feat-065",
+      "name": "Flame graph live tooltip without native SVG title",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:live flame SVG has no native <title>; custom tip + aria-label",
+          "ok": true,
+          "detail": "live flame SVG has no native <title>; custom tip + aria-label"
+        },
+        {
+          "name": "static:HTML export SVG still uses <title> for hover",
+          "ok": true,
+          "detail": "HTML export SVG still uses <title> for hover"
         }
       ]
     }
