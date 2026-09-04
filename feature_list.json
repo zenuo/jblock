@@ -476,7 +476,7 @@
         "feat-016"
       ],
       "status": "done",
-      "evidence": "parser keeps full stacks; Results renders every frame on expand with stackFrame.ts highlighting; no 12-frame preview; scripts/test-stack-frame.mjs; e2e feat-046"
+      "evidence": "parser keeps full stacks; Results renders every frame on expand with stackFrame.ts highlighting; no 12-frame preview; scripts/test-stack-frame.mjs; e2e feat-046; browser: Dubbo dump thread-1 32/32 frames highlighted, no more-frames link"
     },
     {
       "id": "feat-047",

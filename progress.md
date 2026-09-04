@@ -37,6 +37,10 @@
 
 ```text
 $ node --experimental-strip-types --no-warnings scripts/test-stack-frame.mjs
+stackFrame tests ok
+
 $ pnpm -C web run lint && pnpm -C web run typecheck
 $ node scripts/e2e-features.mjs --skip-web
 ```
+
+Browser (Dubbo MXBean dump, 648 threads): expand `DubboServerHandler-…-thread-1` (id 138, stack 32) after sorting by Stack. All 32 numbered frames render in the dark pane with cyan methods / yellow line numbers; no "… N more frame(s)". Stack clusters use the same token colors on a light background. Dump-native `…` after ~32 `at` lines is JVM truncation, not UI truncation.
