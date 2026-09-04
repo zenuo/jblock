@@ -6,7 +6,10 @@ import {
   labelFill,
   layoutFlame,
   nodeAtPath,
+  readFlameGroupBy,
+  storeFlameGroupBy,
   shortFrameLabel,
+  type FlameGroupBy,
   type FlameRect,
 } from "./flamegraph";
 import { useI18n } from "./i18n";
@@ -27,6 +30,7 @@ export default function FlameGraph({ threads }: Props) {
   const [width, setWidth] = useState(800);
   const [fullscreen, setFullscreen] = useState(false);
   const [shellMinHeight, setShellMinHeight] = useState<number | null>(null);
+  const [groupBy, setGroupBy] = useState<FlameGroupBy>(() => readFlameGroupBy());
   const [focusPath, setFocusPath] = useState<string[] | null>(null);
   const [tip, setTip] = useState<{
     x: number;
@@ -73,8 +77,8 @@ export default function FlameGraph({ threads }: Props) {
   }, [fullscreen]);
 
   const tree = useMemo(
-    () => buildFlameTree(threads, t("flame.noStack")),
-    [threads, t],
+    () => buildFlameTree(threads, t("flame.noStack"), groupBy),
+    [threads, t, groupBy],
   );
 
   const focused = useMemo(() => {
@@ -99,6 +103,12 @@ export default function FlameGraph({ threads }: Props) {
       return;
     }
     setFocusPath(rect.path);
+  };
+
+  const applyGroupBy = (next: FlameGroupBy) => {
+    setGroupBy(next);
+    storeFlameGroupBy(next);
+    setFocusPath(null);
   };
 
   const toggleFullscreen = () => {
@@ -133,6 +143,7 @@ export default function FlameGraph({ threads }: Props) {
       className={`flame-shell${fullscreen ? " is-fullscreen" : ""}`}
       data-testid="flame-shell"
       data-fullscreen={fullscreen ? "true" : "false"}
+      data-group-by={groupBy}
       style={
         fullscreen && shellMinHeight
           ? { minHeight: shellMinHeight }
@@ -163,6 +174,33 @@ export default function FlameGraph({ threads }: Props) {
           </span>
         </div>
         <div className="flame-toolbar-actions">
+          {tree.value > 0 ? (
+            <div
+              className="flame-seg"
+              role="group"
+              aria-label={t("flame.groupBy")}
+              data-testid="flame-group"
+            >
+              <button
+                type="button"
+                className={groupBy === "frames" ? "is-active" : undefined}
+                data-testid="flame-group-frames"
+                aria-pressed={groupBy === "frames"}
+                onClick={() => applyGroupBy("frames")}
+              >
+                {t("flame.groupFrames")}
+              </button>
+              <button
+                type="button"
+                className={groupBy === "state" ? "is-active" : undefined}
+                data-testid="flame-group-state"
+                aria-pressed={groupBy === "state"}
+                onClick={() => applyGroupBy("state")}
+              >
+                {t("flame.groupState")}
+              </button>
+            </div>
+          ) : null}
           {zoomed && (
             <button
               type="button"

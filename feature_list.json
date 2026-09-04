@@ -765,6 +765,23 @@
         "./init.sh green; e2e FEATURE_CHECKS for feat-063"
       ],
       "evidence": "FlameGraph.tsx toggle + lockBodyScroll + Escape; CSS .flame-shell.is-fullscreen; i18n flame.fullscreen/exitFullscreen; e2e feat-063"
+    },
+    {
+      "id": "feat-064",
+      "name": "Flame graph group by stack or state",
+      "description": "Live flame graph defaults to classic stack merging (no Thread.State row). A toolbar segmented control switches to dump-style grouping that splits by thread state first. HTML export uses the stack default.",
+      "dependencies": [
+        "feat-061"
+      ],
+      "status": "done",
+      "acceptance": [
+        "buildFlameTree(..., groupBy) defaults to frames; groupBy=state inserts a Thread.State layer under all",
+        "Toolbar has Stack / State controls (data-testid=flame-group-frames|flame-group-state); Stack is default",
+        "Switching grouping rebuilds the tree and clears zoom",
+        "HTML export calls buildFlameTree without state grouping",
+        "scripts/test-flamegraph.mjs covers both modes; e2e FEATURE_CHECKS for feat-064"
+      ],
+      "evidence": "flamegraph.ts FlameGroupBy; FlameGraph.tsx flame-seg; test-flamegraph frames default + state; e2e feat-064"
     }
   ]
 }

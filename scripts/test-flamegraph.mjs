@@ -32,21 +32,19 @@ const threads = [
 const tree = buildFlameTree(threads, "(no stack)");
 assert.equal(tree.name, "all");
 assert.equal(tree.value, 3);
-
-const runnable = tree.children.find((c) => c.name === "RUNNABLE");
-const blocked = tree.children.find((c) => c.name === "BLOCKED");
-assert.ok(runnable);
-assert.ok(blocked);
-assert.equal(runnable.value, 2);
-assert.equal(blocked.value, 1);
-assert.equal(blocked.children[0]?.name, "(no stack)");
-
-const rootRun = runnable.children.find((c) =>
-  c.name.startsWith("pkg.Root.run"),
+assert.equal(
+  tree.children.some((c) => c.name === "RUNNABLE" || c.name === "BLOCKED"),
+  false,
+  "default grouping is by stack, not thread state",
 );
+
+const rootRun = tree.children.find((c) => c.name.startsWith("pkg.Root.run"));
 assert.ok(rootRun);
 assert.equal(rootRun.value, 2);
 assert.equal(rootRun.children.length, 2);
+const empty = tree.children.find((c) => c.name === "(no stack)");
+assert.ok(empty);
+assert.equal(empty.value, 1);
 
 const { rects, total, height } = layoutFlame(tree, 1000);
 assert.equal(total, 3);
@@ -55,19 +53,39 @@ const allRect = rects.find((r) => r.name === "all");
 assert.ok(allRect);
 assert.equal(allRect.width, 1000);
 assert.equal(allRect.x, 0);
+const rootRunRect = rects.find((r) => r.name.startsWith("pkg.Root.run"));
+assert.ok(rootRunRect);
+assert.ok(rootRunRect.y < allRect.y);
+const leaf = rects.find((r) => r.name.startsWith("pkg.Leaf.a"));
+assert.ok(leaf);
+assert.ok(leaf.y < rootRunRect.y);
 
-const runRect = rects.find((r) => r.name === "RUNNABLE");
-const blockRect = rects.find((r) => r.name === "BLOCKED");
+const byState = buildFlameTree(threads, "(no stack)", "state");
+const runnable = byState.children.find((c) => c.name === "RUNNABLE");
+const blocked = byState.children.find((c) => c.name === "BLOCKED");
+assert.ok(runnable);
+assert.ok(blocked);
+assert.equal(runnable.value, 2);
+assert.equal(blocked.value, 1);
+assert.equal(blocked.children[0]?.name, "(no stack)");
+const stateRootRun = runnable.children.find((c) =>
+  c.name.startsWith("pkg.Root.run"),
+);
+assert.ok(stateRootRun);
+assert.equal(stateRootRun.value, 2);
+assert.equal(stateRootRun.children.length, 2);
+
+const stateLayout = layoutFlame(byState, 1000);
+const runRect = stateLayout.rects.find((r) => r.name === "RUNNABLE");
+const blockRect = stateLayout.rects.find((r) => r.name === "BLOCKED");
 assert.ok(runRect && blockRect);
 assert.ok(Math.abs(runRect.width - (2 / 3) * 1000) < 0.001);
 assert.ok(Math.abs(blockRect.width - (1 / 3) * 1000) < 0.001);
-// Flame: root at the bottom (larger y) than its children.
-assert.ok(runRect.y < allRect.y);
-const leaf = rects.find((r) => r.name.startsWith("pkg.Leaf.a"));
-assert.ok(leaf);
-assert.ok(leaf.y < runRect.y);
+const stateAll = stateLayout.rects.find((r) => r.name === "all");
+assert.ok(stateAll);
+assert.ok(runRect.y < stateAll.y);
 
-const found = nodeAtPath(tree, ["all", "BLOCKED", "(no stack)"]);
+const found = nodeAtPath(byState, ["all", "BLOCKED", "(no stack)"]);
 assert.ok(found);
 assert.equal(found.value, 1);
 assert.equal(shortFrameLabel("com.foo.Bar.method(Bar.java:9)"), "Bar.method");

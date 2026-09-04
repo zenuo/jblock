@@ -1358,6 +1358,41 @@ FEATURE_CHECKS["feat-063"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-064"] = {
+  cargo: [],
+  static: [
+    () => {
+      const r = run("node", [
+        "--experimental-strip-types",
+        "--no-warnings",
+        "scripts/test-flamegraph.mjs",
+      ]);
+      return {
+        ok: r.status === 0,
+        detail:
+          r.status === 0
+            ? "flamegraph unit tests cover frames + state grouping"
+            : `flamegraph unit tests failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
+      };
+    },
+    () => ({
+      ok:
+        contains("web/src/flamegraph.ts", 'groupBy: FlameGroupBy = "frames"') &&
+        contains("web/src/flamegraph.ts", 'groupBy === "state"') &&
+        contains("web/src/FlameGraph.tsx", 'data-testid="flame-group-frames"') &&
+        contains("web/src/FlameGraph.tsx", 'data-testid="flame-group-state"'),
+      detail: "default frames grouping + toolbar toggle",
+    }),
+    () => ({
+      ok: !contains(
+        "web/src/export.ts",
+        'buildFlameTree(analysis.threads, t("flame.noStack"), "state")',
+      ),
+      detail: "HTML export keeps default stack grouping",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

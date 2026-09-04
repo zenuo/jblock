@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-04T08:18:05.441Z",
+  "generated_at": "2026-09-04T08:48:32.093Z",
   "root": "/workspace",
   "summary": {
-    "total": 63,
-    "pass": 63,
+    "total": 64,
+    "pass": 64,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 111,
@@ -2014,6 +2014,29 @@
           "name": "static:HTML export stays static (no fullscreen control)",
           "ok": true,
           "detail": "HTML export stays static (no fullscreen control)"
+        }
+      ]
+    },
+    {
+      "id": "feat-064",
+      "name": "Flame graph group by stack or state",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:flamegraph unit tests cover frames + state grouping",
+          "ok": true,
+          "detail": "flamegraph unit tests cover frames + state grouping"
+        },
+        {
+          "name": "static:default frames grouping + toolbar toggle",
+          "ok": true,
+          "detail": "default frames grouping + toolbar toggle"
+        },
+        {
+          "name": "static:HTML export keeps default stack grouping",
+          "ok": true,
+          "detail": "HTML export keeps default stack grouping"
         }
       ]
     }

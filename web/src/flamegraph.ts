@@ -1,7 +1,13 @@
 /**
  * Thread-dump flame graph: each thread is one sample. Stacks are reversed so
  * the oldest frame sits nearest the root (bottom of the chart).
+ *
+ * Grouping:
+ * - `frames` (default): classic flame — merge stacks regardless of thread state.
+ * - `state`: dump-oriented — `all` → Thread.State → frames.
  */
+
+export type FlameGroupBy = "frames" | "state";
 
 export interface FlameNode {
   name: string;
@@ -44,9 +50,34 @@ export interface FlameThread {
   stack: string[];
 }
 
+const GROUP_STORAGE_KEY = "jblock.flameGroupBy";
+
+export function isFlameGroupBy(value: string): value is FlameGroupBy {
+  return value === "frames" || value === "state";
+}
+
+export function readFlameGroupBy(): FlameGroupBy {
+  try {
+    const raw = localStorage.getItem(GROUP_STORAGE_KEY);
+    if (raw && isFlameGroupBy(raw)) return raw;
+  } catch {
+    /* ignore */
+  }
+  return "frames";
+}
+
+export function storeFlameGroupBy(groupBy: FlameGroupBy): void {
+  try {
+    localStorage.setItem(GROUP_STORAGE_KEY, groupBy);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function buildFlameTree(
   threads: FlameThread[],
   emptyFrame = "(no stack)",
+  groupBy: FlameGroupBy = "frames",
 ): FlameNode {
   const root: FlameNode = { name: "all", value: 0, children: [] };
   const index = new Map<FlameNode, Map<string, FlameNode>>();
@@ -68,8 +99,11 @@ export function buildFlameTree(
 
   for (const thread of threads) {
     root.value += 1;
-    let node = childOf(root, thread.state || "UNKNOWN");
-    node.value += 1;
+    let node: FlameNode = root;
+    if (groupBy === "state") {
+      node = childOf(root, thread.state || "UNKNOWN");
+      node.value += 1;
+    }
     const frames =
       thread.stack.length > 0
         ? [...thread.stack].reverse().slice(0, FLAME_MAX_FRAMES)
