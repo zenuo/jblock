@@ -2,21 +2,20 @@
 
 ## Current State
 
-**Last Updated:** 2026-09-02
-**Active Feature:** feat-061 + feat-062 (done)
+**Last Updated:** 2026-09-04
+**Active Feature:** feat-044 toolbar filename vertical align (done)
 
 ## Status
 
 ### What's Done
 
+- [x] **Toolbar dump filename vertical centering** (feat-044 polish on `main`)
+  - `.workspace-toolbar` uses `align-items: center`
+  - `.dump-filename` is a flex item with `align-self: center` and matching `min-height`
+  - e2e feat-044 static check asserts the CSS rules
 - [x] **feat-061** Thread-dump flame graph at the end of results and HTML export
-  - Each thread is one sample; width = folded thread count
-  - Stacks reversed so oldest frames sit at the bottom
-  - Live: hover tooltip + click-to-zoom; export: static SVG with `<title>`
 - [x] **feat-062** Collapsible left report section nav
-  - Indexes findings / deadlocks / contention / states / clusters / threads / flame graph
-  - Click jumps to `section-*`; bottom button collapses; HTML export uses a checkbox/label
-- [x] **feat-060** Live monitor-contention dumps from generated Java (landed on main in parallel)
+- [x] **feat-060** Live monitor-contention dumps from generated Java
 - [x] **feat-059** Dedupe reentrant held locks (prior)
 
 ### What's In Progress
@@ -36,24 +35,19 @@
 
 ## Decisions Made
 
-- No extra JS chart library: fold + SVG layout live in `web/src/flamegraph.ts` (zero new deps).
-- Live flame graph respects "Hide JVM noise"; HTML export includes every thread (same as the export threads table).
-- Sidebar is sticky inside the results workspace (not a viewport-fixed overlay) so the home intro stays unchanged.
-- Work stayed on `main` per AGENTS.md / user request.
-- After rebase, flame/nav are feat-061/062 because feat-060 was taken by live contention dumps.
+- Stayed on `main` (user: 「main上调整」 + AGENTS.md).
+- Filename sat high because the toolbar is flex with default `stretch`; the span filled button height and the text stuck to the top.
+- Worked as a CSS polish of feat-044, not a new feature id.
 
 ## Evidence of Completion
 
 ```text
-$ node --experimental-strip-types --no-warnings scripts/test-flamegraph.mjs
-flamegraph unit tests ok
-
-$ cargo test --features cli
-test result: ok. 111 passed
-
-$ pnpm -C web run lint && pnpm -C web run typecheck && pnpm -C web run build
-✓ lint / typecheck / vite build
-
 $ node scripts/e2e-features.mjs --skip-web
-Summary: 62/62 features PASS (incl. feat-061, feat-062)
+Summary: 62/62 features PASS
+feat-044 static: toolbar dump filename is vertically centered — ok
+
+$ puppeteer getBoundingClientRect (sample.txt and Dubbo_JStack.log.2026-09-02_13_13_35.txt)
+filenameTopGap === filenameBottomGap === 10.1875
+midDeltaVsToolbar === 0
+midDeltaVsButton === 0
 ```
