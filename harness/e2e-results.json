@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T09:02:41.998Z",
+  "generated_at": "2026-09-04T09:06:05.280Z",
   "root": "/workspace",
   "summary": {
     "total": 65,
@@ -2047,9 +2047,9 @@
       "ok": true,
       "checks": [
         {
-          "name": "static:live flame SVG has no native <title>; custom tip + aria-label",
+          "name": "static:live flame SVG has no native title; custom .flame-tip only",
           "ok": true,
-          "detail": "live flame SVG has no native <title>; custom tip + aria-label"
+          "detail": "live flame SVG has no native title; custom .flame-tip only"
         },
         {
           "name": "static:HTML export SVG still uses <title> for hover",

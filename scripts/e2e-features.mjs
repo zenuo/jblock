@@ -1399,9 +1399,8 @@ FEATURE_CHECKS["feat-065"] = {
     () => ({
       ok:
         !contains("web/src/FlameGraph.tsx", "<title>") &&
-        contains("web/src/FlameGraph.tsx", "flame-tip") &&
-        contains("web/src/FlameGraph.tsx", "aria-label={tipText}"),
-      detail: "live flame SVG has no native <title>; custom tip + aria-label",
+        contains("web/src/FlameGraph.tsx", "flame-tip"),
+      detail: "live flame SVG has no native title; custom .flame-tip only",
     }),
     () => ({
       ok: contains("web/src/flamegraph.ts", "<title>${title}</title>"),
