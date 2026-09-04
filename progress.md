@@ -3,20 +3,18 @@
 ## Current State
 
 **Last Updated:** 2026-09-04
-**Active Feature:** feat-044 toolbar filename vertical align (done)
+**Active Feature:** feat-015 thread table Id column sort (done)
 
 ## Status
 
 ### What's Done
 
-- [x] **Toolbar dump filename vertical centering** (feat-044 polish on `main`)
-  - `.workspace-toolbar` uses `align-items: center`
-  - `.dump-filename` is a flex item with `align-self: center` and matching `min-height`
-  - e2e feat-044 static check asserts the CSS rules
-- [x] **feat-061** Thread-dump flame graph at the end of results and HTML export
-- [x] **feat-062** Collapsible left report section nav
-- [x] **feat-060** Live monitor-contention dumps from generated Java
-- [x] **feat-059** Dedupe reentrant held locks (prior)
+- [x] **Thread table Id column sort** (feat-015 polish on `main`)
+  - Clicking **Id** sorts numerically (9 → 10 → 100), not lexicographically
+  - Missing ids stay last in both directions
+  - Second click toggles desc; same pattern as Name
+- [x] Toolbar dump filename vertical centering (prior)
+- [x] feat-061 / feat-062 flame graph + report nav (prior)
 
 ### What's In Progress
 
@@ -35,19 +33,19 @@
 
 ## Decisions Made
 
-- Stayed on `main` (user: 「main上调整」 + AGENTS.md).
-- Filename sat high because the toolbar is flex with default `stretch`; the span filled button height and the text stuck to the top.
-- Worked as a CSS polish of feat-044, not a new feature id.
+- Stayed on `main` per AGENTS.md.
+- Id values are strings in `ThreadInfo`; sort parses numbers when both sides are finite, otherwise `localeCompare({ numeric: true })`.
+- HTML export table stays static (no click-to-sort).
 
 ## Evidence of Completion
 
 ```text
-$ node scripts/e2e-features.mjs --skip-web
-Summary: 62/62 features PASS
-feat-044 static: toolbar dump filename is vertically centered — ok
+$ node --experimental-strip-types --no-warnings scripts/test-sort-threads.mjs
+sortThreads tests ok
 
-$ puppeteer getBoundingClientRect (sample.txt and Dubbo_JStack.log.2026-09-02_13_13_35.txt)
-filenameTopGap === filenameBottomGap === 10.1875
-midDeltaVsToolbar === 0
-midDeltaVsButton === 0
+$ pnpm -C web run lint && pnpm -C web run typecheck
+✓ lint / typecheck
+
+$ node scripts/e2e-features.mjs --skip-web
+Summary: 62/62 features PASS (feat-015 includes id sort)
 ```

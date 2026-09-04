@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T01:32:43.577Z",
+  "generated_at": "2026-09-04T01:54:32.589Z",
   "root": "/workspace",
   "summary": {
     "total": 62,
@@ -320,6 +320,16 @@
           "name": "static:thread filter/sort UI",
           "ok": true,
           "detail": "thread filter/sort UI"
+        },
+        {
+          "name": "static:thread table sorts by id",
+          "ok": true,
+          "detail": "thread table sorts by id"
+        },
+        {
+          "name": "static:sortThreads id numeric order",
+          "ok": true,
+          "detail": "sortThreads id numeric order"
         }
       ]
     },

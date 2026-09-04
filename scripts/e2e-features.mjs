@@ -262,6 +262,27 @@ const FEATURE_CHECKS = {
         ok: contains("web/src/Results.tsx", "filter") || contains("web/src/Results.tsx", "sort"),
         detail: "thread filter/sort UI",
       }),
+      () => ({
+        ok:
+          contains("web/src/analysisUi.ts", '"id"') &&
+          contains("web/src/Results.tsx", 'onSort("id")') &&
+          contains("web/src/Results.tsx", 'data-testid="sort-id"'),
+        detail: "thread table sorts by id",
+      }),
+      () => {
+        const r = run("node", [
+          "--experimental-strip-types",
+          "--no-warnings",
+          "scripts/test-sort-threads.mjs",
+        ]);
+        return {
+          ok: r.status === 0,
+          detail:
+            r.status === 0
+              ? "sortThreads id numeric order"
+              : `sortThreads tests failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
+        };
+      },
     ],
   },
   "feat-016": {

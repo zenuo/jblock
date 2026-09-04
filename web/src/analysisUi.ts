@@ -580,7 +580,23 @@ export function threadDomId(index: number): string {
   return `thread-row-${index}`;
 }
 
-export type ThreadSortKey = "name" | "state" | "stack" | "locks";
+export type ThreadSortKey = "name" | "id" | "state" | "stack" | "locks";
+
+function isMissingId(id: string | null): boolean {
+  return id == null || id === "";
+}
+
+function hasThreadId(id: string | null): id is string {
+  return !isMissingId(id);
+}
+
+/** Numeric when both ids parse as numbers; missing ids are ordered by the caller. */
+function comparePresentThreadId(a: string, b: string): number {
+  const an = Number(a);
+  const bn = Number(b);
+  if (Number.isFinite(an) && Number.isFinite(bn) && an !== bn) return an - bn;
+  return a.localeCompare(b, undefined, { numeric: true });
+}
 
 export function sortThreads(
   threads: ThreadInfo[],
@@ -589,6 +605,16 @@ export function sortThreads(
 ): ThreadInfo[] {
   const mul = dir === "asc" ? 1 : -1;
   return [...threads].sort((a, b) => {
+    if (key === "id") {
+      const aMissing = isMissingId(a.id);
+      const bMissing = isMissingId(b.id);
+      if (aMissing !== bMissing) return aMissing ? 1 : -1;
+      if (hasThreadId(a.id) && hasThreadId(b.id)) {
+        const idCmp = comparePresentThreadId(a.id, b.id);
+        if (idCmp !== 0) return idCmp * mul;
+      }
+      return a.name.localeCompare(b.name) * mul;
+    }
     let cmp = 0;
     switch (key) {
       case "name":

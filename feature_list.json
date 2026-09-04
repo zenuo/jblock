@@ -141,12 +141,12 @@
     {
       "id": "feat-015",
       "name": "Thread table filter and sort",
-      "description": "Filter threads by state (click state bar or dropdown), sort by name/state/stack/locks; default emphasis on BLOCKED when present",
+      "description": "Filter threads by state (click state bar or dropdown), sort by name/id/state/stack/locks; default emphasis on BLOCKED when present",
       "dependencies": [
         "feat-013"
       ],
       "status": "done",
-      "evidence": "Results state filter (bar click + dropdown) and sortable columns; default BLOCKED when present"
+      "evidence": "Results state filter (bar click + dropdown) and sortable columns including numeric Id; default BLOCKED when present; scripts/test-sort-threads.mjs"
     },
     {
       "id": "feat-016",

@@ -547,7 +547,16 @@ export default function Results({ analysis }: Props) {
                     {t("threads.colName")}
                   </button>
                 </th>
-                <th>{t("threads.colId")}</th>
+                <th>
+                  <button
+                    type="button"
+                    className="th-btn"
+                    data-testid="sort-id"
+                    onClick={() => onSort("id")}
+                  >
+                    {t("threads.colId")}
+                  </button>
+                </th>
                 <th>
                   <button
                     type="button"
@@ -643,7 +652,7 @@ function ThreadRow({
         className={focused ? "thread-row focus" : "thread-row"}
       >
         <td className="cell-break">{th.name}</td>
-        <td>{th.id ?? ""}</td>
+        <td data-testid="thread-id">{th.id ?? ""}</td>
         <td>
           <span
             className="state-pill"
