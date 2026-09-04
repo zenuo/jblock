@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T02:04:53.281Z",
+  "generated_at": "2026-09-04T02:15:03.314Z",
   "root": "/workspace",
   "summary": {
     "total": 62,
@@ -1389,6 +1389,11 @@
           "name": "static:home points use spacing, not a hairline rule",
           "ok": true,
           "detail": "home points use spacing, not a hairline rule"
+        },
+        {
+          "name": "static:home intro omits Java version highlight",
+          "ok": true,
+          "detail": "home intro omits Java version highlight"
         }
       ]
     },

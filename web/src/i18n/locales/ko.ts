@@ -23,7 +23,6 @@ export const ko: Messages = {
   "home.pointsLabel": "하이라이트",
   "home.pointLocal": "이 기기에만 유지",
   "home.pointFormats": "jstack & ThreadMXBean",
-  "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "작업 영역 동작",
   "app.help": "jblock 소개",
   "app.github": "GitHub 저장소",

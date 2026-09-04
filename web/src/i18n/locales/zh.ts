@@ -23,7 +23,6 @@ export const zh: Messages = {
   "home.pointsLabel": "要点",
   "home.pointLocal": "只留在本机",
   "home.pointFormats": "jstack 与 ThreadMXBean",
-  "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "工作区操作",
   "app.help": "关于 jblock",
   "app.github": "GitHub 仓库",

@@ -23,7 +23,6 @@ export const fr: Messages = {
   "home.pointsLabel": "Points clés",
   "home.pointLocal": "Reste sur cet appareil",
   "home.pointFormats": "jstack et ThreadMXBean",
-  "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "Actions de l’espace de travail",
   "app.help": "À propos de jblock",
   "app.github": "Dépôt GitHub",

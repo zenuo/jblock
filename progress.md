@@ -3,17 +3,17 @@
 ## Current State
 
 **Last Updated:** 2026-09-04
-**Active Feature:** feat-043 home points hairline removed (done)
+**Active Feature:** feat-043 home points omit Java versions (done)
 
 ## Status
 
 ### What's Done
 
-- [x] **Home intro: remove hairline under CTA**
-  - `.home-points` had `border-top`; `.controls { margin-bottom: 0 }` cancelled the CTA gap, so the rule sat on the buttons
-  - Divider removed; `.home-cta.controls` restores spacing with margin
-- [x] Thread table Id column sort (feat-015)
-- [x] Toolbar dump filename vertical centering
+- [x] **Home intro: drop "Java 8 · 11 · 17 · 21"**
+  - Removed `home.pointVersions` from App, MessageKey, and all 8 locales
+  - Help modal still documents Java 8/11/17/21
+- [x] Home CTA hairline removed (prior)
+- [x] Thread table Id column sort (prior)
 
 ### What's In Progress
 
@@ -33,11 +33,12 @@
 ## Decisions Made
 
 - Stayed on `main` per AGENTS.md.
-- Prefer whitespace over a rule between the home CTA and the three capability points.
+- Homepage highlights stay at two facts: on-device + supported dump formats. Version coverage remains in Help.
 
 ## Evidence of Completion
 
 ```text
+$ pnpm -C web run lint && pnpm -C web run typecheck
 $ node scripts/e2e-features.mjs --skip-web
-feat-043 static: home points use spacing, not a hairline rule
+feat-043: home intro omits Java version highlight
 ```

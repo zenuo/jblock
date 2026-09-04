@@ -60,7 +60,6 @@ export type MessageKey =
   | "home.pointsLabel"
   | "home.pointLocal"
   | "home.pointFormats"
-  | "home.pointVersions"
   | "home.toolbarLabel"
   | "help.title"
   | "help.close"

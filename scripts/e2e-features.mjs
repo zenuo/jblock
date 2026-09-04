@@ -766,6 +766,13 @@ FEATURE_CHECKS["feat-043"] = {
         detail: "home points use spacing, not a hairline rule",
       };
     },
+    () => ({
+      ok:
+        !contains("web/src/App.tsx", "home.pointVersions") &&
+        !contains("web/src/i18n/types.ts", "home.pointVersions") &&
+        !contains("web/src/i18n/locales/en.ts", "home.pointVersions"),
+      detail: "home intro omits Java version highlight",
+    }),
   ],
 };
 

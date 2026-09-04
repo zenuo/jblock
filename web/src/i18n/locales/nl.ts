@@ -23,7 +23,6 @@ export const nl: Messages = {
   "home.pointsLabel": "Hoogtepunten",
   "home.pointLocal": "Blijft op dit apparaat",
   "home.pointFormats": "jstack & ThreadMXBean",
-  "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "Workspace-acties",
   "app.help": "Over jblock",
   "app.github": "GitHub-repository",

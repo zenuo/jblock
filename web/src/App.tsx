@@ -262,7 +262,6 @@ export default function App() {
           <ul className="home-points" aria-label={t("home.pointsLabel")}>
             <li>{t("home.pointLocal")}</li>
             <li>{t("home.pointFormats")}</li>
-            <li>{t("home.pointVersions")}</li>
           </ul>
         </div>
       </section>

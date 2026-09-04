@@ -23,7 +23,6 @@ export const ja: Messages = {
   "home.pointsLabel": "ハイライト",
   "home.pointLocal": "この端末に留まる",
   "home.pointFormats": "jstack と ThreadMXBean",
-  "home.pointVersions": "Java 8 · 11 · 17 · 21",
   "home.toolbarLabel": "ワークスペース操作",
   "app.help": "jblock について",
   "app.github": "GitHub リポジトリ",
