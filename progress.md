@@ -3,18 +3,17 @@
 ## Current State
 
 **Last Updated:** 2026-09-04
-**Active Feature:** feat-015 thread table Id column sort (done)
+**Active Feature:** feat-043 home points hairline removed (done)
 
 ## Status
 
 ### What's Done
 
-- [x] **Thread table Id column sort** (feat-015 polish on `main`)
-  - Clicking **Id** sorts numerically (9 → 10 → 100), not lexicographically
-  - Missing ids stay last in both directions
-  - Second click toggles desc; same pattern as Name
-- [x] Toolbar dump filename vertical centering (prior)
-- [x] feat-061 / feat-062 flame graph + report nav (prior)
+- [x] **Home intro: remove hairline under CTA**
+  - `.home-points` had `border-top`; `.controls { margin-bottom: 0 }` cancelled the CTA gap, so the rule sat on the buttons
+  - Divider removed; `.home-cta.controls` restores spacing with margin
+- [x] Thread table Id column sort (feat-015)
+- [x] Toolbar dump filename vertical centering
 
 ### What's In Progress
 
@@ -34,18 +33,11 @@
 ## Decisions Made
 
 - Stayed on `main` per AGENTS.md.
-- Id values are strings in `ThreadInfo`; sort parses numbers when both sides are finite, otherwise `localeCompare({ numeric: true })`.
-- HTML export table stays static (no click-to-sort).
+- Prefer whitespace over a rule between the home CTA and the three capability points.
 
 ## Evidence of Completion
 
 ```text
-$ node --experimental-strip-types --no-warnings scripts/test-sort-threads.mjs
-sortThreads tests ok
-
-$ pnpm -C web run lint && pnpm -C web run typecheck
-✓ lint / typecheck
-
 $ node scripts/e2e-features.mjs --skip-web
-Summary: 62/62 features PASS (feat-015 includes id sort)
+feat-043 static: home points use spacing, not a hairline rule
 ```

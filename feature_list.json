@@ -445,7 +445,7 @@
         "feat-025"
       ],
       "status": "done",
-      "evidence": "Installed .cursor/skills/ui-design-brain; Apple-level Minimal shell (Instrument Sans/Serif, warm gray + #0071e3); home-intro with brand/CTA/points collapses via is-collapsed when analysis exists; workspace-toolbar for actions; 8-locale home.*; e2e 43/43"
+      "evidence": "Installed .cursor/skills/ui-design-brain; Apple-level Minimal shell (Instrument Sans/Serif, warm gray + #0071e3); home-intro with brand/CTA/points collapses via is-collapsed when analysis exists; home-points have no hairline rule; workspace-toolbar for actions; 8-locale home.*"
     },
     {
       "id": "feat-044",

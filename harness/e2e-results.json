@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T01:54:32.589Z",
+  "generated_at": "2026-09-04T02:04:53.281Z",
   "root": "/workspace",
   "summary": {
     "total": 62,
@@ -1384,6 +1384,11 @@
           "name": "static:home intro i18n",
           "ok": true,
           "detail": "home intro i18n"
+        },
+        {
+          "name": "static:home points use spacing, not a hairline rule",
+          "ok": true,
+          "detail": "home points use spacing, not a hairline rule"
         }
       ]
     },

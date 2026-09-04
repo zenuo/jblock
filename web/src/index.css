@@ -326,7 +326,11 @@ a.btn.icon-btn {
 }
 
 .home-cta {
-  margin-bottom: 2.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.home-cta.controls {
+  margin-bottom: 1.75rem;
 }
 
 .home-points {
@@ -335,8 +339,7 @@ a.btn.icon-btn {
   align-items: center;
   gap: 0.45rem 0;
   margin: 0;
-  padding: 1rem 0 0;
-  border-top: 1px solid var(--border);
+  padding: 0;
   list-style: none;
 }
 

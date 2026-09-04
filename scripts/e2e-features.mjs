@@ -757,6 +757,15 @@ FEATURE_CHECKS["feat-043"] = {
       ok: contains("web/src/i18n/locales/en.ts", "home.lead") && contains("web/src/i18n/locales/zh.ts", "home.lead"),
       detail: "home intro i18n",
     }),
+    () => {
+      const css = readText("web/src/index.css");
+      const m = css.match(/^\.home-points\s*\{([^}]*)\}/m);
+      const body = m ? m[1] : "";
+      return {
+        ok: Boolean(m) && !/border-top\s*:/i.test(body),
+        detail: "home points use spacing, not a hairline rule",
+      };
+    },
   ],
 };
 
