@@ -15,7 +15,7 @@
 
 ### What's In Progress
 
-- [ ] Browser verify hover stays a single tooltip after several seconds
+- [ ] (none)
 
 ### What's Next
 
@@ -37,4 +37,7 @@
 ```text
 $ pnpm -C web run lint && pnpm -C web run typecheck
 $ node scripts/e2e-features.mjs --skip-web
+Summary: 65/65 features PASS
 ```
+
+Browser: hover Unsafe.park for 4+ seconds — only the custom dark .flame-tip; no native second box.
