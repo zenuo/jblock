@@ -1332,6 +1332,32 @@ FEATURE_CHECKS["feat-062"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-063"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains("web/src/FlameGraph.tsx", 'data-testid="flame-fullscreen"') &&
+        contains("web/src/FlameGraph.tsx", 'data-testid="flame-shell"') &&
+        contains("web/src/FlameGraph.tsx", "lockBodyScroll") &&
+        contains("web/src/FlameGraph.tsx", 'e.key !== "Escape"'),
+      detail: "fullscreen toggle, shell, Escape, body-scroll lock",
+    }),
+    () => ({
+      ok:
+        contains("web/src/index.css", ".flame-shell.is-fullscreen") &&
+        contains("web/src/index.css", ".flame-shell.is-fullscreen .flame-panel-body") &&
+        contains("web/src/i18n/locales/en.ts", '"flame.fullscreen"') &&
+        contains("web/src/i18n/locales/zh.ts", '"flame.exitFullscreen"'),
+      detail: "viewport overlay CSS + fullscreen i18n keys",
+    }),
+    () => ({
+      ok: !contains("web/src/export.ts", "flame-fullscreen"),
+      detail: "HTML export stays static (no fullscreen control)",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

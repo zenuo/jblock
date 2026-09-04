@@ -204,6 +204,8 @@ export const pt: Messages = {
   "flame.empty": "Nenhuma stack para desenhar.",
   "flame.samples": "{count} threads",
   "flame.reset": "Redefinir zoom",
+  "flame.fullscreen": "Tela cheia",
+  "flame.exitFullscreen": "Sair da tela cheia",
   "flame.tooltip": "{name} · {count} ({pct}%)",
   "flame.noStack": "(sem stack)",
   "report.title": "Relatório de Thread Dump",

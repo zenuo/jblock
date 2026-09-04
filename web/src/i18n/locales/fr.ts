@@ -204,6 +204,8 @@ export const fr: Messages = {
   "flame.empty": "Aucune pile à dessiner.",
   "flame.samples": "{count} threads",
   "flame.reset": "Réinitialiser le zoom",
+  "flame.fullscreen": "Plein écran",
+  "flame.exitFullscreen": "Quitter le plein écran",
   "flame.tooltip": "{name} · {count} ({pct}%)",
   "flame.noStack": "(pas de pile)",
   "report.title": "Rapport de Thread Dump",

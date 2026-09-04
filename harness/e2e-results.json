@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-04T07:47:26.876Z",
+  "generated_at": "2026-09-04T08:18:05.441Z",
   "root": "/workspace",
   "summary": {
-    "total": 62,
-    "pass": 62,
+    "total": 63,
+    "pass": 63,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 111,
@@ -1991,6 +1991,29 @@
           "name": "static:shared reportSections + collapse styles",
           "ok": true,
           "detail": "shared reportSections + collapse styles"
+        }
+      ]
+    },
+    {
+      "id": "feat-063",
+      "name": "Flame graph fullscreen view",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:fullscreen toggle, shell, Escape, body-scroll lock",
+          "ok": true,
+          "detail": "fullscreen toggle, shell, Escape, body-scroll lock"
+        },
+        {
+          "name": "static:viewport overlay CSS + fullscreen i18n keys",
+          "ok": true,
+          "detail": "viewport overlay CSS + fullscreen i18n keys"
+        },
+        {
+          "name": "static:HTML export stays static (no fullscreen control)",
+          "ok": true,
+          "detail": "HTML export stays static (no fullscreen control)"
         }
       ]
     }

@@ -748,6 +748,23 @@
         "./init.sh green; e2e FEATURE_CHECKS for feat-062"
       ],
       "evidence": "web/src/ReportNav.tsx + reportNav.ts; Results results-shell; export.ts report-nav + #report-nav-collapsed; index.css sticky nav + is-nav-collapsed; e2e 62/62 feat-062"
+    },
+    {
+      "id": "feat-063",
+      "name": "Flame graph fullscreen view",
+      "description": "The live flame graph toolbar has a Fullscreen control that expands the graph to fill the viewport (wider relayout, Escape or the control to exit). HTML export stays a static SVG.",
+      "dependencies": [
+        "feat-061"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Flame graph toolbar has a Fullscreen button (data-testid=flame-fullscreen) when there are samples",
+        "Entering fullscreen covers the viewport (data-fullscreen=true / .flame-shell.is-fullscreen); graph width follows the overlay via ResizeObserver",
+        "Exit via the same control (label switches to Exit fullscreen) or Escape; body scroll is locked while open",
+        "HTML export does not require JS fullscreen",
+        "./init.sh green; e2e FEATURE_CHECKS for feat-063"
+      ],
+      "evidence": "FlameGraph.tsx toggle + lockBodyScroll + Escape; CSS .flame-shell.is-fullscreen; i18n flame.fullscreen/exitFullscreen; e2e feat-063"
     }
   ]
 }

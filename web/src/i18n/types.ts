@@ -239,6 +239,8 @@ export type MessageKey =
   | "flame.empty"
   | "flame.samples"
   | "flame.reset"
+  | "flame.fullscreen"
+  | "flame.exitFullscreen"
   | "flame.tooltip"
   | "flame.noStack"
   | "report.title"

@@ -204,6 +204,8 @@ export const zh: Messages = {
   "flame.empty": "没有可绘制的堆栈。",
   "flame.samples": "{count} 个线程",
   "flame.reset": "重置缩放",
+  "flame.fullscreen": "全屏",
+  "flame.exitFullscreen": "退出全屏",
   "flame.tooltip": "{name} · {count}（{pct}%）",
   "flame.noStack": "（无堆栈）",
   "report.title": "线程转储报告",

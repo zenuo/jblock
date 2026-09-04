@@ -204,6 +204,8 @@ export const en: Messages = {
   "flame.empty": "No stacks to chart.",
   "flame.samples": "{count} threads",
   "flame.reset": "Reset zoom",
+  "flame.fullscreen": "Fullscreen",
+  "flame.exitFullscreen": "Exit fullscreen",
   "flame.tooltip": "{name} · {count} ({pct}%)",
   "flame.noStack": "(no stack)",
   "report.title": "Thread Dump Report",

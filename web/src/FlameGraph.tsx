@@ -10,6 +10,7 @@ import {
   type FlameRect,
 } from "./flamegraph";
 import { useI18n } from "./i18n";
+import { lockBodyScroll } from "./scrollLock";
 import type { ThreadInfo } from "./types";
 
 const STATE_COLORS = defaultStateColors();
@@ -21,7 +22,11 @@ interface Props {
 export default function FlameGraph({ threads }: Props) {
   const { t } = useI18n();
   const wrapRef = useRef<HTMLDivElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(800);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [shellMinHeight, setShellMinHeight] = useState<number | null>(null);
   const [focusPath, setFocusPath] = useState<string[] | null>(null);
   const [tip, setTip] = useState<{
     x: number;
@@ -39,13 +44,33 @@ export default function FlameGraph({ threads }: Props) {
       setWidth((prev) => (Math.abs(prev - next) < 1 ? prev : next));
     };
     apply(el.clientWidth);
+    const raf = requestAnimationFrame(() => apply(el.clientWidth));
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect.width ?? el.clientWidth;
       apply(w);
     });
     ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [fullscreen]);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setFullscreen(false);
+      setShellMinHeight(null);
+    };
+    window.addEventListener("keydown", onKey);
+    const unlock = lockBodyScroll();
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      unlock();
+    };
+  }, [fullscreen]);
 
   const tree = useMemo(
     () => buildFlameTree(threads, t("flame.noStack")),
@@ -76,6 +101,18 @@ export default function FlameGraph({ threads }: Props) {
     setFocusPath(rect.path);
   };
 
+  const toggleFullscreen = () => {
+    setFullscreen((prev) => {
+      if (!prev) {
+        const h = shellRef.current?.offsetHeight;
+        setShellMinHeight(h && h > 0 ? h : null);
+        return true;
+      }
+      setShellMinHeight(null);
+      return false;
+    });
+  };
+
   const onRectMove = (event: MouseEvent, rect: FlameRect) => {
     const pct =
       layout.total > 0
@@ -91,21 +128,63 @@ export default function FlameGraph({ threads }: Props) {
   };
 
   return (
-    <div className="flame-panel-body">
+    <div
+      ref={shellRef}
+      className={`flame-shell${fullscreen ? " is-fullscreen" : ""}`}
+      data-testid="flame-shell"
+      data-fullscreen={fullscreen ? "true" : "false"}
+      style={
+        fullscreen && shellMinHeight
+          ? { minHeight: shellMinHeight }
+          : undefined
+      }
+    >
+    <div
+      ref={panelRef}
+      className="flame-panel-body"
+      data-testid="flame-panel-body"
+      {...(fullscreen
+        ? {
+            role: "dialog" as const,
+            "aria-modal": true,
+            "aria-labelledby": "flame-fs-heading",
+          }
+        : {})}
+    >
       <div className="flame-toolbar">
-        <span className="meta mono">
-          {t("flame.samples", { count: tree.value })}
-        </span>
-        {zoomed && (
-          <button
-            type="button"
-            className="btn flame-reset"
-            data-testid="flame-reset"
-            onClick={() => setFocusPath(null)}
-          >
-            {t("flame.reset")}
-          </button>
-        )}
+        <div className="flame-toolbar-lead">
+          {fullscreen ? (
+            <h2 className="flame-fs-heading" id="flame-fs-heading">
+              {t("flame.title")}
+            </h2>
+          ) : null}
+          <span className="meta mono">
+            {t("flame.samples", { count: tree.value })}
+          </span>
+        </div>
+        <div className="flame-toolbar-actions">
+          {zoomed && (
+            <button
+              type="button"
+              className="btn flame-reset"
+              data-testid="flame-reset"
+              onClick={() => setFocusPath(null)}
+            >
+              {t("flame.reset")}
+            </button>
+          )}
+          {tree.value > 0 ? (
+            <button
+              type="button"
+              className="btn flame-reset"
+              data-testid="flame-fullscreen"
+              aria-pressed={fullscreen}
+              onClick={toggleFullscreen}
+            >
+              {fullscreen ? t("flame.exitFullscreen") : t("flame.fullscreen")}
+            </button>
+          ) : null}
+        </div>
       </div>
       {tree.value === 0 ? (
         <p className="empty">{t("flame.empty")}</p>
@@ -185,6 +264,7 @@ export default function FlameGraph({ threads }: Props) {
           })}
         </div>
       )}
+    </div>
     </div>
   );
 }

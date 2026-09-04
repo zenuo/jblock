@@ -204,6 +204,8 @@ export const ko: Messages = {
   "flame.empty": "그릴 스택이 없습니다.",
   "flame.samples": "{count}개 스레드",
   "flame.reset": "줌 재설정",
+  "flame.fullscreen": "전체 화면",
+  "flame.exitFullscreen": "전체 화면 종료",
   "flame.tooltip": "{name} · {count} ({pct}%)",
   "flame.noStack": "(스택 없음)",
   "report.title": "스레드 덤프 보고서",

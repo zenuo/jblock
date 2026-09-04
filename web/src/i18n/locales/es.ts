@@ -204,6 +204,8 @@ export const es: Messages = {
   "flame.empty": "No hay stacks que dibujar.",
   "flame.samples": "{count} hilos",
   "flame.reset": "Restablecer zoom",
+  "flame.fullscreen": "Pantalla completa",
+  "flame.exitFullscreen": "Salir de pantalla completa",
   "flame.tooltip": "{name} · {count} ({pct}%)",
   "flame.noStack": "(sin stack)",
   "report.title": "Informe de Thread Dump",

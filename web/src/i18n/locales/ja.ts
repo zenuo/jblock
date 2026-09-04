@@ -204,6 +204,8 @@ export const ja: Messages = {
   "flame.empty": "描画するスタックがありません。",
   "flame.samples": "{count} スレッド",
   "flame.reset": "ズームをリセット",
+  "flame.fullscreen": "全画面",
+  "flame.exitFullscreen": "全画面を終了",
   "flame.tooltip": "{name} · {count}（{pct}%）",
   "flame.noStack": "（スタックなし）",
   "report.title": "スレッドダンプレポート",

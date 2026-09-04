@@ -204,6 +204,8 @@ export const nl: Messages = {
   "flame.empty": "Geen stacks om te tekenen.",
   "flame.samples": "{count} threads",
   "flame.reset": "Zoom resetten",
+  "flame.fullscreen": "Volledig scherm",
+  "flame.exitFullscreen": "Volledig scherm sluiten",
   "flame.tooltip": "{name} · {count} ({pct}%)",
   "flame.noStack": "(geen stack)",
   "report.title": "Thread Dump-rapport",
