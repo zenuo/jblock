@@ -456,7 +456,7 @@
         "feat-043"
       ],
       "status": "done",
-      "evidence": "web/src/sha256.ts (crypto.subtle); App dump-filename + dumpDigests; export.ts report-source-name title; 8-locale app.sha256"
+      "evidence": "web/src/sha256.ts (crypto.subtle); App dump-filename + dumpDigests; export.ts report-source-name title; 8-locale app.sha256; index.css .workspace-toolbar/.dump-filename align-items:center"
     },
     {
       "id": "feat-045",

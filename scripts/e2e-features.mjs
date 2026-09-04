@@ -750,6 +750,20 @@ FEATURE_CHECKS["feat-044"] = {
       ok: contains("web/src/App.tsx", "dump-filename") && contains("web/src/App.tsx", "sha256Hex"),
       detail: "toolbar dump filename + digest",
     }),
+    () => {
+      const css = readText("web/src/index.css");
+      const toolbar = css.match(/^\.workspace-toolbar\s*\{([^}]*)\}/m);
+      const filename = css.match(/^\.dump-filename\s*\{([^}]*)\}/m);
+      const toolbarCentered = toolbar && /align-items\s*:\s*center/i.test(toolbar[1]);
+      const filenameCentered =
+        filename &&
+        /align-items\s*:\s*center/i.test(filename[1]) &&
+        /align-self\s*:\s*center/i.test(filename[1]);
+      return {
+        ok: Boolean(toolbarCentered && filenameCentered),
+        detail: "toolbar dump filename is vertically centered",
+      };
+    },
     () => ({
       ok: contains("web/src/export.ts", "contentSha256") && contains("web/src/export.ts", "report-source-name"),
       detail: "HTML export source hover digest",

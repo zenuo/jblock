@@ -367,6 +367,7 @@ a.btn.icon-btn {
   border-radius: 16px;
   box-shadow: var(--shadow-soft);
   animation: toolbar-in 220ms var(--ease-out);
+  align-items: center;
 }
 
 .dump-filename {
@@ -380,6 +381,10 @@ a.btn.icon-btn {
   color: var(--muted);
   letter-spacing: -0.01em;
   cursor: default;
+  display: flex;
+  align-items: center;
+  align-self: center;
+  min-height: 2.5rem;
 }
 
 .report-source-name {
