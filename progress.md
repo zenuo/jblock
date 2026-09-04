@@ -15,7 +15,7 @@
 
 ### What's In Progress
 
-- [ ] Browser walkthrough of Stack ↔ State toggle
+- [ ] (none)
 
 ### What's Next
 
@@ -39,6 +39,4 @@
 $ node --experimental-strip-types --no-warnings scripts/test-flamegraph.mjs
 flamegraph unit tests ok
 $ pnpm -C web run lint && pnpm -C web run typecheck
-$ node scripts/e2e-features.mjs --skip-web
-Summary: 64/64 features PASS
-```
+Browser: sample dump flame graph defaults to Stack (`all` then `Thread.run`); State inserts BLOCKED/RUNNABLE/WAITING/TIMED_WAITING above `all`; switching back merges stacks again.
