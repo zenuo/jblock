@@ -9,7 +9,8 @@
 
 ### What's Done
 
-- [x] Web: Paste dump 按钮、Ctrl/Cmd+V、粘贴文件、Clipboard API 失败时的粘贴模态框
+- [x] Paste dump 首次点击不再触发 Chrome 原生小 Paste 授权条；未授权时直接打开应用内对话框
+- [x] 仅当 clipboard-read 已是 granted 时才静默 readText
 - [x] CLI: `-c`/`--clipboard` 增加 Windows PowerShell `Get-Clipboard -Raw`
 - [x] 真实子进程测试（假 `pbpaste` 脚本，不 mock 解析器）
 - [x] 8 语言 i18n + README/help 文案
@@ -33,7 +34,7 @@
 ## Decisions Made
 
 - Stayed on `main` per AGENTS.md and the user request.
-- One primary CTA remains **Choose dump(s)**; paste is a secondary import path.
+- 仅在 `clipboard-read` 已是 `granted` 时调用 `readText()`，避免 Chrome 首次点击弹出原生小 Paste 条。
 - CLI 仍要求显式 `-c`（不与文件参数混用），与 feat-056 一致。
 
 ## Evidence of Completion
