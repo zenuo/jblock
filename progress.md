@@ -39,3 +39,5 @@ $ pnpm -C web run lint && pnpm -C web run typecheck
 $ node scripts/e2e-features.mjs --skip-web
 Summary: 67/67 features PASS
 ```
+
+Browser: 当前页点 WAITING → Threads (1/17) 且 State=WAITING；新标签 Load sample → State ALL、Threads (12/17)，BLOCKED 未自动选中。
