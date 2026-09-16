@@ -1432,11 +1432,13 @@ FEATURE_CHECKS["feat-066"] = {
     () => ({
       ok:
         contains("web/src/App.tsx", "paste-clipboard") &&
+        contains("web/src/App.tsx", "queryClipboardReadState") &&
+        contains("web/src/App.tsx", "shouldAutoReadClipboard") &&
         contains("web/src/App.tsx", "readSystemClipboard") &&
         contains("web/src/App.tsx", "addEventListener(\"paste\"") &&
         contains("web/src/PasteDumpModal.tsx", "paste-modal") &&
         contains("web/src/clipboardImport.ts", "CLIPBOARD_DUMP_NAME"),
-      detail: "web paste button + Clipboard API + Ctrl/V listener + fallback modal",
+      detail: "web paste button skips native Paste chip unless clipboard-read already granted",
     }),
     () => ({
       ok:

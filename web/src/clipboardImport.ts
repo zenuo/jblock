@@ -7,6 +7,12 @@ export type ClipboardReadResult =
   | { ok: true; text: string }
   | { ok: false; reason: "unavailable" | "denied" | "empty" };
 
+export type ClipboardPermissionState =
+  | "granted"
+  | "denied"
+  | "prompt"
+  | "unknown";
+
 /** Strip a UTF-8 BOM so pasted dumps match file reads. */
 export function stripBom(text: string): string {
   return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
@@ -49,6 +55,38 @@ export function textFromClipboardData(
   } catch {
     return "";
   }
+}
+
+/**
+ * `clipboard-read` permission without triggering Chrome's native Paste chip.
+ * Querying is silent; only `readText()` while state is `prompt` shows that UI.
+ */
+export async function queryClipboardReadState(
+  permissions: Pick<Permissions, "query"> | null | undefined,
+): Promise<ClipboardPermissionState> {
+  if (!permissions || typeof permissions.query !== "function") return "unknown";
+  try {
+    const status = await permissions.query({
+      name: "clipboard-read" as PermissionName,
+    });
+    if (
+      status.state === "granted" ||
+      status.state === "denied" ||
+      status.state === "prompt"
+    ) {
+      return status.state;
+    }
+    return "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+/** Only auto-read when the browser already allowed it (no native Paste prompt). */
+export function shouldAutoReadClipboard(
+  state: ClipboardPermissionState,
+): boolean {
+  return state === "granted";
 }
 
 /** Read dump text via the Async Clipboard API (requires a user gesture). */

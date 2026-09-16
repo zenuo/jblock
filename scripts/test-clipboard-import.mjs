@@ -4,7 +4,9 @@ import {
   CLIPBOARD_DUMP_NAME,
   clipboardTextIsEmpty,
   isEditablePasteTarget,
+  queryClipboardReadState,
   readSystemClipboard,
+  shouldAutoReadClipboard,
   stripBom,
   textFromClipboardData,
 } from "../web/src/clipboardImport.ts";
@@ -60,5 +62,32 @@ assert.deepEqual(denied, { ok: false, reason: "denied" });
 
 const missing = await readSystemClipboard(undefined);
 assert.deepEqual(missing, { ok: false, reason: "unavailable" });
+
+assert.equal(shouldAutoReadClipboard("granted"), true);
+assert.equal(shouldAutoReadClipboard("prompt"), false);
+assert.equal(shouldAutoReadClipboard("denied"), false);
+assert.equal(shouldAutoReadClipboard("unknown"), false);
+
+assert.equal(await queryClipboardReadState(undefined), "unknown");
+assert.equal(
+  await queryClipboardReadState({
+    query: async () => ({ state: "prompt" }),
+  }),
+  "prompt",
+);
+assert.equal(
+  await queryClipboardReadState({
+    query: async () => ({ state: "granted" }),
+  }),
+  "granted",
+);
+assert.equal(
+  await queryClipboardReadState({
+    query: async () => {
+      throw new Error("not supported");
+    },
+  }),
+  "unknown",
+);
 
 console.log("clipboardImport tests ok");

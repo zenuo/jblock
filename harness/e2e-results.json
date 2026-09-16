@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T05:55:57.963Z",
+  "generated_at": "2026-09-16T06:17:30.572Z",
   "root": "/workspace",
   "summary": {
     "total": 66,
@@ -2110,9 +2110,9 @@
           "detail": "CLI clipboard tools include PowerShell Get-Clipboard"
         },
         {
-          "name": "static:web paste button + Clipboard API + Ctrl/V listener + fallback modal",
+          "name": "static:web paste button skips native Paste chip unless clipboard-read already granted",
           "ok": true,
-          "detail": "web paste button + Clipboard API + Ctrl/V listener + fallback modal"
+          "detail": "web paste button skips native Paste chip unless clipboard-read already granted"
         },
         {
           "name": "static:8-locale paste/clipboard strings",

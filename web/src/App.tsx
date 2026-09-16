@@ -4,7 +4,9 @@ import {
   CLIPBOARD_DUMP_NAME,
   clipboardTextIsEmpty,
   isEditablePasteTarget,
+  queryClipboardReadState,
   readSystemClipboard,
+  shouldAutoReadClipboard,
   stripBom,
   textFromClipboardData,
 } from "./clipboardImport";
@@ -166,17 +168,18 @@ export default function App() {
   const onPasteClipboard = useCallback(async () => {
     if (busy) return;
     setError(null);
-    const result = await readSystemClipboard(navigator.clipboard);
-    if (result.ok) {
-      analyzeClipboardText(result.text);
-      return;
-    }
-    if (result.reason === "empty") {
-      setError(t("app.clipboardEmpty"));
-      return;
+    // Do not call readText() while clipboard-read is "prompt": Chrome then
+    // shows a tiny native "Paste" chip, and our dialog only appears next click.
+    const state = await queryClipboardReadState(navigator.permissions);
+    if (shouldAutoReadClipboard(state)) {
+      const result = await readSystemClipboard(navigator.clipboard);
+      if (result.ok) {
+        analyzeClipboardText(result.text);
+        return;
+      }
     }
     setPasteOpen(true);
-  }, [analyzeClipboardText, busy, t]);
+  }, [analyzeClipboardText, busy]);
 
   useEffect(() => {
     pasteOpenRef.current = pasteOpen;
