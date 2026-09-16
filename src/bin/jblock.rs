@@ -34,7 +34,7 @@ enum ColorArg {
     name = "jblock",
     version,
     about = "Analyze Java thread dumps (file, stdin pipe, or clipboard)",
-    after_help = "EXIT CODES:\n  0  clean or info-only\n  1  warning/critical findings or deadlocks\n  2  usage / I/O error\n  3  input is not a recognizable dump"
+    after_help = "INPUT:\n  FILE(s)              thread dump files (multiple = series analysis)\n  stdin pipe           jstack $PID | jblock\n  -c / --clipboard     paste dump text from the OS clipboard\n                       (pbpaste, wl-paste, xclip/xsel, or PowerShell Get-Clipboard)\n\nEXIT CODES:\n  0  clean or info-only\n  1  warning/critical findings or deadlocks\n  2  usage / I/O error\n  3  input is not a recognizable dump"
 )]
 struct Args {
     /// Thread dump file(s). Use `-` for stdin. Multiple files = series analysis.

@@ -8,7 +8,7 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
 
 ## 功能特性
 
-- **本地文件选择 / 拖拽上传**：选择或直接拖拽本地线程转储文件（`.txt` / `.log` / `.tdump` 等）到页面。
+- **本地文件选择 / 拖拽上传 / 剪贴板粘贴**：选择或拖拽本地线程转储文件（`.txt` / `.log` / `.tdump` 等），或从剪贴板粘贴 dump 文本（按钮 / Ctrl+V / ⌘V）。
 - **多格式适配**：
   - `jstack` 工具输出（状态位于独立的 `java.lang.Thread.State:` 行）。
   - `ThreadMXBean#dumpAllThreads` / `ThreadInfo#toString()` 输出（状态在线程头行）。
@@ -69,7 +69,7 @@ cd web
 pnpm run dev        # 先用 wasm-pack 构建 WASM（dev 模式），再启动 Vite
 ```
 
-打开 http://localhost:5173/ ，点击 **Load sample**（含死锁 / 热锁竞争 / JVM 噪音线程的示例 dump）或 **Choose thread dump…** 选择本地 dump。
+打开 http://localhost:5173/ ，点击 **Load sample**（含死锁 / 热锁竞争 / JVM 噪音线程的示例 dump）、**Choose thread dump…** 选择本地 dump，或 **Paste dump** / Ctrl+V 从剪贴板导入。
 
 > 说明：WASM 不会随前端热更新自动重建。修改了 `src/*.rs` 后，需要重新运行
 > `pnpm run wasm`（或重启 `pnpm run dev`）以重建 `web/src/wasm/`。
@@ -110,7 +110,7 @@ jstack <pid> | cargo run --features cli --bin jblock
 
 退出码：`0` 干净或仅 info；`1` 有 warning/critical/死锁；`2` 用法/读入错误；`3` 无法识别为 dump。
 
-> CLI 依赖可选 feature `cli`（`clap`；剪贴板通过 `pbpaste` / `wl-paste` / `xclip` / `xsel`），默认不编进 WASM。
+> CLI 依赖可选 feature `cli`（`clap`；剪贴板通过 `pbpaste` / `wl-paste` / `xclip` / `xsel` / Windows PowerShell `Get-Clipboard`），默认不编进 WASM。
 
 ## 本地部署
 
@@ -168,7 +168,7 @@ GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)�
 
 ## 工作原理
 
-1. 前端读取本地 dump 文件内容（纯文本）。
+1. 前端读取本地 dump 文件、拖拽内容，或剪贴板 / 粘贴框中的纯文本。
 2. 调用 WASM 导出的 `analyzeDump(text)`（对应 Rust `src/lib.rs`）。
 3. Rust 侧 `parser::analyze` 检测格式、按线程切块、提取名称/ID/状态/锁信息，
    统计状态分组，并根据"持锁-等锁"关系构建锁竞争边。

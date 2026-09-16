@@ -1061,6 +1061,46 @@ th {
   background: #f1f5f9;
 }
 
+.paste-modal {
+  width: min(640px, 100%);
+}
+
+.paste-modal-hint {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.paste-modal-input {
+  display: block;
+  width: 100%;
+  min-height: 14rem;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: #fafafa;
+  color: var(--ink);
+}
+
+.paste-modal-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
 .app {
   position: relative;
 }

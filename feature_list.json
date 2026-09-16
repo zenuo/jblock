@@ -797,6 +797,25 @@
         "e2e FEATURE_CHECKS for feat-065"
       ],
       "evidence": "removed SVG title from FlameGraph.tsx; export renderFlameSvg keeps <title>; e2e feat-065"
+    },
+    {
+      "id": "feat-066",
+      "name": "Import thread dump from clipboard (web + CLI)",
+      "description": "Import dump text from the OS clipboard on both surfaces: web Paste dump button, Ctrl/Cmd+V, file paste, and a paste-modal fallback when the Clipboard API is denied; CLI -c/--clipboard including Windows PowerShell Get-Clipboard.",
+      "dependencies": [
+        "feat-004",
+        "feat-056"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Home and results toolbar have a Paste dump control (data-testid=paste-clipboard)",
+        "Ctrl/Cmd+V on the page (outside inputs) analyzes clipboard text as clipboard.txt; copied files still go through onFiles",
+        "If navigator.clipboard.readText is denied/unavailable, a paste modal (textarea + Analyze) is shown",
+        "CLI -c/--clipboard still reads dump text; tools include pbpaste, wl-paste, xclip/xsel, and PowerShell Get-Clipboard -Raw",
+        "cargo tests cover real clipboard-tool subprocesses (fake pbpaste) without mocking parser/IO helpers",
+        "8 locales include paste strings; ./init.sh green; e2e FEATURE_CHECKS for feat-066"
+      ],
+      "evidence": "web clipboardImport.ts + PasteDumpModal + App paste button/listener; CLI CLIPBOARD_TOOLS + Windows powershell; cargo clipboard_* tests; scripts/test-clipboard-import.mjs"
     }
   ]
 }

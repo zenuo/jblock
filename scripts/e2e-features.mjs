@@ -1409,6 +1409,64 @@ FEATURE_CHECKS["feat-065"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-066"] = {
+  cargo: [
+    "clipboard_tools_include_windows_powershell",
+    "clipboard_missing_tool_is_error",
+    "clipboard_strips_utf8_bom",
+    "clipboard_skips_failing_tool_then_reads_next",
+    "read_inputs_clipboard_loads_real_fixture_via_pbpaste",
+    "read_inputs_empty_clipboard_is_error",
+    "clipboard_flag_analyzes_deadlock_fixture",
+    "clipboard_with_files_is_usage_error",
+  ],
+  static: [
+    () => ({
+      ok:
+        contains("src/cli/input.rs", "Get-Clipboard") &&
+        contains("src/cli/input.rs", "powershell.exe") &&
+        contains("src/bin/jblock.rs", "clipboard") &&
+        contains("src/cli/input.rs", "read_clipboard_from_tools"),
+      detail: "CLI clipboard tools include PowerShell Get-Clipboard",
+    }),
+    () => ({
+      ok:
+        contains("web/src/App.tsx", "paste-clipboard") &&
+        contains("web/src/App.tsx", "readSystemClipboard") &&
+        contains("web/src/App.tsx", "addEventListener(\"paste\"") &&
+        contains("web/src/PasteDumpModal.tsx", "paste-modal") &&
+        contains("web/src/clipboardImport.ts", "CLIPBOARD_DUMP_NAME"),
+      detail: "web paste button + Clipboard API + Ctrl/V listener + fallback modal",
+    }),
+    () => ({
+      ok:
+        contains("web/src/i18n/locales/en.ts", "app.pasteClipboard") &&
+        contains("web/src/i18n/locales/zh.ts", "app.pasteClipboard") &&
+        contains("web/src/i18n/locales/pt.ts", "app.pasteClipboard") &&
+        contains("web/src/i18n/locales/es.ts", "app.pasteClipboard") &&
+        contains("web/src/i18n/locales/nl.ts", "app.pasteClipboard") &&
+        contains("web/src/i18n/locales/fr.ts", "app.pasteClipboard") &&
+        contains("web/src/i18n/locales/ja.ts", "app.pasteClipboard") &&
+        contains("web/src/i18n/locales/ko.ts", "app.pasteClipboard"),
+      detail: "8-locale paste/clipboard strings",
+    }),
+    () => {
+      const r = run("node", [
+        "--experimental-strip-types",
+        "--no-warnings",
+        "scripts/test-clipboard-import.mjs",
+      ]);
+      return {
+        ok: r.status === 0,
+        detail:
+          r.status === 0
+            ? "clipboardImport unit tests"
+            : `clipboardImport tests failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
+      };
+    },
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

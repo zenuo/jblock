@@ -1,10 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { analyzeMany, isWasmReady, preloadWasm } from "./analyzer";
+import {
+  CLIPBOARD_DUMP_NAME,
+  clipboardTextIsEmpty,
+  isEditablePasteTarget,
+  readSystemClipboard,
+  stripBom,
+  textFromClipboardData,
+} from "./clipboardImport";
 import { exportHtml } from "./export";
 import GitHubLink from "./GitHubLink";
 import HelpModal, { HelpButton } from "./HelpModal";
 import { useI18n } from "./i18n";
 import LanguageMenu from "./LanguageMenu";
+import PasteDumpModal from "./PasteDumpModal";
 import Results from "./Results";
 import { SAMPLE_DUMP } from "./sampleDump";
 import { sha256Hex } from "./sha256";
@@ -30,6 +39,10 @@ export default function App() {
   const busy = busyPhase !== null;
 
   const [helpOpen, setHelpOpen] = useState(false);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const pasteOpenRef = useRef(false);
+  const helpOpenRef = useRef(false);
+  const busyRef = useRef(false);
 
   const analysis = useMemo(() => {
     if (!series || series.dumps.length === 0) return null;
@@ -75,6 +88,7 @@ export default function App() {
 
   const closeHelp = useCallback(() => setHelpOpen(false), []);
   const openHelp = useCallback(() => setHelpOpen(true), []);
+  const closePaste = useCallback(() => setPasteOpen(false), []);
 
   const runAnalysisSeries = useCallback(
     async (items: { text: string; name: string }[]) => {
@@ -136,6 +150,68 @@ export default function App() {
     [runAnalysisSeries, wasmReady],
   );
 
+  const analyzeClipboardText = useCallback(
+    (raw: string) => {
+      const text = stripBom(raw);
+      if (clipboardTextIsEmpty(text)) {
+        setError(t("app.clipboardEmpty"));
+        return;
+      }
+      setPasteOpen(false);
+      void runAnalysisSeries([{ text, name: CLIPBOARD_DUMP_NAME }]);
+    },
+    [runAnalysisSeries, t],
+  );
+
+  const onPasteClipboard = useCallback(async () => {
+    if (busy) return;
+    setError(null);
+    const result = await readSystemClipboard(navigator.clipboard);
+    if (result.ok) {
+      analyzeClipboardText(result.text);
+      return;
+    }
+    if (result.reason === "empty") {
+      setError(t("app.clipboardEmpty"));
+      return;
+    }
+    setPasteOpen(true);
+  }, [analyzeClipboardText, busy, t]);
+
+  useEffect(() => {
+    pasteOpenRef.current = pasteOpen;
+  }, [pasteOpen]);
+
+  useEffect(() => {
+    helpOpenRef.current = helpOpen;
+  }, [helpOpen]);
+
+  useEffect(() => {
+    busyRef.current = busy;
+  }, [busy]);
+
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      if (busyRef.current || helpOpenRef.current || pasteOpenRef.current) return;
+      if (isEditablePasteTarget(e.target as Element | null)) return;
+      const files = e.clipboardData?.files;
+      if (files && files.length > 0) {
+        e.preventDefault();
+        void onFiles(files);
+        return;
+      }
+      const data = e.clipboardData;
+      const text = textFromClipboardData(
+        data ? (type) => data.getData(type) : null,
+      );
+      if (clipboardTextIsEmpty(text)) return;
+      e.preventDefault();
+      analyzeClipboardText(text);
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, [analyzeClipboardText, onFiles]);
+
   const [dragging, setDragging] = useState(false);
 
   const onDrop = useCallback(
@@ -143,9 +219,14 @@ export default function App() {
       e.preventDefault();
       setDragging(false);
       const list = e.dataTransfer.files;
-      if (list && list.length > 0) void onFiles(list);
+      if (list && list.length > 0) {
+        void onFiles(list);
+        return;
+      }
+      const text = e.dataTransfer.getData("text/plain");
+      if (!clipboardTextIsEmpty(text)) analyzeClipboardText(text);
     },
-    [onFiles],
+    [analyzeClipboardText, onFiles],
   );
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -190,6 +271,19 @@ export default function App() {
       disabled={busy}
     >
       {t("app.loadSample")}
+    </button>
+  );
+
+  const pasteClipboardControl = (
+    <button
+      type="button"
+      className="btn"
+      data-testid="paste-clipboard"
+      title={t("app.pasteClipboardHint")}
+      onClick={() => void onPasteClipboard()}
+      disabled={busy}
+    >
+      {t("app.pasteClipboard")}
     </button>
   );
 
@@ -255,6 +349,7 @@ export default function App() {
           {!hasResults && (
             <div className="home-cta controls" data-testid="home-cta">
               {chooseDumpControl}
+              {pasteClipboardControl}
               {sampleControl}
             </div>
           )}
@@ -273,6 +368,7 @@ export default function App() {
           aria-label={t("home.toolbarLabel")}
         >
           {chooseDumpControl}
+          {pasteClipboardControl}
           <button
             type="button"
             className="btn"
@@ -334,6 +430,12 @@ export default function App() {
       {analysis && <Results analysis={analysis} />}
 
       {helpOpen && <HelpModal onClose={closeHelp} />}
+      {pasteOpen && (
+        <PasteDumpModal
+          onClose={closePaste}
+          onAnalyze={analyzeClipboardText}
+        />
+      )}
     </div>
   );
 }
