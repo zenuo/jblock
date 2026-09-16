@@ -269,6 +269,12 @@ const FEATURE_CHECKS = {
           contains("web/src/Results.tsx", "threads.sortHint"),
         detail: "thread table multi-column sort via Shift-click",
       }),
+      () => ({
+        ok:
+          contains("web/src/Results.tsx", 'useState<StateFilter>("ALL")') &&
+          !contains("web/src/Results.tsx", 'hasBlocked ? "BLOCKED"'),
+        detail: "thread state filter defaults to ALL (not auto-BLOCKED)",
+      }),
       () => {
         const r = run("node", [
           "--experimental-strip-types",
@@ -1466,6 +1472,25 @@ FEATURE_CHECKS["feat-066"] = {
             : `clipboardImport tests failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
       };
     },
+  ],
+};
+
+FEATURE_CHECKS["feat-067"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok:
+        contains("web/src/Results.tsx", 'useState<StateFilter>("ALL")') &&
+        contains("web/src/Results.tsx", 'setStateFilter("ALL")') &&
+        !contains("web/src/Results.tsx", "hasBlocked"),
+      detail: "state filter starts at ALL and is not auto-BLOCKED",
+    }),
+    () => ({
+      ok:
+        contains("web/src/App.tsx", "key={`${selectedDumpName}:${selectedDigest") &&
+        contains("web/src/Results.tsx", 'data-testid={`state-row-${s.state}`}'),
+      detail: "Results remounts per dump; state rows are testable",
+    }),
   ],
 };
 

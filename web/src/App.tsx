@@ -430,7 +430,12 @@ export default function App() {
         </p>
       )}
 
-      {analysis && <Results analysis={analysis} />}
+      {analysis && (
+        <Results
+          key={`${selectedDumpName}:${selectedDigest || selectedDump}`}
+          analysis={analysis}
+        />
+      )}
 
       {helpOpen && <HelpModal onClose={closeHelp} />}
       {pasteOpen && (

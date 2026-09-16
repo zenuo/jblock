@@ -141,7 +141,7 @@
     {
       "id": "feat-015",
       "name": "Thread table filter and sort",
-      "description": "Filter threads by state (click state bar or dropdown), sort by name/id/state/waiting/stack/locks (Shift-click adds a column); default emphasis on BLOCKED when present",
+      "description": "Filter threads by state (click state bar or dropdown), sort by name/id/state/waiting/stack/locks (Shift-click adds a column). Filter starts at All for each analysis (feat-067).",
       "dependencies": [
         "feat-013"
       ],
@@ -816,6 +816,22 @@
         "8 locales include paste strings; ./init.sh green; e2e FEATURE_CHECKS for feat-066"
       ],
       "evidence": "web clipboardImport.ts + PasteDumpModal + App paste button/listener; CLI CLIPBOARD_TOOLS + Windows powershell; cargo clipboard_* tests; scripts/test-clipboard-import.mjs; ./init.sh 118 cargo + 66/66 e2e; browser Paste dump + Ctrl+V both analyze deadlock fixture as clipboard.txt; CLI PATH=fake-pbpaste jblock -c exit 1 with DEADLOCK findings"
+    },
+    {
+      "id": "feat-067",
+      "name": "Thread-state filter does not carry to a new analysis",
+      "description": "Clicking a Thread states row filters Threads for the current dump only. A new analysis (new tab, Load sample again, or another dump) starts with All states — do not default to BLOCKED or reuse the previous click.",
+      "dependencies": [
+        "feat-015"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Results stateFilter initializes to ALL; no hasBlocked ? BLOCKED default",
+        "Loading a new dump resets stateFilter to ALL",
+        "Clicking a state-row still toggles that state filter for the current dump",
+        "e2e FEATURE_CHECKS for feat-067"
+      ],
+      "evidence": "Results.tsx useState ALL + reset on analysis change; App Results key by dump name/digest"
     }
   ]
 }

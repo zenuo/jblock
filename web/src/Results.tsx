@@ -50,11 +50,7 @@ export default function Results({ analysis }: Props) {
     [analysis.blocked_edges],
   );
 
-  const hasBlocked =
-    (analysis.state_counts.find((s) => s.state === "BLOCKED")?.count ?? 0) > 0;
-  const [stateFilter, setStateFilter] = useState<StateFilter>(
-    hasBlocked ? "BLOCKED" : "ALL",
-  );
+  const [stateFilter, setStateFilter] = useState<StateFilter>("ALL");
   const [hideNoise, setHideNoise] = useState(true);
   const [sorts, setSorts] = useState<ThreadSortSpec[]>([
     { key: "name", dir: "asc" },
@@ -67,11 +63,12 @@ export default function Results({ analysis }: Props) {
   const [activeSection, setActiveSection] = useState<ReportSectionId>("findings");
 
   useEffect(() => {
-    setStateFilter(hasBlocked ? "BLOCKED" : "ALL");
+    // New dump / new page: never carry a state-bar click into the next analysis.
+    setStateFilter("ALL");
     setExpandedLocks(new Set());
     setExpandedStacks(new Set());
     setFocusIndex(null);
-  }, [analysis, hasBlocked]);
+  }, [analysis]);
 
   const visibleThreads = useMemo(() => {
     let list = analysis.threads.map((th, index) => ({ t: th, index }));
@@ -438,6 +435,7 @@ export default function Results({ analysis }: Props) {
               <button
                 type="button"
                 className={`state-row${stateFilter === s.state ? " active" : ""}`}
+                data-testid={`state-row-${s.state}`}
                 onClick={() =>
                   setStateFilter(stateFilter === s.state ? "ALL" : s.state)
                 }
@@ -513,6 +511,7 @@ export default function Results({ analysis }: Props) {
             {t("threads.state")}{" "}
             <select
               value={stateFilter}
+              data-testid="thread-state-filter"
               onChange={(e) => setStateFilter(e.target.value as StateFilter)}
             >
               <option value="ALL">{t("states.all")}</option>

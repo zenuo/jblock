@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-16T06:17:30.572Z",
+  "generated_at": "2026-09-16T06:53:24.710Z",
   "root": "/workspace",
   "summary": {
-    "total": 66,
-    "pass": 66,
+    "total": 67,
+    "pass": 67,
     "fail": 0,
     "cargo_status": 0,
     "cargo_passed": 118,
@@ -325,6 +325,11 @@
           "name": "static:thread table multi-column sort via Shift-click",
           "ok": true,
           "detail": "thread table multi-column sort via Shift-click"
+        },
+        {
+          "name": "static:thread state filter defaults to ALL (not auto-BLOCKED)",
+          "ok": true,
+          "detail": "thread state filter defaults to ALL (not auto-BLOCKED)"
         },
         {
           "name": "static:sortThreads id + multi-column order",
@@ -2123,6 +2128,24 @@
           "name": "static:clipboardImport unit tests",
           "ok": true,
           "detail": "clipboardImport unit tests"
+        }
+      ]
+    },
+    {
+      "id": "feat-067",
+      "name": "Thread-state filter does not carry to a new analysis",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:state filter starts at ALL and is not auto-BLOCKED",
+          "ok": true,
+          "detail": "state filter starts at ALL and is not auto-BLOCKED"
+        },
+        {
+          "name": "static:Results remounts per dump; state rows are testable",
+          "ok": true,
+          "detail": "Results remounts per dump; state rows are testable"
         }
       ]
     }
