@@ -13,10 +13,11 @@
 - [x] CLI: `-c`/`--clipboard` 增加 Windows PowerShell `Get-Clipboard -Raw`
 - [x] 真实子进程测试（假 `pbpaste` 脚本，不 mock 解析器）
 - [x] 8 语言 i18n + README/help 文案
+- [x] `./init.sh` 全量验证与浏览器走查
 
 ### What's In Progress
 
-- [ ] `./init.sh` 全量验证与浏览器走查
+- [ ] (none)
 
 ### What's Next
 
@@ -37,4 +38,24 @@
 
 ## Evidence of Completion
 
-(pending `./init.sh`)
+```text
+$ ./init.sh
+cargo test --features cli  118 passed
+pnpm -C web run lint/typecheck/build  ok
+node scripts/e2e-features.mjs --skip-web
+Summary: 66/66 features PASS
+```
+
+CLI（假 `pbpaste` 输出 deadlock fixture）:
+
+```text
+$ PATH=/tmp/jblock-fake-clip:$PATH cargo run --quiet --features cli --bin jblock -- -c -s findings
+jblock · jstack · 20 threads
+source: clipboard
+FINDINGS
+  x DEADLOCK (critical)
+      deadlock-0 → deadlock-1 → deadlock-2 → deadlock-0
+exit 1
+```
+
+Browser: Paste dump 授权后立即分析；首页 Ctrl+V 同样导入。工作区文件名 `clipboard.txt`，Findings 显示 3 线程死锁。

@@ -815,7 +815,7 @@
         "cargo tests cover real clipboard-tool subprocesses (fake pbpaste) without mocking parser/IO helpers",
         "8 locales include paste strings; ./init.sh green; e2e FEATURE_CHECKS for feat-066"
       ],
-      "evidence": "web clipboardImport.ts + PasteDumpModal + App paste button/listener; CLI CLIPBOARD_TOOLS + Windows powershell; cargo clipboard_* tests; scripts/test-clipboard-import.mjs"
+      "evidence": "web clipboardImport.ts + PasteDumpModal + App paste button/listener; CLI CLIPBOARD_TOOLS + Windows powershell; cargo clipboard_* tests; scripts/test-clipboard-import.mjs; ./init.sh 118 cargo + 66/66 e2e; browser Paste dump + Ctrl+V both analyze deadlock fixture as clipboard.txt; CLI PATH=fake-pbpaste jblock -c exit 1 with DEADLOCK findings"
     }
   ]
 }

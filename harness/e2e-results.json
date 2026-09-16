@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-04T09:06:05.280Z",
+  "generated_at": "2026-09-16T05:55:57.963Z",
   "root": "/workspace",
   "summary": {
-    "total": 65,
-    "pass": 65,
+    "total": 66,
+    "pass": 66,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 111,
+    "cargo_passed": 118,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -2055,6 +2055,74 @@
           "name": "static:HTML export SVG still uses <title> for hover",
           "ok": true,
           "detail": "HTML export SVG still uses <title> for hover"
+        }
+      ]
+    },
+    {
+      "id": "feat-066",
+      "name": "Import thread dump from clipboard (web + CLI)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:clipboard_tools_include_windows_powershell",
+          "ok": true,
+          "detail": "passed as cli::input::tests::clipboard_tools_include_windows_powershell"
+        },
+        {
+          "name": "cargo:clipboard_missing_tool_is_error",
+          "ok": true,
+          "detail": "passed as cli::input::tests::clipboard_missing_tool_is_error"
+        },
+        {
+          "name": "cargo:clipboard_strips_utf8_bom",
+          "ok": true,
+          "detail": "passed as cli::input::tests::clipboard_strips_utf8_bom"
+        },
+        {
+          "name": "cargo:clipboard_skips_failing_tool_then_reads_next",
+          "ok": true,
+          "detail": "passed as cli::input::tests::clipboard_skips_failing_tool_then_reads_next"
+        },
+        {
+          "name": "cargo:read_inputs_clipboard_loads_real_fixture_via_pbpaste",
+          "ok": true,
+          "detail": "passed as cli::input::tests::read_inputs_clipboard_loads_real_fixture_via_pbpaste"
+        },
+        {
+          "name": "cargo:read_inputs_empty_clipboard_is_error",
+          "ok": true,
+          "detail": "passed as cli::input::tests::read_inputs_empty_clipboard_is_error"
+        },
+        {
+          "name": "cargo:clipboard_flag_analyzes_deadlock_fixture",
+          "ok": true,
+          "detail": "passed as cli::input::tests::clipboard_flag_analyzes_deadlock_fixture"
+        },
+        {
+          "name": "cargo:clipboard_with_files_is_usage_error",
+          "ok": true,
+          "detail": "passed as cli::tests::clipboard_with_files_is_usage_error"
+        },
+        {
+          "name": "static:CLI clipboard tools include PowerShell Get-Clipboard",
+          "ok": true,
+          "detail": "CLI clipboard tools include PowerShell Get-Clipboard"
+        },
+        {
+          "name": "static:web paste button + Clipboard API + Ctrl/V listener + fallback modal",
+          "ok": true,
+          "detail": "web paste button + Clipboard API + Ctrl/V listener + fallback modal"
+        },
+        {
+          "name": "static:8-locale paste/clipboard strings",
+          "ok": true,
+          "detail": "8-locale paste/clipboard strings"
+        },
+        {
+          "name": "static:clipboardImport unit tests",
+          "ok": true,
+          "detail": "clipboardImport unit tests"
         }
       ]
     }
