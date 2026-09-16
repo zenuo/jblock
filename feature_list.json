@@ -831,7 +831,7 @@
         "Clicking a state-row still toggles that state filter for the current dump",
         "e2e FEATURE_CHECKS for feat-067"
       ],
-      "evidence": "Results.tsx useState ALL + reset on analysis change; App Results key by dump name/digest"
+      "evidence": "Results.tsx useState ALL + reset on analysis change; App Results key by dump name/digest; e2e 67/67 feat-067; browser: WAITING filter on tab A, new tab Load sample stays ALL (12/17), BLOCKED not auto-selected"
     }
   ]
 }
