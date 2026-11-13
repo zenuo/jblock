@@ -1,3 +1,5 @@
+import type { GcMessageKey } from "./gcMessages";
+
 export type Locale = "en" | "zh" | "pt" | "es" | "nl" | "fr" | "ja" | "ko";
 
 export const LOCALES: readonly Locale[] = [
@@ -35,7 +37,8 @@ export const LOCALE_HTML_LANG: Record<Locale, string> = {
   ko: "ko",
 };
 
-export type MessageKey =
+/** Thread-dump UI keys (one object per locale in `locales/`). */
+export type CoreMessageKey =
   | "app.title"
   | "app.tagline"
   | "app.help"
@@ -263,7 +266,11 @@ export type MessageKey =
   | "report.waiters"
   | "report.none";
 
-export type Messages = Record<MessageKey, string>;
+/** Shape of each `locales/*.ts` catalog. */
+export type Messages = Record<CoreMessageKey, string>;
+
+/** Every translatable key: thread-dump catalogs plus GC strings (`gcMessages.ts`). */
+export type MessageKey = CoreMessageKey | GcMessageKey;
 
 export type TranslateFn = (
   key: MessageKey,

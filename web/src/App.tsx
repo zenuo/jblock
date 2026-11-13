@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { analyzeMany, isWasmReady, preloadWasm } from "./analyzer";
+import { gcRegroup, importTexts, isWasmReady, preloadWasm } from "./analyzer";
 import {
   CLIPBOARD_DUMP_NAME,
   clipboardTextIsEmpty,
@@ -11,9 +11,19 @@ import {
   textFromClipboardData,
 } from "./clipboardImport";
 import { exportHtml } from "./export";
+import GcResults from "./GcResults";
+import type { GcReport, GroupingMode } from "./gcTypes";
 import GitHubLink from "./GitHubLink";
 import HelpModal, { HelpButton } from "./HelpModal";
 import { useI18n } from "./i18n";
+import {
+  appendItems,
+  filesFromEntries,
+  readImportBatch,
+  type EntryLike,
+  type FileLike,
+  type ImportItem,
+} from "./importFiles";
 import LanguageMenu from "./LanguageMenu";
 import PasteDumpModal from "./PasteDumpModal";
 import Results from "./Results";
@@ -22,6 +32,10 @@ import { sha256Hex } from "./sha256";
 import type { Analysis, MultiDumpAnalysis, PatternHit } from "./types";
 
 type BusyPhase = "wasm" | "analyzing";
+type View = "thread" | "gc";
+
+/** Folder picker attribute that React does not type. */
+const FOLDER_INPUT_PROPS = { webkitdirectory: "", directory: "" } as Record<string, string>;
 
 function mergeCrossPatterns(dump: Analysis, cross: PatternHit[]): Analysis {
   if (cross.length === 0) return dump;
@@ -40,6 +54,15 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const busy = busyPhase !== null;
 
+  // feat-074: the current import batch (kept for "Add files"), GC session report and view.
+  const [items, setItems] = useState<ImportItem[]>([]);
+  const [gcReport, setGcReport] = useState<GcReport | null>(null);
+  const [gcNames, setGcNames] = useState<string[]>([]);
+  const [gcRegrouping, setGcRegrouping] = useState(false);
+  const [unknownNames, setUnknownNames] = useState<string[]>([]);
+  const [skippedNames, setSkippedNames] = useState<string[]>([]);
+  const [view, setView] = useState<View>("thread");
+
   const [helpOpen, setHelpOpen] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
   const pasteOpenRef = useRef(false);
@@ -52,7 +75,8 @@ export default function App() {
     return mergeCrossPatterns(series.dumps[idx], series.cross_patterns);
   }, [series, selectedDump]);
 
-  const hasResults = analysis !== null;
+  const hasResults = analysis !== null || gcReport !== null;
+  const showGc = gcReport !== null && (view === "gc" || analysis === null);
 
   const sourceName = useMemo(() => {
     if (dumpNames.length === 0) return "";
@@ -92,9 +116,12 @@ export default function App() {
   const openHelp = useCallback(() => setHelpOpen(true), []);
   const closePaste = useCallback(() => setPasteOpen(false), []);
 
-  const runAnalysisSeries = useCallback(
-    async (items: { text: string; name: string }[]) => {
-      if (items.length === 0) return;
+  const runImport = useCallback(
+    async (batch: ImportItem[], skipped: string[] = []) => {
+      if (batch.length === 0) {
+        if (skipped.length > 0) setSkippedNames(skipped);
+        return;
+      }
       setError(null);
       setBusyPhase(isWasmReady() || wasmReady ? "analyzing" : "wasm");
       try {
@@ -108,17 +135,30 @@ export default function App() {
         await new Promise<void>((resolve) => {
           window.setTimeout(resolve, 0);
         });
-        const result = await analyzeMany(items.map((i) => i.text));
-        const digests = await Promise.all(items.map((i) => sha256Hex(i.text)));
-        setSeries(result);
-        setDumpNames(items.map((i) => i.name));
+        const result = await importTexts(batch, "auto");
+        const threadBatch = result.threadItems.map((i) => batch[i]);
+        const digests = await Promise.all(threadBatch.map((i) => sha256Hex(i.text)));
+        setItems(batch);
+        setSeries(result.thread);
+        setDumpNames(threadBatch.map((i) => i.name));
         setDumpDigests(digests);
-        setSelectedDump(result.dumps.length - 1);
+        setSelectedDump(result.thread ? result.thread.dumps.length - 1 : 0);
+        setGcReport(result.gc);
+        setGcNames(result.gcItems.map((i) => batch[i].name));
+        setUnknownNames(
+          result.kinds.flatMap((k, i) =>
+            !k.thread_dump && !k.gc_log && !result.threadItems.includes(i) ? [batch[i].name] : [],
+          ),
+        );
+        setSkippedNames(skipped);
+        setView(result.thread ? "thread" : "gc");
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
         setSeries(null);
         setDumpNames([]);
         setDumpDigests([]);
+        setGcReport(null);
+        setGcNames([]);
       } finally {
         setBusyPhase(null);
       }
@@ -126,9 +166,20 @@ export default function App() {
     [wasmReady],
   );
 
+  const onRegroup = useCallback(async (mode: GroupingMode) => {
+    setGcRegrouping(true);
+    try {
+      setGcReport(await gcRegroup(mode));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setGcRegrouping(false);
+    }
+  }, []);
+
   const onFiles = useCallback(
-    async (fileList: FileList | File[]) => {
-      const files = Array.from(fileList);
+    async (fileList: FileList | FileLike[], opts: { append?: boolean } = {}) => {
+      const files = Array.from(fileList as ArrayLike<FileLike>);
       if (files.length === 0) return;
       setError(null);
       // Show loading before reading large files (file.text() can stall the UI).
@@ -137,19 +188,20 @@ export default function App() {
         requestAnimationFrame(() => resolve());
       });
       try {
-        const items = await Promise.all(
-          files.map(async (file) => ({
-            text: await file.text(),
-            name: file.name,
-          })),
-        );
-        await runAnalysisSeries(items);
+        const batch = await readImportBatch(files);
+        const next = opts.append ? appendItems(items, batch.items) : batch.items;
+        await runImport(next, batch.skipped);
+        // After runImport, which clears errors when it starts.
+        if (batch.gzipFailed.length > 0) {
+          setError(t("app.gzipUnsupported", { names: batch.gzipFailed.join(", ") }));
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
+      } finally {
         setBusyPhase(null);
       }
     },
-    [runAnalysisSeries, wasmReady],
+    [items, runImport, wasmReady, t],
   );
 
   const analyzeClipboardText = useCallback(
@@ -160,9 +212,9 @@ export default function App() {
         return;
       }
       setPasteOpen(false);
-      void runAnalysisSeries([{ text, name: CLIPBOARD_DUMP_NAME }]);
+      void runImport([{ text, name: CLIPBOARD_DUMP_NAME }]);
     },
-    [runAnalysisSeries, t],
+    [runImport, t],
   );
 
   const onPasteClipboard = useCallback(async () => {
@@ -221,6 +273,14 @@ export default function App() {
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragging(false);
+      // Dropped folders are only reachable through the entries API.
+      const entries = Array.from(e.dataTransfer.items ?? [])
+        .map((item) => item.webkitGetAsEntry?.() as EntryLike | null)
+        .filter((entry): entry is EntryLike => entry != null);
+      if (entries.some((entry) => entry.isDirectory)) {
+        void filesFromEntries(entries).then((files) => onFiles(files));
+        return;
+      }
       const list = e.dataTransfer.files;
       if (list && list.length > 0) {
         void onFiles(list);
@@ -268,12 +328,66 @@ export default function App() {
       type="button"
       className="btn"
       data-testid="load-sample"
-      onClick={() =>
-        void runAnalysisSeries([{ text: SAMPLE_DUMP, name: "sample.txt" }])
-      }
+      onClick={() => void runImport([{ text: SAMPLE_DUMP, name: "sample.txt" }])}
       disabled={busy}
     >
       {t("app.loadSample")}
+    </button>
+  );
+
+  const chooseFolderControl = (
+    <label
+      className={`btn${busy ? " disabled" : ""}`}
+      data-testid="choose-folder"
+    >
+      {t("app.chooseFolder")}
+      <input
+        type="file"
+        multiple
+        hidden
+        disabled={busy}
+        {...FOLDER_INPUT_PROPS}
+        onChange={(e) => {
+          const list = e.target.files;
+          if (list && list.length > 0) void onFiles(list);
+          e.target.value = "";
+        }}
+      />
+    </label>
+  );
+
+  const addFilesControl = (
+    <label
+      className={`btn${busy ? " disabled" : ""}`}
+      data-testid="add-files"
+      title={t("app.addFilesHint")}
+    >
+      {t("app.addFiles")}
+      <input
+        type="file"
+        multiple
+        hidden
+        disabled={busy}
+        onChange={(e) => {
+          const list = e.target.files;
+          if (list && list.length > 0) void onFiles(list, { append: true });
+          e.target.value = "";
+        }}
+      />
+    </label>
+  );
+
+  const gcSampleControl = (
+    <button
+      type="button"
+      className="btn"
+      data-testid="load-gc-sample"
+      onClick={() =>
+        void import("./sampleGc.log?raw").then((m) => runImport([{ text: m.default, name: "sample-g1-gc.log" }]))
+      }
+      disabled={busy}
+    >
+      {t("app.loadGcSample")}
     </button>
   );
 
@@ -352,8 +466,10 @@ export default function App() {
           {!hasResults && (
             <div className="home-cta controls" data-testid="home-cta">
               {chooseDumpControl}
+              {chooseFolderControl}
               {pasteClipboardControl}
               {sampleControl}
+              {gcSampleControl}
             </div>
           )}
 
@@ -371,18 +487,22 @@ export default function App() {
           aria-label={t("home.toolbarLabel")}
         >
           {chooseDumpControl}
+          {addFilesControl}
+          {chooseFolderControl}
           {pasteClipboardControl}
-          <button
-            type="button"
-            className="btn"
-            onClick={() =>
-              exportHtml(analysis, sourceName, t, locale, selectedDigest)
-            }
-            disabled={busy}
-          >
-            {t("app.exportHtml")}
-          </button>
-          {selectedDumpName && (
+          {!showGc && analysis && (
+            <button
+              type="button"
+              className="btn"
+              onClick={() =>
+                exportHtml(analysis, sourceName, t, locale, selectedDigest)
+              }
+              disabled={busy}
+            >
+              {t("app.exportHtml")}
+            </button>
+          )}
+          {!showGc && selectedDumpName && (
             <span
               className="dump-filename"
               data-testid="dump-filename"
@@ -398,7 +518,58 @@ export default function App() {
         </section>
       )}
 
-      {series && series.dumps.length > 1 && (
+      {analysis && gcReport && (
+        <div
+          className="segmented view-switch"
+          role="radiogroup"
+          aria-label={t("app.viewSwitch")}
+          data-testid="view-switch"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={!showGc}
+            className={`segmented-option${!showGc ? " active" : ""}`}
+            data-testid="view-thread"
+            onClick={() => setView("thread")}
+          >
+            {t("app.viewThreads", { count: series?.dumps.length ?? 0 })}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={showGc}
+            className={`segmented-option${showGc ? " active" : ""}`}
+            data-testid="view-gc"
+            onClick={() => setView("gc")}
+          >
+            {t("app.viewGc", { count: gcNames.length })}
+          </button>
+        </div>
+      )}
+
+      {(unknownNames.length > 0 || skippedNames.length > 0) && (
+        <div className="import-warnings" data-testid="import-warnings">
+          {unknownNames.length > 0 && (
+            <p className="import-warning" data-testid="import-unrecognized">
+              {t("app.unrecognized", {
+                count: unknownNames.length,
+                names: unknownNames.join(", "),
+              })}
+            </p>
+          )}
+          {skippedNames.length > 0 && (
+            <p className="import-warning" data-testid="import-skipped">
+              {t("app.skippedBinary", {
+                count: skippedNames.length,
+                names: skippedNames.join(", "),
+              })}
+            </p>
+          )}
+        </div>
+      )}
+
+      {!showGc && series && series.dumps.length > 1 && (
         <section
           className="dump-series"
           data-testid="dump-series"
@@ -430,7 +601,17 @@ export default function App() {
         </p>
       )}
 
-      {analysis && (
+      {showGc && gcReport && (
+        <GcResults
+          key={gcNames.join("\n")}
+          report={gcReport}
+          names={gcNames}
+          onRegroup={(mode) => void onRegroup(mode)}
+          busy={busy || gcRegrouping}
+        />
+      )}
+
+      {!showGc && analysis && (
         <Results
           key={`${selectedDumpName}:${selectedDigest || selectedDump}`}
           analysis={analysis}

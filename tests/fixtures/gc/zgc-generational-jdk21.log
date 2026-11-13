@@ -1,0 +1,1719 @@
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] Initializing The Z Garbage Collector
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] Version: 21.0.12.1+1-LTS (release)
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] NUMA Support: Disabled
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] CPUs: 16 total, 16 available
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] Memory: 30673M
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] Large Page Support: Disabled
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] Address Space Type: Contiguous/Unrestricted/Complete
+[2026-11-13T20:01:57.099+0800][0.001s][info][gc,init] Address Space Size: 512M
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Heap Backing File: /memfd:java_heap
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Heap Backing Filesystem: tmpfs (0x1021994)
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Min Capacity: 8M
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Initial Capacity: 32M
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Max Capacity: 32M
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Soft Max Capacity: 32M
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Medium Page Size: N/A
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Pre-touch: Disabled
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Available space on backing filesystem: N/A
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Uncommit: Enabled
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] Uncommit Delay: 300s
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] GC Workers for Old Generation: 1 (dynamic)
+[2026-11-13T20:01:57.099+0800][0.002s][info][gc,init] GC Workers for Young Generation: 1 (dynamic)
+[2026-11-13T20:01:57.102+0800][0.005s][info][gc,init] GC Workers Max: 1 (dynamic)
+[2026-11-13T20:01:57.102+0800][0.005s][info][gc,init] Runtime Workers: 1
+[2026-11-13T20:01:57.102+0800][0.005s][info][gc     ] Using The Z Garbage Collector
+[2026-11-13T20:01:57.105+0800][0.008s][info][gc,metaspace] CDS archive(s) mapped at: [0x000072c857000000-0x000072c857c9c000-0x000072c857c9c000), size 13221888, SharedBaseAddress: 0x000072c857000000, ArchiveRelocationMode: 1.
+[2026-11-13T20:01:57.105+0800][0.008s][info][gc,metaspace] Compressed class space mapped at: 0x000072c858000000-0x000072c898000000, reserved size: 1073741824
+[2026-11-13T20:01:57.105+0800][0.008s][info][gc,metaspace] Narrow klass base: 0x000072c857000000, Narrow klass shift: 0, Narrow klass range: 0x100000000
+[2026-11-13T20:01:57.116+0800][0.019s][info][gc          ] GC(0) Major Collection (Warmup)
+[2026-11-13T20:01:57.116+0800][0.019s][info][gc,phases   ] GC(0) Y: Young Generation
+[2026-11-13T20:01:57.116+0800][0.019s][info][gc,phases   ] GC(0) Y: Pause Mark Start (Major) 0.008ms
+[2026-11-13T20:01:57.117+0800][0.020s][info][gc,phases   ] GC(0) Y: Concurrent Mark 0.578ms
+[2026-11-13T20:01:57.117+0800][0.020s][info][gc,phases   ] GC(0) Y: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.117+0800][0.020s][info][gc,phases   ] GC(0) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.117+0800][0.020s][info][gc,phases   ] GC(0) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) Y: Concurrent Select Relocation Set 1.171ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) Y: Concurrent Relocate 0.289ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,load     ] GC(0) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,mmu      ] GC(0) Y: MMU: 2ms/99.5%, 5ms/99.8%, 10ms/99.9%, 20ms/99.9%, 50ms/100.0%, 100ms/100.0%
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,marking  ] GC(0) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,marking  ] GC(0) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,nmethod  ] GC(0) Y: NMethods: 75 registered, 0 unregistered
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,metaspace] GC(0) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) Y: Young Generation 4M(12%)->6M(19%) 0.002s
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) O: Old Generation
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) O: Concurrent Mark 0.051ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) O: Concurrent Mark Free 0.004ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) O: Concurrent Process Non-Strong 0.099ms
+[2026-11-13T20:01:57.118+0800][0.021s][info][gc,phases   ] GC(0) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.119+0800][0.022s][info][gc,phases   ] GC(0) O: Concurrent Select Relocation Set 0.386ms
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,phases   ] GC(0) O: Concurrent Remap Roots 7.683ms
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,phases   ] GC(0) O: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,phases   ] GC(0) O: Concurrent Relocate 0.007ms
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,load     ] GC(0) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,mmu      ] GC(0) O: MMU: 2ms/99.5%, 5ms/99.8%, 10ms/99.9%, 20ms/99.9%, 50ms/100.0%, 100ms/100.0%
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,marking  ] GC(0) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,marking  ] GC(0) O: Mark Stack Usage: 0M
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,nmethod  ] GC(0) O: NMethods: 73 registered, 2 unregistered
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,metaspace] GC(0) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,ref      ] GC(0) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,ref      ] GC(0) O: Soft References:                1            0            0 
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,ref      ] GC(0) O: Weak References:                6            0            0 
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,ref      ] GC(0) O: Final References:               0            0            0 
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,ref      ] GC(0) O: Phantom References:             1            0            0 
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc,phases   ] GC(0) O: Old Generation 6M(19%)->6M(19%) 0.008s
+[2026-11-13T20:01:57.126+0800][0.029s][info][gc          ] GC(0) Major Collection (Warmup) 4M(12%)->6M(19%) 0.011s
+[2026-11-13T20:01:57.131+0800][0.034s][info][gc          ] GC(1) Major Collection (Warmup)
+[2026-11-13T20:01:57.131+0800][0.034s][info][gc,phases   ] GC(1) Y: Young Generation
+[2026-11-13T20:01:57.131+0800][0.034s][info][gc,phases   ] GC(1) Y: Pause Mark Start (Major) 0.004ms
+[2026-11-13T20:01:57.132+0800][0.035s][info][gc,phases   ] GC(1) Y: Concurrent Mark 1.086ms
+[2026-11-13T20:01:57.132+0800][0.035s][info][gc,phases   ] GC(1) Y: Pause Mark End 0.001ms
+[2026-11-13T20:01:57.132+0800][0.035s][info][gc,phases   ] GC(1) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.132+0800][0.035s][info][gc,phases   ] GC(1) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.132+0800][0.035s][info][gc,phases   ] GC(1) Y: Concurrent Select Relocation Set 0.654ms
+[2026-11-13T20:01:57.132+0800][0.035s][info][gc,phases   ] GC(1) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) Y: Concurrent Relocate 0.641ms
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,load     ] GC(1) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,mmu      ] GC(1) Y: MMU: 2ms/99.5%, 5ms/99.8%, 10ms/99.9%, 20ms/99.9%, 50ms/100.0%, 100ms/100.0%
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,marking  ] GC(1) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,marking  ] GC(1) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,nmethod  ] GC(1) Y: NMethods: 73 registered, 2 unregistered
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,metaspace] GC(1) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) Y: Young Generation 8M(25%)->6M(19%) 0.002s
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) O: Old Generation
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) O: Concurrent Mark 0.041ms
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) O: Pause Mark End 0.001ms
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) O: Concurrent Process Non-Strong 0.090ms
+[2026-11-13T20:01:57.133+0800][0.036s][info][gc,phases   ] GC(1) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.134+0800][0.037s][info][gc,phases   ] GC(1) O: Concurrent Select Relocation Set 0.383ms
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,phases   ] GC(1) O: Concurrent Remap Roots 7.796ms
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,phases   ] GC(1) O: Pause Relocate Start 0.003ms
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,phases   ] GC(1) O: Concurrent Relocate 0.006ms
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,load     ] GC(1) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,mmu      ] GC(1) O: MMU: 2ms/99.5%, 5ms/99.8%, 10ms/99.9%, 20ms/99.9%, 50ms/100.0%, 100ms/100.0%
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,marking  ] GC(1) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,marking  ] GC(1) O: Mark Stack Usage: 0M
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,nmethod  ] GC(1) O: NMethods: 73 registered, 2 unregistered
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,metaspace] GC(1) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,ref      ] GC(1) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,ref      ] GC(1) O: Soft References:                1            0            0 
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,ref      ] GC(1) O: Weak References:                6            0            0 
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,ref      ] GC(1) O: Final References:               0            0            0 
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,ref      ] GC(1) O: Phantom References:             1            0            0 
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc,phases   ] GC(1) O: Old Generation 6M(19%)->6M(19%) 0.008s
+[2026-11-13T20:01:57.141+0800][0.044s][info][gc          ] GC(1) Major Collection (Warmup) 8M(25%)->6M(19%) 0.011s
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc          ] GC(2) Major Collection (Warmup)
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Young Generation
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Pause Mark Start (Major) 0.003ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Concurrent Mark 0.208ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Pause Mark End 0.001ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Concurrent Select Relocation Set 0.393ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Concurrent Relocate 0.038ms
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,load     ] GC(2) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,mmu      ] GC(2) Y: MMU: 2ms/99.5%, 5ms/99.8%, 10ms/99.9%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,marking  ] GC(2) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,marking  ] GC(2) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,nmethod  ] GC(2) Y: NMethods: 73 registered, 2 unregistered
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,metaspace] GC(2) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) Y: Young Generation 10M(31%)->6M(19%) 0.001s
+[2026-11-13T20:01:57.158+0800][0.061s][info][gc,phases   ] GC(2) O: Old Generation
+[2026-11-13T20:01:57.159+0800][0.062s][info][gc,phases   ] GC(2) O: Concurrent Mark 0.828ms
+[2026-11-13T20:01:57.159+0800][0.062s][info][gc,phases   ] GC(2) O: Pause Mark End 0.001ms
+[2026-11-13T20:01:57.159+0800][0.062s][info][gc,phases   ] GC(2) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.159+0800][0.062s][info][gc,phases   ] GC(2) O: Concurrent Process Non-Strong 0.069ms
+[2026-11-13T20:01:57.159+0800][0.062s][info][gc,phases   ] GC(2) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.160+0800][0.063s][info][gc,phases   ] GC(2) O: Concurrent Select Relocation Set 0.438ms
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,phases   ] GC(2) O: Concurrent Remap Roots 7.670ms
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,phases   ] GC(2) O: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,phases   ] GC(2) O: Concurrent Relocate 0.007ms
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,load     ] GC(2) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,mmu      ] GC(2) O: MMU: 2ms/99.5%, 5ms/99.8%, 10ms/99.9%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,marking  ] GC(2) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,marking  ] GC(2) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,nmethod  ] GC(2) O: NMethods: 73 registered, 2 unregistered
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,metaspace] GC(2) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,ref      ] GC(2) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,ref      ] GC(2) O: Soft References:                1            0            0 
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,ref      ] GC(2) O: Weak References:                6            0            0 
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,ref      ] GC(2) O: Final References:               0            0            0 
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,ref      ] GC(2) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc,phases   ] GC(2) O: Old Generation 6M(19%)->8M(25%) 0.009s
+[2026-11-13T20:01:57.167+0800][0.070s][info][gc          ] GC(2) Major Collection (Warmup) 10M(31%)->8M(25%) 0.010s
+[2026-11-13T20:01:57.288+0800][0.191s][info][gc          ] GC(3) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.288+0800][0.191s][info][gc,phases   ] GC(3) y: Young Generation
+[2026-11-13T20:01:57.288+0800][0.191s][info][gc,phases   ] GC(3) y: Pause Mark Start 0.007ms
+[2026-11-13T20:01:57.288+0800][0.191s][info][gc,phases   ] GC(3) y: Concurrent Mark 0.166ms
+[2026-11-13T20:01:57.288+0800][0.191s][info][gc,phases   ] GC(3) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.288+0800][0.191s][info][gc,phases   ] GC(3) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.288+0800][0.191s][info][gc,phases   ] GC(3) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,phases   ] GC(3) y: Concurrent Select Relocation Set 0.534ms
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,phases   ] GC(3) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,phases   ] GC(3) y: Concurrent Relocate 0.176ms
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,load     ] GC(3) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,mmu      ] GC(3) y: MMU: 2ms/99.5%, 5ms/99.8%, 10ms/99.9%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,marking  ] GC(3) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,marking  ] GC(3) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,nmethod  ] GC(3) y: NMethods: 73 registered, 2 unregistered
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,metaspace] GC(3) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc,phases   ] GC(3) y: Young Generation 28M(88%)->8M(25%) 0.001s
+[2026-11-13T20:01:57.289+0800][0.192s][info][gc          ] GC(3) Minor Collection (Allocation Rate) 28M(88%)->8M(25%) 0.001s
+[2026-11-13T20:01:57.366+0800][0.269s][info][gc          ] GC(4) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.366+0800][0.269s][info][gc,phases   ] GC(4) y: Young Generation
+[2026-11-13T20:01:57.366+0800][0.269s][info][gc,phases   ] GC(4) y: Pause Mark Start 0.009ms
+[2026-11-13T20:01:57.366+0800][0.269s][info][gc,phases   ] GC(4) y: Concurrent Mark 0.184ms
+[2026-11-13T20:01:57.366+0800][0.269s][info][gc,phases   ] GC(4) y: Pause Mark End 0.003ms
+[2026-11-13T20:01:57.366+0800][0.269s][info][gc,phases   ] GC(4) y: Concurrent Mark Free 0.001ms
+[2026-11-13T20:01:57.366+0800][0.269s][info][gc,phases   ] GC(4) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,phases   ] GC(4) y: Concurrent Select Relocation Set 0.676ms
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,phases   ] GC(4) y: Pause Relocate Start 0.011ms
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,phases   ] GC(4) y: Concurrent Relocate 0.073ms
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,load     ] GC(4) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,mmu      ] GC(4) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,marking  ] GC(4) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,marking  ] GC(4) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,nmethod  ] GC(4) y: NMethods: 73 registered, 2 unregistered
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,metaspace] GC(4) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc,phases   ] GC(4) y: Young Generation 28M(88%)->10M(31%) 0.001s
+[2026-11-13T20:01:57.367+0800][0.270s][info][gc          ] GC(4) Minor Collection (Allocation Rate) 28M(88%)->10M(31%) 0.001s
+[2026-11-13T20:01:57.482+0800][0.385s][info][gc          ] GC(5) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.482+0800][0.385s][info][gc,phases   ] GC(5) y: Young Generation
+[2026-11-13T20:01:57.482+0800][0.385s][info][gc,phases   ] GC(5) y: Pause Mark Start 0.008ms
+[2026-11-13T20:01:57.483+0800][0.386s][info][gc,phases   ] GC(5) y: Concurrent Mark 0.173ms
+[2026-11-13T20:01:57.483+0800][0.386s][info][gc,phases   ] GC(5) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.483+0800][0.386s][info][gc,phases   ] GC(5) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.483+0800][0.386s][info][gc,phases   ] GC(5) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.483+0800][0.386s][info][gc,phases   ] GC(5) y: Concurrent Select Relocation Set 0.542ms
+[2026-11-13T20:01:57.483+0800][0.386s][info][gc,phases   ] GC(5) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.483+0800][0.386s][info][gc,phases   ] GC(5) y: Concurrent Relocate 0.274ms
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc,load     ] GC(5) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc,mmu      ] GC(5) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc,marking  ] GC(5) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc,marking  ] GC(5) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc,nmethod  ] GC(5) y: NMethods: 76 registered, 2 unregistered
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc,metaspace] GC(5) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc,phases   ] GC(5) y: Young Generation 30M(94%)->12M(38%) 0.001s
+[2026-11-13T20:01:57.484+0800][0.386s][info][gc          ] GC(5) Minor Collection (Allocation Rate) 30M(94%)->12M(38%) 0.001s
+[2026-11-13T20:01:57.545+0800][0.448s][info][gc          ] GC(6) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.545+0800][0.448s][info][gc,phases   ] GC(6) y: Young Generation
+[2026-11-13T20:01:57.546+0800][0.448s][info][gc,phases   ] GC(6) y: Pause Mark Start 0.008ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Concurrent Mark 0.177ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Concurrent Select Relocation Set 0.538ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Concurrent Relocate 0.135ms
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,load     ] GC(6) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,mmu      ] GC(6) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,marking  ] GC(6) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,marking  ] GC(6) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,nmethod  ] GC(6) y: NMethods: 78 registered, 2 unregistered
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,metaspace] GC(6) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc,phases   ] GC(6) y: Young Generation 30M(94%)->14M(44%) 0.001s
+[2026-11-13T20:01:57.546+0800][0.449s][info][gc          ] GC(6) Minor Collection (Allocation Rate) 30M(94%)->14M(44%) 0.001s
+[2026-11-13T20:01:57.637+0800][0.540s][info][gc          ] GC(7) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.637+0800][0.540s][info][gc,phases   ] GC(7) y: Young Generation
+[2026-11-13T20:01:57.638+0800][0.541s][info][gc,phases   ] GC(7) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:57.638+0800][0.541s][info][gc,phases   ] GC(7) y: Concurrent Mark 0.194ms
+[2026-11-13T20:01:57.638+0800][0.541s][info][gc,phases   ] GC(7) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.638+0800][0.541s][info][gc,phases   ] GC(7) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.638+0800][0.541s][info][gc,phases   ] GC(7) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.638+0800][0.541s][info][gc,phases   ] GC(7) y: Concurrent Select Relocation Set 0.538ms
+[2026-11-13T20:01:57.638+0800][0.541s][info][gc,phases   ] GC(7) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,phases   ] GC(7) y: Concurrent Relocate 0.161ms
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,load     ] GC(7) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,mmu      ] GC(7) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,marking  ] GC(7) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,marking  ] GC(7) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,nmethod  ] GC(7) y: NMethods: 78 registered, 2 unregistered
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,metaspace] GC(7) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc,phases   ] GC(7) y: Young Generation 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:57.639+0800][0.541s][info][gc          ] GC(7) Minor Collection (Allocation Rate) 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:57.717+0800][0.620s][info][gc          ] GC(8) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.717+0800][0.620s][info][gc,phases   ] GC(8) y: Young Generation
+[2026-11-13T20:01:57.717+0800][0.620s][info][gc,phases   ] GC(8) y: Pause Mark Start 0.007ms
+[2026-11-13T20:01:57.717+0800][0.620s][info][gc,phases   ] GC(8) y: Concurrent Mark 0.318ms
+[2026-11-13T20:01:57.717+0800][0.620s][info][gc,phases   ] GC(8) y: Pause Mark End 0.003ms
+[2026-11-13T20:01:57.717+0800][0.620s][info][gc,phases   ] GC(8) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.717+0800][0.620s][info][gc,phases   ] GC(8) y: Concurrent Reset Relocation Set 0.002ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(8) y: Concurrent Select Relocation Set 0.508ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(8) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc          ] Allocation Stall (main) 0.933ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(8) y: Concurrent Relocate 0.288ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,load     ] GC(8) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,mmu      ] GC(8) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,marking  ] GC(8) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,marking  ] GC(8) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,nmethod  ] GC(8) y: NMethods: 82 registered, 2 unregistered
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,metaspace] GC(8) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(8) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc          ] GC(8) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc          ] GC(9) Major Collection (Proactive)
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(9) Y: Young Generation
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(9) Y: Pause Mark Start (Major) 0.004ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(9) Y: Concurrent Mark 0.183ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(9) Y: Pause Mark End 0.001ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(9) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.718+0800][0.621s][info][gc,phases   ] GC(9) Y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,phases   ] GC(9) Y: Concurrent Select Relocation Set 0.550ms
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,phases   ] GC(9) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,phases   ] GC(9) Y: Concurrent Relocate 0.094ms
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,load     ] GC(9) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,mmu      ] GC(9) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,marking  ] GC(9) Y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,marking  ] GC(9) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,nmethod  ] GC(9) Y: NMethods: 82 registered, 2 unregistered
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,metaspace] GC(9) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,phases   ] GC(9) Y: Young Generation 26M(81%)->20M(62%) 0.001s
+[2026-11-13T20:01:57.719+0800][0.622s][info][gc,phases   ] GC(9) O: Old Generation
+[2026-11-13T20:01:57.720+0800][0.623s][info][gc,phases   ] GC(9) O: Concurrent Mark 0.837ms
+[2026-11-13T20:01:57.720+0800][0.623s][info][gc,phases   ] GC(9) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.720+0800][0.623s][info][gc,phases   ] GC(9) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.720+0800][0.623s][info][gc,phases   ] GC(9) O: Concurrent Process Non-Strong 0.117ms
+[2026-11-13T20:01:57.720+0800][0.623s][info][gc,phases   ] GC(9) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.721+0800][0.624s][info][gc,phases   ] GC(9) O: Concurrent Select Relocation Set 0.535ms
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,phases   ] GC(9) O: Concurrent Remap Roots 9.973ms
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,phases   ] GC(9) O: Pause Relocate Start 0.003ms
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,phases   ] GC(9) O: Concurrent Relocate 0.501ms
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,load     ] GC(9) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,mmu      ] GC(9) O: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,marking  ] GC(9) O: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,marking  ] GC(9) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,nmethod  ] GC(9) O: NMethods: 82 registered, 2 unregistered
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,metaspace] GC(9) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,ref      ] GC(9) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,ref      ] GC(9) O: Soft References:                1            0            0 
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,ref      ] GC(9) O: Weak References:                6            0            0 
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,ref      ] GC(9) O: Final References:               0            0            0 
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,ref      ] GC(9) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc,phases   ] GC(9) O: Old Generation 20M(62%)->14M(44%) 0.012s
+[2026-11-13T20:01:57.731+0800][0.634s][info][gc          ] GC(9) Major Collection (Proactive) 26M(81%)->14M(44%) 0.013s
+[2026-11-13T20:01:57.819+0800][0.722s][info][gc          ] GC(10) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.819+0800][0.722s][info][gc,phases   ] GC(10) y: Young Generation
+[2026-11-13T20:01:57.819+0800][0.722s][info][gc,phases   ] GC(10) y: Pause Mark Start 0.003ms
+[2026-11-13T20:01:57.820+0800][0.723s][info][gc,phases   ] GC(10) y: Concurrent Mark 0.278ms
+[2026-11-13T20:01:57.820+0800][0.723s][info][gc,phases   ] GC(10) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:57.820+0800][0.723s][info][gc,phases   ] GC(10) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.820+0800][0.723s][info][gc,phases   ] GC(10) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:57.821+0800][0.723s][info][gc,phases   ] GC(10) y: Concurrent Select Relocation Set 0.834ms
+[2026-11-13T20:01:57.821+0800][0.723s][info][gc,phases   ] GC(10) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,phases   ] GC(10) y: Concurrent Relocate 0.057ms
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,load     ] GC(10) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,mmu      ] GC(10) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,marking  ] GC(10) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,marking  ] GC(10) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,nmethod  ] GC(10) y: NMethods: 84 registered, 2 unregistered
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,metaspace] GC(10) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc,phases   ] GC(10) y: Young Generation 30M(94%)->8M(25%) 0.001s
+[2026-11-13T20:01:57.821+0800][0.724s][info][gc          ] GC(10) Minor Collection (Allocation Rate) 30M(94%)->8M(25%) 0.001s
+[2026-11-13T20:01:57.919+0800][0.822s][info][gc          ] GC(11) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.919+0800][0.822s][info][gc,phases   ] GC(11) y: Young Generation
+[2026-11-13T20:01:57.919+0800][0.822s][info][gc,phases   ] GC(11) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:57.919+0800][0.822s][info][gc,phases   ] GC(11) y: Concurrent Mark 0.217ms
+[2026-11-13T20:01:57.919+0800][0.822s][info][gc,phases   ] GC(11) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.919+0800][0.822s][info][gc,phases   ] GC(11) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.919+0800][0.822s][info][gc,phases   ] GC(11) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,phases   ] GC(11) y: Concurrent Select Relocation Set 0.753ms
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,phases   ] GC(11) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,phases   ] GC(11) y: Concurrent Relocate 0.080ms
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,load     ] GC(11) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,mmu      ] GC(11) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,marking  ] GC(11) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,marking  ] GC(11) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,nmethod  ] GC(11) y: NMethods: 84 registered, 2 unregistered
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,metaspace] GC(11) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc,phases   ] GC(11) y: Young Generation 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:57.920+0800][0.823s][info][gc          ] GC(11) Minor Collection (Allocation Rate) 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:57.997+0800][0.900s][info][gc          ] GC(12) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:57.997+0800][0.900s][info][gc,phases   ] GC(12) y: Young Generation
+[2026-11-13T20:01:57.997+0800][0.900s][info][gc,phases   ] GC(12) y: Pause Mark Start 0.004ms
+[2026-11-13T20:01:57.998+0800][0.900s][info][gc,phases   ] GC(12) y: Concurrent Mark 0.188ms
+[2026-11-13T20:01:57.998+0800][0.900s][info][gc,phases   ] GC(12) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:57.998+0800][0.900s][info][gc,phases   ] GC(12) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:57.998+0800][0.900s][info][gc,phases   ] GC(12) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,phases   ] GC(12) y: Concurrent Select Relocation Set 0.581ms
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,phases   ] GC(12) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,phases   ] GC(12) y: Concurrent Relocate 0.111ms
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,load     ] GC(12) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,mmu      ] GC(12) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,marking  ] GC(12) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,marking  ] GC(12) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,nmethod  ] GC(12) y: NMethods: 84 registered, 2 unregistered
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,metaspace] GC(12) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc,phases   ] GC(12) y: Young Generation 30M(94%)->12M(38%) 0.001s
+[2026-11-13T20:01:57.998+0800][0.901s][info][gc          ] GC(12) Minor Collection (Allocation Rate) 30M(94%)->12M(38%) 0.001s
+[2026-11-13T20:01:58.103+0800][1.006s][info][gc          ] GC(13) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.103+0800][1.006s][info][gc,phases   ] GC(13) y: Young Generation
+[2026-11-13T20:01:58.103+0800][1.006s][info][gc,phases   ] GC(13) y: Pause Mark Start 0.008ms
+[2026-11-13T20:01:58.103+0800][1.006s][info][gc,phases   ] GC(13) y: Concurrent Mark 0.192ms
+[2026-11-13T20:01:58.103+0800][1.006s][info][gc,phases   ] GC(13) y: Pause Mark End 0.005ms
+[2026-11-13T20:01:58.103+0800][1.006s][info][gc,phases   ] GC(13) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.103+0800][1.006s][info][gc,phases   ] GC(13) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,phases   ] GC(13) y: Concurrent Select Relocation Set 0.562ms
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,phases   ] GC(13) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,phases   ] GC(13) y: Concurrent Relocate 0.161ms
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,load     ] GC(13) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,mmu      ] GC(13) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,marking  ] GC(13) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,marking  ] GC(13) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,nmethod  ] GC(13) y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,metaspace] GC(13) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc,phases   ] GC(13) y: Young Generation 30M(94%)->14M(44%) 0.001s
+[2026-11-13T20:01:58.104+0800][1.007s][info][gc          ] GC(13) Minor Collection (Allocation Rate) 30M(94%)->14M(44%) 0.001s
+[2026-11-13T20:01:58.155+0800][1.058s][info][gc          ] GC(14) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.155+0800][1.058s][info][gc,phases   ] GC(14) y: Young Generation
+[2026-11-13T20:01:58.155+0800][1.058s][info][gc,phases   ] GC(14) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:58.155+0800][1.058s][info][gc,phases   ] GC(14) y: Concurrent Mark 0.180ms
+[2026-11-13T20:01:58.155+0800][1.058s][info][gc,phases   ] GC(14) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.155+0800][1.058s][info][gc,phases   ] GC(14) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.155+0800][1.058s][info][gc,phases   ] GC(14) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,phases   ] GC(14) y: Concurrent Select Relocation Set 0.602ms
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,phases   ] GC(14) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,phases   ] GC(14) y: Concurrent Relocate 0.090ms
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,load     ] GC(14) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,mmu      ] GC(14) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,marking  ] GC(14) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,marking  ] GC(14) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,nmethod  ] GC(14) y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,metaspace] GC(14) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc,phases   ] GC(14) y: Young Generation 30M(94%)->14M(44%) 0.001s
+[2026-11-13T20:01:58.156+0800][1.059s][info][gc          ] GC(14) Minor Collection (Allocation Rate) 30M(94%)->14M(44%) 0.001s
+[2026-11-13T20:01:58.246+0800][1.149s][info][gc          ] GC(15) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.246+0800][1.149s][info][gc,phases   ] GC(15) y: Young Generation
+[2026-11-13T20:01:58.246+0800][1.149s][info][gc,phases   ] GC(15) y: Pause Mark Start 0.010ms
+[2026-11-13T20:01:58.246+0800][1.149s][info][gc,phases   ] GC(15) y: Concurrent Mark 0.274ms
+[2026-11-13T20:01:58.246+0800][1.149s][info][gc,phases   ] GC(15) y: Pause Mark End 0.008ms
+[2026-11-13T20:01:58.246+0800][1.149s][info][gc,phases   ] GC(15) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.246+0800][1.149s][info][gc,phases   ] GC(15) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,phases   ] GC(15) y: Concurrent Select Relocation Set 0.536ms
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,phases   ] GC(15) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,phases   ] GC(15) y: Concurrent Relocate 0.200ms
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,load     ] GC(15) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,mmu      ] GC(15) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,marking  ] GC(15) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,marking  ] GC(15) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,nmethod  ] GC(15) y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,metaspace] GC(15) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc,phases   ] GC(15) y: Young Generation 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:58.247+0800][1.150s][info][gc          ] GC(15) Minor Collection (Allocation Rate) 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:58.320+0800][1.223s][info][gc          ] GC(16) Minor Collection (Allocation Stall)
+[2026-11-13T20:01:58.320+0800][1.223s][info][gc,phases   ] GC(16) y: Young Generation
+[2026-11-13T20:01:58.320+0800][1.223s][info][gc,phases   ] GC(16) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:58.321+0800][1.224s][info][gc,phases   ] GC(16) y: Concurrent Mark 0.180ms
+[2026-11-13T20:01:58.321+0800][1.224s][info][gc,phases   ] GC(16) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.321+0800][1.224s][info][gc,phases   ] GC(16) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.321+0800][1.224s][info][gc,phases   ] GC(16) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.321+0800][1.224s][info][gc,phases   ] GC(16) y: Concurrent Select Relocation Set 0.766ms
+[2026-11-13T20:01:58.321+0800][1.224s][info][gc,phases   ] GC(16) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.321+0800][1.224s][info][gc          ] Allocation Stall (main) 1.073ms
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,phases   ] GC(16) y: Concurrent Relocate 0.127ms
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,load     ] GC(16) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,mmu      ] GC(16) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,marking  ] GC(16) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,marking  ] GC(16) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,nmethod  ] GC(16) y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,metaspace] GC(16) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc,phases   ] GC(16) y: Young Generation 28M(88%)->24M(75%) 0.001s
+[2026-11-13T20:01:58.322+0800][1.225s][info][gc          ] GC(16) Minor Collection (Allocation Stall) 28M(88%)->24M(75%) 0.001s
+[2026-11-13T20:01:58.347+0800][1.250s][info][gc          ] GC(17) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.347+0800][1.250s][info][gc,phases   ] GC(17) y: Young Generation
+[2026-11-13T20:01:58.347+0800][1.250s][info][gc,phases   ] GC(17) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:58.347+0800][1.250s][info][gc,phases   ] GC(17) y: Concurrent Mark 0.225ms
+[2026-11-13T20:01:58.347+0800][1.250s][info][gc,phases   ] GC(17) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.347+0800][1.250s][info][gc,phases   ] GC(17) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.347+0800][1.250s][info][gc,phases   ] GC(17) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,phases   ] GC(17) y: Concurrent Select Relocation Set 1.107ms
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,phases   ] GC(17) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,phases   ] GC(17) y: Concurrent Relocate 0.076ms
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,load     ] GC(17) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,mmu      ] GC(17) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,marking  ] GC(17) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,marking  ] GC(17) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,nmethod  ] GC(17) y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,metaspace] GC(17) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc,phases   ] GC(17) y: Young Generation 30M(94%)->18M(56%) 0.001s
+[2026-11-13T20:01:58.348+0800][1.251s][info][gc          ] GC(17) Minor Collection (Allocation Rate) 30M(94%)->18M(56%) 0.002s
+[2026-11-13T20:01:58.413+0800][1.316s][info][gc          ] GC(18) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.413+0800][1.316s][info][gc,phases   ] GC(18) y: Young Generation
+[2026-11-13T20:01:58.413+0800][1.316s][info][gc,phases   ] GC(18) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:58.414+0800][1.317s][info][gc,phases   ] GC(18) y: Concurrent Mark 0.170ms
+[2026-11-13T20:01:58.414+0800][1.317s][info][gc,phases   ] GC(18) y: Pause Mark End 0.004ms
+[2026-11-13T20:01:58.414+0800][1.317s][info][gc,phases   ] GC(18) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.414+0800][1.317s][info][gc,phases   ] GC(18) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.414+0800][1.317s][info][gc,phases   ] GC(18) y: Concurrent Select Relocation Set 0.743ms
+[2026-11-13T20:01:58.414+0800][1.317s][info][gc,phases   ] GC(18) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,phases   ] GC(18) y: Concurrent Relocate 0.105ms
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,load     ] GC(18) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,mmu      ] GC(18) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,marking  ] GC(18) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,marking  ] GC(18) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,nmethod  ] GC(18) y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,metaspace] GC(18) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc,phases   ] GC(18) y: Young Generation 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:58.415+0800][1.317s][info][gc          ] GC(18) Minor Collection (Allocation Rate) 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:58.467+0800][1.370s][info][gc          ] GC(19) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.467+0800][1.370s][info][gc,phases   ] GC(19) y: Young Generation
+[2026-11-13T20:01:58.467+0800][1.370s][info][gc,phases   ] GC(19) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:58.467+0800][1.370s][info][gc,phases   ] GC(19) y: Concurrent Mark 0.242ms
+[2026-11-13T20:01:58.467+0800][1.370s][info][gc,phases   ] GC(19) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.467+0800][1.370s][info][gc,phases   ] GC(19) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.467+0800][1.370s][info][gc,phases   ] GC(19) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.468+0800][1.371s][info][gc,phases   ] GC(19) y: Concurrent Select Relocation Set 1.139ms
+[2026-11-13T20:01:58.468+0800][1.371s][info][gc,phases   ] GC(19) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.469+0800][1.371s][info][gc,phases   ] GC(19) y: Concurrent Relocate 0.058ms
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc,load     ] GC(19) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc,mmu      ] GC(19) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc,marking  ] GC(19) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc,marking  ] GC(19) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc,nmethod  ] GC(19) y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc,metaspace] GC(19) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc,phases   ] GC(19) y: Young Generation 30M(94%)->22M(69%) 0.002s
+[2026-11-13T20:01:58.469+0800][1.372s][info][gc          ] GC(19) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.002s
+[2026-11-13T20:01:58.506+0800][1.409s][info][gc          ] GC(20) Major Collection (Allocation Rate)
+[2026-11-13T20:01:58.506+0800][1.409s][info][gc,phases   ] GC(20) Y: Young Generation
+[2026-11-13T20:01:58.506+0800][1.409s][info][gc,phases   ] GC(20) Y: Pause Mark Start (Major) 0.012ms
+[2026-11-13T20:01:58.507+0800][1.409s][info][gc,phases   ] GC(20) Y: Concurrent Mark 0.222ms
+[2026-11-13T20:01:58.507+0800][1.409s][info][gc,phases   ] GC(20) Y: Pause Mark End 0.003ms
+[2026-11-13T20:01:58.507+0800][1.409s][info][gc,phases   ] GC(20) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.507+0800][1.409s][info][gc,phases   ] GC(20) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,phases   ] GC(20) Y: Concurrent Select Relocation Set 0.519ms
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,phases   ] GC(20) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,phases   ] GC(20) Y: Concurrent Relocate 0.050ms
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,load     ] GC(20) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,mmu      ] GC(20) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,marking  ] GC(20) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,marking  ] GC(20) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,nmethod  ] GC(20) Y: NMethods: 85 registered, 2 unregistered
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,metaspace] GC(20) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,phases   ] GC(20) Y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:58.507+0800][1.410s][info][gc,phases   ] GC(20) O: Old Generation
+[2026-11-13T20:01:58.508+0800][1.411s][info][gc,phases   ] GC(20) O: Concurrent Mark 1.265ms
+[2026-11-13T20:01:58.508+0800][1.411s][info][gc,phases   ] GC(20) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.508+0800][1.411s][info][gc,phases   ] GC(20) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.509+0800][1.412s][info][gc,phases   ] GC(20) O: Concurrent Process Non-Strong 0.131ms
+[2026-11-13T20:01:58.509+0800][1.412s][info][gc,phases   ] GC(20) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.509+0800][1.412s][info][gc,phases   ] GC(20) O: Concurrent Select Relocation Set 0.761ms
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,phases   ] GC(20) O: Concurrent Remap Roots 10.250ms
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,phases   ] GC(20) O: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,phases   ] GC(20) O: Concurrent Relocate 0.657ms
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,load     ] GC(20) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,mmu      ] GC(20) O: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,marking  ] GC(20) O: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,marking  ] GC(20) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,nmethod  ] GC(20) O: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,metaspace] GC(20) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,ref      ] GC(20) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,ref      ] GC(20) O: Soft References:                1            0            0 
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,ref      ] GC(20) O: Weak References:                6            0            0 
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,ref      ] GC(20) O: Final References:               0            0            0 
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,ref      ] GC(20) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc,phases   ] GC(20) O: Old Generation 22M(69%)->16M(50%) 0.013s
+[2026-11-13T20:01:58.520+0800][1.423s][info][gc          ] GC(20) Major Collection (Allocation Rate) 30M(94%)->16M(50%) 0.014s
+[2026-11-13T20:01:58.559+0800][1.462s][info][gc          ] GC(21) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.559+0800][1.462s][info][gc,phases   ] GC(21) y: Young Generation
+[2026-11-13T20:01:58.559+0800][1.462s][info][gc,phases   ] GC(21) y: Pause Mark Start 0.009ms
+[2026-11-13T20:01:58.559+0800][1.462s][info][gc,phases   ] GC(21) y: Concurrent Mark 0.223ms
+[2026-11-13T20:01:58.559+0800][1.462s][info][gc,phases   ] GC(21) y: Pause Mark End 0.003ms
+[2026-11-13T20:01:58.559+0800][1.462s][info][gc,phases   ] GC(21) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.559+0800][1.462s][info][gc,phases   ] GC(21) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,phases   ] GC(21) y: Concurrent Select Relocation Set 0.514ms
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,phases   ] GC(21) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,phases   ] GC(21) y: Concurrent Relocate 0.056ms
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,load     ] GC(21) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,mmu      ] GC(21) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,marking  ] GC(21) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,marking  ] GC(21) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,nmethod  ] GC(21) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,metaspace] GC(21) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc,phases   ] GC(21) y: Young Generation 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:58.560+0800][1.463s][info][gc          ] GC(21) Minor Collection (Allocation Rate) 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:58.638+0800][1.540s][info][gc          ] GC(22) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Young Generation
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Pause Mark Start 0.008ms
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Concurrent Mark 0.208ms
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Pause Mark End 0.005ms
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Concurrent Select Relocation Set 0.517ms
+[2026-11-13T20:01:58.638+0800][1.541s][info][gc,phases   ] GC(22) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,phases   ] GC(22) y: Concurrent Relocate 0.137ms
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,load     ] GC(22) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,mmu      ] GC(22) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,marking  ] GC(22) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,marking  ] GC(22) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,nmethod  ] GC(22) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,metaspace] GC(22) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc,phases   ] GC(22) y: Young Generation 30M(94%)->18M(56%) 0.001s
+[2026-11-13T20:01:58.639+0800][1.541s][info][gc          ] GC(22) Minor Collection (Allocation Rate) 30M(94%)->18M(56%) 0.001s
+[2026-11-13T20:01:58.704+0800][1.606s][info][gc          ] GC(23) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Young Generation
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Pause Mark Start 0.007ms
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Concurrent Mark 0.211ms
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Concurrent Select Relocation Set 0.611ms
+[2026-11-13T20:01:58.704+0800][1.607s][info][gc,phases   ] GC(23) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,phases   ] GC(23) y: Concurrent Relocate 0.089ms
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,load     ] GC(23) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,mmu      ] GC(23) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,marking  ] GC(23) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,marking  ] GC(23) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,nmethod  ] GC(23) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,metaspace] GC(23) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc,phases   ] GC(23) y: Young Generation 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:58.705+0800][1.608s][info][gc          ] GC(23) Minor Collection (Allocation Rate) 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:58.722+0800][1.625s][info][gc          ] GC(24) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.722+0800][1.625s][info][gc,phases   ] GC(24) y: Young Generation
+[2026-11-13T20:01:58.722+0800][1.625s][info][gc,phases   ] GC(24) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:58.723+0800][1.626s][info][gc,phases   ] GC(24) y: Concurrent Mark 0.204ms
+[2026-11-13T20:01:58.723+0800][1.626s][info][gc,phases   ] GC(24) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.723+0800][1.626s][info][gc,phases   ] GC(24) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.723+0800][1.626s][info][gc,phases   ] GC(24) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.724+0800][1.626s][info][gc,phases   ] GC(24) y: Concurrent Select Relocation Set 0.797ms
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,phases   ] GC(24) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,phases   ] GC(24) y: Concurrent Relocate 0.087ms
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,load     ] GC(24) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,mmu      ] GC(24) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,marking  ] GC(24) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,marking  ] GC(24) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,nmethod  ] GC(24) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,metaspace] GC(24) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc,phases   ] GC(24) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:58.724+0800][1.627s][info][gc          ] GC(24) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:58.736+0800][1.638s][info][gc          ] GC(25) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.736+0800][1.638s][info][gc,phases   ] GC(25) y: Young Generation
+[2026-11-13T20:01:58.736+0800][1.638s][info][gc,phases   ] GC(25) y: Pause Mark Start 0.010ms
+[2026-11-13T20:01:58.736+0800][1.639s][info][gc,phases   ] GC(25) y: Concurrent Mark 0.158ms
+[2026-11-13T20:01:58.736+0800][1.639s][info][gc,phases   ] GC(25) y: Pause Mark End 0.003ms
+[2026-11-13T20:01:58.736+0800][1.639s][info][gc,phases   ] GC(25) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.736+0800][1.639s][info][gc,phases   ] GC(25) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,phases   ] GC(25) y: Concurrent Select Relocation Set 0.866ms
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,phases   ] GC(25) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,phases   ] GC(25) y: Concurrent Relocate 0.041ms
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,load     ] GC(25) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,mmu      ] GC(25) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,marking  ] GC(25) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,marking  ] GC(25) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,nmethod  ] GC(25) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,metaspace] GC(25) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc,phases   ] GC(25) y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:58.737+0800][1.640s][info][gc          ] GC(25) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:58.775+0800][1.678s][info][gc          ] GC(26) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.775+0800][1.678s][info][gc,phases   ] GC(26) y: Young Generation
+[2026-11-13T20:01:58.775+0800][1.678s][info][gc,phases   ] GC(26) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:58.775+0800][1.678s][info][gc,phases   ] GC(26) y: Concurrent Mark 0.145ms
+[2026-11-13T20:01:58.775+0800][1.678s][info][gc,phases   ] GC(26) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.775+0800][1.678s][info][gc,phases   ] GC(26) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.775+0800][1.678s][info][gc,phases   ] GC(26) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,phases   ] GC(26) y: Concurrent Select Relocation Set 0.538ms
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,phases   ] GC(26) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,phases   ] GC(26) y: Concurrent Relocate 0.068ms
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,load     ] GC(26) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,mmu      ] GC(26) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/100.0%
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,marking  ] GC(26) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,marking  ] GC(26) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,nmethod  ] GC(26) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,metaspace] GC(26) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc,phases   ] GC(26) y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:58.776+0800][1.679s][info][gc          ] GC(26) Minor Collection (Allocation Rate) 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:58.802+0800][1.705s][info][gc          ] GC(27) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.802+0800][1.705s][info][gc,phases   ] GC(27) y: Young Generation
+[2026-11-13T20:01:58.802+0800][1.705s][info][gc,phases   ] GC(27) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:58.802+0800][1.705s][info][gc,phases   ] GC(27) y: Concurrent Mark 0.214ms
+[2026-11-13T20:01:58.802+0800][1.705s][info][gc,phases   ] GC(27) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.802+0800][1.705s][info][gc,phases   ] GC(27) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.802+0800][1.705s][info][gc,phases   ] GC(27) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,phases   ] GC(27) y: Concurrent Select Relocation Set 0.607ms
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,phases   ] GC(27) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,phases   ] GC(27) y: Concurrent Relocate 0.060ms
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,load     ] GC(27) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,mmu      ] GC(27) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,marking  ] GC(27) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,marking  ] GC(27) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,nmethod  ] GC(27) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,metaspace] GC(27) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc,phases   ] GC(27) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:58.803+0800][1.706s][info][gc          ] GC(27) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:58.816+0800][1.719s][info][gc          ] GC(28) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.816+0800][1.719s][info][gc,phases   ] GC(28) y: Young Generation
+[2026-11-13T20:01:58.816+0800][1.719s][info][gc,phases   ] GC(28) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:58.817+0800][1.719s][info][gc,phases   ] GC(28) y: Concurrent Mark 0.134ms
+[2026-11-13T20:01:58.817+0800][1.719s][info][gc,phases   ] GC(28) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,phases   ] GC(28) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,phases   ] GC(28) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,phases   ] GC(28) y: Concurrent Select Relocation Set 0.514ms
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,phases   ] GC(28) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,phases   ] GC(28) y: Concurrent Relocate 0.028ms
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,load     ] GC(28) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,mmu      ] GC(28) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,marking  ] GC(28) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,marking  ] GC(28) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,nmethod  ] GC(28) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,metaspace] GC(28) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc,phases   ] GC(28) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:58.817+0800][1.720s][info][gc          ] GC(28) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:58.818+0800][1.721s][info][gc          ] GC(29) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.818+0800][1.721s][info][gc,phases   ] GC(29) y: Young Generation
+[2026-11-13T20:01:58.818+0800][1.721s][info][gc,phases   ] GC(29) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Concurrent Mark 0.130ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Concurrent Select Relocation Set 0.514ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Concurrent Relocate 0.033ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,load     ] GC(29) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,mmu      ] GC(29) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,marking  ] GC(29) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,marking  ] GC(29) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,nmethod  ] GC(29) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,metaspace] GC(29) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(29) y: Young Generation 30M(94%)->30M(94%) 0.001s
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc          ] GC(29) Minor Collection (Allocation Rate) 30M(94%)->30M(94%) 0.001s
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc          ] GC(30) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(30) y: Young Generation
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(30) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(30) y: Concurrent Mark 0.120ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(30) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(30) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.819+0800][1.722s][info][gc,phases   ] GC(30) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,phases   ] GC(30) y: Concurrent Select Relocation Set 0.521ms
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,phases   ] GC(30) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,phases   ] GC(30) y: Concurrent Relocate 0.017ms
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,load     ] GC(30) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,mmu      ] GC(30) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.9%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,marking  ] GC(30) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,marking  ] GC(30) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,nmethod  ] GC(30) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,metaspace] GC(30) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc,phases   ] GC(30) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc          ] GC(30) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:58.820+0800][1.723s][info][gc          ] GC(31) Major Collection (Allocation Rate)
+[2026-11-13T20:01:58.821+0800][1.723s][info][gc,phases   ] GC(31) Y: Young Generation
+[2026-11-13T20:01:58.821+0800][1.723s][info][gc,phases   ] GC(31) Y: Pause Mark Start (Major) 0.004ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Concurrent Mark 0.122ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Pause Mark End 0.001ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Concurrent Select Relocation Set 0.510ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Concurrent Relocate 0.023ms
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,load     ] GC(31) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,mmu      ] GC(31) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.8%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,marking  ] GC(31) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,marking  ] GC(31) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,nmethod  ] GC(31) Y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,metaspace] GC(31) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) Y: Young Generation 30M(94%)->30M(94%) 0.001s
+[2026-11-13T20:01:58.821+0800][1.724s][info][gc,phases   ] GC(31) O: Old Generation
+[2026-11-13T20:01:58.823+0800][1.725s][info][gc          ] GC(32) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.823+0800][1.725s][info][gc,phases   ] GC(32) y: Young Generation
+[2026-11-13T20:01:58.823+0800][1.725s][info][gc,phases   ] GC(31) O: Concurrent Mark 1.325ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(31) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(31) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Concurrent Mark 0.132ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(31) O: Concurrent Process Non-Strong 0.126ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(31) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Concurrent Select Relocation Set 0.515ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(31) O: Concurrent Select Relocation Set 0.509ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Concurrent Relocate 0.011ms
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,load     ] GC(32) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,mmu      ] GC(32) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,marking  ] GC(32) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,marking  ] GC(32) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,nmethod  ] GC(32) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,metaspace] GC(32) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc,phases   ] GC(32) y: Young Generation 32M(100%)->30M(94%) 0.001s
+[2026-11-13T20:01:58.823+0800][1.726s][info][gc          ] GC(32) Minor Collection (Allocation Rate) 32M(100%)->30M(94%) 0.001s
+[2026-11-13T20:01:58.834+0800][1.736s][info][gc,phases   ] GC(31) O: Concurrent Remap Roots 10.162ms
+[2026-11-13T20:01:58.834+0800][1.736s][info][gc,phases   ] GC(31) O: Pause Relocate Start 0.004ms
+[2026-11-13T20:01:58.834+0800][1.736s][info][gc          ] GC(33) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.834+0800][1.737s][info][gc,phases   ] GC(33) y: Young Generation
+[2026-11-13T20:01:58.834+0800][1.737s][info][gc,phases   ] GC(33) y: Pause Mark Start 0.003ms
+[2026-11-13T20:01:58.834+0800][1.737s][info][gc,phases   ] GC(33) y: Concurrent Mark 0.237ms
+[2026-11-13T20:01:58.834+0800][1.737s][info][gc,phases   ] GC(33) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.834+0800][1.737s][info][gc,phases   ] GC(33) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.834+0800][1.737s][info][gc,phases   ] GC(33) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.834+0800][1.737s][info][gc,phases   ] GC(31) O: Concurrent Relocate 0.566ms
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,phases   ] GC(33) y: Concurrent Select Relocation Set 0.994ms
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,phases   ] GC(33) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,phases   ] GC(33) y: Concurrent Relocate 0.017ms
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,load     ] GC(33) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,mmu      ] GC(33) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,marking  ] GC(33) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,marking  ] GC(33) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,nmethod  ] GC(33) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,metaspace] GC(33) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,phases   ] GC(33) y: Young Generation 30M(94%)->20M(62%) 0.002s
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc          ] GC(33) Minor Collection (Allocation Rate) 32M(100%)->20M(62%) 0.002s
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,load     ] GC(31) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,mmu      ] GC(31) O: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,marking  ] GC(31) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,marking  ] GC(31) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,nmethod  ] GC(31) O: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,metaspace] GC(31) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,ref      ] GC(31) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,ref      ] GC(31) O: Soft References:                1            0            0 
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,ref      ] GC(31) O: Weak References:                6            0            0 
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,ref      ] GC(31) O: Final References:               0            0            0 
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,ref      ] GC(31) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc,phases   ] GC(31) O: Old Generation 30M(94%)->18M(56%) 0.014s
+[2026-11-13T20:01:58.835+0800][1.738s][info][gc          ] GC(31) Major Collection (Allocation Rate) 30M(94%)->20M(62%) 0.015s
+[2026-11-13T20:01:58.899+0800][1.802s][info][gc          ] GC(34) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.899+0800][1.802s][info][gc,phases   ] GC(34) y: Young Generation
+[2026-11-13T20:01:58.899+0800][1.802s][info][gc,phases   ] GC(34) y: Pause Mark Start 0.011ms
+[2026-11-13T20:01:58.899+0800][1.802s][info][gc,phases   ] GC(34) y: Concurrent Mark 0.231ms
+[2026-11-13T20:01:58.899+0800][1.802s][info][gc,phases   ] GC(34) y: Pause Mark End 0.003ms
+[2026-11-13T20:01:58.899+0800][1.802s][info][gc,phases   ] GC(34) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.899+0800][1.802s][info][gc,phases   ] GC(34) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,phases   ] GC(34) y: Concurrent Select Relocation Set 0.660ms
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,phases   ] GC(34) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,phases   ] GC(34) y: Concurrent Relocate 0.030ms
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,load     ] GC(34) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,mmu      ] GC(34) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,marking  ] GC(34) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,marking  ] GC(34) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,nmethod  ] GC(34) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,metaspace] GC(34) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc,phases   ] GC(34) y: Young Generation 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:58.900+0800][1.803s][info][gc          ] GC(34) Minor Collection (Allocation Rate) 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:58.924+0800][1.827s][info][gc          ] GC(35) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.924+0800][1.827s][info][gc,phases   ] GC(35) y: Young Generation
+[2026-11-13T20:01:58.924+0800][1.827s][info][gc,phases   ] GC(35) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:58.924+0800][1.827s][info][gc,phases   ] GC(35) y: Concurrent Mark 0.183ms
+[2026-11-13T20:01:58.924+0800][1.827s][info][gc,phases   ] GC(35) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.924+0800][1.827s][info][gc,phases   ] GC(35) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.924+0800][1.827s][info][gc,phases   ] GC(35) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.925+0800][1.827s][info][gc,phases   ] GC(35) y: Concurrent Select Relocation Set 0.508ms
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,phases   ] GC(35) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,phases   ] GC(35) y: Concurrent Relocate 0.029ms
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,load     ] GC(35) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,mmu      ] GC(35) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,marking  ] GC(35) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,marking  ] GC(35) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,nmethod  ] GC(35) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,metaspace] GC(35) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc,phases   ] GC(35) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:58.925+0800][1.828s][info][gc          ] GC(35) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:58.927+0800][1.830s][info][gc          ] GC(36) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.927+0800][1.830s][info][gc,phases   ] GC(36) y: Young Generation
+[2026-11-13T20:01:58.927+0800][1.830s][info][gc,phases   ] GC(36) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:58.927+0800][1.830s][info][gc,phases   ] GC(36) y: Concurrent Mark 0.205ms
+[2026-11-13T20:01:58.927+0800][1.830s][info][gc,phases   ] GC(36) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:58.927+0800][1.830s][info][gc,phases   ] GC(36) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.927+0800][1.830s][info][gc,phases   ] GC(36) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,phases   ] GC(36) y: Concurrent Select Relocation Set 0.726ms
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,phases   ] GC(36) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,phases   ] GC(36) y: Concurrent Relocate 0.023ms
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,load     ] GC(36) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,mmu      ] GC(36) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,marking  ] GC(36) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,marking  ] GC(36) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,nmethod  ] GC(36) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,metaspace] GC(36) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc,phases   ] GC(36) y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:58.928+0800][1.831s][info][gc          ] GC(36) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:58.966+0800][1.869s][info][gc          ] GC(37) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:58.966+0800][1.869s][info][gc,phases   ] GC(37) y: Young Generation
+[2026-11-13T20:01:58.966+0800][1.869s][info][gc,phases   ] GC(37) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:58.966+0800][1.869s][info][gc,phases   ] GC(37) y: Concurrent Mark 0.129ms
+[2026-11-13T20:01:58.966+0800][1.869s][info][gc,phases   ] GC(37) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:58.966+0800][1.869s][info][gc,phases   ] GC(37) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:58.966+0800][1.869s][info][gc,phases   ] GC(37) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,phases   ] GC(37) y: Concurrent Select Relocation Set 0.508ms
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,phases   ] GC(37) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,phases   ] GC(37) y: Concurrent Relocate 0.038ms
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,load     ] GC(37) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,mmu      ] GC(37) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,marking  ] GC(37) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,marking  ] GC(37) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,nmethod  ] GC(37) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,metaspace] GC(37) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc,phases   ] GC(37) y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:58.967+0800][1.870s][info][gc          ] GC(37) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:59.006+0800][1.909s][info][gc          ] GC(38) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.006+0800][1.909s][info][gc,phases   ] GC(38) y: Young Generation
+[2026-11-13T20:01:59.006+0800][1.909s][info][gc,phases   ] GC(38) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:59.006+0800][1.909s][info][gc,phases   ] GC(38) y: Concurrent Mark 0.217ms
+[2026-11-13T20:01:59.006+0800][1.909s][info][gc,phases   ] GC(38) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.006+0800][1.909s][info][gc,phases   ] GC(38) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.006+0800][1.909s][info][gc,phases   ] GC(38) y: Concurrent Reset Relocation Set 0.004ms
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,phases   ] GC(38) y: Concurrent Select Relocation Set 0.895ms
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,phases   ] GC(38) y: Pause Relocate Start 0.004ms
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,phases   ] GC(38) y: Concurrent Relocate 0.040ms
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,load     ] GC(38) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,mmu      ] GC(38) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,marking  ] GC(38) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,marking  ] GC(38) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,nmethod  ] GC(38) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,metaspace] GC(38) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc,phases   ] GC(38) y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.007+0800][1.910s][info][gc          ] GC(38) Minor Collection (Allocation Rate) 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.032+0800][1.935s][info][gc          ] GC(39) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.032+0800][1.935s][info][gc,phases   ] GC(39) y: Young Generation
+[2026-11-13T20:01:59.032+0800][1.935s][info][gc,phases   ] GC(39) y: Pause Mark Start 0.004ms
+[2026-11-13T20:01:59.033+0800][1.935s][info][gc,phases   ] GC(39) y: Concurrent Mark 0.144ms
+[2026-11-13T20:01:59.033+0800][1.935s][info][gc,phases   ] GC(39) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.033+0800][1.935s][info][gc,phases   ] GC(39) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.033+0800][1.935s][info][gc,phases   ] GC(39) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,phases   ] GC(39) y: Concurrent Select Relocation Set 0.691ms
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,phases   ] GC(39) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,phases   ] GC(39) y: Concurrent Relocate 0.035ms
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,load     ] GC(39) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,mmu      ] GC(39) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,marking  ] GC(39) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,marking  ] GC(39) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,nmethod  ] GC(39) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,metaspace] GC(39) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc,phases   ] GC(39) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.033+0800][1.936s][info][gc          ] GC(39) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.047+0800][1.950s][info][gc          ] GC(40) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.047+0800][1.950s][info][gc,phases   ] GC(40) y: Young Generation
+[2026-11-13T20:01:59.047+0800][1.950s][info][gc,phases   ] GC(40) y: Pause Mark Start 0.003ms
+[2026-11-13T20:01:59.047+0800][1.950s][info][gc,phases   ] GC(40) y: Concurrent Mark 0.154ms
+[2026-11-13T20:01:59.047+0800][1.950s][info][gc,phases   ] GC(40) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.047+0800][1.950s][info][gc,phases   ] GC(40) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.047+0800][1.950s][info][gc,phases   ] GC(40) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,phases   ] GC(40) y: Concurrent Select Relocation Set 0.729ms
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,phases   ] GC(40) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,phases   ] GC(40) y: Concurrent Relocate 0.033ms
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,load     ] GC(40) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,mmu      ] GC(40) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,marking  ] GC(40) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,marking  ] GC(40) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,nmethod  ] GC(40) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,metaspace] GC(40) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc,phases   ] GC(40) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.048+0800][1.951s][info][gc          ] GC(40) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.049+0800][1.952s][info][gc          ] GC(41) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.049+0800][1.952s][info][gc,phases   ] GC(41) y: Young Generation
+[2026-11-13T20:01:59.049+0800][1.952s][info][gc,phases   ] GC(41) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:59.049+0800][1.952s][info][gc,phases   ] GC(41) y: Concurrent Mark 0.121ms
+[2026-11-13T20:01:59.049+0800][1.952s][info][gc,phases   ] GC(41) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.049+0800][1.952s][info][gc,phases   ] GC(41) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.049+0800][1.952s][info][gc,phases   ] GC(41) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,phases   ] GC(41) y: Concurrent Select Relocation Set 0.503ms
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,phases   ] GC(41) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,phases   ] GC(41) y: Concurrent Relocate 0.028ms
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,load     ] GC(41) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,mmu      ] GC(41) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,marking  ] GC(41) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,marking  ] GC(41) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,nmethod  ] GC(41) y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,metaspace] GC(41) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc,phases   ] GC(41) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.050+0800][1.953s][info][gc          ] GC(41) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.051+0800][1.954s][info][gc          ] GC(42) Major Collection (Allocation Rate)
+[2026-11-13T20:01:59.051+0800][1.954s][info][gc,phases   ] GC(42) Y: Young Generation
+[2026-11-13T20:01:59.051+0800][1.954s][info][gc,phases   ] GC(42) Y: Pause Mark Start (Major) 0.004ms
+[2026-11-13T20:01:59.051+0800][1.954s][info][gc,phases   ] GC(42) Y: Concurrent Mark 0.120ms
+[2026-11-13T20:01:59.051+0800][1.954s][info][gc,phases   ] GC(42) Y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.051+0800][1.954s][info][gc,phases   ] GC(42) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.051+0800][1.954s][info][gc,phases   ] GC(42) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,phases   ] GC(42) Y: Concurrent Select Relocation Set 0.505ms
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,phases   ] GC(42) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,phases   ] GC(42) Y: Concurrent Relocate 0.014ms
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,load     ] GC(42) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,mmu      ] GC(42) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,marking  ] GC(42) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,marking  ] GC(42) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,nmethod  ] GC(42) Y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,metaspace] GC(42) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,phases   ] GC(42) Y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.052+0800][1.955s][info][gc,phases   ] GC(42) O: Old Generation
+[2026-11-13T20:01:59.053+0800][1.956s][info][gc,phases   ] GC(42) O: Concurrent Mark 1.222ms
+[2026-11-13T20:01:59.053+0800][1.956s][info][gc,phases   ] GC(42) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.053+0800][1.956s][info][gc,phases   ] GC(42) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.053+0800][1.956s][info][gc,phases   ] GC(42) O: Concurrent Process Non-Strong 0.113ms
+[2026-11-13T20:01:59.053+0800][1.956s][info][gc,phases   ] GC(42) O: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.054+0800][1.957s][info][gc,phases   ] GC(42) O: Concurrent Select Relocation Set 0.497ms
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,phases   ] GC(42) O: Concurrent Remap Roots 9.958ms
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,phases   ] GC(42) O: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,phases   ] GC(42) O: Concurrent Relocate 0.143ms
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,load     ] GC(42) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,mmu      ] GC(42) O: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,marking  ] GC(42) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,marking  ] GC(42) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,nmethod  ] GC(42) O: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,metaspace] GC(42) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,ref      ] GC(42) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,ref      ] GC(42) O: Soft References:                1            0            0 
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,ref      ] GC(42) O: Weak References:                6            0            0 
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,ref      ] GC(42) O: Final References:               0            0            0 
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,ref      ] GC(42) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc,phases   ] GC(42) O: Old Generation 26M(81%)->16M(50%) 0.012s
+[2026-11-13T20:01:59.064+0800][1.967s][info][gc          ] GC(42) Major Collection (Allocation Rate) 30M(94%)->16M(50%) 0.013s
+[2026-11-13T20:01:59.115+0800][2.018s][info][gc          ] GC(43) Major Collection (System.gc())
+[2026-11-13T20:01:59.115+0800][2.018s][info][gc,phases   ] GC(43) Y: Young Generation (Promote All)
+[2026-11-13T20:01:59.115+0800][2.018s][info][gc,phases   ] GC(43) Y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.115+0800][2.018s][info][gc,phases   ] GC(43) Y: Concurrent Mark 0.208ms
+[2026-11-13T20:01:59.115+0800][2.018s][info][gc,phases   ] GC(43) Y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.115+0800][2.018s][info][gc,phases   ] GC(43) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.115+0800][2.018s][info][gc,phases   ] GC(43) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Concurrent Select Relocation Set 0.512ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Concurrent Relocate 0.042ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,load     ] GC(43) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,mmu      ] GC(43) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,marking  ] GC(43) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,marking  ] GC(43) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,nmethod  ] GC(43) Y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,metaspace] GC(43) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Young Generation (Promote All) 24M(75%)->14M(44%) 0.001s
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Young Generation (Collect Roots)
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Pause Mark Start (Major) 0.003ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Concurrent Mark 0.112ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Concurrent Mark Free 0.021ms
+[2026-11-13T20:01:59.116+0800][2.019s][info][gc,phases   ] GC(43) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,phases   ] GC(43) Y: Concurrent Select Relocation Set 0.512ms
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,phases   ] GC(43) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,phases   ] GC(43) Y: Concurrent Relocate 0.010ms
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,load     ] GC(43) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,mmu      ] GC(43) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,marking  ] GC(43) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,marking  ] GC(43) Y: Mark Stack Usage: 0M
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,nmethod  ] GC(43) Y: NMethods: 84 registered, 3 unregistered
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,metaspace] GC(43) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,phases   ] GC(43) Y: Young Generation (Collect Roots) 14M(44%)->14M(44%) 0.001s
+[2026-11-13T20:01:59.117+0800][2.020s][info][gc,phases   ] GC(43) O: Old Generation
+[2026-11-13T20:01:59.118+0800][2.021s][info][gc,phases   ] GC(43) O: Concurrent Mark 0.876ms
+[2026-11-13T20:01:59.118+0800][2.021s][info][gc,phases   ] GC(43) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.118+0800][2.021s][info][gc,phases   ] GC(43) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.118+0800][2.021s][info][gc,phases   ] GC(43) O: Concurrent Process Non-Strong 0.114ms
+[2026-11-13T20:01:59.118+0800][2.021s][info][gc,phases   ] GC(43) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.118+0800][2.021s][info][gc,phases   ] GC(43) O: Concurrent Select Relocation Set 0.506ms
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,phases   ] GC(43) O: Concurrent Remap Roots 9.939ms
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,phases   ] GC(43) O: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,phases   ] GC(43) O: Concurrent Relocate 0.140ms
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,load     ] GC(43) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,mmu      ] GC(43) O: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,marking  ] GC(43) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,marking  ] GC(43) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,nmethod  ] GC(43) O: NMethods: 83 registered, 4 unregistered
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,metaspace] GC(43) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,ref      ] GC(43) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,ref      ] GC(43) O: Soft References:                1            0            0 
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,ref      ] GC(43) O: Weak References:                6            0            0 
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,ref      ] GC(43) O: Final References:               0            0            0 
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,ref      ] GC(43) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc,phases   ] GC(43) O: Old Generation 14M(44%)->10M(31%) 0.012s
+[2026-11-13T20:01:59.128+0800][2.031s][info][gc          ] GC(43) Major Collection (System.gc()) 24M(75%)->10M(31%) 0.013s
+[2026-11-13T20:01:59.194+0800][2.097s][info][gc          ] GC(44) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.194+0800][2.097s][info][gc,phases   ] GC(44) y: Young Generation
+[2026-11-13T20:01:59.194+0800][2.097s][info][gc,phases   ] GC(44) y: Pause Mark Start 0.010ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Concurrent Mark 0.290ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Pause Mark End 0.003ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Concurrent Select Relocation Set 0.625ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Concurrent Relocate 0.032ms
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,load     ] GC(44) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,mmu      ] GC(44) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,marking  ] GC(44) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,marking  ] GC(44) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,nmethod  ] GC(44) y: NMethods: 84 registered, 4 unregistered
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,metaspace] GC(44) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc,phases   ] GC(44) y: Young Generation 30M(94%)->12M(38%) 0.001s
+[2026-11-13T20:01:59.195+0800][2.098s][info][gc          ] GC(44) Minor Collection (Allocation Rate) 30M(94%)->12M(38%) 0.001s
+[2026-11-13T20:01:59.299+0800][2.202s][info][gc          ] GC(45) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.299+0800][2.202s][info][gc,phases   ] GC(45) y: Young Generation
+[2026-11-13T20:01:59.299+0800][2.202s][info][gc,phases   ] GC(45) y: Pause Mark Start 0.012ms
+[2026-11-13T20:01:59.299+0800][2.202s][info][gc,phases   ] GC(45) y: Concurrent Mark 0.214ms
+[2026-11-13T20:01:59.299+0800][2.202s][info][gc,phases   ] GC(45) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.299+0800][2.202s][info][gc,phases   ] GC(45) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.299+0800][2.202s][info][gc,phases   ] GC(45) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.300+0800][2.203s][info][gc,phases   ] GC(45) y: Concurrent Select Relocation Set 0.996ms
+[2026-11-13T20:01:59.300+0800][2.203s][info][gc,phases   ] GC(45) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.300+0800][2.203s][info][gc,phases   ] GC(45) y: Concurrent Relocate 0.117ms
+[2026-11-13T20:01:59.300+0800][2.203s][info][gc,load     ] GC(45) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.300+0800][2.203s][info][gc,mmu      ] GC(45) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.301+0800][2.203s][info][gc,marking  ] GC(45) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.301+0800][2.203s][info][gc,marking  ] GC(45) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.301+0800][2.203s][info][gc,nmethod  ] GC(45) y: NMethods: 85 registered, 4 unregistered
+[2026-11-13T20:01:59.301+0800][2.203s][info][gc,metaspace] GC(45) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.301+0800][2.203s][info][gc,phases   ] GC(45) y: Young Generation 30M(94%)->14M(44%) 0.001s
+[2026-11-13T20:01:59.301+0800][2.203s][info][gc          ] GC(45) Minor Collection (Allocation Rate) 30M(94%)->14M(44%) 0.002s
+[2026-11-13T20:01:59.352+0800][2.255s][info][gc          ] GC(46) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.352+0800][2.255s][info][gc,phases   ] GC(46) y: Young Generation
+[2026-11-13T20:01:59.352+0800][2.255s][info][gc,phases   ] GC(46) y: Pause Mark Start 0.007ms
+[2026-11-13T20:01:59.353+0800][2.256s][info][gc,phases   ] GC(46) y: Concurrent Mark 0.213ms
+[2026-11-13T20:01:59.353+0800][2.256s][info][gc,phases   ] GC(46) y: Pause Mark End 0.003ms
+[2026-11-13T20:01:59.353+0800][2.256s][info][gc,phases   ] GC(46) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.353+0800][2.256s][info][gc,phases   ] GC(46) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.354+0800][2.256s][info][gc,phases   ] GC(46) y: Concurrent Select Relocation Set 0.885ms
+[2026-11-13T20:01:59.354+0800][2.256s][info][gc,phases   ] GC(46) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,phases   ] GC(46) y: Concurrent Relocate 0.066ms
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,load     ] GC(46) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,mmu      ] GC(46) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,marking  ] GC(46) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,marking  ] GC(46) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,nmethod  ] GC(46) y: NMethods: 85 registered, 4 unregistered
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,metaspace] GC(46) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc,phases   ] GC(46) y: Young Generation 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:59.354+0800][2.257s][info][gc          ] GC(46) Minor Collection (Allocation Rate) 30M(94%)->16M(50%) 0.001s
+[2026-11-13T20:01:59.432+0800][2.335s][info][gc          ] GC(47) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.432+0800][2.335s][info][gc,phases   ] GC(47) y: Young Generation
+[2026-11-13T20:01:59.432+0800][2.335s][info][gc,phases   ] GC(47) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.432+0800][2.335s][info][gc,phases   ] GC(47) y: Concurrent Mark 0.295ms
+[2026-11-13T20:01:59.432+0800][2.335s][info][gc,phases   ] GC(47) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.432+0800][2.335s][info][gc,phases   ] GC(47) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.432+0800][2.335s][info][gc,phases   ] GC(47) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,phases   ] GC(47) y: Concurrent Select Relocation Set 0.532ms
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,phases   ] GC(47) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,phases   ] GC(47) y: Concurrent Relocate 0.123ms
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,load     ] GC(47) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,mmu      ] GC(47) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,marking  ] GC(47) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,marking  ] GC(47) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,nmethod  ] GC(47) y: NMethods: 85 registered, 4 unregistered
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,metaspace] GC(47) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc,phases   ] GC(47) y: Young Generation 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.433+0800][2.336s][info][gc          ] GC(47) Minor Collection (Allocation Rate) 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.497+0800][2.400s][info][gc          ] GC(48) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.497+0800][2.400s][info][gc,phases   ] GC(48) y: Young Generation
+[2026-11-13T20:01:59.497+0800][2.400s][info][gc,phases   ] GC(48) y: Pause Mark Start 0.003ms
+[2026-11-13T20:01:59.497+0800][2.400s][info][gc,phases   ] GC(48) y: Concurrent Mark 0.172ms
+[2026-11-13T20:01:59.497+0800][2.400s][info][gc,phases   ] GC(48) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.497+0800][2.400s][info][gc,phases   ] GC(48) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.497+0800][2.400s][info][gc,phases   ] GC(48) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,phases   ] GC(48) y: Concurrent Select Relocation Set 0.511ms
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,phases   ] GC(48) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,phases   ] GC(48) y: Concurrent Relocate 0.100ms
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,load     ] GC(48) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,mmu      ] GC(48) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,marking  ] GC(48) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,marking  ] GC(48) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,nmethod  ] GC(48) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,metaspace] GC(48) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc,phases   ] GC(48) y: Young Generation 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.498+0800][2.401s][info][gc          ] GC(48) Minor Collection (Allocation Rate) 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.534+0800][2.437s][info][gc          ] GC(49) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.534+0800][2.437s][info][gc,phases   ] GC(49) y: Young Generation
+[2026-11-13T20:01:59.534+0800][2.437s][info][gc,phases   ] GC(49) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Concurrent Mark 0.298ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Concurrent Select Relocation Set 0.535ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Concurrent Relocate 0.097ms
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,load     ] GC(49) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,mmu      ] GC(49) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,marking  ] GC(49) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,marking  ] GC(49) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,nmethod  ] GC(49) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,metaspace] GC(49) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc,phases   ] GC(49) y: Young Generation 32M(100%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.535+0800][2.438s][info][gc          ] GC(49) Minor Collection (Allocation Rate) 32M(100%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.562+0800][2.465s][info][gc          ] GC(50) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.562+0800][2.465s][info][gc,phases   ] GC(50) y: Young Generation
+[2026-11-13T20:01:59.562+0800][2.465s][info][gc,phases   ] GC(50) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:59.562+0800][2.465s][info][gc,phases   ] GC(50) y: Concurrent Mark 0.255ms
+[2026-11-13T20:01:59.562+0800][2.465s][info][gc,phases   ] GC(50) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.562+0800][2.465s][info][gc,phases   ] GC(50) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.562+0800][2.465s][info][gc,phases   ] GC(50) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,phases   ] GC(50) y: Concurrent Select Relocation Set 0.529ms
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,phases   ] GC(50) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,phases   ] GC(50) y: Concurrent Relocate 0.050ms
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,load     ] GC(50) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,mmu      ] GC(50) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,marking  ] GC(50) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,marking  ] GC(50) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,nmethod  ] GC(50) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,metaspace] GC(50) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc,phases   ] GC(50) y: Young Generation 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.563+0800][2.466s][info][gc          ] GC(50) Minor Collection (Allocation Rate) 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.614+0800][2.516s][info][gc          ] GC(51) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Young Generation
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Concurrent Mark 0.163ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Concurrent Select Relocation Set 0.526ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Concurrent Relocate 0.078ms
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,load     ] GC(51) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,mmu      ] GC(51) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,marking  ] GC(51) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,marking  ] GC(51) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,nmethod  ] GC(51) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,metaspace] GC(51) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc,phases   ] GC(51) y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:59.614+0800][2.517s][info][gc          ] GC(51) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc          ] GC(52) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Young Generation
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Pause Mark Start 0.004ms
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Concurrent Mark 0.180ms
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Concurrent Select Relocation Set 0.518ms
+[2026-11-13T20:01:59.653+0800][2.556s][info][gc,phases   ] GC(52) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,phases   ] GC(52) y: Concurrent Relocate 0.129ms
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,load     ] GC(52) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,mmu      ] GC(52) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,marking  ] GC(52) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,marking  ] GC(52) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,nmethod  ] GC(52) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,metaspace] GC(52) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc,phases   ] GC(52) y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.654+0800][2.557s][info][gc          ] GC(52) Minor Collection (Allocation Rate) 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.680+0800][2.582s][info][gc          ] GC(53) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.680+0800][2.582s][info][gc,phases   ] GC(53) y: Young Generation
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Concurrent Mark 0.175ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Concurrent Select Relocation Set 0.617ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,phases   ] GC(53) y: Concurrent Relocate 0.060ms
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,load     ] GC(53) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,mmu      ] GC(53) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.680+0800][2.583s][info][gc,marking  ] GC(53) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.681+0800][2.583s][info][gc,marking  ] GC(53) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.681+0800][2.583s][info][gc,nmethod  ] GC(53) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.681+0800][2.583s][info][gc,metaspace] GC(53) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.681+0800][2.583s][info][gc,phases   ] GC(53) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.681+0800][2.583s][info][gc          ] GC(53) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.694+0800][2.597s][info][gc          ] GC(54) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.694+0800][2.597s][info][gc,phases   ] GC(54) y: Young Generation
+[2026-11-13T20:01:59.694+0800][2.597s][info][gc,phases   ] GC(54) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.694+0800][2.597s][info][gc,phases   ] GC(54) y: Concurrent Mark 0.171ms
+[2026-11-13T20:01:59.694+0800][2.597s][info][gc,phases   ] GC(54) y: Pause Mark End 0.004ms
+[2026-11-13T20:01:59.694+0800][2.597s][info][gc,phases   ] GC(54) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.694+0800][2.597s][info][gc,phases   ] GC(54) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,phases   ] GC(54) y: Concurrent Select Relocation Set 0.508ms
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,phases   ] GC(54) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,phases   ] GC(54) y: Concurrent Relocate 0.048ms
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,load     ] GC(54) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,mmu      ] GC(54) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,marking  ] GC(54) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,marking  ] GC(54) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,nmethod  ] GC(54) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,metaspace] GC(54) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc,phases   ] GC(54) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.695+0800][2.598s][info][gc          ] GC(54) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.696+0800][2.599s][info][gc          ] GC(55) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.696+0800][2.599s][info][gc,phases   ] GC(55) y: Young Generation
+[2026-11-13T20:01:59.696+0800][2.599s][info][gc,phases   ] GC(55) y: Pause Mark Start 0.003ms
+[2026-11-13T20:01:59.696+0800][2.599s][info][gc,phases   ] GC(55) y: Concurrent Mark 0.150ms
+[2026-11-13T20:01:59.696+0800][2.599s][info][gc,phases   ] GC(55) y: Pause Mark End 0.004ms
+[2026-11-13T20:01:59.696+0800][2.599s][info][gc,phases   ] GC(55) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.696+0800][2.599s][info][gc,phases   ] GC(55) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,phases   ] GC(55) y: Concurrent Select Relocation Set 0.507ms
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,phases   ] GC(55) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,phases   ] GC(55) y: Concurrent Relocate 0.036ms
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,load     ] GC(55) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,mmu      ] GC(55) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,marking  ] GC(55) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,marking  ] GC(55) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,nmethod  ] GC(55) y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,metaspace] GC(55) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc,phases   ] GC(55) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.697+0800][2.600s][info][gc          ] GC(55) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.723+0800][2.626s][info][gc          ] GC(56) Major Collection (Allocation Rate)
+[2026-11-13T20:01:59.723+0800][2.626s][info][gc,phases   ] GC(56) Y: Young Generation
+[2026-11-13T20:01:59.723+0800][2.626s][info][gc,phases   ] GC(56) Y: Pause Mark Start (Major) 0.008ms
+[2026-11-13T20:01:59.723+0800][2.626s][info][gc,phases   ] GC(56) Y: Concurrent Mark 0.143ms
+[2026-11-13T20:01:59.723+0800][2.626s][info][gc,phases   ] GC(56) Y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.723+0800][2.626s][info][gc,phases   ] GC(56) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.723+0800][2.626s][info][gc,phases   ] GC(56) Y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,phases   ] GC(56) Y: Concurrent Select Relocation Set 0.508ms
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,phases   ] GC(56) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,phases   ] GC(56) Y: Concurrent Relocate 0.016ms
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,load     ] GC(56) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,mmu      ] GC(56) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,marking  ] GC(56) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,marking  ] GC(56) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,nmethod  ] GC(56) Y: NMethods: 86 registered, 4 unregistered
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,metaspace] GC(56) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,phases   ] GC(56) Y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.724+0800][2.627s][info][gc,phases   ] GC(56) O: Old Generation
+[2026-11-13T20:01:59.725+0800][2.628s][info][gc,phases   ] GC(56) O: Concurrent Mark 1.000ms
+[2026-11-13T20:01:59.725+0800][2.628s][info][gc,phases   ] GC(56) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.725+0800][2.628s][info][gc,phases   ] GC(56) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.725+0800][2.628s][info][gc,phases   ] GC(56) O: Concurrent Process Non-Strong 0.136ms
+[2026-11-13T20:01:59.725+0800][2.628s][info][gc,phases   ] GC(56) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.725+0800][2.628s][info][gc,phases   ] GC(56) O: Concurrent Select Relocation Set 0.502ms
+[2026-11-13T20:01:59.735+0800][2.638s][info][gc,phases   ] GC(56) O: Concurrent Remap Roots 9.966ms
+[2026-11-13T20:01:59.735+0800][2.638s][info][gc,phases   ] GC(56) O: Pause Relocate Start 0.003ms
+[2026-11-13T20:01:59.735+0800][2.638s][info][gc          ] GC(57) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.735+0800][2.638s][info][gc,phases   ] GC(57) y: Young Generation
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc          ] Relocation Stall (main) 0.175ms
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc          ] Relocation Stall (main) 0.021ms
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc,phases   ] GC(57) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc,phases   ] GC(57) y: Concurrent Mark 0.218ms
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc,phases   ] GC(57) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc,phases   ] GC(57) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc,phases   ] GC(56) O: Concurrent Relocate 0.882ms
+[2026-11-13T20:01:59.736+0800][2.639s][info][gc,phases   ] GC(57) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,phases   ] GC(57) y: Concurrent Select Relocation Set 0.507ms
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,phases   ] GC(57) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,phases   ] GC(57) y: Concurrent Relocate 0.021ms
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,load     ] GC(57) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,mmu      ] GC(57) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,marking  ] GC(57) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,marking  ] GC(57) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,nmethod  ] GC(57) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,metaspace] GC(57) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,phases   ] GC(57) y: Young Generation 32M(100%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc          ] GC(57) Minor Collection (Allocation Rate) 32M(100%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,load     ] GC(56) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,mmu      ] GC(56) O: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,marking  ] GC(56) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,marking  ] GC(56) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,nmethod  ] GC(56) O: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,metaspace] GC(56) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,ref      ] GC(56) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,ref      ] GC(56) O: Soft References:                1            0            0 
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,ref      ] GC(56) O: Weak References:                6            0            0 
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,ref      ] GC(56) O: Final References:               0            0            0 
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,ref      ] GC(56) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc,phases   ] GC(56) O: Old Generation 24M(75%)->24M(75%) 0.013s
+[2026-11-13T20:01:59.737+0800][2.640s][info][gc          ] GC(56) Major Collection (Allocation Rate) 30M(94%)->24M(75%) 0.014s
+[2026-11-13T20:01:59.762+0800][2.665s][info][gc          ] GC(58) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.762+0800][2.665s][info][gc,phases   ] GC(58) y: Young Generation
+[2026-11-13T20:01:59.762+0800][2.665s][info][gc,phases   ] GC(58) y: Pause Mark Start 0.004ms
+[2026-11-13T20:01:59.762+0800][2.665s][info][gc,phases   ] GC(58) y: Concurrent Mark 0.149ms
+[2026-11-13T20:01:59.762+0800][2.665s][info][gc,phases   ] GC(58) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.762+0800][2.665s][info][gc,phases   ] GC(58) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.762+0800][2.665s][info][gc,phases   ] GC(58) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.763+0800][2.665s][info][gc,phases   ] GC(58) y: Concurrent Select Relocation Set 0.688ms
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,phases   ] GC(58) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,phases   ] GC(58) y: Concurrent Relocate 0.024ms
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,load     ] GC(58) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,mmu      ] GC(58) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,marking  ] GC(58) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,marking  ] GC(58) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,nmethod  ] GC(58) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,metaspace] GC(58) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc,phases   ] GC(58) y: Young Generation 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.763+0800][2.666s][info][gc          ] GC(58) Minor Collection (Allocation Rate) 30M(94%)->20M(62%) 0.001s
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc          ] GC(59) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Young Generation
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Pause Mark Start 0.003ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Concurrent Mark 0.145ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Concurrent Select Relocation Set 0.535ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Concurrent Relocate 0.074ms
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,load     ] GC(59) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,mmu      ] GC(59) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,marking  ] GC(59) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,marking  ] GC(59) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,nmethod  ] GC(59) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,metaspace] GC(59) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc,phases   ] GC(59) y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:59.814+0800][2.717s][info][gc          ] GC(59) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:59.853+0800][2.756s][info][gc          ] GC(60) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.853+0800][2.756s][info][gc,phases   ] GC(60) y: Young Generation
+[2026-11-13T20:01:59.853+0800][2.756s][info][gc,phases   ] GC(60) y: Pause Mark Start 0.003ms
+[2026-11-13T20:01:59.853+0800][2.756s][info][gc,phases   ] GC(60) y: Concurrent Mark 0.181ms
+[2026-11-13T20:01:59.853+0800][2.756s][info][gc,phases   ] GC(60) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.853+0800][2.756s][info][gc,phases   ] GC(60) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.853+0800][2.756s][info][gc,phases   ] GC(60) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,phases   ] GC(60) y: Concurrent Select Relocation Set 0.521ms
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,phases   ] GC(60) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,phases   ] GC(60) y: Concurrent Relocate 0.049ms
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,load     ] GC(60) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,mmu      ] GC(60) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,marking  ] GC(60) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,marking  ] GC(60) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,nmethod  ] GC(60) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,metaspace] GC(60) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc,phases   ] GC(60) y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.854+0800][2.757s][info][gc          ] GC(60) Minor Collection (Allocation Rate) 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.880+0800][2.783s][info][gc          ] GC(61) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.880+0800][2.783s][info][gc,phases   ] GC(61) y: Young Generation
+[2026-11-13T20:01:59.880+0800][2.783s][info][gc,phases   ] GC(61) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.880+0800][2.783s][info][gc,phases   ] GC(61) y: Concurrent Mark 0.218ms
+[2026-11-13T20:01:59.880+0800][2.783s][info][gc,phases   ] GC(61) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.880+0800][2.783s][info][gc,phases   ] GC(61) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.880+0800][2.783s][info][gc,phases   ] GC(61) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,phases   ] GC(61) y: Concurrent Select Relocation Set 0.509ms
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,phases   ] GC(61) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,phases   ] GC(61) y: Concurrent Relocate 0.050ms
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,load     ] GC(61) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,mmu      ] GC(61) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,marking  ] GC(61) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,marking  ] GC(61) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,nmethod  ] GC(61) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,metaspace] GC(61) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc,phases   ] GC(61) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.881+0800][2.784s][info][gc          ] GC(61) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.894+0800][2.797s][info][gc          ] GC(62) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.894+0800][2.797s][info][gc,phases   ] GC(62) y: Young Generation
+[2026-11-13T20:01:59.894+0800][2.797s][info][gc,phases   ] GC(62) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.894+0800][2.797s][info][gc,phases   ] GC(62) y: Concurrent Mark 0.125ms
+[2026-11-13T20:01:59.895+0800][2.797s][info][gc,phases   ] GC(62) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.895+0800][2.797s][info][gc,phases   ] GC(62) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.895+0800][2.797s][info][gc,phases   ] GC(62) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,phases   ] GC(62) y: Concurrent Select Relocation Set 0.610ms
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,phases   ] GC(62) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,phases   ] GC(62) y: Concurrent Relocate 0.036ms
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,load     ] GC(62) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,mmu      ] GC(62) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,marking  ] GC(62) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,marking  ] GC(62) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,nmethod  ] GC(62) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,metaspace] GC(62) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc,phases   ] GC(62) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.895+0800][2.798s][info][gc          ] GC(62) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.896+0800][2.799s][info][gc          ] GC(63) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.896+0800][2.799s][info][gc,phases   ] GC(63) y: Young Generation
+[2026-11-13T20:01:59.896+0800][2.799s][info][gc,phases   ] GC(63) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,phases   ] GC(63) y: Concurrent Mark 0.144ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,phases   ] GC(63) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,phases   ] GC(63) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,phases   ] GC(63) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,phases   ] GC(63) y: Concurrent Select Relocation Set 0.785ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,phases   ] GC(63) y: Pause Relocate Start 0.004ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,phases   ] GC(63) y: Concurrent Relocate 0.038ms
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,load     ] GC(63) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,mmu      ] GC(63) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.897+0800][2.800s][info][gc,marking  ] GC(63) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.898+0800][2.800s][info][gc,marking  ] GC(63) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.898+0800][2.800s][info][gc,nmethod  ] GC(63) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.898+0800][2.800s][info][gc,metaspace] GC(63) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.898+0800][2.800s][info][gc,phases   ] GC(63) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.898+0800][2.800s][info][gc          ] GC(63) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:01:59.923+0800][2.826s][info][gc          ] GC(64) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.923+0800][2.826s][info][gc,phases   ] GC(64) y: Young Generation
+[2026-11-13T20:01:59.923+0800][2.826s][info][gc,phases   ] GC(64) y: Pause Mark Start 0.006ms
+[2026-11-13T20:01:59.923+0800][2.826s][info][gc,phases   ] GC(64) y: Concurrent Mark 0.144ms
+[2026-11-13T20:01:59.923+0800][2.826s][info][gc,phases   ] GC(64) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.923+0800][2.826s][info][gc,phases   ] GC(64) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.923+0800][2.826s][info][gc,phases   ] GC(64) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,phases   ] GC(64) y: Concurrent Select Relocation Set 0.530ms
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,phases   ] GC(64) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,phases   ] GC(64) y: Concurrent Relocate 0.017ms
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,load     ] GC(64) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,mmu      ] GC(64) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,marking  ] GC(64) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,marking  ] GC(64) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,nmethod  ] GC(64) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,metaspace] GC(64) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc,phases   ] GC(64) y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.924+0800][2.827s][info][gc          ] GC(64) Minor Collection (Allocation Rate) 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:01:59.936+0800][2.839s][info][gc          ] GC(65) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.936+0800][2.839s][info][gc,phases   ] GC(65) y: Young Generation
+[2026-11-13T20:01:59.936+0800][2.839s][info][gc,phases   ] GC(65) y: Pause Mark Start 0.005ms
+[2026-11-13T20:01:59.936+0800][2.839s][info][gc,phases   ] GC(65) y: Concurrent Mark 0.178ms
+[2026-11-13T20:01:59.936+0800][2.839s][info][gc,phases   ] GC(65) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.936+0800][2.839s][info][gc,phases   ] GC(65) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.936+0800][2.839s][info][gc,phases   ] GC(65) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(65) y: Concurrent Select Relocation Set 0.710ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(65) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(65) y: Concurrent Relocate 0.016ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,load     ] GC(65) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,mmu      ] GC(65) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,marking  ] GC(65) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,marking  ] GC(65) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,nmethod  ] GC(65) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,metaspace] GC(65) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(65) y: Young Generation 32M(100%)->32M(100%) 0.001s
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc          ] GC(65) Minor Collection (Allocation Rate) 32M(100%)->32M(100%) 0.001s
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc          ] GC(66) Major Collection (Allocation Rate)
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(66) Y: Young Generation
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(66) Y: Pause Mark Start (Major) 0.003ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(66) Y: Concurrent Mark 0.129ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(66) Y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(66) Y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.937+0800][2.840s][info][gc,phases   ] GC(66) Y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.938+0800][2.840s][info][gc,phases   ] GC(66) Y: Concurrent Select Relocation Set 0.504ms
+[2026-11-13T20:01:59.938+0800][2.840s][info][gc,phases   ] GC(66) Y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,phases   ] GC(66) Y: Concurrent Relocate 0.016ms
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,load     ] GC(66) Y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,mmu      ] GC(66) Y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,marking  ] GC(66) Y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,marking  ] GC(66) Y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,nmethod  ] GC(66) Y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,metaspace] GC(66) Y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,phases   ] GC(66) Y: Young Generation 32M(100%)->32M(100%) 0.001s
+[2026-11-13T20:01:59.938+0800][2.841s][info][gc,phases   ] GC(66) O: Old Generation
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc          ] GC(67) Minor Collection (Allocation Stall)
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Young Generation
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(66) O: Concurrent Mark 1.207ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(66) O: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(66) O: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Concurrent Mark 0.130ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(66) O: Concurrent Process Non-Strong 0.126ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(66) O: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(66) O: Concurrent Select Relocation Set 0.498ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Concurrent Select Relocation Set 0.514ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.939+0800][2.842s][info][gc,phases   ] GC(67) y: Concurrent Relocate 0.010ms
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc,load     ] GC(67) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc,mmu      ] GC(67) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc,marking  ] GC(67) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc,marking  ] GC(67) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc,nmethod  ] GC(67) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc,metaspace] GC(67) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc,phases   ] GC(67) y: Young Generation 32M(100%)->32M(100%) 0.001s
+[2026-11-13T20:01:59.940+0800][2.842s][info][gc          ] GC(67) Minor Collection (Allocation Stall) 32M(100%)->32M(100%) 0.001s
+[2026-11-13T20:01:59.949+0800][2.852s][info][gc,phases   ] GC(66) O: Concurrent Remap Roots 9.962ms
+[2026-11-13T20:01:59.950+0800][2.852s][info][gc,phases   ] GC(66) O: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:59.950+0800][2.852s][info][gc          ] GC(68) Minor Collection (High Usage)
+[2026-11-13T20:01:59.950+0800][2.852s][info][gc,phases   ] GC(68) y: Young Generation
+[2026-11-13T20:01:59.950+0800][2.852s][info][gc          ] Allocation Stall (main) 10.791ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Pause Mark Start 0.004ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(66) O: Concurrent Relocate 0.142ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Concurrent Mark 0.226ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Pause Mark End 0.002ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Concurrent Select Relocation Set 0.556ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Pause Relocate Start 0.002ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,phases   ] GC(68) y: Concurrent Relocate 0.029ms
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,load     ] GC(68) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,mmu      ] GC(68) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.950+0800][2.853s][info][gc,marking  ] GC(68) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,marking  ] GC(68) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,nmethod  ] GC(68) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,metaspace] GC(68) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,phases   ] GC(68) y: Young Generation 32M(100%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc          ] GC(68) Minor Collection (High Usage) 32M(100%)->28M(88%) 0.001s
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,load     ] GC(66) O: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,mmu      ] GC(66) O: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,marking  ] GC(66) O: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,marking  ] GC(66) O: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,nmethod  ] GC(66) O: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,metaspace] GC(66) O: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,ref      ] GC(66) O:                       Encountered   Discovered     Enqueued 
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,ref      ] GC(66) O: Soft References:                1            0            0 
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,ref      ] GC(66) O: Weak References:                6            0            0 
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,ref      ] GC(66) O: Final References:               0            0            0 
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,ref      ] GC(66) O: Phantom References:             1            1            0 
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc,phases   ] GC(66) O: Old Generation 32M(100%)->28M(88%) 0.013s
+[2026-11-13T20:01:59.951+0800][2.853s][info][gc          ] GC(66) Major Collection (Allocation Rate) 32M(100%)->28M(88%) 0.014s
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc          ] GC(69) Minor Collection (Allocation Rate)
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Young Generation
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Pause Mark Start 0.002ms
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Concurrent Mark 0.123ms
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Pause Mark End 0.001ms
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Concurrent Select Relocation Set 0.522ms
+[2026-11-13T20:01:59.952+0800][2.855s][info][gc,phases   ] GC(69) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,phases   ] GC(69) y: Concurrent Relocate 0.012ms
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,load     ] GC(69) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,mmu      ] GC(69) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,marking  ] GC(69) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,marking  ] GC(69) y: Mark Stack Usage: 32M
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,nmethod  ] GC(69) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,metaspace] GC(69) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc,phases   ] GC(69) y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:01:59.953+0800][2.855s][info][gc          ] GC(69) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:02:00.004+0800][2.907s][info][gc          ] GC(70) Minor Collection (Allocation Rate)
+[2026-11-13T20:02:00.004+0800][2.907s][info][gc,phases   ] GC(70) y: Young Generation
+[2026-11-13T20:02:00.004+0800][2.907s][info][gc,phases   ] GC(70) y: Pause Mark Start 0.007ms
+[2026-11-13T20:02:00.004+0800][2.907s][info][gc,phases   ] GC(70) y: Concurrent Mark 0.170ms
+[2026-11-13T20:02:00.004+0800][2.907s][info][gc,phases   ] GC(70) y: Pause Mark End 0.002ms
+[2026-11-13T20:02:00.004+0800][2.907s][info][gc,phases   ] GC(70) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:02:00.004+0800][2.907s][info][gc,phases   ] GC(70) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,phases   ] GC(70) y: Concurrent Select Relocation Set 0.510ms
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,phases   ] GC(70) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,phases   ] GC(70) y: Concurrent Relocate 0.069ms
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,load     ] GC(70) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,mmu      ] GC(70) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,marking  ] GC(70) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,marking  ] GC(70) y: Mark Stack Usage: 32M
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,nmethod  ] GC(70) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,metaspace] GC(70) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc,phases   ] GC(70) y: Young Generation 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:02:00.005+0800][2.908s][info][gc          ] GC(70) Minor Collection (Allocation Rate) 30M(94%)->22M(69%) 0.001s
+[2026-11-13T20:02:00.043+0800][2.946s][info][gc          ] GC(71) Minor Collection (Allocation Rate)
+[2026-11-13T20:02:00.043+0800][2.946s][info][gc,phases   ] GC(71) y: Young Generation
+[2026-11-13T20:02:00.043+0800][2.946s][info][gc,phases   ] GC(71) y: Pause Mark Start 0.004ms
+[2026-11-13T20:02:00.043+0800][2.946s][info][gc,phases   ] GC(71) y: Concurrent Mark 0.178ms
+[2026-11-13T20:02:00.043+0800][2.946s][info][gc,phases   ] GC(71) y: Pause Mark End 0.002ms
+[2026-11-13T20:02:00.043+0800][2.946s][info][gc,phases   ] GC(71) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:02:00.043+0800][2.946s][info][gc,phases   ] GC(71) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,phases   ] GC(71) y: Concurrent Select Relocation Set 1.018ms
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,phases   ] GC(71) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,phases   ] GC(71) y: Concurrent Relocate 0.041ms
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,load     ] GC(71) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,mmu      ] GC(71) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,marking  ] GC(71) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,marking  ] GC(71) y: Mark Stack Usage: 32M
+[2026-11-13T20:02:00.044+0800][2.947s][info][gc,nmethod  ] GC(71) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:02:00.045+0800][2.947s][info][gc,metaspace] GC(71) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:02:00.045+0800][2.947s][info][gc,phases   ] GC(71) y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:02:00.045+0800][2.947s][info][gc          ] GC(71) Minor Collection (Allocation Rate) 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:02:00.070+0800][2.973s][info][gc          ] GC(72) Minor Collection (Allocation Rate)
+[2026-11-13T20:02:00.070+0800][2.973s][info][gc,phases   ] GC(72) y: Young Generation
+[2026-11-13T20:02:00.070+0800][2.973s][info][gc,phases   ] GC(72) y: Pause Mark Start 0.002ms
+[2026-11-13T20:02:00.070+0800][2.973s][info][gc,phases   ] GC(72) y: Concurrent Mark 0.229ms
+[2026-11-13T20:02:00.070+0800][2.973s][info][gc,phases   ] GC(72) y: Pause Mark End 0.001ms
+[2026-11-13T20:02:00.070+0800][2.973s][info][gc,phases   ] GC(72) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:02:00.070+0800][2.973s][info][gc,phases   ] GC(72) y: Concurrent Reset Relocation Set 0.001ms
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,phases   ] GC(72) y: Concurrent Select Relocation Set 0.641ms
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,phases   ] GC(72) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,phases   ] GC(72) y: Concurrent Relocate 0.034ms
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,load     ] GC(72) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,mmu      ] GC(72) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,marking  ] GC(72) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,marking  ] GC(72) y: Mark Stack Usage: 32M
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,nmethod  ] GC(72) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,metaspace] GC(72) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc,phases   ] GC(72) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:02:00.071+0800][2.974s][info][gc          ] GC(72) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:02:00.085+0800][2.988s][info][gc          ] GC(73) Minor Collection (Allocation Rate)
+[2026-11-13T20:02:00.085+0800][2.988s][info][gc,phases   ] GC(73) y: Young Generation
+[2026-11-13T20:02:00.085+0800][2.988s][info][gc,phases   ] GC(73) y: Pause Mark Start 0.002ms
+[2026-11-13T20:02:00.085+0800][2.988s][info][gc,phases   ] GC(73) y: Concurrent Mark 0.168ms
+[2026-11-13T20:02:00.085+0800][2.988s][info][gc,phases   ] GC(73) y: Pause Mark End 0.002ms
+[2026-11-13T20:02:00.085+0800][2.988s][info][gc,phases   ] GC(73) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:02:00.085+0800][2.988s][info][gc,phases   ] GC(73) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,phases   ] GC(73) y: Concurrent Select Relocation Set 0.973ms
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,phases   ] GC(73) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,phases   ] GC(73) y: Concurrent Relocate 0.032ms
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,load     ] GC(73) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,mmu      ] GC(73) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,marking  ] GC(73) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,marking  ] GC(73) y: Mark Stack Usage: 32M
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,nmethod  ] GC(73) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,metaspace] GC(73) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc,phases   ] GC(73) y: Young Generation 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:02:00.086+0800][2.989s][info][gc          ] GC(73) Minor Collection (Allocation Rate) 30M(94%)->28M(88%) 0.001s
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc          ] GC(74) Minor Collection (Allocation Rate)
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Young Generation
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Pause Mark Start 0.002ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Concurrent Mark 0.132ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Pause Mark End 0.001ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Concurrent Reset Relocation Set 0.000ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Concurrent Select Relocation Set 0.505ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Concurrent Relocate 0.034ms
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,load     ] GC(74) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,mmu      ] GC(74) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,marking  ] GC(74) y: Mark: 1 stripe(s), 2 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,marking  ] GC(74) y: Mark Stack Usage: 32M
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,nmethod  ] GC(74) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,metaspace] GC(74) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc,phases   ] GC(74) y: Young Generation 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:02:00.087+0800][2.990s][info][gc          ] GC(74) Minor Collection (Allocation Rate) 30M(94%)->26M(81%) 0.001s
+[2026-11-13T20:02:00.114+0800][3.017s][info][gc          ] GC(75) Minor Collection (Allocation Rate)
+[2026-11-13T20:02:00.114+0800][3.017s][info][gc,phases   ] GC(75) y: Young Generation
+[2026-11-13T20:02:00.114+0800][3.017s][info][gc,phases   ] GC(75) y: Pause Mark Start 0.004ms
+[2026-11-13T20:02:00.114+0800][3.017s][info][gc,phases   ] GC(75) y: Concurrent Mark 0.147ms
+[2026-11-13T20:02:00.114+0800][3.017s][info][gc,phases   ] GC(75) y: Pause Mark End 0.001ms
+[2026-11-13T20:02:00.114+0800][3.017s][info][gc,phases   ] GC(75) y: Concurrent Mark Free 0.000ms
+[2026-11-13T20:02:00.114+0800][3.017s][info][gc,phases   ] GC(75) y: Concurrent Reset Relocation Set 0.002ms
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,phases   ] GC(75) y: Concurrent Select Relocation Set 0.976ms
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,phases   ] GC(75) y: Pause Relocate Start 0.001ms
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,phases   ] GC(75) y: Concurrent Relocate 0.015ms
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,load     ] GC(75) y: Load: 0.51 (3%) / 0.36 (2%) / 0.37 (2%)
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,mmu      ] GC(75) y: MMU: 2ms/98.9%, 5ms/99.5%, 10ms/99.7%, 20ms/99.8%, 50ms/99.9%, 100ms/99.9%
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,marking  ] GC(75) y: Mark: 1 stripe(s), 1 proactive flush(es), 1 terminate flush(es), 0 completion(s), 0 continuation(s) 
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,marking  ] GC(75) y: Mark Stack Usage: 32M
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,nmethod  ] GC(75) y: NMethods: 85 registered, 5 unregistered
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,metaspace] GC(75) y: Metaspace: 0M used, 0M committed, 1088M reserved
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc,phases   ] GC(75) y: Young Generation 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:02:00.115+0800][3.018s][info][gc          ] GC(75) Minor Collection (Allocation Rate) 30M(94%)->24M(75%) 0.001s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,exit     ] Stopping ZGC
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ] === Garbage Collection Statistics =======================================================================================================================
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]                                                              Last 10s              Last 10m              Last 10h                Total
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]                                                              Avg / Max             Avg / Max             Avg / Max             Avg / Max
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]        Contention: Mark Segment Reset Contention                     0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]        Contention: Mark SeqNum Reset Contention                      0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]          Critical: Allocation Stall                                  1 / 1                 1 / 1                 1 / 1                 1 / 1           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]          Critical: Allocation Stall                              4.266 / 10.791        4.266 / 10.791        4.266 / 10.791        4.266 / 10.791      ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]          Critical: JNI Critical Stall                                0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]          Critical: JNI Critical Stall                            0.000 / 0.000         0.000 / 0.000         0.000 / 0.000         0.000 / 0.000       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]          Critical: Relocation Stall                                  0 / 2                 0 / 2                 0 / 2                 0 / 2           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]          Critical: Relocation Stall                              0.098 / 0.175         0.098 / 0.175         0.098 / 0.175         0.098 / 0.175       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]  Major Collection: Major Collection                             12.679 / 14.722       12.679 / 14.722       12.679 / 14.722       12.679 / 14.722      ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Allocation Rate                                 224 / 234             224 / 234             224 / 234             224 / 234         MB/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Defragment                                       13 / 15               13 / 15               13 / 15               13 / 15          ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Out Of Memory                                     0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Page Cache Flush                                 52 / 60               52 / 60               52 / 60               52 / 60          MB/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Page Cache Hit L1                               168 / 208             168 / 208             168 / 208             168 / 208         ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Page Cache Hit L2                                 0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Page Cache Hit L3                                13 / 21               13 / 21               13 / 21               13 / 21          ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Page Cache Miss                                   4 / 5                 4 / 5                 4 / 5                 4 / 5           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Uncommit                                          0 / 0                 0 / 0                 0 / 0                 0 / 0           MB/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Undo Object Allocation Failed                     0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Undo Object Allocation Succeeded                  0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            Memory: Undo Page Allocation                              0 / 0                 0 / 0                 0 / 0                 0 / 0           ops/s
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]  Minor Collection: Minor Collection                              1.055 / 1.616         1.055 / 1.616         1.055 / 1.616         1.055 / 1.616       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Old Generation: Old Generation                               11.455 / 13.945       11.455 / 13.945       11.455 / 13.945       11.455 / 13.945      ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Pause: Pause Mark End                                0.002 / 0.002         0.002 / 0.002         0.002 / 0.002         0.002 / 0.002       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Pause: Pause Relocate Start                          0.002 / 0.004         0.002 / 0.004         0.002 / 0.004         0.002 / 0.004       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Mark                               0.865 / 1.325         0.865 / 1.325         0.865 / 1.325         0.865 / 1.325       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Mark Continue                      0.000 / 0.000         0.000 / 0.000         0.000 / 0.000         0.000 / 0.000       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Mark Free                          0.001 / 0.004         0.001 / 0.004         0.001 / 0.004         0.001 / 0.004       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Process Non-Strong                 0.112 / 0.136         0.112 / 0.136         0.112 / 0.136         0.112 / 0.136       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Relocate                           0.305 / 0.882         0.305 / 0.882         0.305 / 0.882         0.305 / 0.882       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Remap Roots                        9.336 / 10.250        9.336 / 10.250        9.336 / 10.250        9.336 / 10.250      ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Reset Relocation Set               0.000 / 0.001         0.000 / 0.001         0.000 / 0.001         0.000 / 0.001       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]         Old Phase: Concurrent Select Relocation Set              0.501 / 0.761         0.501 / 0.761         0.501 / 0.761         0.501 / 0.761       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Classes Purge                      0.003 / 0.005         0.003 / 0.005         0.003 / 0.005         0.003 / 0.005       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Classes Unlink                     0.069 / 0.091         0.069 / 0.091         0.069 / 0.091         0.069 / 0.091       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Mark Follow                        0.833 / 1.284         0.833 / 1.284         0.833 / 1.284         0.833 / 1.284       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Mark Root Colored                  0.010 / 0.015         0.010 / 0.015         0.010 / 0.015         0.010 / 0.015       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Mark Root Uncolored                0.015 / 0.018         0.015 / 0.018         0.015 / 0.018         0.015 / 0.018       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Mark Roots                         0.031 / 0.040         0.031 / 0.040         0.031 / 0.040         0.031 / 0.040       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent References Enqueue                 0.000 / 0.000         0.000 / 0.000         0.000 / 0.000         0.000 / 0.000       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent References Process                 0.004 / 0.005         0.004 / 0.005         0.004 / 0.005         0.004 / 0.005       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Remap Remembered                   9.288 / 10.201        9.288 / 10.201        9.288 / 10.201        9.288 / 10.201      ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Remap Roots Colored                0.013 / 0.021         0.013 / 0.021         0.013 / 0.021         0.013 / 0.021       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Remap Roots Uncolored              0.025 / 0.038         0.025 / 0.038         0.025 / 0.038         0.025 / 0.038       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Roots ClassLoaderDataGraph         0.006 / 0.013         0.006 / 0.013         0.006 / 0.013         0.006 / 0.013       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Roots CodeCache                    0.022 / 0.027         0.022 / 0.027         0.022 / 0.027         0.022 / 0.027       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Roots JavaThreads                  0.006 / 0.018         0.006 / 0.018         0.006 / 0.018         0.006 / 0.018       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Roots OopStorageSet                0.002 / 0.003         0.002 / 0.003         0.002 / 0.003         0.002 / 0.003       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]      Old Subphase: Concurrent Weak Roots OopStorageSet           0.014 / 0.034         0.014 / 0.034         0.014 / 0.034         0.014 / 0.034       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]            System: Java Threads                                     12 / 13               12 / 13               12 / 13               12 / 13          threads
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]  Young Generation: Young Generation                              1.106 / 2.424         1.106 / 2.424         1.106 / 2.424         1.106 / 2.424       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]  Young Generation: Young Generation                              1.011 / 1.573         1.011 / 1.573         1.011 / 1.573         1.011 / 1.573       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]  Young Generation: Young Generation (Collect Roots)              0.699 / 0.699         0.699 / 0.699         0.699 / 0.699         0.699 / 0.699       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]  Young Generation: Young Generation (Promote All)                0.837 / 0.837         0.837 / 0.837         0.837 / 0.837         0.837 / 0.837       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Pause: Pause Mark End                                0.002 / 0.008         0.002 / 0.008         0.002 / 0.008         0.002 / 0.008       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Pause: Pause Mark Start                              0.005 / 0.012         0.005 / 0.012         0.005 / 0.012         0.005 / 0.012       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Pause: Pause Mark Start (Major)                      0.005 / 0.012         0.005 / 0.012         0.005 / 0.012         0.005 / 0.012       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Pause: Pause Relocate Start                          0.001 / 0.011         0.001 / 0.011         0.001 / 0.011         0.001 / 0.011       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Phase: Concurrent Mark                               0.203 / 1.086         0.203 / 1.086         0.203 / 1.086         0.203 / 1.086       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Phase: Concurrent Mark Continue                      0.000 / 0.000         0.000 / 0.000         0.000 / 0.000         0.000 / 0.000       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Phase: Concurrent Mark Free                          0.000 / 0.021         0.000 / 0.021         0.000 / 0.021         0.000 / 0.021       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Phase: Concurrent Relocate                           0.077 / 0.641         0.077 / 0.641         0.077 / 0.641         0.077 / 0.641       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Phase: Concurrent Reset Relocation Set               0.001 / 0.004         0.001 / 0.004         0.001 / 0.004         0.001 / 0.004       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]       Young Phase: Concurrent Select Relocation Set              0.631 / 1.171         0.631 / 1.171         0.631 / 1.171         0.631 / 1.171       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Mark Follow                        0.101 / 1.004         0.101 / 1.004         0.101 / 1.004         0.101 / 1.004       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Mark Root Colored                  0.037 / 0.137         0.037 / 0.137         0.037 / 0.137         0.037 / 0.137       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Mark Root Uncolored                0.054 / 0.113         0.054 / 0.113         0.054 / 0.113         0.054 / 0.113       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Mark Roots                         0.101 / 0.212         0.101 / 0.212         0.101 / 0.212         0.101 / 0.212       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Relocate Remset FP                 0.003 / 0.008         0.003 / 0.008         0.003 / 0.008         0.003 / 0.008       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Roots ClassLoaderDataGraph         0.012 / 0.056         0.012 / 0.056         0.012 / 0.056         0.012 / 0.056       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Roots CodeCache                    0.034 / 0.053         0.034 / 0.053         0.034 / 0.053         0.034 / 0.053       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Roots JavaThreads                  0.010 / 0.089         0.010 / 0.089         0.010 / 0.089         0.010 / 0.089       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Roots OopStorageSet                0.002 / 0.011         0.002 / 0.011         0.002 / 0.011         0.002 / 0.011       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ]    Young Subphase: Concurrent Weak Roots OopStorageSet           0.023 / 0.089         0.023 / 0.089         0.023 / 0.089         0.023 / 0.089       ms
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,stats    ] =========================================================================================================================================================
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,heap,exit] Heap
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,heap,exit]  ZHeap           used 26M, capacity 32M, max capacity 32M
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,heap,exit]  Metaspace       used 230K, committed 448K, reserved 1114112K
+[2026-11-13T20:02:00.116+0800][3.019s][info][gc,heap,exit]   class space    used 11K, committed 128K, reserved 1048576K

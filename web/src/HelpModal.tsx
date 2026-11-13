@@ -6,6 +6,9 @@ type Props = {
   onClose: () => void;
 };
 
+/** GC log rules (feat-072); titles come from `gc.rule.<id>.title`. */
+const GC_RULES = Array.from({ length: 14 }, (_, i) => `GC${String(i + 1).padStart(2, "0")}`);
+
 const PATTERN_KEYS: MessageKey[] = [
   "help.pattern.deadlock",
   "help.pattern.lockContention",
@@ -284,6 +287,18 @@ export default function HelpModal({ onClose }: Props) {
           <ul className="help-pattern-grid">
             {PATTERN_KEYS.map((key) => (
               <li key={key}>{t(key)}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="help-section" aria-labelledby="help-gc-heading" data-testid="help-gc">
+          <h3 id="help-gc-heading">{t("help.gc.title")}</h3>
+          <p className="help-section-body">{t("help.gc.body")}</p>
+          <ul className="help-pattern-grid">
+            {GC_RULES.map((rule) => (
+              <li key={rule}>
+                <span className="mono">{rule}</span> {t(`gc.rule.${rule}.title` as MessageKey)}
+              </li>
             ))}
           </ul>
         </section>

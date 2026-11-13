@@ -7,7 +7,18 @@ export type ReportSectionId =
   | "states"
   | "clusters"
   | "threads"
-  | "flamegraph";
+  | "flamegraph"
+  // GC log report (feat-075+)
+  | "gc-overview"
+  | "gc-findings"
+  | "gc-jvm"
+  | "gc-pauses"
+  | "gc-heap"
+  | "gc-distribution"
+  | "gc-rates"
+  | "gc-metaspace"
+  | "gc-events"
+  | "gc-diagnostics";
 
 export interface ReportSection {
   id: ReportSectionId;
@@ -23,6 +34,16 @@ export const NAV_LABEL_KEYS: Record<ReportSectionId, MessageKey> = {
   clusters: "nav.clusters",
   threads: "nav.threads",
   flamegraph: "nav.flamegraph",
+  "gc-overview": "gc.nav.overview",
+  "gc-findings": "gc.nav.findings",
+  "gc-jvm": "gc.nav.jvm",
+  "gc-pauses": "gc.nav.pauses",
+  "gc-heap": "gc.nav.heap",
+  "gc-distribution": "gc.nav.distribution",
+  "gc-rates": "gc.nav.rates",
+  "gc-metaspace": "gc.nav.metaspace",
+  "gc-events": "gc.nav.events",
+  "gc-diagnostics": "gc.nav.diagnostics",
 };
 
 export function sectionDomId(id: ReportSectionId): string {
@@ -45,6 +66,16 @@ export function reportSections(opts: {
   items.push({ id: "contention" }, { id: "states" });
   if (opts.hasClusters) items.push({ id: "clusters" });
   items.push({ id: "threads" }, { id: "flamegraph" });
+  return items;
+}
+
+/** Sections of the GC report, in page order. */
+export function gcReportSections(opts: { hasEvents: boolean }): ReportSection[] {
+  const items: ReportSection[] = [{ id: "gc-overview" }, { id: "gc-findings" }];
+  if (opts.hasEvents) {
+    items.push({ id: "gc-pauses" }, { id: "gc-heap" }, { id: "gc-distribution" }, { id: "gc-rates" }, { id: "gc-metaspace" }, { id: "gc-events" });
+  }
+  items.push({ id: "gc-jvm" }, { id: "gc-diagnostics" });
   return items;
 }
 

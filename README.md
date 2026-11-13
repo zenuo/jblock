@@ -1,14 +1,14 @@
 # jblock
 
-> 基于 React + Rust/WebAssembly 的单页面 Java 线程转储（thread dump）分析工具。
+> 基于 React + Rust/WebAssembly 的单页面 Java 线程转储（thread dump）与 GC 日志分析工具。
 
-`jblock` 在浏览器本地解析并分析 Java 线程转储：选择本地 dump 文件后，由 Rust 编译成的
-WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并可导出为 HTML。所有解析都在
-本地完成，dump 内容不会上传到任何服务器。
+`jblock` 在浏览器本地解析并分析 Java 线程转储和 GC 日志：导入本地文件后，由 Rust 编译成的
+WASM 库完成解析与问题识别，结果直接在浏览器渲染，并可导出为 HTML。所有解析都在
+本地完成，内容不会上传到任何服务器。
 
 ## 功能特性
 
-- **本地文件选择 / 拖拽上传 / 剪贴板粘贴**：选择或拖拽本地线程转储文件（`.txt` / `.log` / `.tdump` 等），或从剪贴板粘贴 dump 文本（按钮 / Ctrl+V / ⌘V）。
+- **统一导入入口**：选择多个文件或整个文件夹、拖入文件或目录、追加文件，或从剪贴板粘贴（按钮 / Ctrl+V / ⌘V）。每个输入按内容自动识别为线程转储和/或 GC 日志（标准输出日志可以两者都是），`.gz` 压缩文件自动解压，其他二进制文件会被跳过。
 - **多格式适配**：
   - `jstack` 工具输出（状态位于独立的 `java.lang.Thread.State:` 行）。
   - `ThreadMXBean#dumpAllThreads` / `ThreadInfo#toString()` 输出（状态在线程头行）。
@@ -26,6 +26,13 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
 - **Java reproducer**：右上角 **Generate Java…** 打开模态框，生成可运行的死锁 / 锁竞争 / 线程池耗尽 / 同步 I/O 热点 / 危险热锁 / 连接池借出阻塞样例代码（不经过 WASM）；测试可用 JDK 实机 `jstack` 捕获 dump。
 - **导出**：
   - HTML 报告：复用 web app 自身的 CSS（`?inline`）与结构，样式与页面一致。
+- **GC 日志分析**（设计：[`docs/design/gc-log-analysis.md`](docs/design/gc-log-analysis.md)）：
+  - 格式：JDK 9+ 统一日志（`-Xlog:gc*`，任意 decorator 组合）——G1 / Parallel / Serial / ZGC（含分代）/ Shenandoah；JDK 8 `-XX:+PrintGCDetails`——G1 / Parallel / CMS / Serial（含 `PrintReferenceGC`、tenuring 等多行输出）。
+  - 多文件：同一 JVM 的滚动分片按 JVM 启动时刻 / pid / GC id 连续性 / JDK 8 滚动标记自动拼成一条时间线，不同 JVM 分开；可切换「自动 / 合并 / 独立」。
+  - KPI：吞吐率、停顿 P50/P95/P99/Max、总停顿、Full GC、分配 / 晋升速率、GC 后堆峰值、Metaspace。
+  - 图表（uPlot）：停顿时间线、堆使用（GC 前后锯齿 + 老年代 + 容量 + Full GC 标记）、停顿直方图、GC 原因、分配 / 晋升速率、Metaspace；共享十字光标，框选时间范围后 KPI / 直方图 / 原因 / 事件表按范围重算。
+  - 问题诊断 GC01–GC14：Full GC、连续 Full GC、System.gc()、evacuation failure、CMS 失败、humongous、长停顿、GC 时间占比、疑似内存泄漏、GC 后堆接近上限、Metaspace 增长、GC 线程等待系统、Young GC 过频、ZGC 分配停顿 / Shenandoah 退化；阈值参照 JDK Mission Control、JVM 默认参数和 Oracle 调优指南，每条可一键定位到图上。
+  - GC 事件明细表（虚拟滚动、筛选排序、与图表互相定位）、解析诊断、多 JVM 对比视图、HTML 导出（静态 SVG 图表）。
 
 ## 技术栈
 
@@ -34,6 +41,7 @@ WASM 库完成解析与问题模式识别，结果直接在浏览器渲染，并
 | 解析核心 | Rust（`wasm-bindgen` + `serde` + `regex`），编译为 `wasm32-unknown-unknown` |
 | 打包 | `wasm-pack`（`--target web`） |
 | 前端 | React 18 + TypeScript + Vite |
+| 图表 | uPlot（GC 时间序列，Canvas）；HTML 导出为静态 SVG |
 
 ## 目录结构
 
@@ -42,7 +50,9 @@ jblock/
 ├── Cargo.toml           # Rust WASM crate + optional `cli` feature / bin
 ├── src/
 │   ├── lib.rs           # wasm-bindgen 绑定层（analyzeDump 导出）
-│   ├── parser.rs        # 纯 Rust 解析/分析逻辑（含单元测试）
+│   ├── parser.rs        # 纯 Rust 线程转储解析/分析逻辑（含单元测试）
+│   ├── gc/              # 纯 Rust GC 日志解析（unified / legacy）、拼接、统计、诊断、报告
+│   ├── input_kind.rs    # 输入类型识别（线程转储 / GC 日志）
 │   ├── cli/             # 主机 CLI（feat-056，`--features cli`）
 │   └── bin/jblock.rs    # `jblock` 二进制入口
 └── web/                 # React + Vite 前端
@@ -69,7 +79,7 @@ cd web
 pnpm run dev        # 先用 wasm-pack 构建 WASM（dev 模式），再启动 Vite
 ```
 
-打开 http://localhost:5173/ ，点击 **Load sample**（含死锁 / 热锁竞争 / JVM 噪音线程的示例 dump）、**Choose thread dump…** 选择本地 dump，或 **Paste dump** / Ctrl+V 从剪贴板导入。
+打开 http://localhost:5173/ ，点击 **Load sample**（含死锁 / 热锁竞争 / JVM 噪音线程的示例 dump）或 **GC log sample**（真实 JDK 21 G1 日志），**Choose files…** / **Choose folder…** 选择本地文件，或 **Paste** / Ctrl+V 从剪贴板导入。
 
 > 说明：WASM 不会随前端热更新自动重建。修改了 `src/*.rs` 后，需要重新运行
 > `pnpm run wasm`（或重启 `pnpm run dev`）以重建 `web/src/wasm/`。
@@ -105,10 +115,14 @@ jstack <pid> | cargo run --features cli --bin jblock
 | 管道 | `jstack $PID \| jblock` |
 | 剪贴板 | `jblock -c` / `jblock --clipboard` |
 | 多文件（跨 dump） | `jblock t1.txt t2.txt` |
+| GC 日志（含滚动分片） | `jblock gc.log gc.log.0 gc.log.1` |
+| 混合（线程转储 + GC 日志） | `jblock catalina.out gc.log` |
 
 常用参数：`-j` / `--output json`、`-s/--section`、`--state`、`--severity`、`--hide-jvm`、`-v`、`-n/--limit`、`-q`、`--color`。
 
-退出码：`0` 干净或仅 info；`1` 有 warning/critical/死锁；`2` 用法/读入错误；`3` 无法识别为 dump。
+GC 日志相关（文件和 stdin 均可直接读取 gzip 压缩内容）：`--kind auto|thread|gc`（默认按内容识别）、`--grouping auto|merge|split`、`--events`（JSON 附带逐事件数据）；`-s` 另有 `causes`、`pauses`（最长停顿）、`events`。
+
+退出码：`0` 干净或仅 info；`1` 有 warning/critical/死锁（含 GC 诊断）；`2` 用法/读入错误；`3` 无法识别为 dump 或 GC 日志。
 
 > CLI 依赖可选 feature `cli`（`clap`；剪贴板通过 `pbpaste` / `wl-paste` / `xclip` / `xsel` / Windows PowerShell `Get-Clipboard`），默认不编进 WASM。
 
@@ -168,7 +182,7 @@ GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)�
 
 ## 工作原理
 
-1. 前端读取本地 dump 文件、拖拽内容，或剪贴板 / 粘贴框中的纯文本。
+1. 前端读取本地文件、文件夹、拖拽内容，或剪贴板 / 粘贴框中的纯文本，并在 Web Worker 中按内容分流：线程转储 → `analyzeDumps`，GC 日志 → `GcSession`（会话常驻 worker，图表列以 Float64Array 传回，范围统计与事件分页按需计算）。
 2. 调用 WASM 导出的 `analyzeDump(text)`（对应 Rust `src/lib.rs`）。
 3. Rust 侧 `parser::analyze` 检测格式、按线程切块、提取名称/ID/状态/锁信息，
    统计状态分组，并根据"持锁-等锁"关系构建锁竞争边。

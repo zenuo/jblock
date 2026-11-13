@@ -1,0 +1,609 @@
+[2026-11-13T20:01:28.836+0800][0.001s][info][gc] Min heap equals to max heap, disabling ShenandoahUncommit
+[2026-11-13T20:01:28.836+0800][0.001s][info][gc] Heuristics ergonomically sets -XX:+ExplicitGCInvokesConcurrent
+[2026-11-13T20:01:28.836+0800][0.001s][info][gc] Heuristics ergonomically sets -XX:+ShenandoahImplicitGCInvokesConcurrent
+[2026-11-13T20:01:28.836+0800][0.002s][info][gc] Using Shenandoah
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Version: 21.0.12.1+1-LTS (release)
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] CPUs: 16 total, 16 available
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Memory: 30673M
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Large Page Support: Disabled
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] NUMA Support: Disabled
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Compressed Oops: Enabled (32-bit)
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Heap Min Capacity: 6656K
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Heap Initial Capacity: 32M
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Heap Max Capacity: 32M
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Pre-touch: Disabled
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Mode: Snapshot-At-The-Beginning (SATB)
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Heuristics: Adaptive
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Heap Region Count: 128
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Heap Region Size: 256K
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] TLAB Size Max: 256K
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Humongous Object Threshold: 256K
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Parallel Workers: 8
+[2026-11-13T20:01:28.837+0800][0.002s][info][gc,init] Concurrent Workers: 4
+[2026-11-13T20:01:28.839+0800][0.004s][info][gc,metaspace] CDS archive(s) mapped at: [0x00007f7977000000-0x00007f7977c9c000-0x00007f7977c9c000), size 13221888, SharedBaseAddress: 0x00007f7977000000, ArchiveRelocationMode: 1.
+[2026-11-13T20:01:28.839+0800][0.004s][info][gc,metaspace] Compressed class space mapped at: 0x00007f7978000000-0x00007f79b8000000, reserved size: 1073741824
+[2026-11-13T20:01:28.839+0800][0.004s][info][gc,metaspace] Narrow klass base: 0x00007f7977000000, Narrow klass shift: 0, Narrow klass range: 0x100000000
+[2026-11-13T20:01:28.927+0800][0.092s][info][gc          ] Trigger: Learning 1 of 5. Free (22784K) is below initial threshold (22937K)
+[2026-11-13T20:01:28.927+0800][0.093s][info][gc,start    ] GC(0) Concurrent reset
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent reset 0.108ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Pause Init Mark (unload classes)
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Pause Init Mark (unload classes) 0.108ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent marking roots
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent marking roots 0.090ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent marking (unload classes)
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent marking (unload classes) 0.254ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Pause Final Mark (unload classes)
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Pause Final Mark (unload classes) 0.024ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent thread roots
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent thread roots 0.015ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent weak references
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent weak references 0.008ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent weak roots
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent weak roots 0.029ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent cleanup
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent cleanup 8M->3M(32M) 0.011ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent class unloading
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent class unloading 0.059ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent strong roots
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent strong roots 0.012ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent evacuation
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent evacuation 0.028ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Pause Init Update Refs
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Pause Init Update Refs 0.014ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent update references
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent update references 0.100ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent update thread roots
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent update thread roots 0.015ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Pause Final Update Refs
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Pause Final Update Refs 0.005ms
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc,start    ] GC(0) Concurrent cleanup
+[2026-11-13T20:01:28.928+0800][0.093s][info][gc          ] GC(0) Concurrent cleanup 3M->0M(32M) 0.005ms
+[2026-11-13T20:01:28.928+0800][0.094s][info][gc,metaspace] Metaspace: 202K(384K)->202K(384K) NonClass: 190K(256K)->190K(256K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc          ] Trigger: Learning 2 of 5. Free (22812K) is below initial threshold (22937K)
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc,start    ] GC(1) Concurrent reset
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc          ] GC(1) Concurrent reset 0.038ms
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc,start    ] GC(1) Pause Init Mark (unload classes)
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc          ] GC(1) Pause Init Mark (unload classes) 0.039ms
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc,start    ] GC(1) Concurrent marking roots
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc          ] GC(1) Concurrent marking roots 0.041ms
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc,start    ] GC(1) Concurrent marking (unload classes)
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc          ] GC(1) Concurrent marking (unload classes) 0.340ms
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc,start    ] GC(1) Pause Final Mark (unload classes)
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc          ] GC(1) Pause Final Mark (unload classes) 0.019ms
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc,start    ] GC(1) Concurrent weak references
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc          ] GC(1) Concurrent weak references 0.010ms
+[2026-11-13T20:01:29.018+0800][0.183s][info][gc,start    ] GC(1) Concurrent weak roots
+[2026-11-13T20:01:29.018+0800][0.184s][info][gc          ] GC(1) Concurrent weak roots 0.034ms
+[2026-11-13T20:01:29.018+0800][0.184s][info][gc,start    ] GC(1) Concurrent cleanup
+[2026-11-13T20:01:29.018+0800][0.184s][info][gc          ] GC(1) Concurrent cleanup 7M->0M(32M) 0.005ms
+[2026-11-13T20:01:29.018+0800][0.184s][info][gc,start    ] GC(1) Concurrent class unloading
+[2026-11-13T20:01:29.019+0800][0.184s][info][gc          ] GC(1) Concurrent class unloading 0.067ms
+[2026-11-13T20:01:29.019+0800][0.184s][info][gc,start    ] GC(1) Pause Final Roots
+[2026-11-13T20:01:29.019+0800][0.184s][info][gc          ] GC(1) Pause Final Roots 0.003ms
+[2026-11-13T20:01:29.019+0800][0.184s][info][gc,metaspace] Metaspace: 202K(384K)->202K(384K) NonClass: 190K(256K)->190K(256K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:29.098+0800][0.264s][info][gc          ] Trigger: Learning 3 of 5. Free (22535K) is below initial threshold (22937K)
+[2026-11-13T20:01:29.098+0800][0.264s][info][gc,start    ] GC(2) Concurrent reset
+[2026-11-13T20:01:29.098+0800][0.264s][info][gc          ] GC(2) Concurrent reset 0.017ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Pause Init Mark (unload classes)
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Pause Init Mark (unload classes) 0.014ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Concurrent marking roots
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Concurrent marking roots 0.055ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Concurrent marking (unload classes)
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Concurrent marking (unload classes) 0.286ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Pause Final Mark (unload classes)
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Pause Final Mark (unload classes) 0.017ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Concurrent weak references
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Concurrent weak references 0.009ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Concurrent weak roots
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Concurrent weak roots 0.042ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Concurrent cleanup
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Concurrent cleanup 8M->1M(32M) 0.005ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Concurrent class unloading
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Concurrent class unloading 0.071ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,start    ] GC(2) Pause Final Roots
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc          ] GC(2) Pause Final Roots 0.003ms
+[2026-11-13T20:01:29.099+0800][0.264s][info][gc,metaspace] Metaspace: 202K(384K)->202K(384K) NonClass: 190K(256K)->190K(256K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:29.189+0800][0.355s][info][gc          ] Trigger: Learning 4 of 5. Free (22542K) is below initial threshold (22937K)
+[2026-11-13T20:01:29.189+0800][0.355s][info][gc,start    ] GC(3) Concurrent reset
+[2026-11-13T20:01:29.189+0800][0.355s][info][gc          ] GC(3) Concurrent reset 0.014ms
+[2026-11-13T20:01:29.189+0800][0.355s][info][gc,start    ] GC(3) Pause Init Mark (unload classes)
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Pause Init Mark (unload classes) 0.012ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Concurrent marking roots
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Concurrent marking roots 0.046ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Concurrent marking (unload classes)
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Concurrent marking (unload classes) 0.254ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Pause Final Mark (unload classes)
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Pause Final Mark (unload classes) 0.015ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Concurrent weak references
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Concurrent weak references 0.010ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Concurrent weak roots
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Concurrent weak roots 0.028ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Concurrent cleanup
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Concurrent cleanup 8M->1M(32M) 0.005ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Concurrent class unloading
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Concurrent class unloading 0.067ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,start    ] GC(3) Pause Final Roots
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc          ] GC(3) Pause Final Roots 0.003ms
+[2026-11-13T20:01:29.190+0800][0.355s][info][gc,metaspace] Metaspace: 202K(384K)->202K(384K) NonClass: 190K(256K)->190K(256K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] Trigger: Learning 5 of 5. Free (22541K) is below initial threshold (22937K)
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Concurrent reset
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Concurrent reset 0.013ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Pause Init Mark (unload classes)
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Pause Init Mark (unload classes) 0.017ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Concurrent marking roots
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Concurrent marking roots 0.022ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Concurrent marking (unload classes)
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Concurrent marking (unload classes) 0.174ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Pause Final Mark (unload classes)
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Pause Final Mark (unload classes) 0.021ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Concurrent weak references
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Concurrent weak references 0.007ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Concurrent weak roots
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Concurrent weak roots 0.025ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Concurrent cleanup
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Concurrent cleanup 8M->1M(32M) 0.005ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Concurrent class unloading
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Concurrent class unloading 0.055ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,start    ] GC(4) Pause Final Roots
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc          ] GC(4) Pause Final Roots 0.003ms
+[2026-11-13T20:01:29.270+0800][0.435s][info][gc,metaspace] Metaspace: 202K(384K)->202K(384K) NonClass: 190K(256K)->190K(256K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] Trigger: Free (2573K) is below minimum threshold (3276K)
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Concurrent reset
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Concurrent reset 0.018ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Pause Init Mark (unload classes)
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Pause Init Mark (unload classes) 0.019ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Concurrent marking roots
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Concurrent marking roots 0.041ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Concurrent marking (unload classes)
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Concurrent marking (unload classes) 0.240ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Pause Final Mark (unload classes)
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Pause Final Mark (unload classes) 0.020ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Concurrent weak references
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Concurrent weak references 0.008ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Concurrent weak roots
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Concurrent weak roots 0.029ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Concurrent cleanup
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Concurrent cleanup 27M->2M(32M) 0.007ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Concurrent class unloading
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Concurrent class unloading 0.086ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,start    ] GC(5) Pause Final Roots
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc          ] GC(5) Pause Final Roots 0.014ms
+[2026-11-13T20:01:29.582+0800][0.747s][info][gc,metaspace] Metaspace: 202K(384K)->202K(384K) NonClass: 190K(256K)->190K(256K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] Trigger: Free (2573K) is below minimum threshold (3276K)
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Concurrent reset
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Concurrent reset 0.022ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Pause Init Mark (unload classes)
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Pause Init Mark (unload classes) 0.032ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Concurrent marking roots
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Concurrent marking roots 0.039ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Concurrent marking (unload classes)
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Concurrent marking (unload classes) 0.311ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Pause Final Mark (unload classes)
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Pause Final Mark (unload classes) 0.023ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Concurrent weak references
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Concurrent weak references 0.007ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Concurrent weak roots
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Concurrent weak roots 0.043ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Concurrent cleanup
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc          ] GC(6) Concurrent cleanup 27M->2M(32M) 0.007ms
+[2026-11-13T20:01:29.903+0800][1.068s][info][gc,start    ] GC(6) Concurrent class unloading
+[2026-11-13T20:01:29.903+0800][1.069s][info][gc          ] GC(6) Concurrent class unloading 0.072ms
+[2026-11-13T20:01:29.903+0800][1.069s][info][gc,start    ] GC(6) Pause Final Roots
+[2026-11-13T20:01:29.903+0800][1.069s][info][gc          ] GC(6) Pause Final Roots 0.006ms
+[2026-11-13T20:01:29.904+0800][1.069s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] Trigger: Free (2818K) is below minimum threshold (3276K)
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Concurrent reset
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Concurrent reset 0.023ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Pause Init Mark (unload classes)
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Pause Init Mark (unload classes) 0.022ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Concurrent marking roots
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Concurrent marking roots 0.054ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Concurrent marking (unload classes)
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Concurrent marking (unload classes) 0.344ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Pause Final Mark (unload classes)
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Pause Final Mark (unload classes) 0.020ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Concurrent weak references
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Concurrent weak references 0.010ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Concurrent weak roots
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Concurrent weak roots 0.048ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Concurrent cleanup
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Concurrent cleanup 27M->2M(32M) 0.008ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Concurrent class unloading
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Concurrent class unloading 0.083ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,start    ] GC(7) Pause Final Roots
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc          ] GC(7) Pause Final Roots 0.003ms
+[2026-11-13T20:01:30.215+0800][1.380s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc          ] Trigger: Free (2562K) is below minimum threshold (3276K)
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc,start    ] GC(8) Concurrent reset
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc          ] GC(8) Concurrent reset 0.025ms
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc,start    ] GC(8) Pause Init Mark (unload classes)
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc          ] GC(8) Pause Init Mark (unload classes) 0.021ms
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc,start    ] GC(8) Concurrent marking roots
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc          ] GC(8) Concurrent marking roots 0.045ms
+[2026-11-13T20:01:30.536+0800][1.701s][info][gc,start    ] GC(8) Concurrent marking (unload classes)
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc          ] GC(8) Concurrent marking (unload classes) 0.272ms
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc,start    ] GC(8) Pause Final Mark (unload classes)
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc          ] GC(8) Pause Final Mark (unload classes) 0.021ms
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc,start    ] GC(8) Concurrent weak references
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc          ] GC(8) Concurrent weak references 0.008ms
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc,start    ] GC(8) Concurrent weak roots
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc          ] GC(8) Concurrent weak roots 0.044ms
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc,start    ] GC(8) Concurrent cleanup
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc          ] GC(8) Concurrent cleanup 27M->2M(32M) 0.007ms
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc,start    ] GC(8) Concurrent class unloading
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc          ] GC(8) Concurrent class unloading 0.093ms
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc,start    ] GC(8) Pause Final Roots
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc          ] GC(8) Pause Final Roots 0.004ms
+[2026-11-13T20:01:30.537+0800][1.702s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:30.848+0800][2.013s][info][gc          ] Failed to allocate Shared, 4096K
+[2026-11-13T20:01:30.848+0800][2.013s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:30.849+0800][2.014s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:30.849+0800][2.014s][info][gc,start    ] GC(9) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:30.849+0800][2.014s][info][gc          ] GC(9) Pause Degenerated GC (Outside of Cycle) 25M->5M(32M) 0.409ms
+[2026-11-13T20:01:30.849+0800][2.015s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:30.868+0800][2.033s][info][gc          ] Trigger: Free (2562K) is below minimum threshold (3276K)
+[2026-11-13T20:01:30.868+0800][2.033s][info][gc,start    ] GC(10) Concurrent reset
+[2026-11-13T20:01:30.868+0800][2.033s][info][gc          ] GC(10) Concurrent reset 0.021ms
+[2026-11-13T20:01:30.868+0800][2.034s][info][gc,start    ] GC(10) Pause Init Mark (unload classes)
+[2026-11-13T20:01:30.868+0800][2.034s][info][gc          ] GC(10) Pause Init Mark (unload classes) 0.018ms
+[2026-11-13T20:01:30.868+0800][2.034s][info][gc,start    ] GC(10) Concurrent marking roots
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Concurrent marking roots 0.035ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,start    ] GC(10) Concurrent marking (unload classes)
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Concurrent marking (unload classes) 0.238ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,start    ] GC(10) Pause Final Mark (unload classes)
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Pause Final Mark (unload classes) 0.016ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,start    ] GC(10) Concurrent weak references
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Concurrent weak references 0.007ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,start    ] GC(10) Concurrent weak roots
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Concurrent weak roots 0.025ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,start    ] GC(10) Concurrent cleanup
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,start    ] GC(10) Concurrent class unloading
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Concurrent class unloading 0.061ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,start    ] GC(10) Pause Final Roots
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc          ] GC(10) Pause Final Roots 0.003ms
+[2026-11-13T20:01:30.869+0800][2.034s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] Trigger: Average GC time (0.72 ms) is above the time for average allocation rate (78446 KB/s) to deplete free headroom (23392B) (margin of error = 1.90)
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Concurrent reset
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Concurrent reset 0.032ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Pause Init Mark (unload classes)
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Pause Init Mark (unload classes) 0.024ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Concurrent marking roots
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Concurrent marking roots 0.054ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Concurrent marking (unload classes)
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Concurrent marking (unload classes) 0.359ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Pause Final Mark (unload classes)
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Pause Final Mark (unload classes) 0.019ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Concurrent weak references
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Concurrent weak references 0.008ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Concurrent weak roots
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Concurrent weak roots 0.042ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Concurrent cleanup
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Concurrent cleanup 25M->5M(32M) 0.007ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Concurrent class unloading
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Concurrent class unloading 0.082ms
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc,start    ] GC(11) Pause Final Roots
+[2026-11-13T20:01:31.130+0800][2.295s][info][gc          ] GC(11) Pause Final Roots 0.016ms
+[2026-11-13T20:01:31.130+0800][2.296s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc          ] Trigger: Average GC time (0.92 ms) is above the time for average allocation rate (78970 KB/s) to deplete free headroom (0B) (margin of error = 1.92)
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc,start    ] GC(12) Concurrent reset
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc          ] GC(12) Concurrent reset 0.022ms
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc,start    ] GC(12) Pause Init Mark (unload classes)
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc          ] GC(12) Pause Init Mark (unload classes) 0.020ms
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc,start    ] GC(12) Concurrent marking roots
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc          ] GC(12) Concurrent marking roots 0.036ms
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc,start    ] GC(12) Concurrent marking (unload classes)
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc          ] GC(12) Concurrent marking (unload classes) 0.252ms
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc,start    ] GC(12) Pause Final Mark (unload classes)
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc          ] GC(12) Pause Final Mark (unload classes) 0.018ms
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc,start    ] GC(12) Concurrent weak references
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc          ] GC(12) Concurrent weak references 0.011ms
+[2026-11-13T20:01:31.391+0800][2.556s][info][gc,start    ] GC(12) Concurrent weak roots
+[2026-11-13T20:01:31.391+0800][2.557s][info][gc          ] GC(12) Concurrent weak roots 0.034ms
+[2026-11-13T20:01:31.391+0800][2.557s][info][gc,start    ] GC(12) Concurrent cleanup
+[2026-11-13T20:01:31.391+0800][2.557s][info][gc          ] GC(12) Concurrent cleanup 26M->5M(32M) 0.007ms
+[2026-11-13T20:01:31.391+0800][2.557s][info][gc,start    ] GC(12) Concurrent class unloading
+[2026-11-13T20:01:31.392+0800][2.557s][info][gc          ] GC(12) Concurrent class unloading 0.089ms
+[2026-11-13T20:01:31.392+0800][2.557s][info][gc,start    ] GC(12) Pause Final Roots
+[2026-11-13T20:01:31.392+0800][2.557s][info][gc          ] GC(12) Pause Final Roots 0.003ms
+[2026-11-13T20:01:31.392+0800][2.557s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc          ] Trigger: Average GC time (0.82 ms) is above the time for average allocation rate (77285 KB/s) to deplete free headroom (0B) (margin of error = 1.93)
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc,start    ] GC(13) Concurrent reset
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc          ] GC(13) Concurrent reset 0.029ms
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc,start    ] GC(13) Pause Init Mark (unload classes)
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc          ] GC(13) Pause Init Mark (unload classes) 0.021ms
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc,start    ] GC(13) Concurrent marking roots
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc          ] GC(13) Concurrent marking roots 0.047ms
+[2026-11-13T20:01:31.672+0800][2.837s][info][gc,start    ] GC(13) Concurrent marking (unload classes)
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc          ] GC(13) Concurrent marking (unload classes) 0.269ms
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc,start    ] GC(13) Pause Final Mark (unload classes)
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc          ] GC(13) Pause Final Mark (unload classes) 0.023ms
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc,start    ] GC(13) Concurrent weak references
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc          ] GC(13) Concurrent weak references 0.009ms
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc,start    ] GC(13) Concurrent weak roots
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc          ] GC(13) Concurrent weak roots 0.040ms
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc,start    ] GC(13) Concurrent cleanup
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc          ] GC(13) Concurrent cleanup 26M->5M(32M) 0.007ms
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc,start    ] GC(13) Concurrent class unloading
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc          ] GC(13) Concurrent class unloading 0.077ms
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc,start    ] GC(13) Pause Final Roots
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc          ] GC(13) Pause Final Roots 0.027ms
+[2026-11-13T20:01:31.673+0800][2.838s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:31.953+0800][3.118s][info][gc          ] Trigger: Average GC time (0.79 ms) is above the time for average allocation rate (76895 KB/s) to deplete free headroom (0B) (margin of error = 1.94)
+[2026-11-13T20:01:31.953+0800][3.118s][info][gc,start    ] GC(14) Concurrent reset
+[2026-11-13T20:01:31.953+0800][3.119s][info][gc          ] GC(14) Concurrent reset 0.032ms
+[2026-11-13T20:01:31.953+0800][3.119s][info][gc,start    ] GC(14) Pause Init Mark (unload classes)
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Pause Init Mark (unload classes) 0.023ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Concurrent marking roots
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Concurrent marking roots 0.054ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Concurrent marking (unload classes)
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Concurrent marking (unload classes) 0.302ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Pause Final Mark (unload classes)
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Pause Final Mark (unload classes) 0.020ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Concurrent weak references
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Concurrent weak references 0.009ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Concurrent weak roots
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Concurrent weak roots 0.037ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Concurrent cleanup
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Concurrent cleanup 26M->5M(32M) 0.007ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Concurrent class unloading
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Concurrent class unloading 0.076ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,start    ] GC(14) Pause Final Roots
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc          ] GC(14) Pause Final Roots 0.003ms
+[2026-11-13T20:01:31.954+0800][3.119s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc          ] Trigger: Free (2818K) is below minimum threshold (3276K)
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc,start    ] GC(15) Concurrent reset
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc          ] GC(15) Concurrent reset 0.037ms
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc,start    ] GC(15) Pause Init Mark (unload classes)
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc          ] GC(15) Pause Init Mark (unload classes) 0.041ms
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc,start    ] GC(15) Concurrent marking roots
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc          ] GC(15) Concurrent marking roots 0.064ms
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc,start    ] GC(15) Concurrent marking (unload classes)
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc          ] GC(15) Concurrent marking (unload classes) 0.321ms
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc,start    ] GC(15) Pause Final Mark (unload classes)
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc          ] GC(15) Pause Final Mark (unload classes) 0.017ms
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc,start    ] GC(15) Concurrent weak references
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc          ] GC(15) Concurrent weak references 0.008ms
+[2026-11-13T20:01:32.235+0800][3.400s][info][gc,start    ] GC(15) Concurrent weak roots
+[2026-11-13T20:01:32.235+0800][3.401s][info][gc          ] GC(15) Concurrent weak roots 0.043ms
+[2026-11-13T20:01:32.235+0800][3.401s][info][gc,start    ] GC(15) Concurrent cleanup
+[2026-11-13T20:01:32.235+0800][3.401s][info][gc          ] GC(15) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:32.235+0800][3.401s][info][gc,start    ] GC(15) Concurrent class unloading
+[2026-11-13T20:01:32.236+0800][3.401s][info][gc          ] GC(15) Concurrent class unloading 0.078ms
+[2026-11-13T20:01:32.236+0800][3.401s][info][gc,start    ] GC(15) Pause Final Roots
+[2026-11-13T20:01:32.236+0800][3.401s][info][gc          ] GC(15) Pause Final Roots 0.003ms
+[2026-11-13T20:01:32.236+0800][3.401s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc          ] Trigger: Free (2818K) is below minimum threshold (3276K)
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc,start    ] GC(16) Concurrent reset
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc          ] GC(16) Concurrent reset 0.021ms
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc,start    ] GC(16) Pause Init Mark (unload classes)
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc          ] GC(16) Pause Init Mark (unload classes) 0.019ms
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc,start    ] GC(16) Concurrent marking roots
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc          ] GC(16) Concurrent marking roots 0.038ms
+[2026-11-13T20:01:32.527+0800][3.692s][info][gc,start    ] GC(16) Concurrent marking (unload classes)
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc          ] GC(16) Concurrent marking (unload classes) 0.384ms
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc,start    ] GC(16) Pause Final Mark (unload classes)
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc          ] GC(16) Pause Final Mark (unload classes) 0.016ms
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc,start    ] GC(16) Concurrent weak references
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc          ] GC(16) Concurrent weak references 0.008ms
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc,start    ] GC(16) Concurrent weak roots
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc          ] GC(16) Concurrent weak roots 0.037ms
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc,start    ] GC(16) Concurrent cleanup
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc          ] GC(16) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc,start    ] GC(16) Concurrent class unloading
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc          ] GC(16) Concurrent class unloading 0.074ms
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc,start    ] GC(16) Pause Final Roots
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc          ] GC(16) Pause Final Roots 0.003ms
+[2026-11-13T20:01:32.528+0800][3.693s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] Trigger: Free (2818K) is below minimum threshold (3276K)
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Concurrent reset
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Concurrent reset 0.046ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Pause Init Mark (unload classes)
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Pause Init Mark (unload classes) 0.030ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Concurrent marking roots
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Concurrent marking roots 0.051ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Concurrent marking (unload classes)
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Concurrent marking (unload classes) 0.231ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Pause Final Mark (unload classes)
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Pause Final Mark (unload classes) 0.022ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Concurrent weak references
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Concurrent weak references 0.016ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Concurrent weak roots
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Concurrent weak roots 0.031ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Concurrent cleanup
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc          ] GC(17) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:32.818+0800][3.983s][info][gc,start    ] GC(17) Concurrent class unloading
+[2026-11-13T20:01:32.819+0800][3.984s][info][gc          ] GC(17) Concurrent class unloading 0.070ms
+[2026-11-13T20:01:32.819+0800][3.984s][info][gc,start    ] GC(17) Pause Final Roots
+[2026-11-13T20:01:32.819+0800][3.984s][info][gc          ] GC(17) Pause Final Roots 0.003ms
+[2026-11-13T20:01:32.819+0800][3.984s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] Trigger: Free (2818K) is below minimum threshold (3276K)
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Concurrent reset
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Concurrent reset 0.026ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Pause Init Mark (unload classes)
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Pause Init Mark (unload classes) 0.014ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Concurrent marking roots
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Concurrent marking roots 0.048ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Concurrent marking (unload classes)
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Concurrent marking (unload classes) 0.333ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Pause Final Mark (unload classes)
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Pause Final Mark (unload classes) 0.018ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Concurrent weak references
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Concurrent weak references 0.017ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Concurrent weak roots
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Concurrent weak roots 0.050ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Concurrent cleanup
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Concurrent class unloading
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Concurrent class unloading 0.078ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,start    ] GC(18) Pause Final Roots
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc          ] GC(18) Pause Final Roots 0.003ms
+[2026-11-13T20:01:33.110+0800][4.275s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] Trigger: Free (2562K) is below minimum threshold (3276K)
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Concurrent reset
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Concurrent reset 0.022ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Pause Init Mark (unload classes)
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Pause Init Mark (unload classes) 0.011ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Concurrent marking roots
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Concurrent marking roots 0.038ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Concurrent marking (unload classes)
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Concurrent marking (unload classes) 0.255ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Pause Final Mark (unload classes)
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Pause Final Mark (unload classes) 0.015ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Concurrent weak references
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Concurrent weak references 0.008ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Concurrent weak roots
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Concurrent weak roots 0.032ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Concurrent cleanup
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Concurrent class unloading
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Concurrent class unloading 0.075ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,start    ] GC(19) Pause Final Roots
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc          ] GC(19) Pause Final Roots 0.003ms
+[2026-11-13T20:01:33.402+0800][4.567s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc          ] Trigger: Free (3074K) is below minimum threshold (3276K)
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc,start    ] GC(20) Concurrent reset
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc          ] GC(20) Concurrent reset 0.027ms
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc,start    ] GC(20) Pause Init Mark (unload classes)
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc          ] GC(20) Pause Init Mark (unload classes) 0.025ms
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc,start    ] GC(20) Concurrent marking roots
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc          ] GC(20) Concurrent marking roots 0.065ms
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc,start    ] GC(20) Concurrent marking (unload classes)
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc          ] GC(20) Concurrent marking (unload classes) 0.322ms
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc,start    ] GC(20) Pause Final Mark (unload classes)
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc          ] GC(20) Pause Final Mark (unload classes) 0.015ms
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc,start    ] GC(20) Concurrent weak references
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc          ] GC(20) Concurrent weak references 0.008ms
+[2026-11-13T20:01:33.683+0800][4.848s][info][gc,start    ] GC(20) Concurrent weak roots
+[2026-11-13T20:01:33.683+0800][4.849s][info][gc          ] GC(20) Concurrent weak roots 0.045ms
+[2026-11-13T20:01:33.683+0800][4.849s][info][gc,start    ] GC(20) Concurrent cleanup
+[2026-11-13T20:01:33.683+0800][4.849s][info][gc          ] GC(20) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:33.683+0800][4.849s][info][gc,start    ] GC(20) Concurrent class unloading
+[2026-11-13T20:01:33.684+0800][4.849s][info][gc          ] GC(20) Concurrent class unloading 0.078ms
+[2026-11-13T20:01:33.684+0800][4.849s][info][gc,start    ] GC(20) Pause Final Roots
+[2026-11-13T20:01:33.684+0800][4.849s][info][gc          ] GC(20) Pause Final Roots 0.003ms
+[2026-11-13T20:01:33.684+0800][4.849s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc          ] Trigger: Free (3074K) is below minimum threshold (3276K)
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc,start    ] GC(21) Concurrent reset
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc          ] GC(21) Concurrent reset 0.025ms
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc,start    ] GC(21) Pause Init Mark (unload classes)
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc          ] GC(21) Pause Init Mark (unload classes) 0.025ms
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc,start    ] GC(21) Concurrent marking roots
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc          ] GC(21) Concurrent marking roots 0.046ms
+[2026-11-13T20:01:33.964+0800][5.129s][info][gc,start    ] GC(21) Concurrent marking (unload classes)
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc          ] GC(21) Concurrent marking (unload classes) 0.299ms
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc,start    ] GC(21) Pause Final Mark (unload classes)
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc          ] GC(21) Pause Final Mark (unload classes) 0.022ms
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc,start    ] GC(21) Concurrent weak references
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc          ] GC(21) Concurrent weak references 0.008ms
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc,start    ] GC(21) Concurrent weak roots
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc          ] GC(21) Concurrent weak roots 0.041ms
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc,start    ] GC(21) Concurrent cleanup
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc          ] GC(21) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc,start    ] GC(21) Concurrent class unloading
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc          ] GC(21) Concurrent class unloading 0.072ms
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc,start    ] GC(21) Pause Final Roots
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc          ] GC(21) Pause Final Roots 0.002ms
+[2026-11-13T20:01:33.965+0800][5.130s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] Trigger: Free (2562K) is below minimum threshold (3276K)
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Concurrent reset
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Concurrent reset 0.028ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Pause Init Mark (unload classes)
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Pause Init Mark (unload classes) 0.012ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Concurrent marking roots
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Concurrent marking roots 0.048ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Concurrent marking (unload classes)
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Concurrent marking (unload classes) 0.333ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Pause Final Mark (unload classes)
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Pause Final Mark (unload classes) 0.019ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Concurrent weak references
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Concurrent weak references 0.008ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Concurrent weak roots
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Concurrent weak roots 0.042ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Concurrent cleanup
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Concurrent class unloading
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Concurrent class unloading 0.079ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,start    ] GC(22) Pause Final Roots
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc          ] GC(22) Pause Final Roots 0.002ms
+[2026-11-13T20:01:34.246+0800][5.411s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] Trigger: Free (2818K) is below minimum threshold (3276K)
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Concurrent reset
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Concurrent reset 0.023ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Pause Init Mark (unload classes)
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Pause Init Mark (unload classes) 0.010ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Concurrent marking roots
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Concurrent marking roots 0.036ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Concurrent marking (unload classes)
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Concurrent marking (unload classes) 0.301ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Pause Final Mark (unload classes)
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Pause Final Mark (unload classes) 0.015ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Concurrent weak references
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Concurrent weak references 0.008ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Concurrent weak roots
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Concurrent weak roots 0.042ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Concurrent cleanup
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Concurrent class unloading
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Concurrent class unloading 0.077ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,start    ] GC(23) Pause Final Roots
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc          ] GC(23) Pause Final Roots 0.003ms
+[2026-11-13T20:01:34.538+0800][5.703s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:34.828+0800][5.993s][info][gc          ] Trigger: Free (2562K) is below minimum threshold (3276K)
+[2026-11-13T20:01:34.828+0800][5.994s][info][gc,start    ] GC(24) Concurrent reset
+[2026-11-13T20:01:34.828+0800][5.994s][info][gc          ] GC(24) Concurrent reset 0.025ms
+[2026-11-13T20:01:34.828+0800][5.994s][info][gc,start    ] GC(24) Pause Init Mark (unload classes)
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Pause Init Mark (unload classes) 0.020ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Concurrent marking roots
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Concurrent marking roots 0.042ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Concurrent marking (unload classes)
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Concurrent marking (unload classes) 0.249ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Pause Final Mark (unload classes)
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Pause Final Mark (unload classes) 0.017ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Concurrent weak references
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Concurrent weak references 0.009ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Concurrent weak roots
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Concurrent weak roots 0.031ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Concurrent cleanup
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Concurrent class unloading
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Concurrent class unloading 0.077ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,start    ] GC(24) Pause Final Roots
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc          ] GC(24) Pause Final Roots 0.003ms
+[2026-11-13T20:01:34.829+0800][5.994s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] Trigger: Free (2818K) is below minimum threshold (3276K)
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Concurrent reset
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Concurrent reset 0.027ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Pause Init Mark (unload classes)
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Pause Init Mark (unload classes) 0.011ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Concurrent marking roots
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Concurrent marking roots 0.051ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Concurrent marking (unload classes)
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Concurrent marking (unload classes) 0.345ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Pause Final Mark (unload classes)
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Pause Final Mark (unload classes) 0.016ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Concurrent weak references
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Concurrent weak references 0.009ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Concurrent weak roots
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Concurrent weak roots 0.041ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Concurrent cleanup
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Concurrent cleanup 27M->5M(32M) 0.007ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Concurrent class unloading
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Concurrent class unloading 0.078ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,start    ] GC(25) Pause Final Roots
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc          ] GC(25) Pause Final Roots 0.002ms
+[2026-11-13T20:01:35.121+0800][6.286s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc          ] Cancelling GC: Stopping VM
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit] Heap
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit] Shenandoah Heap
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit]  32768K max, 32768K soft max, 32768K committed, 25077K used
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit]  128 x 256K regions
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit] Status: cancelled
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit] Reserved region:
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit]  - [0x00000000fe000000, 0x0000000100000000) 
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit] Collection set:
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit]  - map (vanilla): 0x0000000000013f80
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit]  - map (biased):  0x0000000000010000
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit] 
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit]  Metaspace       used 227K, committed 448K, reserved 1114112K
+[2026-11-13T20:01:35.325+0800][6.490s][info][gc,heap,exit]   class space    used 11K, committed 128K, reserved 1048576K

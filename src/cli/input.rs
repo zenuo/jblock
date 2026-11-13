@@ -109,21 +109,36 @@ pub fn read_inputs(opts: &CliOptions) -> Result<Vec<InputSource>, InputError> {
     }])
 }
 
+/// Decode bytes as UTF-8 text, transparently gunzipping gzip input (feat-082).
+pub fn decode_text(bytes: Vec<u8>, what: &str) -> Result<String, InputError> {
+    let bytes = if bytes.starts_with(&[0x1f, 0x8b]) {
+        let mut out = Vec::new();
+        flate2::read::MultiGzDecoder::new(bytes.as_slice())
+            .read_to_end(&mut out)
+            .map_err(|e| InputError::Io(format!("failed to gunzip {what}: {e}")))?;
+        out
+    } else {
+        bytes
+    };
+    String::from_utf8(bytes).map_err(|_| InputError::Io(format!("{what} is not UTF-8 text")))
+}
+
 fn read_file(path: &PathBuf) -> Result<InputSource, InputError> {
-    let text = fs::read_to_string(path).map_err(|e| {
+    let bytes = fs::read(path).map_err(|e| {
         InputError::Io(format!("failed to read {}: {e}", path.display()))
     })?;
     Ok(InputSource {
         label: path.display().to_string(),
-        text,
+        text: decode_text(bytes, &path.display().to_string())?,
     })
 }
 
 fn read_stdin() -> Result<String, InputError> {
-    let mut buf = String::new();
+    let mut bytes = Vec::new();
     io::stdin()
-        .read_to_string(&mut buf)
+        .read_to_end(&mut bytes)
         .map_err(|e| InputError::Io(format!("failed to read stdin: {e}")))?;
+    let buf = decode_text(bytes, "stdin")?;
     if buf.trim().is_empty() {
         return Err(InputError::Io("stdin is empty".to_string()));
     }

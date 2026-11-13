@@ -51,15 +51,24 @@ pub enum Section {
     Contention,
     Deadlocks,
     Threads,
+    /// GC logs: cause breakdown (feat-080).
+    Causes,
+    /// GC logs: longest pauses.
+    Pauses,
+    /// GC logs: every event.
+    Events,
 }
 
 impl Section {
+    /// Thread-dump reports ignore the GC sections and vice versa.
     pub fn defaults() -> Vec<Self> {
         vec![
             Self::Findings,
             Self::Summary,
             Self::Contention,
             Self::Deadlocks,
+            Self::Causes,
+            Self::Pauses,
         ]
     }
 
@@ -70,6 +79,9 @@ impl Section {
             "contention" => Some(Self::Contention),
             "deadlocks" => Some(Self::Deadlocks),
             "threads" => Some(Self::Threads),
+            "causes" => Some(Self::Causes),
+            "pauses" => Some(Self::Pauses),
+            "events" => Some(Self::Events),
             "all" => None, // handled by caller as expand-all
             _ => None,
         }
@@ -82,16 +94,19 @@ impl Section {
             Self::Contention,
             Self::Deadlocks,
             Self::Threads,
+            Self::Causes,
+            Self::Pauses,
+            Self::Events,
         ]
     }
 }
 
-struct Style {
+pub(crate) struct Style {
     color: bool,
 }
 
 impl Style {
-    fn from_opts(opts: &CliOptions) -> Self {
+    pub(crate) fn from_opts(opts: &CliOptions) -> Self {
         let color = match opts.color {
             ColorMode::Always => true,
             ColorMode::Never => false,
@@ -108,11 +123,11 @@ impl Style {
         }
     }
 
-    fn bold(&self, text: &str) -> String {
+    pub(crate) fn bold(&self, text: &str) -> String {
         self.paint("1", text)
     }
 
-    fn sev_mark(&self, severity: &str) -> String {
+    pub(crate) fn sev_mark(&self, severity: &str) -> String {
         match severity {
             "critical" => self.paint("31", "x"),
             "warning" => self.paint("33", "!"),
@@ -151,6 +166,8 @@ pub fn render_text(analysis: &Analysis, source: &str, opts: &CliOptions) -> Stri
             Section::Threads => {
                 out.push_str(&render_threads(analysis, opts, &style));
             }
+            // GC-only sections (rendered by `cli::gc`).
+            Section::Causes | Section::Pauses | Section::Events => {}
         }
     }
     out

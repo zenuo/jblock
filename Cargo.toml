@@ -24,14 +24,28 @@ console_error_panic_hook = { version = "0.1", optional = true }
 # Host CLI only (feat-056); keep off the default/wasm feature set.
 # Pin for toolchain MSRV (rustc 1.83 in CI/cloud); clap 4.6+ needs 1.85.
 clap = { version = "=4.5.41", features = ["derive"], optional = true }
+# CLI only: read gzip-compressed (rotated) logs (feat-082).
+flate2 = { version = "1", optional = true }
 
 [features]
 default = ["console_error_panic_hook"]
-cli = ["dep:clap"]
+cli = ["dep:clap", "dep:flate2"]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
 
 [profile.release]
-opt-level = "s"
+# Size-first for the WASM payload (feat-070 size pass: 1366 KB → 1239 KB). The regex
+# engines below stay speed-tuned: thread-dump analysis is regex-bound and keeps its
+# speed; GC parsing pays ~60% (48 MB unified log ≈ 0.34 s native).
+opt-level = "z"
 lto = true
+
+[profile.release.package.regex-automata]
+opt-level = "s"
+
+[profile.release.package.aho-corasick]
+opt-level = "s"
+
+[profile.release.package.memchr]
+opt-level = "s"

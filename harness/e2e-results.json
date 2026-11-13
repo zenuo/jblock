@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-16T06:53:24.710Z",
-  "root": "/workspace",
+  "generated_at": "2026-11-13T12:35:44.736Z",
+  "root": "/home/tom/develop/jblock",
   "summary": {
-    "total": 67,
-    "pass": 67,
+    "total": 82,
+    "pass": 82,
     "fail": 0,
     "cargo_status": 0,
-    "cargo_passed": 118,
+    "cargo_passed": 186,
     "cargo_failed": [],
     "web_ok": null,
     "unmapped_checks": []
@@ -2146,6 +2146,586 @@
           "name": "static:Results remounts per dump; state rows are testable",
           "ok": true,
           "detail": "Results remounts per dump; state rows are testable"
+        }
+      ]
+    },
+    {
+      "id": "feat-068",
+      "name": "GC event model + JDK 9+ unified logging parser (G1/Parallel/Serial)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:gc_unified_detects_format_on_all_fixtures",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_detects_format_on_all_fixtures"
+        },
+        {
+          "name": "cargo:gc_unified_g1_stress_events_and_flags",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_g1_stress_events_and_flags"
+        },
+        {
+          "name": "cargo:gc_unified_g1_init_facts",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_g1_init_facts"
+        },
+        {
+          "name": "cargo:gc_unified_default_decorators",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_default_decorators"
+        },
+        {
+          "name": "cargo:gc_unified_utctime_pid_tid_decorators",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_utctime_pid_tid_decorators"
+        },
+        {
+          "name": "cargo:gc_unified_gc_tag_only_uptimemillis",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_gc_tag_only_uptimemillis"
+        },
+        {
+          "name": "cargo:gc_unified_parallel_generations",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_parallel_generations"
+        },
+        {
+          "name": "cargo:gc_unified_serial_generations",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_serial_generations"
+        },
+        {
+          "name": "cargo:gc_unified_noise_lines_are_counted_not_fatal",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_noise_lines_are_counted_not_fatal"
+        },
+        {
+          "name": "cargo:gc_unified_collector_inferred_without_using_line",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_collector_inferred_without_using_line"
+        },
+        {
+          "name": "cargo:gc_unified_truncated_and_garbage_input_does_not_panic",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_unified_truncated_and_garbage_input_does_not_panic"
+        },
+        {
+          "name": "cargo:decorators_recognized_by_content",
+          "ok": true,
+          "detail": "passed as gc::unified::tests::decorators_recognized_by_content"
+        },
+        {
+          "name": "cargo:iso_timestamps_with_offsets",
+          "ok": true,
+          "detail": "passed as gc::units::tests::iso_timestamps_with_offsets"
+        },
+        {
+          "name": "static:real-JVM GC log capture script, workload and format notes exist",
+          "ok": true,
+          "detail": "real-JVM GC log capture script, workload and format notes exist"
+        },
+        {
+          "name": "static:24 GC fixtures, all < 200KB",
+          "ok": true,
+          "detail": "24 GC fixtures, all < 200KB"
+        }
+      ]
+    },
+    {
+      "id": "feat-069",
+      "name": "JDK 8 PrintGCDetails parser (G1/Parallel/CMS)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:gc_legacy_detects_format",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_detects_format"
+        },
+        {
+          "name": "cargo:gc_legacy_parallel_events_and_header",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_parallel_events_and_header"
+        },
+        {
+          "name": "cargo:gc_legacy_parallel_reference_gc_and_tenuring_multiline",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_parallel_reference_gc_and_tenuring_multiline"
+        },
+        {
+          "name": "cargo:gc_legacy_without_stamps_uses_order",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_without_stamps_uses_order"
+        },
+        {
+          "name": "cargo:gc_legacy_g1_pauses_concurrent_and_failures",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_g1_pauses_concurrent_and_failures"
+        },
+        {
+          "name": "cargo:gc_legacy_cms_phases_concurrent_and_promotion_failure",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_cms_phases_concurrent_and_promotion_failure"
+        },
+        {
+          "name": "cargo:gc_legacy_serial",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_serial"
+        },
+        {
+          "name": "cargo:gc_legacy_truncated_and_garbage_input_does_not_panic",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_legacy_truncated_and_garbage_input_does_not_panic"
+        },
+        {
+          "name": "cargo:stitch_jdk8_rotation_markers",
+          "ok": true,
+          "detail": "passed as gc::stitch::tests::stitch_jdk8_rotation_markers"
+        },
+        {
+          "name": "cargo:paren_groups_nested",
+          "ok": true,
+          "detail": "passed as gc::legacy::tests::paren_groups_nested"
+        },
+        {
+          "name": "static:real temurin-8 fixtures + capture scenarios",
+          "ok": true,
+          "detail": "real temurin-8 fixtures + capture scenarios"
+        }
+      ]
+    },
+    {
+      "id": "feat-070",
+      "name": "ZGC / Shenandoah unified log parser (pauses + heap)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:gc_zgc_pauses_cycles_and_stalls",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_zgc_pauses_cycles_and_stalls"
+        },
+        {
+          "name": "cargo:gc_zgc_generational_minor_major",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_zgc_generational_minor_major"
+        },
+        {
+          "name": "cargo:gc_shenandoah_pauses_concurrent_and_degenerated",
+          "ok": true,
+          "detail": "passed as gc::tests::gc_shenandoah_pauses_concurrent_and_degenerated"
+        },
+        {
+          "name": "static:real JDK 21 ZGC / Shenandoah fixtures",
+          "ok": true,
+          "detail": "real JDK 21 ZGC / Shenandoah fixtures"
+        },
+        {
+          "name": "static:allocation stall event kind mirrored in TS",
+          "ok": true,
+          "detail": "allocation stall event kind mirrored in TS"
+        }
+      ]
+    },
+    {
+      "id": "feat-071",
+      "name": "GC stats engine (KPIs, percentiles, rates, causes, range stats)",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:stats_whole_log_kpis",
+          "ok": true,
+          "detail": "passed as gc::stats::tests::stats_whole_log_kpis"
+        },
+        {
+          "name": "cargo:stats_rates_hand_computed",
+          "ok": true,
+          "detail": "passed as gc::stats::tests::stats_rates_hand_computed"
+        },
+        {
+          "name": "cargo:stats_range_is_clipped_and_filtered",
+          "ok": true,
+          "detail": "passed as gc::stats::tests::stats_range_is_clipped_and_filtered"
+        },
+        {
+          "name": "cargo:stats_histogram_buckets",
+          "ok": true,
+          "detail": "passed as gc::stats::tests::stats_histogram_buckets"
+        },
+        {
+          "name": "cargo:stats_empty_input",
+          "ok": true,
+          "detail": "passed as gc::stats::tests::stats_empty_input"
+        },
+        {
+          "name": "cargo:stats_real_g1_stress_fixture_is_consistent",
+          "ok": true,
+          "detail": "passed as gc::stats::tests::stats_real_g1_stress_fixture_is_consistent"
+        },
+        {
+          "name": "static:single Rust stats implementation accepts an optional range",
+          "ok": true,
+          "detail": "single Rust stats implementation accepts an optional range"
+        }
+      ]
+    },
+    {
+      "id": "feat-072",
+      "name": "GC Findings rules GC01–GC14",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:findings_clean_log_has_none",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_clean_log_has_none"
+        },
+        {
+          "name": "cargo:findings_gc01_full_gc_only_on_g1_cms",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc01_full_gc_only_on_g1_cms"
+        },
+        {
+          "name": "cargo:findings_gc02_consecutive_full_warning_and_critical",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc02_consecutive_full_warning_and_critical"
+        },
+        {
+          "name": "cargo:findings_gc03_system_gc_ratio_and_hourly",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc03_system_gc_ratio_and_hourly"
+        },
+        {
+          "name": "cargo:findings_gc04_gc05_failures_are_critical",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc04_gc05_failures_are_critical"
+        },
+        {
+          "name": "cargo:findings_gc07_long_pause_levels",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc07_long_pause_levels"
+        },
+        {
+          "name": "cargo:findings_gc08_window_ratio",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc08_window_ratio"
+        },
+        {
+          "name": "cargo:findings_gc09_leak_trend",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc09_leak_trend"
+        },
+        {
+          "name": "cargo:findings_gc10_heap_after_levels",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc10_heap_after_levels"
+        },
+        {
+          "name": "cargo:findings_gc11_gc12_gc13_gc14",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_gc11_gc12_gc13_gc14"
+        },
+        {
+          "name": "cargo:findings_linear_fit_r2",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_linear_fit_r2"
+        },
+        {
+          "name": "cargo:findings_real_g1_stress_fixture",
+          "ok": true,
+          "detail": "passed as gc::findings::tests::findings_real_g1_stress_fixture"
+        },
+        {
+          "name": "static:gc-findings render tests (14 rules x 8 locales)",
+          "ok": true,
+          "detail": "gc-findings render tests (14 rules x 8 locales)"
+        },
+        {
+          "name": "static:sourced thresholds in GcThresholds::default(); findings panel with Locate",
+          "ok": true,
+          "detail": "sourced thresholds in GcThresholds::default(); findings panel with Locate"
+        }
+      ]
+    },
+    {
+      "id": "feat-073",
+      "name": "GC multi-file fingerprint, grouping and stitching",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:stitch_rotated_segments_in_any_order",
+          "ok": true,
+          "detail": "passed as gc::stitch::tests::stitch_rotated_segments_in_any_order"
+        },
+        {
+          "name": "cargo:stitch_detects_jvm_start_identity_and_separates_jvms",
+          "ok": true,
+          "detail": "passed as gc::stitch::tests::stitch_detects_jvm_start_identity_and_separates_jvms"
+        },
+        {
+          "name": "cargo:stitch_gap_missing_start_and_duplicate_notes",
+          "ok": true,
+          "detail": "passed as gc::stitch::tests::stitch_gap_missing_start_and_duplicate_notes"
+        },
+        {
+          "name": "cargo:stitch_overlap_is_deduplicated",
+          "ok": true,
+          "detail": "passed as gc::stitch::tests::stitch_overlap_is_deduplicated"
+        },
+        {
+          "name": "cargo:stitch_split_and_merge_modes",
+          "ok": true,
+          "detail": "passed as gc::stitch::tests::stitch_split_and_merge_modes"
+        },
+        {
+          "name": "cargo:stitch_ignores_non_gc_files",
+          "ok": true,
+          "detail": "passed as gc::stitch::tests::stitch_ignores_non_gc_files"
+        },
+        {
+          "name": "static:real rotated fixtures + same-JVM rules + auto/merge/split + gap notes",
+          "ok": true,
+          "detail": "real rotated fixtures + same-JVM rules + auto/merge/split + gap notes"
+        }
+      ]
+    },
+    {
+      "id": "feat-074",
+      "name": "Input kind detection, GcSession WASM/worker, unified multi-file import",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:input_kinds_over_fixtures",
+          "ok": true,
+          "detail": "passed as input_kind::tests::input_kinds_over_fixtures"
+        },
+        {
+          "name": "cargo:input_kinds_stdout_with_both",
+          "ok": true,
+          "detail": "passed as input_kind::tests::input_kinds_stdout_with_both"
+        },
+        {
+          "name": "cargo:report_groups_have_stats_and_axes",
+          "ok": true,
+          "detail": "passed as gc::report::tests::report_groups_have_stats_and_axes"
+        },
+        {
+          "name": "cargo:report_series_columns",
+          "ok": true,
+          "detail": "passed as gc::report::tests::report_series_columns"
+        },
+        {
+          "name": "cargo:report_event_query_filters_sorts_and_pages",
+          "ok": true,
+          "detail": "passed as gc::report::tests::report_event_query_filters_sorts_and_pages"
+        },
+        {
+          "name": "static:import-files unit tests",
+          "ok": true,
+          "detail": "import-files unit tests"
+        },
+        {
+          "name": "static:gc-format unit tests",
+          "ok": true,
+          "detail": "gc-format unit tests"
+        },
+        {
+          "name": "static:GcSession wasm API, worker protocol, folder/drag-directory/append import and view switch wired",
+          "ok": true,
+          "detail": "GcSession wasm API, worker protocol, folder/drag-directory/append import and view switch wired"
+        },
+        {
+          "name": "static:web/src/gcTypes.ts mirrors the Rust GC report",
+          "ok": true,
+          "detail": "web/src/gcTypes.ts mirrors the Rust GC report"
+        }
+      ]
+    },
+    {
+      "id": "feat-075",
+      "name": "GC results page: KPIs, JVM info, findings, pause timeline + heap chart with brush range",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:gc-charts unit tests",
+          "ok": true,
+          "detail": "gc-charts unit tests"
+        },
+        {
+          "name": "static:uPlot charts with synced cursor, drag-select range, dblclick reset, textContent tooltips",
+          "ok": true,
+          "detail": "uPlot charts with synced cursor, drag-select range, dblclick reset, textContent tooltips"
+        },
+        {
+          "name": "static:range KPIs from Rust stats, range chip, uptime/wall axis, nav; validated palette slots",
+          "ok": true,
+          "detail": "range KPIs from Rust stats, range chip, uptime/wall axis, nav; validated palette slots"
+        }
+      ]
+    },
+    {
+      "id": "feat-076",
+      "name": "GC distribution and rate charts",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:stats_short_intervals_are_merged_into_rates",
+          "ok": true,
+          "detail": "passed as gc::stats::tests::stats_short_intervals_are_merged_into_rates"
+        },
+        {
+          "name": "cargo:report_series_columns",
+          "ok": true,
+          "detail": "passed as gc::report::tests::report_series_columns"
+        },
+        {
+          "name": "static:gc-charts unit tests incl. rate/metaspace/bucket labels",
+          "ok": true,
+          "detail": "gc-charts unit tests incl. rate/metaspace/bucket labels"
+        },
+        {
+          "name": "static:histogram + causes recompute for the range; rate + metaspace charts share the time-axis sync",
+          "ok": true,
+          "detail": "histogram + causes recompute for the range; rate + metaspace charts share the time-axis sync"
+        }
+      ]
+    },
+    {
+      "id": "feat-077",
+      "name": "GC event table + parse diagnostics panel",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:report_event_query_filters_sorts_and_pages",
+          "ok": true,
+          "detail": "passed as gc::report::tests::report_event_query_filters_sorts_and_pages"
+        },
+        {
+          "name": "static:virtualized, worker-paged event table with filters/sort, row ↔ chart linkage, range-aware; diagnostics panel",
+          "ok": true,
+          "detail": "virtualized, worker-paged event table with filters/sort, row ↔ chart linkage, range-aware; diagnostics panel"
+        }
+      ]
+    },
+    {
+      "id": "feat-078",
+      "name": "Multi-JVM comparison view",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:gc-charts unit tests incl. worstRow",
+          "ok": true,
+          "detail": "gc-charts unit tests incl. worstRow"
+        },
+        {
+          "name": "static:comparison: KPI table with worst markers, cause table, synced small multiples, range KPIs, 8-group cap",
+          "ok": true,
+          "detail": "comparison: KPI table with worst markers, cause table, synced small multiples, range KPIs, 8-group cap"
+        }
+      ]
+    },
+    {
+      "id": "feat-079",
+      "name": "GC report HTML export with SVG charts",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:gc-svg downsampling + SVG output tests",
+          "ok": true,
+          "detail": "gc-svg downsampling + SVG output tests"
+        },
+        {
+          "name": "static:standalone HTML export with ≤2000-point SVG charts for one JVM or the comparison",
+          "ok": true,
+          "detail": "standalone HTML export with ≤2000-point SVG charts for one JVM or the comparison"
+        }
+      ]
+    },
+    {
+      "id": "feat-080",
+      "name": "CLI GC log support",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:cli_gc_text_report_and_exit_codes",
+          "ok": true,
+          "detail": "passed as cli::tests::cli_gc_text_report_and_exit_codes"
+        },
+        {
+          "name": "cargo:cli_gc_rotated_segments_and_grouping",
+          "ok": true,
+          "detail": "passed as cli::tests::cli_gc_rotated_segments_and_grouping"
+        },
+        {
+          "name": "cargo:cli_gc_json_shapes",
+          "ok": true,
+          "detail": "passed as cli::tests::cli_gc_json_shapes"
+        },
+        {
+          "name": "cargo:cli_gc_mixed_text_kind_override_and_unknown_inputs",
+          "ok": true,
+          "detail": "passed as cli::tests::cli_gc_mixed_text_kind_override_and_unknown_inputs"
+        },
+        {
+          "name": "cargo:cli_gc_formatting_helpers",
+          "ok": true,
+          "detail": "passed as cli::gc::tests::cli_gc_formatting_helpers"
+        },
+        {
+          "name": "static:--kind / --grouping / --events flags and GC sections",
+          "ok": true,
+          "detail": "--kind / --grouping / --events flags and GC sections"
+        }
+      ]
+    },
+    {
+      "id": "feat-081",
+      "name": "GC sample, home copy, help/legend and README",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "static:GC sample is a verbatim copy of the real g1-stress fixture",
+          "ok": true,
+          "detail": "GC sample is a verbatim copy of the real g1-stress fixture"
+        },
+        {
+          "name": "static:GC sample button, help rule list, home copy in 8 locales, README",
+          "ok": true,
+          "detail": "GC sample button, help rule list, home copy in 8 locales, README"
+        }
+      ]
+    },
+    {
+      "id": "feat-082",
+      "name": "(Optional) gzip-compressed log import",
+      "status_in_list": "done",
+      "ok": true,
+      "checks": [
+        {
+          "name": "cargo:cli_gzip_inputs",
+          "ok": true,
+          "detail": "passed as cli::tests::cli_gzip_inputs"
+        },
+        {
+          "name": "static:import-files tests incl. gzip",
+          "ok": true,
+          "detail": "import-files tests incl. gzip"
+        },
+        {
+          "name": "static:gzip by magic bytes in web (DecompressionStream) and CLI (flate2, cli feature only)",
+          "ok": true,
+          "detail": "gzip by magic bytes in web (DecompressionStream) and CLI (flate2, cli feature only)"
         }
       ]
     }

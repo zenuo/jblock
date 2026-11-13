@@ -832,6 +832,254 @@
         "e2e FEATURE_CHECKS for feat-067"
       ],
       "evidence": "Results.tsx useState ALL + reset on analysis change; App Results key by dump name/digest; e2e 67/67 feat-067; browser: WAITING filter on tab A, new tab Load sample stays ALL (12/17), BLOCKED not auto-selected"
+    },
+    {
+      "id": "feat-068",
+      "name": "GC event model + JDK 9+ unified logging parser (G1/Parallel/Serial)",
+      "description": "Pure-Rust src/gc/ module with GcEvent model and a -Xlog:gc* parser that aggregates multi-line events by GC(id), plus a real-JVM GC log capture script. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "acceptance": [
+        "src/gc/{model,unified}.rs parse G1/Parallel/Serial unified logs into GcEvent (kind, cause, pause, heap/young/old/humongous/metaspace before/after/cap, cpu user/sys/real)",
+        "Decorators in any combination/order: time, utctime, uptime, uptimemillis, timemillis, level, tags (padded), pid, tid; default uptime,level,tags",
+        "gc,init lines (Version/CPUs/Memory/Heap Min/Initial/Max/Region Size) extracted into JVM info",
+        "Unrecognized lines counted in `unparsed` with samples; parser never panics",
+        "scripts/capture-gc-logs.sh + GcWorkload.java capture real JDK 21 logs into tests/fixtures/gc/ (<200KB each) with FORMAT_DIFFS.md",
+        "cargo tests per collector fixture assert event counts and key fields; e2e FEATURE_CHECKS entry"
+      ],
+      "evidence": "src/gc/{mod,model,units,unified,tests}.rs; scripts/capture-gc-logs.sh + scripts/gc-capture/GcWorkload.java captured 6 real Temurin 21 logs (G1 default/stress/utctime+pid/gc-only, Parallel, Serial) into tests/fixtures/gc/ (all <200KB) + FORMAT_DIFFS.md; 18 gc cargo tests with grep-derived counts (g1-stress 147 events / 107 pauses / 10 Full / 9 evacuation failures / 40 concurrent); release parse of a 48MB unified log in ~194ms native; ./init.sh green"
+    },
+    {
+      "id": "feat-069",
+      "name": "JDK 8 PrintGCDetails parser (G1/Parallel/CMS)",
+      "description": "Legacy -XX:+PrintGCDetails parsing including multi-line G1 blocks, PSYoungGen/ParOldGen, CMS phases interleaved with concurrent lines. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-068"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Parses with and without PrintGCDateStamps/PrintGCTimeStamps; warns when no timestamps",
+        "Extracts CommandLine flags / Memory header into JVM info and MaxGCPauseMillis when present",
+        "Flags promotion failed, concurrent mode failure, to-space exhausted",
+        "Real temurin-8 fixtures for G1/Parallel/CMS incl. -XX:+UseGCLogFileRotation segments; cargo tests",
+        "JDK 8 rotation markers (`GC log file created` / `GC log file has reached the maximum size`) and header lines feed stitch fingerprints; user-provided local logs (~/Downloads/gc.log.0*.current, not committed) parse and group as two JVMs"
+      ],
+      "evidence": "src/gc/legacy.rs: record assembly (start line → [Times:]), inner date/uptime stamps stripped, timed sub-phases (PrintReferenceGC, remark steps) removed before taking the outer duration, PSYoungGen/ParOldGen/DefNew/Tenured/ParNew/CMS/Metaspace generations, G1 Eden/Survivors/Heap summary, CMS initial-mark/remark occupancy, concurrent phases extracted anywhere in a line, [GC]+old-gen bracket → Full GC, header (version, Memory, CommandLine flags → heap max/initial, MaxGCPauseMillis, collector), rotation markers. Real temurin 1.8.0_512 fixtures from scripts/capture-gc-logs.sh (parallel, parallel-refgc, parallel-nostamps, g1, cms, serial, parallel-rotated.{0,1}); 8 cargo tests with grep counts (g1 78 pauses/34 concurrent/4 to-space exhausted; cms 250 pauses/74 initial mark/74 remark/326 concurrent/1 promotion failed→Full). Stitching: JDK 8 rotation markers tie segments by log-file base path (header flags differ per segment). Local-only verification on the user's two production 8u45 Parallel logs (not committed): 8567 events = grep, 1 truncated record reported, two JVMs, GC02/GC08/GC10 critical + GC07; 4.5 MB in 51 ms. Findings polish: Metadata GC Threshold counted only after warm-up; GC07 wording without a pause target (8 locales)."
+    },
+    {
+      "id": "feat-070",
+      "name": "ZGC / Shenandoah unified log parser (pauses + heap)",
+      "description": "Unified-log parsing for ZGC (non-generational and generational) and Shenandoah: pause sub-phases, concurrent cycles, heap before/after, stalls/degenerated. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-068"
+      ],
+      "status": "done",
+      "acceptance": [
+        "ZGC Pause Mark Start/Mark End/Relocate Start counted as pauses; Garbage Collection/Minor/Major Collection lines give heap before/after",
+        "Allocation Stall, Shenandoah Degenerated GC and Pacing recorded as event flags",
+        "Real JDK 21 fixtures (ZGC, -XX:+ZGenerational, Shenandoah); cargo tests"
+      ],
+      "evidence": "src/gc/unified.rs: ZGC pauses on gc,phases (incl. y:/Y:/o: generational prefixes), Garbage/Minor/Major Collection cycles with percent heap (capacity = Max Capacity), cycle duration from gc,start when not printed, Allocation Stall as GcKind::Stall + flag, ZGC metaspace format; Shenandoah qualifiers kept in names, Degenerated flag, Concurrent cleanup heap. Heap KPIs / allocation / GC09 / GC10 / heap chart now use every memory-reporting event (G1/Parallel/Serial unchanged: their concurrent events carry no heap). Real JDK 21 fixtures (zgc, zgc-generational, shenandoah, shenandoah-passive) all <200 KB; 3 cargo tests with grep counts (ZGC 105 pauses/35 cycles/6 stalls = 146; generational 231/76/3 = 310; Shenandoah 77 pauses/181 concurrent/1 degenerated; passive 14 degenerated → GC14 warning). Browser: all four render heap charts and KPIs, stall filter chip, no console errors. formatMs shows µs below 0.1 ms."
+    },
+    {
+      "id": "feat-071",
+      "name": "GC stats engine (KPIs, percentiles, rates, causes, range stats)",
+      "description": "src/gc/stats.rs computes KPIs over the whole log or an optional uptime range, shared by web and CLI. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-068"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Throughput, pause count/total/P50/P90/P95/P99/Max, mean interval, per-kind counts, concurrent share",
+        "Allocation and promotion rate (avg/peak MB/s), heap after-GC P50/Max/peak occupancy, metaspace peak",
+        "Cause breakdown (count + total pause) and log-spaced pause histogram",
+        "Same function accepts range (t0,t1); cargo tests with hand-computed expectations"
+      ],
+      "evidence": "src/gc/stats.rs compute(events, range, heap_max): throughput, nearest-rank P50/P90/P95/P99/Max, mean interval, per-kind counts, concurrent share, allocation/promotion avg+peak (peak ignores <50ms intervals), heap-after P50/Max/peak occupancy, metaspace peak, cause breakdown, 1-2-5 log histogram; 6 cargo tests with hand-computed expectations + real g1-stress consistency; e2e PASS"
+    },
+    {
+      "id": "feat-072",
+      "name": "GC Findings rules GC01–GC14",
+      "description": "Problem-first GC findings with severity, evidence, suggestion and time anchors; thresholds in GcThresholds::default(), aligned with JMC rules, JVM defaults, Oracle tuning guides and GCeasy patterns. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-071"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Rules GC01–GC14 per design §4.2 (Full GC, consecutive Full GC, System.gc, evacuation failure, CMS failures, humongous, long pauses, 60s-window GC pause ratio, live-set leak trend, heap near max, metaspace trend, inverted parallelism, frequent young GC, ZGC stall / Shenandoah degenerated)",
+        "critical only for consecutive Full GC freeing <2% heap, heap free <2% after GC, G1 evacuation failure, CMS promotion failed / concurrent mode failure; every threshold documents its source (JMC rule / JVM flag / Oracle guide / self-defined)",
+        "Leak trend (GC09): post-warmup least-squares slope normalized to first post-warmup value, R² ≥ 0.7, ≥5 GCs and ≥30min; ≥1%/s or projected heap exhaustion <24h → warning; no old/mixed/full GC → at most info",
+        "Each rule has a positive and negative cargo test (real fixture where reproducible)",
+        "Clean logs produce no warning/critical findings",
+        "Findings panel on the GC page (8 locales) with severity/evidence/suggestion; Locate zooms all charts to the finding's anchor ±10%"
+      ],
+      "evidence": "src/gc/findings.rs: GC01–GC14 with GcThresholds::default() (JMC FullGc/SystemGc/LongGcPause/GcPauseRatio/IncreasingLiveSet/IncreasingMetaspaceLiveSet/GcInvertedParallelism/ZGCAllocationStall, JVM MaxGCPauseMillis/GCTimeRatio/GCTimeLimit/GCHeapFreeLimit, Oracle G1/CMS guides, GCeasy consecutive Full GC); GC02 critical = each Full GC leaves <2% old-gen free (GCHeapFreeLimit semantics) or frees <2%; GC06 humongous ratio only when old ≥10% of heap; 12 cargo tests (positive+negative, real g1-stress: GC04 critical count=9, GC01/03/06/10; calm g1-default info-only). web gcFindings.ts + GcFindingsPanel (severity icon+label, rule id, body, suggestion, Locate → range ±10%), 56 keys x 8 locales; scripts/test-gc-findings.mjs renders all 14 rules in all 8 locales without unfilled placeholders. Browser: g1-stress shows critical GC04 first, Locate sets range chip + ranged KPIs, nav includes Findings, zh renders '严重 … 9 次 G1 停顿', no console errors."
+    },
+    {
+      "id": "feat-073",
+      "name": "GC multi-file fingerprint, grouping and stitching",
+      "description": "Detect rotated segments of the same JVM vs different JVMs and stitch segments into one timeline; manual override auto/merge/split. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-068"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Fingerprint: collector, JVM version/flags, pid decorator, first/last GC(id), uptime and wall clock, JDK 8 rotation markers",
+        "Same-JVM rule order: pid > JDK 8 rotation markers > collector + contiguous GC(id) + monotonic uptime",
+        "Dedup overlaps and report gaps in diagnostics",
+        "Modes auto/merge/split; cargo tests with real rotated fixtures and two distinct JVMs"
+      ],
+      "evidence": "src/gc/stitch.rs: per-file fingerprints (collector, pid, GC id range, line uptime/wall range, JVM start = wall−uptime), union-find auto grouping (JVM start ±2s > pid > collector+contiguous GC ids with non-overlapping uptime), merge/split modes, concatenate-and-reparse so boundary-split events are whole, file/line remap, id+name dedup, Gap/Overlap/Duplicate/MissingStart notes; real rotated fixtures g1-rotated-jdk21.log{,.0,.1,.2} and g1-rotated-wall-jdk21.log{,.0}; 6 cargo tests; JDK 8 rotation markers moved to feat-069 (needs the legacy parser)"
+    },
+    {
+      "id": "feat-074",
+      "name": "Input kind detection, GcSession WASM/worker, unified multi-file import",
+      "description": "detectInputKind routes each file/clipboard text to thread-dump or GC analysis; GcSession lives in the analyze worker; folder/drag-directory/append import. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-071",
+        "feat-073",
+        "feat-066"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Rust detect_input_kind sniffs first 64KB: thread-dump / gc-log / unknown; cargo tests over all fixtures",
+        "wasm GcSession {report, series, stats, events, regroup, free}; worker protocol gcOpen/gcStats/gcEvents/gcRegroup/gcClose",
+        "Web: multiple files, folder picker (webkitdirectory), dropped directories, Add files append, clipboard text; unknown files shown as a warning chip; binary files skipped",
+        "Mixed import shows a top-level Thread dumps / GC logs switch; thread-dump behavior unchanged",
+        "web/src/gcTypes.ts mirrors src/gc/model.rs"
+      ],
+      "evidence": "src/input_kind.rs (thread_dump/gc_log detected independently; stdout files can be both); src/gc/report.rs (GcReport, 21+1 chart columns, EventQuery paging); wasm GcSession {new, regroup, report, columnNames, column→Float64Array, stats, events} + detectInputKinds; worker importTexts/gcRegroup/gcSeries (transferred buffers)/gcStats/gcEvents; web importFiles.ts (binary skip, dropped-directory walk, append) + App view switch, folder picker, Add files, unrecognized/skipped warnings; GC strings in i18n/gcMessages.ts for 8 locales; unknown texts still go to the thread analyzer when no GC log is in the batch. cargo tests + scripts/test-import-files.mjs + scripts/test-gc-format.mjs; browser (puppeteer-core + Chrome, local only): mixed 4 rotated segments + Parallel + jstack → switch, 2 JVM groups, split=5 / merge=1 / auto=2; .0+.2 → 2 groups, Add files .1 → 1 group (+2); unrecognized + binary warnings; Ctrl+V GC log → clipboard.txt group; Load sample unchanged; no console errors"
+    },
+    {
+      "id": "feat-075",
+      "name": "GC results page: KPIs, JVM info, findings, pause timeline + heap chart with brush range",
+      "description": "GcResults with ReportNav, KPI tiles, JVM info, findings, uPlot pause scatter and heap chart, shared cursor and brush-to-range recompute. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-072",
+        "feat-074"
+      ],
+      "status": "done",
+      "acceptance": [
+        "uPlot added as the only new runtime dependency; charts follow the dataviz skill palette",
+        "Pause timeline colored by kind with concurrent-cycle bands; heap before/after sawtooth, capacity, old-after-GC line, Full GC markers",
+        "Brush on any time chart sets global range; KPIs recompute via worker gcStats on mouseup; range chip with reset; double-click resets",
+        "Uptime / wall-clock axis toggle when timestamps allow",
+        "8 locales; browser verification recorded in progress.md"
+      ],
+      "evidence": "uplot 1.6.32 (only new runtime dep); web/src/gcCharts.ts (pure builders, scripts/test-gc-charts.mjs), GcChart.tsx (uPlot wrapper: resize, textContent tooltip, drag-select→range, dblclick reset), GcTimeCharts.tsx (pause scatter: one series + custom draw, 3 validated all-pairs slots young/full/mixed + neutral other, Full GC as larger triangle; heap sawtooth violet + old-after green + capacity muted + Full GC orange hairlines + concurrent bands; adjacent palette validated), GcResults with ReportNav, range chip, ranged KPIs via worker gcStats, log/linear toggle (log ticks at decades), uptime/wall axis. Browser (puppeteer-core, local): g1-stress 107 pauses/10 Full; hover tooltip GC(n)+ms; drag first third → 19 pauses '(selected range)'; × and dblclick reset to 107; wall-clock tooltip YYYY-MM-DD HH:MM:SS; nav Overview/Pauses/Heap/JVM/Diagnostics; no console errors. Perf (dev wasm, synthetic 68MB/100k GCs): report 0.84s, charts 1.5s, range stats 97ms, hover 4ms. Finding Locate moved to feat-072."
+    },
+    {
+      "id": "feat-076",
+      "name": "GC distribution and rate charts",
+      "description": "Pause histogram, cause bars, allocation/promotion rate and metaspace charts, all range-aware. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-075"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Histogram with P50/P95/P99 markers; cause bars by count and total pause",
+        "Allocation/promotion MB/s and metaspace used/committed share the time-axis sync",
+        "All four recompute for the selected range"
+      ],
+      "evidence": "web/src/GcDistCharts.tsx: SVG pause histogram (1-2-5 buckets from Rust stats, P50/P95/P99/Max caption, peak + hovered value only, whole-slot hit target), cause bars (top 10 + Other, value at tip, proportional), uPlot allocation/promotion rate and metaspace used/committed charts on the shared sync key; concept colors (violet = used/allocation, green = old/promotion, gray = capacity, secondary ink for magnitude bars). Rust: merged_rates() merges <50 ms intervals for both KPIs and the chart columns (fixed 3.9 GB/s spikes from back-to-back pauses on g1-stress; now 45–100 MB/s). Browser: histogram hover readout, causes include System.gc()/G1 Humongous Allocation, bars proportional, brushing the rate chart recomputes histogram/causes, nav Overview…Metaspace…Diagnostics, no console errors."
+    },
+    {
+      "id": "feat-077",
+      "name": "GC event table + parse diagnostics panel",
+      "description": "Virtualized event table paged from the worker, linked to charts; diagnostics show unparsed lines, gaps and overlaps per file. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-075"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Fixed-row-height virtual scroll without new deps; filter by kind/cause/min pause, sort by time/duration",
+        "Row select marks the event on all charts; chart point click scrolls the table",
+        "Table respects the global range",
+        "Diagnostics panel: per-file format, collector, events, unparsed count + first 20 samples, gaps/overlaps"
+      ],
+      "evidence": "web/src/GcEventTable.tsx: fixed 30 px rows, only visible rows rendered, 200-row pages fetched from the worker (Rust query_events filter/sort), filter chips for kinds present, cause select, min duration, pauses only, time/duration sort; header+rows share one horizontal scroller; row select draws a hairline on every time chart (GcChart markX redraw without re-creating); chart click selects the event, resets filters and scrolls the table to it (deferred until the new total arrives); respects the global range. Diagnostics panel (per-file format/collector/events/GC ids/uptime/unparsed + first 20 samples, gap/overlap/duplicate/missing-start notes) from feat-074. Browser: g1-stress 147 events, scroll to row 146, Full=10, System.gc()=7, pauses only=107, ≥1 ms=10, chart click → row 90 selected and visible, brushed range → 31 events; synthetic 100k-event log jump to end 717 ms (dev build); no console errors."
+    },
+    {
+      "id": "feat-078",
+      "name": "Multi-JVM comparison view",
+      "description": "When >=2 JVM groups exist: KPI comparison table, cause comparison table, synced small-multiple pause + heap charts per JVM (max 8 groups).",
+      "dependencies": [
+        "feat-075"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Worst value per KPI column highlighted with a text badge (not color alone); recomputed for a brushed range",
+        "Small multiples share the x range and cursor; uptime-aligned by default, wall-clock when all groups have timestamps",
+        "Overlay replaced by small multiples (dataviz: categorical scatter only validates 3 slots all-pairs; colors keep meaning pause kind)",
+        ">8 groups prompts the user to pick groups"
+      ],
+      "evidence": "web/src/GcCompare.tsx + 'Compare N JVMs' chip: KPI table (throughput/P99/max/total/Full GC/allocation/heap peak) with worstRow() bold + 'worst' badge, ranged per group via worker gcStats, cause × JVM table, PauseTimeline + HeapChart per JVM on one sync key with a shared x domain, axis toggle when all groups have wall clocks, picker above 8 groups; 8 locales; design doc §3.5 updated (small multiples instead of overlay, with the reason). Browser: 4 JVMs → 4 rows, ≥3 worst markers, 8 canvases, brushing a small multiple ranges the KPI table, back to single JVM; 9 JVMs → picker with 8 compared; no console errors."
+    },
+    {
+      "id": "feat-079",
+      "name": "GC report HTML export with SVG charts",
+      "description": "Export the current GC group or comparison as standalone HTML reusing app CSS, with min/max-downsampled SVG charts. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-076"
+      ],
+      "status": "done",
+      "acceptance": [
+        "<=2000 points per chart; report opens offline with no JS dependency",
+        "Includes KPIs, findings, JVM info, all charts; selected range appended as an extra KPI section",
+        "e2e static checks + browser verification"
+      ],
+      "evidence": "web/src/gcSvg.ts (static SVG pause/heap/rate/metaspace/histogram; min/max-per-column lines, longest-pause-per-column points with every Full GC kept, ≤2000 points per chart; loop-based extent() after a 200k-element Math.max spread overflowed the stack in tests) + web/src/gcExport.ts (app CSS inline, nav, KPI tiles, localized findings, legends, JVM facts, diagnostics; extra '(selected range)' KPI block; comparison export with worst badges and per-JVM charts) + Export HTML buttons on the GC page and the comparison. scripts/test-gc-svg.mjs. Browser: downloaded file opened with JavaScript disabled — single JVM 84 KB, 5 SVGs, 9 KPIs, 6 findings, nav 9 sections, 0 scripts; with a range 18 KPIs; comparison of 3 JVMs 89 KB with 6 SVGs and 'worst'; synthetic 100k-event log export 313 KB."
+    },
+    {
+      "id": "feat-080",
+      "name": "CLI GC log support",
+      "description": "jblock auto-detects GC logs (--kind auto|thread|gc), groups/stitches files, prints KPIs/findings/causes/top pauses/sparkline or JSON. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-072",
+        "feat-073",
+        "feat-056"
+      ],
+      "status": "done",
+      "acceptance": [
+        "Mixed thread-dump + GC inputs render as two sections",
+        "-s sections summary,findings,causes,pauses,events; -j GcReport JSON; --events includes per-event array",
+        "Exit codes unchanged: 0 clean/info, 1 warning/critical, 2 usage, 3 nothing recognized",
+        "cargo CLI tests over real fixtures incl. stdin and clipboard"
+      ],
+      "evidence": "src/cli/gc.rs (text report: header with collector/JDK/span/events, stitching notes, findings with English rule titles + humanized evidence and --severity filter, summary KPIs + heap-after-GC Unicode sparkline, causes, longest pauses, events with -n), src/cli/mod.rs routing (detect_input_kinds per input; no GC log in the batch → unchanged thread path; --kind auto|thread|gc; unknown inputs skipped with a warning when GC logs are present; mixed text = thread report then GC report; JSON: bare GcReport, {gc, gc_events, thread} with --events or thread dumps), --grouping auto|merge|split, exit 1 on warning/critical GC findings. 5 cargo tests over real fixtures (G1 stress exit 1, calm G1 exit 0, CMS GC05, 4 rotated segments → 1 JVM / split → 4, JSON shapes, mixed ordering, --kind thread on a GC log → exit 3, unknown-file warning, events limit). Local-only: user's two JDK 8 production logs → GC02/GC08/GC10 critical + GC07 for one JVM, clean for the other."
+    },
+    {
+      "id": "feat-081",
+      "name": "GC sample, home copy, help/legend and README",
+      "description": "GC log sample button (real captured G1 log), home copy for both kinds, Help modal GC section listing GC01–GC14, README update.",
+      "dependencies": [
+        "feat-075"
+      ],
+      "status": "done",
+      "acceptance": [
+        "GC sample is a real captured G1 log exercising several findings (copy of tests/fixtures/gc/g1-stress-jdk21.log, loaded lazily)",
+        "Home/drop-zone text mentions GC logs; buttons Choose files… / Choose folder… / Paste / Load sample / GC log sample in 8 locales",
+        "Help modal lists GC01–GC14 (thread Pattern legend demo modals stay thread-only)",
+        "README feature list, CLI table, architecture and tech stack updated"
+      ],
+      "evidence": "web/src/sampleGc.log (verbatim g1-stress fixture, dynamic import ?raw so the main bundle does not grow), App 'GC log sample' button, home kicker/lead/pointFormats updated in 8 locales, home column widened to 44rem so the five CTAs fit one row, HelpModal 'GC log analysis' section (format support + 14 rule titles from gc.rule.*), README (features, layout, CLI rows/flags/exit codes, data flow, uPlot). Browser: home text mentions GC logs, help lists 14 rules (GC04 Evacuation failure…), GC sample loads with GC04 critical, thread sample unchanged, no console errors."
+    },
+    {
+      "id": "feat-082",
+      "name": "(Optional) gzip-compressed log import",
+      "description": "Accept .gz GC logs/dumps: web via DecompressionStream, CLI via a small gzip decoder. Design: docs/design/gc-log-analysis.md.",
+      "dependencies": [
+        "feat-074"
+      ],
+      "status": "done",
+      "acceptance": [
+        "gc.log.N.gz decompressed transparently in web and CLI",
+        "Fallback error message when DecompressionStream is unavailable",
+        "cargo + web tests with a real gzipped fixture"
+      ],
+      "evidence": "web importFiles.ts: gzip detected by magic bytes, gunzipped with DecompressionStream, '.gz' dropped from the name, failures listed in gzipFailed → localized error (8 locales) after the import; CLI decode_text(): MultiGzDecoder for files and stdin, clear errors for corrupt gzip / non-UTF-8; flate2 only under the cli feature (WASM unchanged). Fixture g1-rotated-jdk21.log.1.gz = gzip -n -9 of a real segment. Tests: scripts/test-import-files.mjs (gzip + corrupt), cargo cli_gzip_inputs (4 segments with one gzipped → 1 JVM +3 segments). Browser: same set with the .gz segment → one JVM (+3), decompressed name shown, corrupt .gz reported, no page errors."
     }
   ]
 }

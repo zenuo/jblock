@@ -1494,6 +1494,299 @@ FEATURE_CHECKS["feat-067"] = {
   ],
 };
 
+FEATURE_CHECKS["feat-068"] = {
+  cargo: [
+    "gc_unified_detects_format_on_all_fixtures",
+    "gc_unified_g1_stress_events_and_flags",
+    "gc_unified_g1_init_facts",
+    "gc_unified_default_decorators",
+    "gc_unified_utctime_pid_tid_decorators",
+    "gc_unified_gc_tag_only_uptimemillis",
+    "gc_unified_parallel_generations",
+    "gc_unified_serial_generations",
+    "gc_unified_noise_lines_are_counted_not_fatal",
+    "gc_unified_collector_inferred_without_using_line",
+    "gc_unified_truncated_and_garbage_input_does_not_panic",
+    "decorators_recognized_by_content",
+    "iso_timestamps_with_offsets",
+  ],
+  static: [
+    () => ({
+      ok:
+        fileNonEmpty("scripts/capture-gc-logs.sh") &&
+        fileNonEmpty("scripts/gc-capture/GcWorkload.java") &&
+        fileNonEmpty("tests/fixtures/gc/FORMAT_DIFFS.md"),
+      detail: "real-JVM GC log capture script, workload and format notes exist",
+    }),
+    () => {
+      const dir = path.join(ROOT, "tests/fixtures/gc");
+      const logs = existsSync(dir) ? readdirSync(dir).filter((n) => /\.log(\.\d+)?$/.test(n)) : [];
+      const oversized = logs.filter((n) => statSync(path.join(dir, n)).size >= 200 * 1024);
+      return {
+        ok: logs.length >= 6 && oversized.length === 0,
+        detail: `${logs.length} GC fixtures, all < 200KB${oversized.length ? ` (too big: ${oversized.join(", ")})` : ""}`,
+      };
+    },
+  ],
+};
+
+FEATURE_CHECKS["feat-071"] = {
+  cargo: [
+    "stats_whole_log_kpis",
+    "stats_rates_hand_computed",
+    "stats_range_is_clipped_and_filtered",
+    "stats_histogram_buckets",
+    "stats_empty_input",
+    "stats_real_g1_stress_fixture_is_consistent",
+  ],
+  static: [
+    () => ({
+      ok: containsAll("src/gc/stats.rs", ["pub fn compute(", "range: Option<(f64, f64)>", "nearest_rank", "HISTOGRAM_EDGES_MS"]),
+      detail: "single Rust stats implementation accepts an optional range",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-073"] = {
+  cargo: [
+    "stitch_rotated_segments_in_any_order",
+    "stitch_detects_jvm_start_identity_and_separates_jvms",
+    "stitch_gap_missing_start_and_duplicate_notes",
+    "stitch_overlap_is_deduplicated",
+    "stitch_split_and_merge_modes",
+    "stitch_ignores_non_gc_files",
+  ],
+  static: [
+    () => ({
+      ok:
+        fileNonEmpty("tests/fixtures/gc/g1-rotated-jdk21.log.0") &&
+        fileNonEmpty("tests/fixtures/gc/g1-rotated-wall-jdk21.log.0") &&
+        containsAll("src/gc/stitch.rs", ["JVM_START_TOLERANCE_MS", "pub fn same_jvm(", "GroupingMode::Merge", "NoteKind::Gap"]),
+      detail: "real rotated fixtures + same-JVM rules + auto/merge/split + gap notes",
+    }),
+  ],
+};
+
+function nodeScriptCheck(script, label) {
+  return () => {
+    const r = run("node", ["--experimental-strip-types", "--no-warnings", script]);
+    return {
+      ok: r.status === 0,
+      detail: r.status === 0 ? label : `${label} failed: ${(r.stderr || r.stdout).slice(0, 400)}`,
+    };
+  };
+}
+
+FEATURE_CHECKS["feat-074"] = {
+  cargo: [
+    "input_kinds_over_fixtures",
+    "input_kinds_stdout_with_both",
+    "report_groups_have_stats_and_axes",
+    "report_series_columns",
+    "report_event_query_filters_sorts_and_pages",
+  ],
+  static: [
+    nodeScriptCheck("scripts/test-import-files.mjs", "import-files unit tests"),
+    nodeScriptCheck("scripts/test-gc-format.mjs", "gc-format unit tests"),
+    () => ({
+      ok:
+        containsAll("src/lib.rs", ["pub struct GcSession", "js_name = detectInputKinds", "pub fn column(", "pub fn regroup("]) &&
+        containsAll("web/src/analyze.worker.ts", ["importTexts", "gcSeries", "gcStats", "gcEvents", "gcRegroup"]) &&
+        containsAll("web/src/App.tsx", ['data-testid="view-switch"', 'data-testid="choose-folder"', 'data-testid="add-files"', "filesFromEntries"]),
+      detail: "GcSession wasm API, worker protocol, folder/drag-directory/append import and view switch wired",
+    }),
+    () => ({
+      ok: fileNonEmpty("web/src/gcTypes.ts") && containsAll("web/src/gcTypes.ts", ["export interface GcReport", "export interface GcEvent", "GC_KINDS"]),
+      detail: "web/src/gcTypes.ts mirrors the Rust GC report",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-075"] = {
+  cargo: [],
+  static: [
+    nodeScriptCheck("scripts/test-gc-charts.mjs", "gc-charts unit tests"),
+    () => ({
+      ok:
+        contains("web/package.json", '"uplot"') &&
+        containsAll("web/src/GcChart.tsx", ["new uPlot(", "setSelect", "dblclick", "textContent"]) &&
+        containsAll("web/src/GcTimeCharts.tsx", ["PauseTimeline", "HeapChart", "sync: { key: syncKey", "drawBands"]),
+      detail: "uPlot charts with synced cursor, drag-select range, dblclick reset, textContent tooltips",
+    }),
+    () => ({
+      ok:
+        containsAll("web/src/GcResults.tsx", ["gcStats(groupIndex, range[0], range[1])", 'data-testid="gc-range-chip"', "gc-axis-", "ReportNav"]) &&
+        containsAll("web/src/gcCharts.ts", ['young: "#2a78d6"', 'full: "#eb6834"', 'mixed: "#1baf7a"']),
+      detail: "range KPIs from Rust stats, range chip, uptime/wall axis, nav; validated palette slots",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-072"] = {
+  cargo: [
+    "findings_clean_log_has_none",
+    "findings_gc01_full_gc_only_on_g1_cms",
+    "findings_gc02_consecutive_full_warning_and_critical",
+    "findings_gc03_system_gc_ratio_and_hourly",
+    "findings_gc04_gc05_failures_are_critical",
+    "findings_gc07_long_pause_levels",
+    "findings_gc08_window_ratio",
+    "findings_gc09_leak_trend",
+    "findings_gc10_heap_after_levels",
+    "findings_gc11_gc12_gc13_gc14",
+    "findings_linear_fit_r2",
+    "findings_real_g1_stress_fixture",
+  ],
+  static: [
+    nodeScriptCheck("scripts/test-gc-findings.mjs", "gc-findings render tests (14 rules x 8 locales)"),
+    () => ({
+      ok:
+        containsAll("src/gc/findings.rs", ["pub struct GcThresholds", "window_critical_pct: 98.0", "heap_free_limit_pct: 2.0", "leak_min_r2: 0.7"]) &&
+        containsAll("web/src/GcResults.tsx", ["GcFindingsPanel", "gc-locate-", "locateRange"]),
+      detail: "sourced thresholds in GcThresholds::default(); findings panel with Locate",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-076"] = {
+  cargo: ["stats_short_intervals_are_merged_into_rates", "report_series_columns"],
+  static: [
+    nodeScriptCheck("scripts/test-gc-charts.mjs", "gc-charts unit tests incl. rate/metaspace/bucket labels"),
+    () => ({
+      ok:
+        containsAll("web/src/GcDistCharts.tsx", ["PauseHistogram", "CauseBars", "RateChart", "MetaspaceChart", "sync: { key: syncKey"]) &&
+        containsAll("web/src/GcResults.tsx", ["<PauseHistogram stats={shownStats}", "<CauseBars causes={shownStats.causes}"]),
+      detail: "histogram + causes recompute for the range; rate + metaspace charts share the time-axis sync",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-077"] = {
+  cargo: ["report_event_query_filters_sorts_and_pages"],
+  static: [
+    () => ({
+      ok:
+        containsAll("web/src/GcEventTable.tsx", ["ROW_H", "translateY", "gcEvents(group, toEventQuery(", "gc-filter-kind-", "gc-sort-duration", "pendingScroll"]) &&
+        containsAll("web/src/GcChart.tsx", ["markRef", "onPick"]) &&
+        containsAll("web/src/GcResults.tsx", ["<GcEventTable", "onPickRow", "markRow={selectedRow}", "DiagnosticsPanel"]),
+      detail: "virtualized, worker-paged event table with filters/sort, row ↔ chart linkage, range-aware; diagnostics panel",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-069"] = {
+  cargo: [
+    "gc_legacy_detects_format",
+    "gc_legacy_parallel_events_and_header",
+    "gc_legacy_parallel_reference_gc_and_tenuring_multiline",
+    "gc_legacy_without_stamps_uses_order",
+    "gc_legacy_g1_pauses_concurrent_and_failures",
+    "gc_legacy_cms_phases_concurrent_and_promotion_failure",
+    "gc_legacy_serial",
+    "gc_legacy_truncated_and_garbage_input_does_not_panic",
+    "stitch_jdk8_rotation_markers",
+    "paren_groups_nested",
+  ],
+  static: [
+    () => {
+      const need = ["jdk8-parallel.log", "jdk8-parallel-refgc.log", "jdk8-g1.log", "jdk8-cms.log", "jdk8-serial.log", "jdk8-parallel-rotated.log.0", "jdk8-parallel-rotated.log.1"];
+      const missing = need.filter((n) => !fileNonEmpty(`tests/fixtures/gc/${n}`));
+      return { ok: missing.length === 0 && contains("scripts/capture-gc-logs.sh", "LEGACY_SCENARIOS"), detail: missing.length ? `missing ${missing.join(", ")}` : "real temurin-8 fixtures + capture scenarios" };
+    },
+  ],
+};
+
+FEATURE_CHECKS["feat-070"] = {
+  cargo: ["gc_zgc_pauses_cycles_and_stalls", "gc_zgc_generational_minor_major", "gc_shenandoah_pauses_concurrent_and_degenerated"],
+  static: [
+    () => {
+      const need = ["zgc-jdk21.log", "zgc-generational-jdk21.log", "shenandoah-jdk21.log", "shenandoah-passive-jdk21.log"];
+      const missing = need.filter((n) => !fileNonEmpty(`tests/fixtures/gc/${n}`));
+      return { ok: missing.length === 0, detail: missing.length ? `missing ${missing.join(", ")}` : "real JDK 21 ZGC / Shenandoah fixtures" };
+    },
+    () => ({
+      ok: contains("web/src/gcTypes.ts", '"stall"') && contains("src/gc/model.rs", "Stall,"),
+      detail: "allocation stall event kind mirrored in TS",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-080"] = {
+  cargo: [
+    "cli_gc_text_report_and_exit_codes",
+    "cli_gc_rotated_segments_and_grouping",
+    "cli_gc_json_shapes",
+    "cli_gc_mixed_text_kind_override_and_unknown_inputs",
+    "cli_gc_formatting_helpers",
+  ],
+  static: [
+    () => ({
+      ok: containsAll("src/bin/jblock.rs", ['long = "kind"', 'long = "grouping"', 'long = "events"', "GC SECTIONS"]) && containsAll("src/cli/render.rs", ["Causes", "Pauses", "Events"]),
+      detail: "--kind / --grouping / --events flags and GC sections",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-078"] = {
+  cargo: [],
+  static: [
+    nodeScriptCheck("scripts/test-gc-charts.mjs", "gc-charts unit tests incl. worstRow"),
+    () => ({
+      ok:
+        containsAll("web/src/GcCompare.tsx", ["MAX_COMPARE = 8", "worstRow(", "gc-compare-picker", 'syncKey="gc-compare"', "gcStats(g.index"]) &&
+        contains("web/src/GcResults.tsx", 'data-testid="gc-compare-chip"'),
+      detail: "comparison: KPI table with worst markers, cause table, synced small multiples, range KPIs, 8-group cap",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-079"] = {
+  cargo: [],
+  static: [
+    nodeScriptCheck("scripts/test-gc-svg.mjs", "gc-svg downsampling + SVG output tests"),
+    () => ({
+      ok:
+        containsAll("web/src/gcExport.ts", ["index.css?inline", "pauseSvg(", "heapSvg(", "histogramSvg(", "rateSvg(", "metaspaceSvg(", "gc.kpiRange", "worstRow("]) &&
+        contains("web/src/gcSvg.ts", "MAX_POINTS = 2000") &&
+        contains("web/src/GcResults.tsx", 'data-testid="gc-export"') &&
+        contains("web/src/GcCompare.tsx", 'data-testid="gc-export"'),
+      detail: "standalone HTML export with ≤2000-point SVG charts for one JVM or the comparison",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-081"] = {
+  cargo: [],
+  static: [
+    () => ({
+      ok: readText("web/src/sampleGc.log") === readText("tests/fixtures/gc/g1-stress-jdk21.log"),
+      detail: "GC sample is a verbatim copy of the real g1-stress fixture",
+    }),
+    () => ({
+      ok:
+        contains("web/src/App.tsx", 'data-testid="load-gc-sample"') &&
+        contains("web/src/HelpModal.tsx", 'data-testid="help-gc"') &&
+        ["en", "zh", "pt", "es", "nl", "fr", "ja", "ko"].every((l) => /GC/.test(readText(`web/src/i18n/locales/${l}.ts`).match(/"home.pointFormats": "([^"]*)"/)[1])) &&
+        containsAll("README.md", ["GC 日志分析", "docs/design/gc-log-analysis.md", "--grouping", "GC01–GC14"]),
+      detail: "GC sample button, help rule list, home copy in 8 locales, README",
+    }),
+  ],
+};
+
+FEATURE_CHECKS["feat-082"] = {
+  cargo: ["cli_gzip_inputs"],
+  static: [
+    nodeScriptCheck("scripts/test-import-files.mjs", "import-files tests incl. gzip"),
+    () => ({
+      ok:
+        fileNonEmpty("tests/fixtures/gc/g1-rotated-jdk21.log.1.gz", 100) &&
+        containsAll("web/src/importFiles.ts", ["isGzip", "DecompressionStream", "gzipFailed"]) &&
+        contains("Cargo.toml", '"dep:flate2"'),
+      detail: "gzip by magic bytes in web (DecompressionStream) and CLI (flate2, cli feature only)",
+    }),
+  ],
+};
+
 function run(cmd, cmdArgs, opts = {}) {
   const res = spawnSync(cmd, cmdArgs, {
     cwd: ROOT,

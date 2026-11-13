@@ -1,0 +1,127 @@
+[2026-11-13T20:01:35.600+0800][0.001s][info][gc] Min heap equals to max heap, disabling ShenandoahUncommit
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc] Heuristics ergonomically sets -XX:-ShenandoahPacing
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc] Heuristics ergonomically sets -XX:-ShenandoahLoadRefBarrier
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc] Heuristics ergonomically sets -XX:-ShenandoahSATBBarrier
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc] Heuristics ergonomically sets -XX:-ShenandoahCASBarrier
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc] Heuristics ergonomically sets -XX:-ShenandoahCloneBarrier
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc] Heuristics ergonomically sets -XX:-ShenandoahStackWatermarkBarrier
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc] Using Shenandoah
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Version: 21.0.12.1+1-LTS (release)
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] CPUs: 16 total, 16 available
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Memory: 30673M
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Large Page Support: Disabled
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] NUMA Support: Disabled
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Compressed Oops: Enabled (32-bit)
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Heap Min Capacity: 6656K
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Heap Initial Capacity: 48M
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Heap Max Capacity: 48M
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Pre-touch: Disabled
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Mode: Passive
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Heuristics: Passive
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Heap Region Count: 192
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Heap Region Size: 256K
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] TLAB Size Max: 256K
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Humongous Object Threshold: 256K
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Parallel Workers: 8
+[2026-11-13T20:01:35.601+0800][0.002s][info][gc,init] Concurrent Workers: 4
+[2026-11-13T20:01:35.604+0800][0.005s][info][gc,metaspace] CDS archive(s) mapped at: [0x000074f3a3000000-0x000074f3a3c9c000-0x000074f3a3c9c000), size 13221888, SharedBaseAddress: 0x000074f3a3000000, ArchiveRelocationMode: 1.
+[2026-11-13T20:01:35.604+0800][0.005s][info][gc,metaspace] Compressed class space mapped at: 0x000074f3a4000000-0x000074f3e4000000, reserved size: 1073741824
+[2026-11-13T20:01:35.604+0800][0.005s][info][gc,metaspace] Narrow klass base: 0x000074f3a3000000, Narrow klass shift: 0, Narrow klass range: 0x100000000
+[2026-11-13T20:01:35.872+0800][0.273s][info][gc          ] Failed to allocate TLAB, 256K
+[2026-11-13T20:01:35.872+0800][0.273s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:35.872+0800][0.273s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:35.872+0800][0.273s][info][gc,start    ] GC(0) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:35.873+0800][0.274s][info][gc          ] GC(0) Pause Degenerated GC (Outside of Cycle) 45M->1M(48M) 0.972ms
+[2026-11-13T20:01:35.873+0800][0.274s][info][gc,metaspace] Metaspace: 202K(384K)->202K(384K) NonClass: 190K(256K)->190K(256K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:36.123+0800][0.524s][info][gc          ] Failed to allocate Shared, 16400B
+[2026-11-13T20:01:36.123+0800][0.524s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:36.123+0800][0.524s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:36.123+0800][0.524s][info][gc,start    ] GC(1) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:36.124+0800][0.525s][info][gc          ] GC(1) Pause Degenerated GC (Outside of Cycle) 45M->2M(48M) 0.844ms
+[2026-11-13T20:01:36.124+0800][0.525s][info][gc,metaspace] Metaspace: 224K(448K)->224K(448K) NonClass: 212K(320K)->212K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:36.370+0800][0.771s][info][gc          ] Failed to allocate TLAB, 256K
+[2026-11-13T20:01:36.370+0800][0.771s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:36.370+0800][0.771s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:36.370+0800][0.771s][info][gc,start    ] GC(2) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:36.371+0800][0.772s][info][gc          ] GC(2) Pause Degenerated GC (Outside of Cycle) 45M->4M(48M) 0.909ms
+[2026-11-13T20:01:36.371+0800][0.772s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:36.608+0800][1.009s][info][gc          ] Failed to allocate TLAB, 256K
+[2026-11-13T20:01:36.608+0800][1.009s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:36.610+0800][1.010s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:36.610+0800][1.010s][info][gc,start    ] GC(3) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:36.610+0800][1.011s][info][gc          ] GC(3) Pause Degenerated GC (Outside of Cycle) 45M->5M(48M) 0.751ms
+[2026-11-13T20:01:36.610+0800][1.011s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:36.817+0800][1.218s][info][gc          ] Failed to allocate Shared, 4096K
+[2026-11-13T20:01:36.817+0800][1.218s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:36.818+0800][1.218s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:36.818+0800][1.218s][info][gc,start    ] GC(4) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:36.818+0800][1.219s][info][gc          ] GC(4) Pause Degenerated GC (Outside of Cycle) 41M->6M(48M) 0.767ms
+[2026-11-13T20:01:36.818+0800][1.219s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:37.019+0800][1.419s][info][gc          ] Failed to allocate Shared, 4096K
+[2026-11-13T20:01:37.019+0800][1.419s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:37.019+0800][1.420s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:37.019+0800][1.420s][info][gc,start    ] GC(5) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:37.020+0800][1.421s][info][gc          ] GC(5) Pause Degenerated GC (Outside of Cycle) 41M->6M(48M) 0.797ms
+[2026-11-13T20:01:37.020+0800][1.421s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:37.220+0800][1.621s][info][gc          ] Failed to allocate Shared, 4096K
+[2026-11-13T20:01:37.220+0800][1.621s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:37.221+0800][1.622s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:37.221+0800][1.622s][info][gc,start    ] GC(6) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:37.222+0800][1.623s][info][gc          ] GC(6) Pause Degenerated GC (Outside of Cycle) 42M->7M(48M) 0.899ms
+[2026-11-13T20:01:37.222+0800][1.623s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:37.422+0800][1.823s][info][gc          ] Failed to allocate Shared, 4096K
+[2026-11-13T20:01:37.422+0800][1.823s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:37.423+0800][1.823s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:37.423+0800][1.823s][info][gc,start    ] GC(7) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:37.423+0800][1.824s][info][gc          ] GC(7) Pause Degenerated GC (Outside of Cycle) 43M->8M(48M) 0.690ms
+[2026-11-13T20:01:37.423+0800][1.824s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:37.623+0800][2.024s][info][gc          ] Failed to allocate Shared, 4096K
+[2026-11-13T20:01:37.623+0800][2.024s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:37.624+0800][2.025s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:37.624+0800][2.025s][info][gc,start    ] GC(8) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:37.625+0800][2.026s][info][gc          ] GC(8) Pause Degenerated GC (Outside of Cycle) 44M->9M(48M) 0.779ms
+[2026-11-13T20:01:37.625+0800][2.026s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:37.825+0800][2.226s][info][gc          ] Failed to allocate Shared, 4096K
+[2026-11-13T20:01:37.825+0800][2.226s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:37.826+0800][2.227s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:37.826+0800][2.227s][info][gc,start    ] GC(9) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:37.827+0800][2.227s][info][gc          ] GC(9) Pause Degenerated GC (Outside of Cycle) 44M->10M(48M) 0.824ms
+[2026-11-13T20:01:37.827+0800][2.227s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:38.027+0800][2.427s][info][gc          ] Failed to allocate TLAB, 256K
+[2026-11-13T20:01:38.027+0800][2.428s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:38.027+0800][2.428s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:38.027+0800][2.428s][info][gc,start    ] GC(10) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:38.028+0800][2.429s][info][gc          ] GC(10) Pause Degenerated GC (Outside of Cycle) 45M->11M(48M) 0.919ms
+[2026-11-13T20:01:38.028+0800][2.429s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:38.220+0800][2.621s][info][gc          ] Failed to allocate TLAB, 256K
+[2026-11-13T20:01:38.220+0800][2.621s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:38.221+0800][2.622s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:38.221+0800][2.622s][info][gc,start    ] GC(11) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:38.222+0800][2.622s][info][gc          ] GC(11) Pause Degenerated GC (Outside of Cycle) 45M->12M(48M) 0.797ms
+[2026-11-13T20:01:38.222+0800][2.622s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:38.407+0800][2.808s][info][gc          ] Failed to allocate TLAB, 256K
+[2026-11-13T20:01:38.407+0800][2.808s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:38.408+0800][2.809s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:38.408+0800][2.809s][info][gc,start    ] GC(12) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:38.408+0800][2.809s][info][gc          ] GC(12) Pause Degenerated GC (Outside of Cycle) 45M->13M(48M) 0.722ms
+[2026-11-13T20:01:38.409+0800][2.809s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:38.590+0800][2.991s][info][gc          ] Failed to allocate TLAB, 256K
+[2026-11-13T20:01:38.590+0800][2.991s][info][gc          ] Cancelling GC: Allocation Failure
+[2026-11-13T20:01:38.590+0800][2.991s][info][gc          ] Trigger: Handle Allocation Failure
+[2026-11-13T20:01:38.590+0800][2.991s][info][gc,start    ] GC(13) Pause Degenerated GC (Outside of Cycle)
+[2026-11-13T20:01:38.591+0800][2.992s][info][gc          ] GC(13) Pause Degenerated GC (Outside of Cycle) 45M->13M(48M) 0.634ms
+[2026-11-13T20:01:38.591+0800][2.992s][info][gc,metaspace] Metaspace: 226K(448K)->226K(448K) NonClass: 214K(320K)->214K(320K) Class: 11K(128K)->11K(128K)
+[2026-11-13T20:01:38.614+0800][3.015s][info][gc          ] Cancelling GC: Stopping VM
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit] Heap
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit] Shenandoah Heap
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit]  49152K max, 49152K soft max, 49152K committed, 17920K used
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit]  192 x 256K regions
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit] Status: cancelled
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit] Reserved region:
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit]  - [0x00000000fd000000, 0x0000000100000000) 
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit] Collection set:
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit]  - map (vanilla): 0x0000000000013f40
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit]  - map (biased):  0x0000000000010000
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit] 
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit]  Metaspace       used 230K, committed 448K, reserved 1114112K
+[2026-11-13T20:01:38.615+0800][3.016s][info][gc,heap,exit]   class space    used 11K, committed 128K, reserved 1048576K

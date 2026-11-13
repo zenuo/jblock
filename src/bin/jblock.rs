@@ -1,4 +1,4 @@
-//! `jblock` CLI — analyze Java thread dumps from file, pipe, or clipboard.
+//! `jblock` CLI — analyze Java thread dumps and GC logs from file, pipe, or clipboard.
 //!
 //! ```text
 //! jstack $PID | jblock
@@ -6,6 +6,8 @@
 //! jblock -c
 //! jblock t1.txt t2.txt --section findings
 //! jblock dump.txt -j > report.json
+//! jblock gc.log gc.log.0 gc.log.1          # rotated GC log segments, stitched
+//! jblock gc.log -s pauses -n 20
 //! ```
 
 use std::path::PathBuf;
@@ -13,13 +15,28 @@ use std::process::ExitCode;
 
 use clap::{Parser, ValueEnum};
 use jblock::cli::{
-    run, CliOptions, ColorMode, OutputFormat, Section, SeverityFilter,
+    run, CliOptions, ColorMode, InputKindArg, OutputFormat, Section, SeverityFilter,
 };
+use jblock::gc::stitch::GroupingMode;
 
 #[derive(Debug, Clone, ValueEnum)]
 enum OutputArg {
     Text,
     Json,
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+enum KindArg {
+    Auto,
+    Thread,
+    Gc,
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+enum GroupingArg {
+    Auto,
+    Merge,
+    Split,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -33,12 +50,24 @@ enum ColorArg {
 #[command(
     name = "jblock",
     version,
-    about = "Analyze Java thread dumps (file, stdin pipe, or clipboard)",
-    after_help = "INPUT:\n  FILE(s)              thread dump files (multiple = series analysis)\n  stdin pipe           jstack $PID | jblock\n  -c / --clipboard     paste dump text from the OS clipboard\n                       (pbpaste, wl-paste, xclip/xsel, or PowerShell Get-Clipboard)\n\nEXIT CODES:\n  0  clean or info-only\n  1  warning/critical findings or deadlocks\n  2  usage / I/O error\n  3  input is not a recognizable dump"
+    about = "Analyze Java thread dumps and GC logs (file, stdin pipe, or clipboard)",
+    after_help = "INPUT:\n  FILE(s)              thread dumps (multiple = series analysis) and/or GC logs\n                       (JDK 8 PrintGCDetails or JDK 9+ -Xlog:gc*; rotated segments are stitched)\n  stdin pipe           jstack $PID | jblock\n  -c / --clipboard     paste text from the OS clipboard\n                       (pbpaste, wl-paste, xclip/xsel, or PowerShell Get-Clipboard)\n\nGC SECTIONS:\n  findings, summary, causes, pauses (longest), events (all; -n limits)\n\nEXIT CODES:\n  0  clean or info-only\n  1  warning/critical findings or deadlocks\n  2  usage / I/O error\n  3  input is not a recognizable dump or GC log"
 )]
 struct Args {
-    /// Thread dump file(s). Use `-` for stdin. Multiple files = series analysis.
+    /// Thread dump / GC log file(s). Use `-` for stdin. Multiple dumps = series analysis.
     files: Vec<PathBuf>,
+
+    /// Input type: auto-detect per input, or force thread dumps / GC logs.
+    #[arg(long = "kind", value_enum, default_value_t = KindArg::Auto)]
+    kind: KindArg,
+
+    /// GC log files: auto (stitch rotated segments of one JVM), merge (one JVM), split (one per file).
+    #[arg(long = "grouping", value_enum, default_value_t = GroupingArg::Auto)]
+    grouping: GroupingArg,
+
+    /// JSON output: include every GC event.
+    #[arg(long = "events")]
+    events: bool,
 
     /// Read dump text from the system clipboard.
     #[arg(short = 'c', long = "clipboard")]
@@ -52,7 +81,8 @@ struct Args {
     #[arg(short = 'j', long = "json")]
     json: bool,
 
-    /// Sections to show (repeatable): findings, summary, contention, deadlocks, threads, all.
+    /// Sections to show (repeatable): findings, summary, contention, deadlocks, threads,
+    /// causes, pauses, events, all.
     #[arg(short = 's', long = "section", value_name = "SECTION")]
     sections: Vec<String>,
 
@@ -64,7 +94,7 @@ struct Args {
     #[arg(long = "severity", value_name = "LEVEL")]
     severity: Option<String>,
 
-    /// Max rows in the thread table.
+    /// Max rows in the thread table / GC causes, pauses and events.
     #[arg(short = 'n', long = "limit", value_name = "N")]
     limit: Option<usize>,
 
@@ -133,6 +163,17 @@ fn build_options(args: Args) -> Result<CliOptions, String> {
         hide_jvm: args.hide_jvm,
         quiet: args.quiet,
         color,
+        kind: match args.kind {
+            KindArg::Auto => InputKindArg::Auto,
+            KindArg::Thread => InputKindArg::Thread,
+            KindArg::Gc => InputKindArg::Gc,
+        },
+        grouping: match args.grouping {
+            GroupingArg::Auto => GroupingMode::Auto,
+            GroupingArg::Merge => GroupingMode::Merge,
+            GroupingArg::Split => GroupingMode::Split,
+        },
+        events: args.events,
     })
 }
 
@@ -153,7 +194,7 @@ fn parse_sections(raw: &[String]) -> Result<Vec<Section>, String> {
             }
             None => {
                 return Err(format!(
-                    "invalid --section {s:?} (use findings|summary|contention|deadlocks|threads|all)"
+                    "invalid --section {s:?} (use findings|summary|contention|deadlocks|threads|causes|pauses|events|all)"
                 ));
             }
         }

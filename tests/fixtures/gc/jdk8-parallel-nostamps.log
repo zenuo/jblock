@@ -1,0 +1,31 @@
+OpenJDK 64-Bit Server VM (25.512-b09) for linux-amd64 JRE (1.8.0_512-b09), built on Nov  2 2026 09:43:11 by "jenkins" with gcc 7.5.0
+Memory: 4k page, physical 31409788k(11474644k free), swap 8388604k(8388604k free)
+CommandLine flags: -XX:InitialHeapSize=67108864 -XX:MaxHeapSize=67108864 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseParallelGC 
+0.407: [GC (Allocation Failure) [PSYoungGen: 16384K->528K(18944K)] 16384K->536K(62976K), 0.0003838 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+0.807: [GC (Allocation Failure) [PSYoungGen: 16912K->464K(18944K)] 16920K->480K(62976K), 0.0006440 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+1.207: [GC (Allocation Failure) [PSYoungGen: 16848K->544K(18944K)] 16864K->560K(62976K), 0.0004925 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+1.598: [GC (Allocation Failure) [PSYoungGen: 16928K->528K(18944K)] 16944K->552K(62976K), 0.0004236 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+1.997: [GC (Allocation Failure) [PSYoungGen: 16912K->496K(16896K)] 16936K->520K(60928K), 0.0002537 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2.018: [GC (System.gc()) [PSYoungGen: 1479K->496K(16896K)] 1503K->528K(60928K), 0.0002519 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2.018: [Full GC (System.gc()) [PSYoungGen: 496K->0K(16896K)] [ParOldGen: 32K->270K(44032K)] 528K->270K(60928K), [Metaspace: 2730K->2730K(1056768K)], 0.0011261 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+2.419: [GC (Allocation Failure) [PSYoungGen: 16384K->32K(17408K)] 16654K->302K(61440K), 0.0002050 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+2.817: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(16896K)] 16686K->302K(60928K), 0.0002271 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+3.216: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(17408K)] 16686K->302K(61440K), 0.0006379 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+3.616: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(17408K)] 16686K->302K(61440K), 0.0002265 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+4.016: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(17408K)] 16686K->302K(61440K), 0.0003103 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+4.018: [GC (System.gc()) [PSYoungGen: 361K->32K(17408K)] 632K->302K(61440K), 0.0001705 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+4.018: [Full GC (System.gc()) [PSYoungGen: 32K->0K(17408K)] [ParOldGen: 270K->270K(44032K)] 302K->270K(61440K), [Metaspace: 2730K->2730K(1056768K)], 0.0014247 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+4.419: [GC (Allocation Failure) [PSYoungGen: 16384K->32K(17408K)] 16654K->302K(61440K), 0.0001953 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+4.818: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(17408K)] 16686K->302K(61440K), 0.0002360 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+5.218: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(17408K)] 16686K->302K(61440K), 0.0002357 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+5.617: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(17408K)] 16686K->302K(61440K), 0.0002235 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+6.017: [GC (Allocation Failure) [PSYoungGen: 16416K->32K(17408K)] 16686K->302K(61440K), 0.0003182 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+Heap
+ PSYoungGen      total 17408K, used 689K [0x00000000feb00000, 0x00000000ffd00000, 0x0000000100000000)
+  eden space 16384K, 4% used [0x00000000feb00000,0x00000000feba45b8,0x00000000ffb00000)
+  from space 1024K, 3% used [0x00000000ffb00000,0x00000000ffb08000,0x00000000ffc00000)
+  to   space 1024K, 0% used [0x00000000ffc00000,0x00000000ffc00000,0x00000000ffd00000)
+ ParOldGen       total 44032K, used 270K [0x00000000fc000000, 0x00000000feb00000, 0x00000000feb00000)
+  object space 44032K, 0% used [0x00000000fc000000,0x00000000fc043b08,0x00000000feb00000)
+ Metaspace       used 2739K, capacity 4490K, committed 4864K, reserved 1056768K
+  class space    used 284K, capacity 386K, committed 512K, reserved 1048576K
