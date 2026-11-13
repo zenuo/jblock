@@ -10,6 +10,7 @@ src/wasm
 
 # logs
 *.log
+!src/sampleGc.log
 npm-debug.log*
 pnpm-debug.log*
 

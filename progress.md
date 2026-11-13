@@ -25,6 +25,7 @@
 - [x] feat-079 standalone HTML export with ≤2000-point SVG charts
 - [x] feat-081 GC log sample, home copy, help GC section, README
 - [x] feat-082 `.gz` import (web DecompressionStream, CLI flate2)
+- [x] CI fix: `web/.gitignore` 的 `*.log` 忽略了 `web/src/sampleGc.log`，Pages 构建报 `Could not resolve "./sampleGc.log?raw"`；加 `!src/sampleGc.log` 例外并提交。验证：干净 clone 中 `pnpm run build` 通过；`./init.sh` 82/82 PASS
 
 ### What's In Progress
 
